@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Xml;
 using Chorus.FileTypeHandlers.xml;
@@ -6,7 +6,7 @@ using Chorus.FileTypeHandlers.xml;
 namespace Chorus.merge.xml.generic
 {
 	/// <summary>
-	/// Merge a ptotentally atomic element,
+	/// Merge a potentially atomic element,
 	/// where 'atomic' means no real merging takes place within an element.
 	/// </summary>
 	internal static class MergeAtomicElementService

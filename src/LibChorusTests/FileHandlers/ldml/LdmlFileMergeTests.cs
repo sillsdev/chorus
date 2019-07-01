@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,6 +11,7 @@ using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using SIL.IO;
+using SIL.TestUtilities;
 
 namespace LibChorus.Tests.FileHandlers.ldml
 {
@@ -242,10 +243,9 @@ namespace LibChorus.Tests.FileHandlers.ldml
 					@"ldml/metadata[text()='Our metadata']"
 				},
 				new List<string>(0),
-				4, new List<Type>
+				3, new List<Type>
 				{
 					typeof (XmlTextBothEditedTextConflict),
-					typeof (BothEditedTheSameAtomicElement),
 					typeof (BothEditedTheSameAtomicElement),
 					typeof (BothEditedTheSameAtomicElement)
 				},
@@ -391,20 +391,192 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				namespaces,
 				new List<string>
 				{
+					@"ldml/characters/exemplarCharacters[@type='index' and text()='[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]']",
 					@"ldml/characters/exemplarCharacters[@type='auxiliary' and text()='[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]']",
 					@"ldml/characters/exemplarCharacters[@type='punctuation' and text()='[\- ‐ – — ]']",
 					@"ldml/characters/exemplarCharacters[text()='[a b c d e f g h i j k l m n o p q r s t u v w x y z]']",
-					@"ldml/characters/special/sil:exemplarCharacters[text()='[! @ # $ % ^]']"
+					@"ldml/characters/special/sil:exemplarCharacters[text()='[! @ # $ % ^]']",
+					@"ldml/characters/special/sil:exemplarCharacters[@type='theirCharacters']"
 				},
-				new List<string>(0),
-				1, new List<Type>
+				new List<string>
+				{
+					@"ldml/characters/exemplarCharacters[text()='[1 2 3 4 5 6 7 8 9 0]']"
+				},
+				3, new List<Type>
 				{
 					typeof (BothEditedTheSameAtomicElement),
+					typeof (BothEditedTheSameAtomicElement),
+					typeof (AmbiguousInsertConflict)
 				},
-				1, new List<Type>
+				5, new List<Type>
 				{
-					typeof(XmlAttributeBothMadeSameChangeReport)
+					typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlTextBothMadeSameChangeReport), typeof(XmlAttributeBothAddedReport),
+					typeof(XmlTextAddedReport), typeof(XmlTextAddedReport)
 				});
+		}
+
+		[Test]
+		public void Merging_Different_Characters_Changes_Works()
+		{
+			const string baseCharacters =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version
+			number='' />
+		<generation
+			date='2018-02-19T18:03:34' />
+		<language
+			type='fr' />
+	</identity>
+	<characters>
+		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
+		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+		<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
+		<ellipsis type='initial'>…{ 0}</ellipsis>
+	</characters>
+	</ldml>";
+
+			const string oursDeletesMFromIndex =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version
+			number='' />
+		<generation
+			date='2018-02-19T18:03:34' />
+		<language
+			type='fr' />
+	</identity>
+	<characters>
+		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
+			<exemplarCharacters type='index'>[A B C D E F G H I J K L N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+			<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
+			<ellipsis type='final'>{0}…</ellipsis>
+			<ellipsis type='initial'>…{ 0}</ellipsis>
+			<moreInformation>?</moreInformation>
+	</characters>
+</ldml>";
+			const string theirsAddsChDigraphToExemplar =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version
+			number='' />
+		<generation
+			date='2018-02-19T18:03:34' />
+		<language
+			type='fr' />
+	</identity>
+	<characters>
+		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
+		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+		<exemplarCharacters>[a b c [ch] d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
+		<ellipsis type='final'>{0}…</ellipsis>
+		<ellipsis type='initial'>…{ 0}</ellipsis>
+		<moreInformation>?</moreInformation>
+	 </characters>
+</ldml>";
+			var namespaces = new Dictionary<string, string>
+			{
+				{"palaso", "urn://palaso.org/ldmlExtensions/v1"},
+				{"fw", "urn://fieldworks.sil.org/ldmlExtensions/v1"},
+				{"sil", "urn://www.sil.org/ldml/0.1" }
+			};
+
+			DoMerge(baseCharacters, oursDeletesMFromIndex, theirsAddsChDigraphToExemplar,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/characters/exemplarCharacters[@type='auxiliary']",
+					@"ldml/characters/exemplarCharacters[@type='index' and text()='[A B C D E F G H I J K L N O P Q R S T U V W X Y Z]']",
+					@"ldml/characters/exemplarCharacters[text()='[a b c [ch] d e f g h i j k l m n o p q r s t u v w x y z]']",
+					@"ldml/characters/ellipsis[@type='final']",
+					@"ldml/characters/ellipsis[@type='initial']",
+					@"ldml/characters/moreInformation"
+				},
+				new List<string>
+				{
+					@"ldml/characters/exemplarCharacters[text()='[a b c d e f g h i j k l m n o p q r s t u v w x y z]']"
+				},
+				0, null,
+				5, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlChangedRecordReport),
+					typeof(XmlChangedRecordReport), typeof(XmlTextBothAddedReport), typeof(XmlTextBothAddedReport) });
+		}
+
+		[Test]
+		public void Merging_Both_Change_AttributelessExemplar_Works()
+		{
+			const string baseCharacters =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version
+			number='' />
+		<generation
+			date='2018-02-19T18:03:34' />
+		<language
+			type='fr' />
+	</identity>
+	<characters>
+		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
+		<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
+	</characters>
+	</ldml>";
+
+			const string oursAddsChDigraph =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version
+			number='' />
+		<generation
+			date='2018-02-19T18:03:34' />
+		<language
+			type='fr' />
+	</identity>
+	<characters>
+		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
+		<exemplarCharacters>[a b c [ch] d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
+	</characters>
+</ldml>";
+			const string theirsDeletesM =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version
+			number='' />
+		<generation
+			date='2018-02-19T18:03:34' />
+		<language
+			type='fr' />
+	</identity>
+	<characters>
+		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
+		<exemplarCharacters>[a b c d e f g h i j k l n o p q r s t u v w x y z]</exemplarCharacters>
+	</characters>
+</ldml>";
+			var namespaces = new Dictionary<string, string>
+			{
+				{"palaso", "urn://palaso.org/ldmlExtensions/v1"},
+				{"fw", "urn://fieldworks.sil.org/ldmlExtensions/v1"},
+				{"sil", "urn://www.sil.org/ldml/0.1" }
+			};
+
+			DoMerge(baseCharacters, oursAddsChDigraph, theirsDeletesM,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/characters/exemplarCharacters[@type='auxiliary']",
+					@"ldml/characters/exemplarCharacters[text()='[a b c [ch] d e f g h i j k l m n o p q r s t u v w x y z]']", // ours wins
+				},
+				new List<string>
+				{
+					@"ldml/characters/exemplarCharacters[text()='[a b c d e f g h i j k l m n o p q r s t u v w x y z]']", // original is gone
+					@"ldml/characters/exemplarCharacters[text()='[a b c d e f g h i j k l n o p q r s t u v w x y z]']" // theirs loses and is gone
+				},
+				1, new List<Type> { typeof(BothEditedTheSameAtomicElement) }, 
+				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
 		}
 
 		[Test]

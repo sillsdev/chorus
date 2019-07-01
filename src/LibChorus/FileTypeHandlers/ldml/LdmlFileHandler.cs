@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -213,9 +213,16 @@ namespace Chorus.FileTypeHandlers.ldml
 
 			merger.MergeStrategies.SetStrategy("characters", new ElementStrategy(false)
 			{
-				IsAtomic = true,
+				ChildOrderPolicy = new NotSignificantOrderPolicy(),
 				MergePartnerFinder = new FindFirstElementWithSameName()
 			});
+			// handle one child element of characters - exemplarCharacters
+			strategy = new ElementStrategy(false)
+			{
+				IsAtomic = true, // Trying to merge multiple changes to the character list would be painful
+				MergePartnerFinder = new OptionalKeyAttrFinder("type", new FindFirstElementWithZeroAttributes())
+			};
+			merger.MergeStrategies.SetStrategy("exemplarCharacters", strategy);
 
 			merger.MergeStrategies.SetStrategy("delimiters", new ElementStrategy(false)
 			{
