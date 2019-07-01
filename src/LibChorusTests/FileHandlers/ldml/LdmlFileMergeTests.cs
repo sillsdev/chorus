@@ -395,9 +395,13 @@ namespace LibChorus.Tests.FileHandlers.ldml
 					@"ldml/characters/exemplarCharacters[@type='auxiliary' and text()='[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]']",
 					@"ldml/characters/exemplarCharacters[@type='punctuation' and text()='[\- ‐ – — ]']",
 					@"ldml/characters/exemplarCharacters[text()='[a b c d e f g h i j k l m n o p q r s t u v w x y z]']",
-					@"ldml/characters/special/sil:exemplarCharacters[text()='[! @ # $ % ^]']"
+					@"ldml/characters/special/sil:exemplarCharacters[text()='[! @ # $ % ^]']",
+					@"ldml/characters/special/sil:exemplarCharacters[@type='theirCharacters']"
 				},
-				new List<string>(0),
+				new List<string>
+				{
+					@"ldml/characters/exemplarCharacters[text()='[1 2 3 4 5 6 7 8 9 0]']"
+				},
 				3, new List<Type>
 				{
 					typeof (BothEditedTheSameAtomicElement),
