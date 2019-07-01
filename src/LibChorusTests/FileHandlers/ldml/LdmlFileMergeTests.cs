@@ -427,9 +427,9 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	</identity>
 	<characters>
 		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
-				<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters> 
-				<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
-				<ellipsis type='initial'>…{ 0}</ellipsis>
+		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+		<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
+		<ellipsis type='initial'>…{ 0}</ellipsis>
 	</characters>
 	</ldml>";
 
@@ -446,11 +446,11 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	</identity>
 	<characters>
 		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
-				<exemplarCharacters type='index'>[A B C D E F G H I J K L N O P Q R S T U V W X Y Z]</exemplarCharacters> 
-				<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
-				<ellipsis type='final'>{0}…</ellipsis>
-				<ellipsis type='initial'>…{ 0}</ellipsis>
-				<moreInformation>?</moreInformation>
+			<exemplarCharacters type='index'>[A B C D E F G H I J K L N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+			<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
+			<ellipsis type='final'>{0}…</ellipsis>
+			<ellipsis type='initial'>…{ 0}</ellipsis>
+			<moreInformation>?</moreInformation>
 	</characters>
 </ldml>";
 			const string theirsAddsChDigraphToExemplar =
@@ -466,12 +466,12 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	</identity>
 	<characters>
 		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
-				<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters> 
-				<exemplarCharacters>[a b c [ch] d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
-				<ellipsis type='final'>{0}…</ellipsis>
-				<ellipsis type='initial'>…{ 0}</ellipsis>
-				<moreInformation>?</moreInformation>
-		 </characters>
+		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+		<exemplarCharacters>[a b c [ch] d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
+		<ellipsis type='final'>{0}…</ellipsis>
+		<ellipsis type='initial'>…{ 0}</ellipsis>
+		<moreInformation>?</moreInformation>
+	 </characters>
 </ldml>";
 			var namespaces = new Dictionary<string, string>
 			{
