@@ -68,59 +68,59 @@ cd -
 # *** Results ***
 # build: chorus-win32-master Continuous (Chorus_Win32masterContinuous)
 # project: Chorus
-# URL: http://build.palaso.org/viewType.html?buildTypeId=Chorus_Win32masterContinuous
+# URL: https://build.palaso.org/viewType.html?buildTypeId=Chorus_Win32masterContinuous
 # VCS: https://github.com/sillsdev/chorus.git [master]
 # dependencies:
 # [0] build: Chorus-Documentation (bt216)
 #     project: Chorus
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt216
+#     URL: https://build.palaso.org/viewType.html?buildTypeId=bt216
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"*.chm"=>"lib"}
 #     VCS: https://github.com/sillsdev/chorushelp.git [master]
 # [1] build: Helpprovider (bt225)
 #     project: Helpprovider
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt225
+#     URL: https://build.palaso.org/viewType.html?buildTypeId=bt225
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"Vulcan.Uczniowie.HelpProvider.dll"=>"lib/common"}
 #     VCS: https://github.com/sillsdev/helpprovider.git [refs/heads/master]
 # [2] build: icu4c-54-win32-minimal (bt471)
 #     project: Libraries
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt471
+#     URL: https://build.palaso.org/viewType.html?buildTypeId=bt471
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"*.dll"=>"lib/Debug"}
 # [3] build: icu4c-54-win32-minimal (bt471)
 #     project: Libraries
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt471
+#     URL: https://build.palaso.org/viewType.html?buildTypeId=bt471
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"*.dll"=>"lib/Release"}
 # [4] build: icucil-win32-default Continuous (bt14)
 #     project: Libraries
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt14
+#     URL: https://build.palaso.org/viewType.html?buildTypeId=bt14
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"icu*.dll"=>"lib/Release"}
 #     VCS: https://github.com/sillsdev/icu-dotnet [master]
 # [5] build: icucil-win32-default Continuous (bt14)
 #     project: Libraries
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=bt14
+#     URL: https://build.palaso.org/viewType.html?buildTypeId=bt14
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"icu*.dll"=>"lib/Debug"}
 #     VCS: https://github.com/sillsdev/icu-dotnet [master]
 # [6] build: palaso-win32-master Continuous (Libpalaso_PalasoWin32masterContinuous)
 #     project: libpalaso
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=Libpalaso_PalasoWin32masterContinuous
+#     URL: https://build.palaso.org/viewType.html?buildTypeId=Libpalaso_PalasoWin32masterContinuous
 #     clean: false
 #     revision: latest.lastSuccessful
-#     paths: {"debug/SIL.Core.dll"=>"lib/Debug", "debug/SIL.Core.pdb"=>"lib/Debug", "debug/SIL.Core.Desktop.dll"=>"lib/Debug", "debug/SIL.Core.Desktop.pdb"=>"lib/Debug", "debug/SIL.TestUtilities.dll"=>"lib/Debug", "debug/SIL.TestUtilities.pdb"=>"lib/Debug", "debug/SIL.Windows.Forms.dll"=>"lib/Debug", "debug/SIL.Windows.Forms.pdb"=>"lib/Debug", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/Debug", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.pdb"=>"lib/Debug", "debug/SIL.Lift.dll"=>"lib/Debug", "debug/SIL.Lift.pdb"=>"lib/Debug", "debug/SIL.WritingSystems.dll"=>"lib/Debug", "debug/SIL.WritingSystems.pdb"=>"lib/Debug", "debug/SIL.WritingSystems.Tests.dll"=>"lib/Debug", "debug/SIL.WritingSystems.Tests.pdb"=>"lib/Debug", "debug/L10NSharp.dll"=>"lib/Debug", "debug/L10NSharp.pdb"=>"lib/Debug", "debug/Ionic.Zip.dll"=>"lib/Common"}
+#     paths: {"debug/SIL.Core.dll"=>"lib/Debug", "debug/SIL.Core.pdb"=>"lib/Debug", "debug/SIL.Core.Desktop.dll"=>"lib/Debug", "debug/SIL.Core.Desktop.pdb"=>"lib/Debug", "debug/SIL.TestUtilities.dll"=>"lib/Debug", "debug/SIL.TestUtilities.pdb"=>"lib/Debug", "debug/SIL.Windows.Forms.dll"=>"lib/Debug", "debug/SIL.Windows.Forms.pdb"=>"lib/Debug", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/Debug", "debug/SIL.Windows.Forms.GeckoBrowserAdapter.pdb"=>"lib/Debug", "debug/SIL.Lift.dll"=>"lib/Debug", "debug/SIL.Lift.pdb"=>"lib/Debug", "debug/SIL.WritingSystems.dll"=>"lib/Debug", "debug/SIL.WritingSystems.pdb"=>"lib/Debug", "debug/SIL.WritingSystems.Tests.dll"=>"lib/Debug", "debug/SIL.WritingSystems.Tests.pdb"=>"lib/Debug", "debug/L10NSharp.dll"=>"lib/Debug", "debug/L10NSharp.pdb"=>"lib/Debug"}
 #     VCS: https://github.com/sillsdev/libpalaso.git [master]
 # [7] build: palaso-win32-master Continuous (Libpalaso_PalasoWin32masterContinuous)
 #     project: libpalaso
-#     URL: http://build.palaso.org/viewType.html?buildTypeId=Libpalaso_PalasoWin32masterContinuous
+#     URL: https://build.palaso.org/viewType.html?buildTypeId=Libpalaso_PalasoWin32masterContinuous
 #     clean: false
 #     revision: latest.lastSuccessful
 #     paths: {"SIL.Core.dll"=>"lib/Release", "SIL.Core.Desktop.dll"=>"lib/Release", "SIL.Lift.dll"=>"lib/Release", "SIL.TestUtilities.dll"=>"lib/Release", "SIL.Windows.Forms.dll"=>"lib/Release", "SIL.Windows.Forms.GeckoBrowserAdapter.dll"=>"lib/Release", "SIL.WritingSystems.dll"=>"lib/Release", "SIL.WritingSystems.Tests.dll"=>"lib/Release", "L10NSharp.dll"=>"lib/Release"}
@@ -128,7 +128,6 @@ cd -
 
 # make sure output directories exist
 mkdir -p ../lib
-mkdir -p ../lib/Common
 mkdir -p ../lib/Debug
 mkdir -p ../lib/Release
 mkdir -p ../lib/common
@@ -168,7 +167,6 @@ copy_auto http://build.palaso.org/guestAuth/repository/download/Libpalaso_Palaso
 copy_auto http://build.palaso.org/guestAuth/repository/download/Libpalaso_PalasoWin32masterContinuous/latest.lastSuccessful/debug/SIL.WritingSystems.Tests.pdb ../lib/Debug/SIL.WritingSystems.Tests.pdb
 copy_auto http://build.palaso.org/guestAuth/repository/download/Libpalaso_PalasoWin32masterContinuous/latest.lastSuccessful/debug/L10NSharp.dll ../lib/Debug/L10NSharp.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/Libpalaso_PalasoWin32masterContinuous/latest.lastSuccessful/debug/L10NSharp.pdb ../lib/Debug/L10NSharp.pdb
-copy_auto http://build.palaso.org/guestAuth/repository/download/Libpalaso_PalasoWin32masterContinuous/latest.lastSuccessful/debug/Ionic.Zip.dll ../lib/Common/Ionic.Zip.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/Libpalaso_PalasoWin32masterContinuous/latest.lastSuccessful/SIL.Core.dll ../lib/Release/SIL.Core.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/Libpalaso_PalasoWin32masterContinuous/latest.lastSuccessful/SIL.Core.Desktop.dll ../lib/Release/SIL.Core.Desktop.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/Libpalaso_PalasoWin32masterContinuous/latest.lastSuccessful/SIL.Lift.dll ../lib/Release/SIL.Lift.dll
