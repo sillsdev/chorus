@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using Chorus.UI.Misc;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
+using SIL.PlatformUtilities;
 
 namespace Chorus.UI.Clone
 {
@@ -27,9 +28,7 @@ namespace Chorus.UI.Clone
 		public GetCloneFromInternetDialog(GetCloneFromInternetModel model)
 		{
 			_model = model;
-//#if !MONO
 			Font = SystemFonts.MessageBoxFont;
-//#endif
 			InitializeComponent();
 
 			Font = SystemFonts.MessageBoxFont;
@@ -147,11 +146,8 @@ namespace Chorus.UI.Clone
 					_statusImage.Visible = false;
 					_progressBar.Visible = true;
 					_progressBar.Style = ProgressBarStyle.Marquee;
-#if MONO
-					_progressBar.MarqueeAnimationSpeed = 3000;
-#else
-					_progressBar.MarqueeAnimationSpeed = 50;
-#endif
+					_progressBar.MarqueeAnimationSpeed = Platform.IsMono ? 3000 : 50;
+
 					_statusLabel.Visible = true;
 					_statusLabel.Text = LocalizationManager.GetString("Messages.GettingProject", "Getting project...");
 					_statusLabel.Left = _progressBar.Left;
@@ -182,9 +178,9 @@ namespace Chorus.UI.Clone
 					_fixSettingsButton.Visible = true;
 					_fixSettingsButton.Focus();
 					_cancelButton.Visible = true;
-#if !MONO
-					_cancelButton.Text = LocalizationManager.GetString("Common.Cancel", "&Cancel");
-#endif
+					if (!Platform.IsMono)
+						_cancelButton.Text = LocalizationManager.GetString("Common.Cancel", "&Cancel");
+
 					//_cancelButton.Select();
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;

@@ -1,0 +1,686 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3A2EBDDF-8D57-4C9A-9A9D-EFA33BF71CBF}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Chorus</RootNamespace>
+    <AssemblyName>Chorus</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <StartupObject>Chorus.Program</StartupObject>
+    <ApplicationIcon>chorus.ico</ApplicationIcon>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <BaseIntermediateOutputPath>obj\Designer</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>False</Optimize>
+    <OutputPath>..\..\output\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>6</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>..\..\output\Release</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DebugSymbols>True</DebugSymbols>
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>6</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AtkSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\AtkSharp.3.22.24.37\lib\netstandard2.0\AtkSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CairoSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\CairoSharp.3.22.24.37\lib\netstandard2.0\CairoSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DialogAdapters, Version=0.1.3.26068, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\DialogAdapters.0.1.3.26068\lib\net45\DialogAdapters.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Enchant.Net, Version=1.4.0.0, Culture=neutral, PublicKeyToken=ae135aeb3d479ab9">
+      <HintPath>..\..\packages\Enchant.Net.1.4.2\lib\net461\Enchant.Net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="GdkSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\GdkSharp.3.22.24.37\lib\netstandard2.0\GdkSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="GioSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\GioSharp.3.22.24.37\lib\netstandard2.0\GioSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="GLibSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\GLibSharp.3.22.24.37\lib\netstandard2.0\GLibSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="GtkSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\GtkSharp.3.22.24.37\lib\netstandard2.0\GtkSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="icu.net, Version=2.5.0.0, Culture=neutral, PublicKeyToken=416fdd914afa6b66">
+      <HintPath>..\..\packages\icu.net.2.5.4\lib\net451\icu.net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="L10NSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=fd0b3e309a5b7c28">
+      <HintPath>..\..\packages\L10NSharp.4.0.0\lib\net461\L10NSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="MarkdownDeep, Version=1.5.6607.21413, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\MarkdownDeep.NET.Patched.1.5.0.1\lib\net35\MarkdownDeep.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.DotNet.PlatformAbstractions, Version=2.0.4.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\..\packages\Microsoft.DotNet.PlatformAbstractions.2.0.4\lib\net45\Microsoft.DotNet.PlatformAbstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyModel, Version=2.0.4.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\..\packages\Microsoft.Extensions.DependencyModel.2.0.4\lib\net451\Microsoft.Extensions.DependencyModel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="NAudio, Version=1.8.4.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\NAudio.1.8.4\lib\net35\NAudio.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NDesk.DBus, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f6716e4f9b2ed099">
+      <HintPath>..\..\packages\NDesk.DBus.0.15.0\lib\NDesk.DBus.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PangoSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\PangoSharp.3.22.24.37\lib\netstandard2.0\PangoSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SIL.Core, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
+      <HintPath>..\..\packages\SIL.Core.7.0.0-alpha0825\lib\net461\SIL.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Autofac, Version=2.6.3.862, Culture=neutral, PublicKeyToken=17863af14b0044da">
+      <HintPath>..\..\packages\Autofac.2.6.3.862\lib\NET40\Autofac.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Autofac.Configuration, Version=2.6.3.862, Culture=neutral, PublicKeyToken=17863af14b0044da">
+      <HintPath>..\..\packages\Autofac.2.6.3.862\lib\NET40\Autofac.Configuration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SIL.Core.Desktop, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
+      <HintPath>..\..\packages\SIL.Core.Desktop.7.0.0-alpha0825\lib\net461\SIL.Core.Desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SIL.Windows.Forms, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
+      <HintPath>..\..\packages\SIL.Windows.Forms.7.0.0-alpha0825\lib\net461\SIL.Windows.Forms.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SIL.Windows.Forms.GeckoBrowserAdapter, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
+      <HintPath>..\..\packages\SIL.Windows.Forms.GeckoBrowserAdapter.7.0.0-alpha0825\lib\net461\SIL.Windows.Forms.GeckoBrowserAdapter.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SIL.WritingSystems, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
+      <HintPath>..\..\packages\SIL.WritingSystems.7.0.0-alpha0825\lib\net461\SIL.WritingSystems.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Spart, Version=1.0.0.0, Culture=neutral, PublicKeyToken=14d24e064e474331">
+      <HintPath>..\..\packages\Spart.1.0.0\lib\net461\Spart.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.FileSystem.AccessControl, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\packages\System.IO.FileSystem.AccessControl.4.4.0\lib\net461\System.IO.FileSystem.AccessControl.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Management" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.AccessControl, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\packages\System.Security.AccessControl.4.4.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\packages\System.Security.Principal.Windows.4.4.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <ProjectReference Include="..\LibChorus\LibChorus.csproj">
+      <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
+      <Name>LibChorus</Name>
+    </ProjectReference>
+    <Reference Include="taglib-sharp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=db62eba44689b5b0">
+      <HintPath>..\..\packages\TagLibSharp-patched.2.2.0-beta.1\lib\netstandard2.0\taglib-sharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Vulcan.Uczniowie.HelpProvider, Version=0.1.0.0, Culture=neutral, PublicKeyToken=c5e47f534b8ee927">
+      <HintPath>..\..\packages\Vulcan.Uczniowie.HelpProvider.1.0.0\lib\net461\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Arguments.cs" />
+    <Compile Include="Bootstrapper.cs" />
+    <Compile Include="ChorusHubClient.cs" />
+    <Compile Include="ChorusSystem.cs" />
+    <Compile Include="ChorusUIComponentsInjector.cs" />
+    <Compile Include="NotesToRecordMapping.cs" />
+    <Compile Include="UI\BetterLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\BetterLabel.designer.cs">
+      <DependentUpon>BetterLabel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Clone\DuplicateProjectWarningDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Clone\DuplicateProjectWarningDialog.Designer.cs">
+      <DependentUpon>DuplicateProjectWarningDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Clone\GetSharedProjectDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Clone\GetSharedProjectDlg.Designer.cs">
+      <DependentUpon>GetSharedProjectDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Notes\ChorusNotesDisplaySettings.cs" />
+    <Compile Include="UI\Clone\CloneFromUsb.cs" />
+    <Compile Include="UI\Clone\GetCloneFromChorusHubModel.cs" />
+    <Compile Include="UI\Clone\GetCloneFromChorusHubDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Clone\GetCloneFromChorusHubDialog.Designer.cs">
+      <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Clone\GetSharedProjectModel.cs" />
+    <Compile Include="UI\Clone\ICloneSourceDialog.cs" />
+    <Compile Include="UI\Misc\ServerSettingsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Misc\ServerSettingsControl.Designer.cs">
+      <DependentUpon>ServerSettingsControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Clone\GetCloneFromInternetModel.cs" />
+    <Compile Include="UI\Clone\TargetFolderControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Clone\TargetFolderControl.Designer.cs">
+      <DependentUpon>TargetFolderControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Clone\GetCloneFromInternetDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Clone\GetCloneFromInternetDialog.Designer.cs">
+      <DependentUpon>GetCloneFromInternetDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Clone\GetCloneFromUsbDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Clone\GetCloneFromUsbDialog.Designer.cs">
+      <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Misc\TroubleshootingView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Misc\TroubleshootingView.Designer.cs">
+      <DependentUpon>TroubleshootingView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Misc\ReadinessPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Misc\ReadinessPanel.Designer.cs">
+      <DependentUpon>ReadinessPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Notes\AnnotationClassFactoryUI.cs" />
+    <Compile Include="UI\Notes\AnnotationInspector.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Notes\AnnotationInspector.Designer.cs">
+      <DependentUpon>AnnotationInspector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Notes\AnnotationEditorModel.cs" />
+    <Compile Include="UI\Notes\ConflictDetailsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Notes\ConflictDetailsForm.Designer.cs">
+      <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Notes\Events.cs" />
+    <Compile Include="UI\Notes\ListMessage.cs" />
+    <Compile Include="UI\Notes\Bar\NoteDetailDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Notes\Bar\NoteDetailDialog.Designer.cs">
+      <DependentUpon>NoteDetailDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Notes\Bar\NotesBarModel.cs" />
+    <Compile Include="UI\Notes\Bar\NotesBarView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Notes\Bar\NotesBarView.Designer.cs">
+      <DependentUpon>NotesBarView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Notes\Browser\NotesBrowserPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Notes\Browser\NotesBrowserPage.Designer.cs">
+      <DependentUpon>NotesBrowserPage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Notes\Browser\SearchBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Notes\Browser\SearchBox.Designer.cs">
+      <DependentUpon>SearchBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Notes\Html\StyleSheet.cs" />
+    <Compile Include="UI\Notes\MergeConflictEmbeddedMessageContentHandler.cs" />
+    <Compile Include="UI\Review\ChangedReport\ChangeReportView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Review\ChangedReport\ChangeReportView.Designer.cs">
+      <DependentUpon>ChangeReportView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Review\ChangesInRevision\ChangesInRevisionView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Review\ChangesInRevision\ChangesInRevisionView.Designer.cs">
+      <DependentUpon>ChangesInRevisionView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Review\ChangesInRevision\ChangesInRevisionModel.cs" />
+    <Compile Include="Event.cs" />
+    <Compile Include="UI\Notes\AnnotationEditorView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Notes\AnnotationEditorView.Designer.cs">
+      <DependentUpon>AnnotationEditorView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Notes\Browser\NotesInProjectViewModel.cs" />
+    <Compile Include="UI\Notes\Browser\NotesInProjectView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Notes\Browser\NotesInProjectView.Designer.cs">
+      <DependentUpon>NotesInProjectView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Review\HistoryPageOptions.cs" />
+    <Compile Include="UI\Review\RevisionsInRepository\HistoryRowIcons.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HistoryRowIcons.resx</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.Designer.cs">
+      <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Review\RevisionsInRepository\RevisionInRepositoryModel.cs" />
+    <Compile Include="UI\Review\HistoryPage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Review\HistoryPage.Designer.cs">
+      <DependentUpon>HistoryPage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="UI\Clone\DuplicateProjectWarningDialog.resx">
+      <DependentUpon>DuplicateProjectWarningDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Clone\GetCloneFromChorusHubDialog.resx">
+      <DependentUpon>GetCloneFromChorusHubDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Clone\GetSharedProjectDlg.resx">
+      <DependentUpon>GetSharedProjectDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Review\ChangedReport\ChangeReportView.resx">
+      <DependentUpon>ChangeReportView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Review\HistoryPage.resx">
+      <DependentUpon>HistoryPage.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Review\RevisionsInRepository\HistoryRowIcons.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>HistoryRowIcons.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Review\RevisionsInRepository\RevisionsInRepositoryView.resx">
+      <DependentUpon>RevisionsInRepositoryView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Review\ChangesInRevision\ChangesInRevisionView.resx">
+      <DependentUpon>ChangesInRevisionView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Shell.resx">
+      <DependentUpon>Shell.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Settings\SendReceiveSettings.resx">
+      <DependentUpon>SendReceiveSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Settings\SettingsView.resx">
+      <DependentUpon>SettingsView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Settings\SetupPanel.resx">
+      <DependentUpon>SetupPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Sync\SyncPanel.resx">
+      <DependentUpon>SyncPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="UI\Review\Events.cs" />
+    <Compile Include="UI\Settings\SendReceiveSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Settings\SendReceiveSettings.Designer.cs">
+      <DependentUpon>SendReceiveSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Settings\SettingsModel.cs" />
+    <Compile Include="Shell.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Shell.Designer.cs">
+      <DependentUpon>Shell.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Settings\SettingsView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Settings\SettingsView.Designer.cs">
+      <DependentUpon>SettingsView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Settings\SetupPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Settings\SetupPanel.Designer.cs">
+      <DependentUpon>SetupPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Misc\ServerSettingsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Misc\ServerSettingsDialog.Designer.cs">
+      <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\IUsbDriveLocator.cs" />
+    <Compile Include="UI\Sync\SyncControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Sync\SyncControl.Designer.cs">
+      <DependentUpon>SyncControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Sync\SyncDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Sync\SyncDialog.Designer.cs">
+      <DependentUpon>SyncDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Sync\SyncPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Sync\SyncPanel.Designer.cs">
+      <DependentUpon>SyncPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Sync\SyncControlModel.cs" />
+    <Compile Include="UI\Sync\SyncStartControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Sync\SyncStartControl.Designer.cs">
+      <DependentUpon>SyncStartControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Sync\SyncStartModel.cs" />
+    <Compile Include="UI\UsbDriveLocator.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\UsbDriveLocator.Designer.cs">
+      <DependentUpon>UsbDriveLocator.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="chorus.ico" />
+    <EmbeddedResource Include="UI\BetterLabel.resx">
+      <DependentUpon>BetterLabel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Misc\ServerSettingsControl.resx">
+      <DependentUpon>ServerSettingsControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Clone\TargetFolderControl.resx">
+      <DependentUpon>TargetFolderControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Clone\GetCloneFromInternetDialog.resx">
+      <DependentUpon>GetCloneFromInternetDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Clone\GetCloneFromUsbDialog.resx">
+      <DependentUpon>GetCloneFromUsbDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Misc\TroubleshootingView.resx">
+      <DependentUpon>TroubleshootingView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Misc\ReadinessPanel.resx">
+      <DependentUpon>ReadinessPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Notes\AnnotationInspector.resx">
+      <DependentUpon>AnnotationInspector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Notes\AnnotationEditorView.resx">
+      <DependentUpon>AnnotationEditorView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Notes\Bar\NoteDetailDialog.resx">
+      <DependentUpon>NoteDetailDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Notes\Bar\NotesBarView.resx">
+      <DependentUpon>NotesBarView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Notes\Browser\NotesInProjectView.resx">
+      <DependentUpon>NotesInProjectView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Notes\Browser\NotesBrowserPage.resx">
+      <DependentUpon>NotesBrowserPage.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Notes\Browser\SearchBox.resx">
+      <DependentUpon>SearchBox.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Misc\ServerSettingsDialog.resx">
+      <DependentUpon>ServerSettingsDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Notes\ConflictDetailsForm.resx">
+      <DependentUpon>ConflictDetailsForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Sync\SyncControl.resx">
+      <DependentUpon>SyncControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Sync\SyncDialog.resx">
+      <DependentUpon>SyncDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Sync\SyncStartControl.resx">
+      <DependentUpon>SyncStartControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\chorus.helpmap">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <None Include="Resources\error.wav" />
+    <None Include="Resources\chorus32x32.png" />
+    <None Include="Resources\networkFolder58x64" />
+    <None Include="Resources\warning.wav" />
+    <None Include="Resources\warning.png" />
+    <None Include="Resources\Usb64x64.png" />
+    <None Include="Resources\internet59x64.png" />
+    <None Include="Resources\networkFolder58x64.png" />
+    <None Include="Resources\send-receive small.png" />
+    <None Include="Resources\internet29x32.png" />
+    <None Include="Resources\networkFolder29x32.png" />
+    <None Include="Resources\Usb32x28.png" />
+    <None Include="Resources\search18x18.png" />
+    <None Include="Resources\question32x32.png" />
+    <None Include="Resources\search16x16.png" />
+    <None Include="Resources\check16x16.png" />
+    <None Include="Resources\NewNote16x16.png" />
+    <None Include="Resources\check12x12.png" />
+    <None Include="Resources\Filter2HS.png" />
+    <None Include="Resources\expand.png" />
+    <None Include="Resources\chorus16x16.png" />
+    <None Include="Resources\FieldWorksBridge.bmp" />
+    <None Include="Resources\Committer Person.png" />
+    <None Include="Resources\icon16x16.png" />
+    <None Include="Resources\Bloom16x16.png" />
+    <None Include="Resources\chorusHubLarge.png" />
+    <None Include="Resources\chorusHubMedium.png" />
+    <Content Include="Resources\menuButton.png" />
+    <None Include="Resources\sendReceiveCircle16x16png.png" />
+    <None Include="Resources\Merge16x16.png" />
+    <None Include="Resources\MergeConflict16x16.png" />
+    <None Include="Resources\warning16x16.png" />
+    <None Include="Resources\wesay16x16.png" />
+    <None Include="Resources\wesayconfigDoc16x16.png" />
+    <None Include="Resources\WeSayConfig16x16.png" />
+    <None Include="Resources\warning16x161.png" />
+    <None Include="Resources\warning24x24.png" />
+    <Content Include="UI\Notes\Html\bl.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UI\Notes\Html\br.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UI\Notes\Html\dot.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UI\Notes\Html\StyleSheet.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="UI\Notes\XmlToHtml10Plus.xslt" />
+    <None Include="UI\Notes\XmlToHtml10Basic.xslt" />
+    <Content Include="UI\Settings\SetupPanel.htm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UI\Notes\Html\tl.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UI\Notes\Html\tr.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\packages\NDesk.DBus.0.15.0\build\NDesk.DBus.targets" Condition="Exists('..\..\packages\NDesk.DBus.0.15.0\build\NDesk.DBus.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\NDesk.DBus.0.15.0\build\NDesk.DBus.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\NDesk.DBus.0.15.0\build\NDesk.DBus.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Mono.Posix.5.4.0.201\build\net45\Mono.Posix.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Mono.Posix.5.4.0.201\build\net45\Mono.Posix.targets'))" />
+  </Target>
+  <Import Project="..\..\packages\Mono.Posix.5.4.0.201\build\net45\Mono.Posix.targets" Condition="Exists('..\..\packages\Mono.Posix.5.4.0.201\build\net45\Mono.Posix.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

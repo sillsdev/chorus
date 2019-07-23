@@ -9,6 +9,7 @@ using Chorus.FileTypeHandlers;
 using Chorus.merge;
 using Chorus.retrieval;
 using Chorus.VcsDrivers.Mercurial;
+using SIL.PlatformUtilities;
 
 namespace Chorus.UI.Review.ChangedReport
 {
@@ -26,9 +27,8 @@ namespace Chorus.UI.Review.ChangedReport
 			InitializeComponent();
 			_normalChangeDescriptionRenderer.Font = SystemFonts.MessageBoxFont;
 			changedRecordSelectedEvent.Subscribe(r=>LoadReport(r));
-#if !MONO
-			_normalChangeDescriptionRenderer.Navigated += webBrowser1_Navigated;
-#endif
+			if (Platform.IsWindows)
+				_normalChangeDescriptionRenderer.Navigated += webBrowser1_Navigated;
 			_styleSheet = CreateStyleSheet(writingSystems);
 		}
 
@@ -60,22 +60,21 @@ namespace Chorus.UI.Review.ChangedReport
 			return styleSheetBuilder.ToString();
 		}
 
-#if !MONO
 		private void webBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
 		{
 			//didn't work, 'cuase is't actually still being held by the browser
 			//  File.Delete(e.URI.AbsoluteUri.Replace(@"file:///", string.Empty));
 		}
-#endif
 
 		public void LoadReport(IChangeReport report)
 		{
 			if (report == null)
 			{
-#if !MONO
-				// GECKOFX blank url does not blank page
-				_normalChangeDescriptionRenderer.Navigate(string.Empty);
-#endif
+				if (Platform.IsWindows)
+				{
+					// GECKOFX blank url does not blank page
+					_normalChangeDescriptionRenderer.Navigate(string.Empty);
+				}
 			}
 			else
 			{

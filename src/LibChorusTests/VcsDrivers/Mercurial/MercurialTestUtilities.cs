@@ -4,6 +4,7 @@ using System.IO;
 using Chorus.VcsDrivers.Mercurial;
 using Nini.Ini;
 using SIL.IO;
+using SIL.PlatformUtilities;
 
 namespace LibChorus.Tests.VcsDrivers.Mercurial
 {
@@ -29,9 +30,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private static void UpdateExtensions()
 		{
 			var extensions = new Dictionary<string, string>();
-#if !MONO
-			extensions.Add("eol", ""); //for converting line endings on windows machines
-#endif
+			if (!Platform.IsMono)
+				extensions.Add("eol", ""); //for converting line endings on windows machines
 			extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 			extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
 			string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
@@ -61,16 +61,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 		public MercurialIniHider()
 		{
-//#if MONO
-//			var home = Environment.GetEnvironmentVariable("HOME");
-//            if (home == null)
-//            {
-//                throw new ApplicationException("The HOME environment variable is not set.");
-//            }
-//            _mercurialIniFilePath = Path.Combine(home, ".hgrc");
-//#else
 			_mercurialIniFilePath = Path.Combine(Chorus.MercurialLocation.PathToMercurialFolder, "mercurial.ini");
-//#endif
 			_mercurialIniBackupFilePath = _mercurialIniFilePath + ".bak";
 			File.Copy(_mercurialIniFilePath, _mercurialIniBackupFilePath, true);
 		}

@@ -2,72 +2,49 @@
 	<PropertyGroup>
 		<RootDir Condition="'$(teamcity_build_checkoutDir)' == '' And '$(RootDir)'==''">$(MSBuildProjectDirectory)/..</RootDir>
 		<RootDir Condition="'$(teamcity_build_checkoutDir)' != ''">$(teamcity_build_checkoutDir)</RootDir>
-		<BUILD_NUMBER Condition="'$(BUILD_NUMBER)'==''">1.2.3.4</BUILD_NUMBER>
-		<!-- Note, after some thought, we've decided this is the best place to keep the version number (not on TeamCity, not in the assemblies).     -->
-		<Version>2.6</Version>
-	</PropertyGroup>
-
-	<Import Project="NuGet.targets"/>
-
-	<UsingTask TaskName="StampAssemblies" AssemblyFile="$(RootDir)/build/SIL.BuildTasks.dll" />
-	<UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(RootDir)/build/SIL.BuildTasks.dll" Condition="'$(OS)'=='Windows_NT'"/>
-	<UsingTask TaskName="Archive" AssemblyFile="$(RootDir)/build/SIL.BuildTasks.dll" Condition="'$(OS)'!='Windows_NT'"/>
-	<UsingTask TaskName="Split" AssemblyFile="$(RootDir)/build/SIL.BuildTasks.dll" />
-	<UsingTask TaskName="FileUpdate" AssemblyFile="$(RootDir)/build/SIL.BuildTasks.dll" />
-	<UsingTask TaskName="DNZip" AssemblyFile="$(RootDir)/packages/MSBuild.Extension.Pack.1.9.0/tools/net40/MSBuild.ExtensionPack.dll" />
-	<UsingTask TaskName="NUnit" AssemblyFile="$(RootDir)/build/SIL.BuildTasks.dll" />
-	<UsingTask TaskName="NUnitTeamCity"
-		AssemblyFile="$(teamcity_dotnet_nunitlauncher_msbuild_task)"
-		Condition=" '$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'"/>
-	<UsingTask TaskName="NUnitTeamCity"
-		AssemblyFile="$(agent_home_dir)/plugins/dotnetPlugin/bin/JetBrains.BuildServer.MSBuildLoggers.dll"
-		Condition=" '$(teamcity_version)' != '' And '$(OS)'!='Windows_NT'"/>
-
-	<PropertyGroup>
 		<Solution>Chorus.sln</Solution>
 		<SolutionPath>$(RootDir)/$(Solution)</SolutionPath>
 		<ApplicationName Condition="'$(OS)'=='Windows_NT'">ChorusLibrary</ApplicationName>
 		<ApplicationName Condition="'$(OS)'!='Windows_NT'">Chorus</ApplicationName>
 		<ApplicationNameLC>chorus</ApplicationNameLC>
-		<Configuration Condition="'$(OS)'!='Windows_NT' And '$(Configuration)'==''">DebugMono</Configuration>
-		<Configuration Condition="'$(OS)'=='Windows_NT' And '$(Configuration)'==''">Release</Configuration>
+		<Configuration Condition="'$(Configuration)'==''">Release</Configuration>
 		<ExtraExcludeCategories Condition="'$(OS)'!='Windows_NT'">KnownMonoIssue,</ExtraExcludeCategories>
 		<ExtraExcludeCategories Condition="'$(teamcity_version)' != ''">SkipOnTeamCity,SkipOnBuildServer,SkipOnTeamCityRandomTestFailure,$(ExtraExcludeCategories)</ExtraExcludeCategories>
 		<useNUnit-x86 Condition="'$(OS)'=='Windows_NT'">true</useNUnit-x86>
 		<useNUnit-x86 Condition="'$(OS)'!='Windows_NT'">false</useNUnit-x86>
-	</PropertyGroup>
-
-	<Target Name="VersionNumbers">
-		<Message Text="BUILD_NUMBER: $(BUILD_NUMBER)" Importance="high"/>
-
-		<Split Input="$(BUILD_NUMBER)" Delimiter="." OutputSubString="2">
-			<Output TaskParameter="ReturnValue" PropertyName="BuildCounter" />
-		</Split>
-
-		<Message Text="BuildCounter: $(BuildCounter)" Importance="high"/>
-
-		<CreateProperty Value="$(Version).$(BuildCounter).0">
-			<Output PropertyName="FileVersion" TaskParameter="Value"/>
-		</CreateProperty>
-
-		<Message Text="Version: $(FileVersion)" Importance="high"/>
-	</Target>
-
-	<ItemGroup>
-		<AssemblyInfoFiles Include="$(RootDir)/src/**/AssemblyInfo.cs"/>
-	</ItemGroup>
-
-	<Target Name="SetAssemblyVersion" DependsOnTargets="VersionNumbers">
-		<StampAssemblies Version="$(FileVersion)" InputAssemblyPaths="@(AssemblyInfoFiles)" />
-	</Target>
-
-	<PropertyGroup>
 		<OutputDir>$(RootDir)/output/$(Configuration)</OutputDir>
+
+		<RestartBuild Condition="!Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')">true</RestartBuild>
+		<RestartBuild Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')">false</RestartBuild>
 	</PropertyGroup>
+
+	<Import Project="NuGet.targets"/>
+
+	<Target Name="RestoreBuildTasks" DependsOnTargets="CheckPrerequisites">
+		<Message Text="RestartBuild=$(RestartBuild)" />
+		<Exec Command='$(NuGetCommand) install NUnit.Runners.Net4 -version 2.6.4 -solutionDirectory "$(RootDir)"' />
+		<Exec Command='$(NuGetCommand) install SIL.BuildTasks -excludeVersion -version 2.2.0 -solutionDirectory "$(RootDir)"' />
+		<Exec Command='$(NuGetCommand) install MSBuild.Extension.Pack -version 1.9.0 -solutionDirectory "$(RootDir)"' />
+	</Target>
+
+	<UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="'$(OS)'=='Windows_NT'"/>
+	<UsingTask TaskName="Archive" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="'$(OS)'!='Windows_NT'"/>
+	<UsingTask TaskName="FileUpdate" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" />
+	<UsingTask TaskName="DNZip" AssemblyFile="$(RootDir)/packages/MSBuild.Extension.Pack.1.9.0/tools/net40/MSBuild.ExtensionPack.dll" />
+	<UsingTask TaskName="NUnit" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" />
+	<UsingTask TaskName="NUnitTeamCity" AssemblyFile="$(teamcity_dotnet_nunitlauncher_msbuild_task)" Condition=" '$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'"/>
+	<UsingTask TaskName="NUnitTeamCity" AssemblyFile="$(agent_home_dir)/plugins/dotnetPlugin/bin/JetBrains.BuildServer.MSBuildLoggers.dll" Condition=" '$(teamcity_version)' != '' And '$(OS)'!='Windows_NT'"/>
 
 	<Target Name="Build">
+		<CallTarget Targets="RestoreBuildTasks" />
+		<CallTarget Targets="BuildInternal" Condition="!$(RestartBuild)" />
+		<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="BuildInternal"
+			Properties="Configuration=$(Configuration);RootDir=$(RootDir)"
+			Condition="$(RestartBuild)" />
+	</Target>
+
+	<Target Name="BuildInternal">
 		<CallTarget Targets="Clean"/>
-		<CallTarget Targets="SetAssemblyVersion"/>
 		<CallTarget Targets="Compile"/>
 		<Message Text="Build Complete"/>
 	</Target>
@@ -81,9 +58,9 @@
 
 	<Target Name="Clean">
 		<Delete Files="@(ExistingObjectFiles)" />
-		<Delete Condition="'$(OS)'=='Windows_NT'"
-			 Files="$(RootDir)/**/obj/**/*" />
-		<Exec Condition="'$(OS)'!='Windows_NT'"
+		<Delete Condition="'$(OS)'=='Windows_NT' OR $(MSBuildToolsVersion) &gt;= 15"
+			Files="$(RootDir)/**/obj/**/*" />
+		<Exec Condition="'$(OS)'!='Windows_NT' AND $(MSBuildToolsVersion) &lt; 15"
 			Command="find . %5c( -name obj -o -name bin -o -name test-results %5c) -type d -print0 | xargs -0 rm -rf"
 			WorkingDirectory="$(RootDir)" />
 		<CallTarget Targets="CleanInstaller" Condition="'$(OS)'=='Windows_NT'"/>
@@ -117,7 +94,9 @@
 			<NUnitRunnerPackage>$(RootDir)/packages/NUnit.Runners.Net4.$(NUnitVersion)</NUnitRunnerPackage>
 		</PropertyGroup>
 		<ItemGroup>
-			<TestAssemblies Include="$(RootDir)/output/$(Configuration)/*.Tests.dll" Exclude="$(RootDir)/output/$(Configuration)/SIL.WritingSystems.Tests.dll"/>
+			<TestAssemblies
+				Include="$(RootDir)/output/$(Configuration)/net461/*.Tests.dll"
+				Exclude="$(RootDir)/output/$(Configuration)/net461/SIL.WritingSystems.Tests.dll"/>
 			<NUnitAddinFiles Include="$(teamcity_dotnet_nunitaddin)-$(NUnitVersion).*" />
 		</ItemGroup>
 
@@ -230,9 +209,6 @@
 	<ItemGroup>
 		<Source Include="$(RootDir)/.nuget/**"/>
 		<Source Include="$(RootDir)/src/**/*"/>
-		<Source Include="$(RootDir)/lib/DebugMono/**" Exclude="$(RootDir)/lib/DebugMono/Palaso*" />
-		<Source Include="$(RootDir)/lib/ReleaseMono/**" Exclude="$(RootDir)/lib/ReleaseMono/Palaso*" />
-		<Source Include="$(RootDir)/lib/common/**" />
 		<Source Include="$(RootDir)/artwork/**" />
 		<Source Include="$(RootDir)/design/**/*" />
 		<Source Include="$(RootDir)/build/*.proj" />

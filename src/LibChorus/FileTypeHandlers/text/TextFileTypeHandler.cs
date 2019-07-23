@@ -9,6 +9,7 @@ using Chorus.merge;
 using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using SIL.IO;
+using SIL.PlatformUtilities;
 using SIL.Progress;
 
 namespace Chorus.FileTypeHandlers.text
@@ -144,35 +145,22 @@ namespace Chorus.FileTypeHandlers.text
 	//Todo: not gonna work in Linux
 	class LongToShortConverter
 	{
-#if !MONO
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-
-		public static extern int GetShortPathName(
-
-				 [MarshalAs(UnmanagedType.LPTStr)]
-
-				   string path,
-
-				 [MarshalAs(UnmanagedType.LPTStr)]
-
-				   StringBuilder shortPath,
-
-				 int shortPathLength
-
-				 );
-#endif
+		private static extern int GetShortPathName(
+			[MarshalAs(UnmanagedType.LPTStr)] string path,
+			[MarshalAs(UnmanagedType.LPTStr)] StringBuilder shortPath,
+			int shortPathLength);
 
 
 		public static string GetShortPath(string path)
 		{
-#if MONO
-			return path;
-#else
-			StringBuilder shortPath = new StringBuilder(255);
+			if (Platform.IsMono)
+				return path;
+
+			var shortPath = new StringBuilder(255);
 
 			GetShortPathName(path, shortPath, shortPath.Capacity);
 			return shortPath.ToString();
-#endif
 		}
 	}
 }
