@@ -19,6 +19,11 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../FieldWorks.snk</AssemblyOriginatorKeyFile>
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <AppendToReleaseNotesProperty><![CDATA[
+See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHANGELOG.md]]>
+    </AppendToReleaseNotesProperty>
   </PropertyGroup>
 
   <ItemGroup>
