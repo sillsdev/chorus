@@ -23,13 +23,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask.alt" Version="4.0.2-alpha-0006">
+    <PackageReference Include="GitVersionTask" Version="5.0.1">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="SIL.ReleaseTasks" Version="[2.2.0,)">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="SIL.Windows.Forms" Version="7.0.0-alpha0825" />
+    <PackageReference Include="SIL.Windows.Forms" Version="7.0.1-beta0023" />
     <PackageReference Include="Vulcan.Uczniowie.HelpProvider" Version="1.0.0" />
   </ItemGroup>
 

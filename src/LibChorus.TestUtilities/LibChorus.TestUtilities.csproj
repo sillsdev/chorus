@@ -22,15 +22,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask.alt" Version="4.0.2-alpha-0006">
+    <PackageReference Include="GitVersionTask" Version="5.0.1">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="NUnit" Version="2.6.4" />
-    <PackageReference Include="SIL.Core" Version="7.0.0-alpha0825" />
+    <PackageReference Include="SIL.Core" Version="7.0.1-beta0023" />
     <PackageReference Include="SIL.ReleaseTasks" Version="[2.2.0,)">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="SIL.TestUtilities" Version="7.0.0-alpha0825" />
+    <PackageReference Include="SIL.TestUtilities" Version="7.0.1-beta0023" />
   </ItemGroup>
 
   <ItemGroup>
