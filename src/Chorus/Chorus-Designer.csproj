@@ -132,10 +132,6 @@
       <HintPath>..\..\packages\PangoSharp.3.22.24.37\lib\netstandard2.0\PangoSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SIL.Core, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Core.7.0.0-alpha0825\lib\net461\SIL.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=2.6.3.862, Culture=neutral, PublicKeyToken=17863af14b0044da">
@@ -146,20 +142,24 @@
       <HintPath>..\..\packages\Autofac.2.6.3.862\lib\NET40\Autofac.Configuration.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SIL.Core, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
+      <HintPath>..\..\packages\SIL.Core.7.0.1-beta0023\lib\net461\SIL.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="SIL.Core.Desktop, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Core.Desktop.7.0.0-alpha0825\lib\net461\SIL.Core.Desktop.dll</HintPath>
+      <HintPath>..\..\packages\SIL.Core.Desktop.7.0.1-beta0023\lib\net461\SIL.Core.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SIL.Windows.Forms, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Windows.Forms.7.0.0-alpha0825\lib\net461\SIL.Windows.Forms.dll</HintPath>
+      <HintPath>..\..\packages\SIL.Windows.Forms.7.0.1-beta0023\lib\net461\SIL.Windows.Forms.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SIL.Windows.Forms.GeckoBrowserAdapter, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Windows.Forms.GeckoBrowserAdapter.7.0.0-alpha0825\lib\net461\SIL.Windows.Forms.GeckoBrowserAdapter.dll</HintPath>
+      <HintPath>..\..\packages\SIL.Windows.Forms.GeckoBrowserAdapter.7.0.1-beta0023\lib\net461\SIL.Windows.Forms.GeckoBrowserAdapter.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SIL.WritingSystems, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.WritingSystems.7.0.0-alpha0825\lib\net461\SIL.WritingSystems.dll</HintPath>
+      <HintPath>..\..\packages\SIL.WritingSystems.7.0.1-beta0023\lib\net461\SIL.WritingSystems.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Spart, Version=1.0.0.0, Culture=neutral, PublicKeyToken=14d24e064e474331">
@@ -199,6 +199,10 @@
     </ProjectReference>
     <Reference Include="taglib-sharp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=db62eba44689b5b0">
       <HintPath>..\..\packages\TagLibSharp-patched.2.2.0-beta.1\lib\netstandard2.0\taglib-sharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="TagLibSharp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=db62eba44689b5b0">
+      <HintPath>..\..\packages\TagLibSharp.2.2.0\lib\net45\TagLibSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Vulcan.Uczniowie.HelpProvider, Version=0.1.0.0, Culture=neutral, PublicKeyToken=c5e47f534b8ee927">
