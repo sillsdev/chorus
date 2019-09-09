@@ -32,7 +32,7 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
     <PackageReference Include="GitVersionTask" Version="5.0.1">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="L10NSharp.tmx" Version="3.1.0" />
+    <PackageReference Include="L10NSharp" Version="4.0.2" />
     <PackageReference Include="SIL.ReleaseTasks" Version="[2.2.0,)">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
