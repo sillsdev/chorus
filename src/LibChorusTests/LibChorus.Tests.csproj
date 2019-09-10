@@ -34,6 +34,15 @@
     <ProjectReference Include="..\LibChorus\LibChorus.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\build\MonoRunnerForTest\chorusmerge">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="VcsDrivers\TestData\incompletemergerepo.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <PropertyGroup>
     <!-- See https://github.com/dotnet/sdk/issues/987#issuecomment-286307697 why that is needed -->
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
