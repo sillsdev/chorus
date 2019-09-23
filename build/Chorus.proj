@@ -139,7 +139,7 @@
 	</Target>
 
 	<!-- Windows installer stuff -->
-	<Target Name="Installer" DependsOnTargets="CleanInstaller; VersionNumbers; Build" Condition="'$(OS)'=='Windows_NT'">
+	<Target Name="Installer" DependsOnTargets="CleanInstaller; Build" Condition="'$(OS)'=='Windows_NT'">
 
 		<!-- set the version number in the installer configuration program.  Perhaps there's a way to just send in the variables rather than this brute-force
 		changing of the script, but I haven't figured that out. -->
@@ -152,7 +152,7 @@
 
 	</Target>
 
-	<Target Name="ChorusHubInstaller" DependsOnTargets="CleanInstaller; VersionNumbers; Test" Condition="'$(OS)'=='Windows_NT'">
+	<Target Name="ChorusHubInstaller" DependsOnTargets="CleanInstaller; Test" Condition="'$(OS)'=='Windows_NT'">
 
 		<!-- set the version number in the installer configuration program.  Perhaps there's a way to just send in the variables rather than this brute-force
 		changing of the script, but I haven't figured that out. -->
