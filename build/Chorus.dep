@@ -1,0 +1,16 @@
+# This file lists dependencies
+# It can be edited with the BuildDependencyManager application.
+# See https://github.com/ermshiperete/BuildDependency for more information.
+# Edited with version 0.4.3 (6cb2078)
+
+[[TC]]
+Type=TeamCity
+Url=https://build.palaso.org
+
+[TC::bt216]
+Name=Chorus-Documentation
+RevisionName=lastSuccessful
+RevisionValue=latest.lastSuccessful
+Condition=Windows
+Path=*.chm => lib
+

@@ -25,6 +25,7 @@
 		<Exec Command='$(NuGetCommand) install NUnit.Runners.Net4 -version 2.6.4 -solutionDirectory "$(RootDir)"' />
 		<Exec Command='$(NuGetCommand) install SIL.BuildTasks -excludeVersion -version 2.2.0 -solutionDirectory "$(RootDir)"' />
 		<Exec Command='$(NuGetCommand) install MSBuild.Extension.Pack -version 1.9.0 -solutionDirectory "$(RootDir)"' />
+		<Exec Command='$(NuGetCommand) install BuildDependencyTasks -excludeVersion -version 0.4.3 -solutionDirectory "$(RootDir)"' />
 	</Target>
 
 	<UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="'$(OS)'=='Windows_NT'"/>
@@ -32,8 +33,14 @@
 	<UsingTask TaskName="FileUpdate" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" />
 	<UsingTask TaskName="DNZip" AssemblyFile="$(RootDir)/packages/MSBuild.Extension.Pack.1.9.0/tools/net40/MSBuild.ExtensionPack.dll" />
 	<UsingTask TaskName="NUnit" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" />
+	<UsingTask TaskName="Dependencies" AssemblyFile="$(SolutionDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll" />
 	<UsingTask TaskName="NUnitTeamCity" AssemblyFile="$(teamcity_dotnet_nunitlauncher_msbuild_task)" Condition=" '$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'"/>
 	<UsingTask TaskName="NUnitTeamCity" AssemblyFile="$(agent_home_dir)/plugins/dotnetPlugin/bin/JetBrains.BuildServer.MSBuildLoggers.dll" Condition=" '$(teamcity_version)' != '' And '$(OS)'!='Windows_NT'"/>
+
+	<Target Name="DownloadDependencies" DependsOnTargets="RestoreBuildTasks">
+		<Dependencies DependencyFile="Chorus.dep" UseDependencyFile="true"
+			KeepJobsFile="true" WorkingDir="$(RootDir)" />
+	</Target>
 
 	<Target Name="Build">
 		<CallTarget Targets="RestoreBuildTasks" />
@@ -77,7 +84,7 @@
 		<Delete Files="@(ExistingInstallerFiles)" />
 	</Target>
 
-	<Target Name="Compile" DependsOnTargets="RestorePackages;UnzipMercurial">
+	<Target Name="Compile" DependsOnTargets="RestorePackages;UnzipMercurial;DownloadDependencies">
 		<MSBuild
 			Projects="$(SolutionPath)"
 			Targets="Build"
@@ -145,8 +152,8 @@
 		changing of the script, but I haven't figured that out. -->
 
 		<FileUpdate File="$(RootDir)\src\Installer\ChorusMergeModule.wxs" Regex='Property_ProductVersion = ".*"'
-				ReplacementText ="Property_ProductVersion = &quot;$(FileVersion)&quot;" />
-		<Message Text="Making Chorus Merge Module Version: $(FileVersion)" Importance="high"  />
+				ReplacementText ="Property_ProductVersion = &quot;$(GitVersion_AssemblySemFileVer)&quot;" />
+		<Message Text="Making Chorus Merge Module Version: $(GitVersion_AssemblySemFileVer)" Importance="high"  />
 
 		<MSBuild Projects="$(RootDir)\src\Installer\ChorusMergeModule.wixproj"/>
 
@@ -158,10 +165,10 @@
 		changing of the script, but I haven't figured that out. -->
 
 		<FileUpdate File="$(RootDir)\src\Installer\ChorusHub.wxs" Regex='Property_ProductVersion = ".*"'
-				ReplacementText="Property_ProductVersion = &quot;$(FileVersion)&quot;" />
+				ReplacementText="Property_ProductVersion = &quot;$(GitVersion_AssemblySemFileVer)&quot;" />
 		<FileUpdate File="$(RootDir)\src\Installer\resources\License.rtf" RegEx='COPYRIGHTYEARPLACEHOLDER'
 				ReplacementText="$([System.DateTime]::Now.ToString(yyyy))" />
-		<Message Text="Making Chorus Hub installer with version: $(FileVersion)" Importance="high"  />
+		<Message Text="Making Chorus Hub installer with version: $(GitVersion_AssemblySemFileVer)" Importance="high"  />
 
 		<MSBuild Projects="$(RootDir)\src\Installer\ChorusHub.wixproj"/>
 
@@ -223,10 +230,10 @@
 
 	<Target Name="SourcePackage" DependsOnTargets="Clean;PackageClean;SetAssemblyVersion"
 		Condition="'$(OS)'!='Windows_NT'">
-		<CreateProperty Value="$(OutputDir)/$(ApplicationNameLC)-$(FileVersion).tar.gz">
+		<CreateProperty Value="$(OutputDir)/$(ApplicationNameLC)-$(GitVersion_AssemblySemFileVer).tar.gz">
 			<Output TaskParameter="Value" PropertyName="SourcePackageFileName" />
 		</CreateProperty>
-		<CreateProperty Value="$(OutputDir)/$(ApplicationNameLC)-$(FileVersion)">
+		<CreateProperty Value="$(OutputDir)/$(ApplicationNameLC)-$(GitVersion_AssemblySemFileVer)">
 			<Output TaskParameter="Value" PropertyName="TarBaseDir" />
 		</CreateProperty>
 		<Message Text="Archive source to '$(SourcePackageFileName)'" />
@@ -244,7 +251,7 @@
 			WorkingDirectory="$(TarBaseDir)"
 		/>
 		<Exec
-			Command="tar -czf $(SourcePackageFileName) $(ApplicationNameLC)-$(FileVersion)"
+			Command="tar -czf $(SourcePackageFileName) $(ApplicationNameLC)-$(GitVersion_AssemblySemFileVer)"
 			WorkingDirectory="$(OutputDir)"
 		/>
 	</Target>
