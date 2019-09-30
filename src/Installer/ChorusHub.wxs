@@ -58,7 +58,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 
 					<!-- Main assemblies -->
 					<Component Id="ChorusHub.exe" Guid="C1EEF458-E382-11DE-8A39-0800200C9A66">
-						<File Id="ChorusHub.exe" Name="ChorusHub.exe" Source="..\..\output\Release\ChorusHub.exe" KeyPath="yes" />
+						<File Id="ChorusHub.exe" Name="ChorusHub.exe" Source="..\..\output\Release\net461\ChorusHub.exe" KeyPath="yes" />
 						<!-- http://codeblog.vurdalakov.net/2013/06/wix-how-to-install-and-start-windows-service.html -->
                         <ServiceInstall Id="ChorusHub" Type="ownProcess" Name="ChorusHub" DisplayName="Chorus Hub Sharing Service"
                                 Description="ChorusHub  Sharing Service" Start="auto" Account="LocalSystem" ErrorControl="normal">
@@ -76,46 +76,46 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 						</RegistryKey>
 					</Component>
 					<Component Id="LibChorus.dll" Guid="C1EECD54-E382-11DE-8A39-0800200C9A66">
-						<File Id="LibChorus.dll" Name="LibChorus.dll" KeyPath="yes" Source="..\..\output\Release\LibChorus.dll" />
+						<File Id="LibChorus.dll" Name="LibChorus.dll" KeyPath="yes" Source="..\..\output\Release\net461\LibChorus.dll" />
 					</Component>
 
 					<!-- used by chorus -->
 					<Component Id="Autofac.dll" Guid="C1EECD55-E382-11DE-8A39-0800200C9A66">
-						<File Id="Autofac.dll" Name="Autofac.dll" KeyPath="yes" Source="..\..\output\Release\Autofac.dll" />
+						<File Id="Autofac.dll" Name="Autofac.dll" KeyPath="yes" Source="..\..\output\Release\net461\Autofac.dll" />
 					</Component>
 					<Component Id="chorushelp.chm" Guid="C1EECD56-E382-11DE-8A39-0800200C9A66">
 						<File Id="chorushelp.chm" Name="Chorus_Help.chm" KeyPath="yes" Source="..\..\lib\Chorus_Help.chm"/>
 					</Component>
 					<!-- used by chorus help -->
 					<Component Id="Vulcan.Uczniowie.HelpProvider.dll" Guid="C1EEF450-E382-11DE-8A39-0800200C9A66">
-						<File Id="Vulcan.Uczniowie.HelpProvider.dll" Name="Vulcan.Uczniowie.HelpProvider.dll" KeyPath="yes" Source="..\..\output\Release\Vulcan.Uczniowie.HelpProvider.dll" />
+						<File Id="Vulcan.Uczniowie.HelpProvider.dll" Name="Vulcan.Uczniowie.HelpProvider.dll" KeyPath="yes" Source="..\..\output\Release\net461\Vulcan.Uczniowie.HelpProvider.dll" />
 					</Component>
 
 					<Component Id="SIL.Core.dll" Guid="C1EEF451-E382-11DE-8A39-0800200C9A66">
-						<File Id="SIL.Core.dll" Name="SIL.Core.dll" KeyPath="yes" Source="..\..\output\Release\SIL.Core.dll" />
+						<File Id="SIL.Core.dll" Name="SIL.Core.dll" KeyPath="yes" Source="..\..\output\Release\net461\SIL.Core.dll" />
 					</Component>
 
 					<Component Id="SIL.Core.Desktop.dll" Guid="923331FA-197B-4844-930C-21FFDBC480BE">
-						<File Id="SIL.Core.Desktop.dll" Name="SIL.Core.Desktop.dll" KeyPath="yes" Source="..\..\output\Release\SIL.Core.Desktop.dll" />
+						<File Id="SIL.Core.Desktop.dll" Name="SIL.Core.Desktop.dll" KeyPath="yes" Source="..\..\output\Release\net461\SIL.Core.Desktop.dll" />
 					</Component>
 
 					<!-- ICU assemblies used by chorus/palaso -->
 					<Component Id="icu.net.dll" Guid="C1EEF452-E382-11DE-8A39-0800200C9A66">
-						<File Id="icu.net.dll" Name="icu.net.dll" KeyPath="yes" Source="..\..\output\Release\icu.net.dll" />
+						<File Id="icu.net.dll" Name="icu.net.dll" KeyPath="yes" Source="..\..\output\Release\net461\icu.net.dll" />
 					</Component>
-					<Component Id="icudt56.dll" Guid="C1EEF453-E382-11DE-8A39-0800200C9A66">
-						<File Id="icudt56.dll" Name="icudt56.dll" KeyPath="yes" Source="..\..\output\Release\lib\win-x86\icudt56.dll" />
+					<Component Id="icudt59.dll" Guid="C1EEF453-E382-11DE-8A39-0800200C9A66">
+						<File Id="icudt59.dll" Name="icudt59.dll" KeyPath="yes" Source="..\..\output\Release\net461\lib\win-x86\icudt59.dll" />
 					</Component>
-					<Component Id="icuin56.dll" Guid="C1EEF454-E382-11DE-8A39-0800200C9A66">
-						<File Id="icuin56.dll" Name="icuin56.dll" KeyPath="yes" Source="..\..\output\Release\lib\win-x86\icuin56.dll" />
+					<Component Id="icuin59.dll" Guid="C1EEF454-E382-11DE-8A39-0800200C9A66">
+						<File Id="icuin59.dll" Name="icuin59.dll" KeyPath="yes" Source="..\..\output\Release\net461\lib\win-x86\icuin59.dll" />
 					</Component>
-					<Component Id="icuuc56.dll" Guid="C1EEF455-E382-11DE-8A39-0800200C9A66">
-						<File Id="icuuc56.dll" Name="icuuc56.dll" KeyPath="yes" Source="..\..\output\Release\lib\win-x86\icuuc56.dll" />
+					<Component Id="icuuc59.dll" Guid="C1EEF455-E382-11DE-8A39-0800200C9A66">
+						<File Id="icuuc59.dll" Name="icuuc59.dll" KeyPath="yes" Source="..\..\output\Release\net461\lib\win-x86\icuuc59.dll" />
 					</Component>
 
 					<!-- L10NSharp assembly used by chorus/palaso -->
 					<Component Id="L10NSharp.dll" Guid="C1EEF456-E382-11DE-8A39-0800200C9A66">
-						<File Id="L10NSharp.dll" Name="L10NSharp.dll" KeyPath="yes" Source="..\..\lib\Release\L10NSharp.dll"/>
+						<File Id="L10NSharp.dll" Name="L10NSharp.dll" KeyPath="yes" Source="..\..\output\Release\net461\L10NSharp.dll"/>
 					</Component>
 				</Directory>
 			</Directory>
@@ -141,9 +141,9 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<ComponentRef Id="SIL.Core.Desktop.dll"/>
 
 		<ComponentRef Id="icu.net.dll"/>
-		<ComponentRef Id="icudt56.dll"/>
-		<ComponentRef Id="icuin56.dll"/>
-		<ComponentRef Id="icuuc56.dll"/>
+		<ComponentRef Id="icudt59.dll"/>
+		<ComponentRef Id="icuin59.dll"/>
+		<ComponentRef Id="icuuc59.dll"/>
 
 		<ComponentRef Id="L10NSharp.dll"/>
 
@@ -152,7 +152,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		<MergeRef Id="CRT90Policy"/>
 	</Feature>
 
-	<Icon Id="chorusHubIcon.ico" SourceFile="..\..\output\Release\ChorusHub.exe"/>
+	<Icon Id="chorusHubIcon.ico" SourceFile="..\..\output\Release\net461\ChorusHub.exe"/>
 	<!-- what you see in add/remove programs control panel -->
 	<Property Id="ARPPRODUCTICON" Value="chorusHubIcon.ico"/>
   </Product>

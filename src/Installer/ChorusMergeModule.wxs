@@ -36,13 +36,13 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		</Directory>
 
 		<Component Id="libchorus.dll" Guid="B9BCFD29-E687-4ec1-9407-1918AD14075B">
-		  <File Id="libchorus.dll" Name="libchorus.dll" KeyPath="yes" Source="..\..\output\release\libchorus.dll" />
+		  <File Id="libchorus.dll" Name="libchorus.dll" KeyPath="yes" Source="..\..\output\Release\net461\libchorus.dll" />
 		</Component>
 		<Component Id="chorus.exe" Guid="BAF93900-B12B-4942-BA85-55090CF005D8">
-		  <File Id="chorus.exe" Name="chorus.exe" KeyPath="yes" Source="..\..\output\release\chorus.exe" />
+		  <File Id="chorus.exe" Name="chorus.exe" KeyPath="yes" Source="..\..\output\Release\net461\chorus.exe" />
 		</Component>
 		<Component Id="chorusmerge.exe" Guid="7A088F3F-411D-41f9-BBA3-4304E2865969">
-		  <File Id="chorusmerge.exe" Name="chorusmerge.exe" KeyPath="yes" Source="..\..\output\release\chorusmerge.exe" />
+		  <File Id="chorusmerge.exe" Name="chorusmerge.exe" KeyPath="yes" Source="..\..\output\Release\net461\chorusmerge.exe" />
 		</Component>
 		<Component Id="chorushelp.chm" Guid="C1EDBBE9-E382-11DE-8A39-0800200C9A66">
 		  <File Id="chorushelp.chm" Name="Chorus_Help.chm" KeyPath="yes" Source="..\..\lib\Chorus_Help.chm"/>
@@ -50,34 +50,34 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 
 		<!-- used by chorus help -->
 		<Component Id="Vulcan.Uczniowie.HelpProvider.dll" Guid="{F8BCCD28-AB69-4C3D-B024-6B109ADC75B0}">
-		  <File Id="Vulcan.Uczniowie.HelpProvider.dll" Name="Vulcan.Uczniowie.HelpProvider.dll" KeyPath="yes" Source="..\..\output\release\Vulcan.Uczniowie.HelpProvider.dll" />
+		  <File Id="Vulcan.Uczniowie.HelpProvider.dll" Name="Vulcan.Uczniowie.HelpProvider.dll" KeyPath="yes" Source="..\..\output\Release\net461\Vulcan.Uczniowie.HelpProvider.dll" />
 		</Component>
 
 		<!-- used by chorus -->
 		<Component Id="Autofac.dll" Guid="C1EE09F6-E382-11DE-8A39-0800200C9A66">
-		  <File Id="Autofac.dll" Name="Autofac.dll" KeyPath="yes" Source="..\..\output\release\Autofac.dll" />
+		  <File Id="Autofac.dll" Name="Autofac.dll" KeyPath="yes" Source="..\..\output\Release\net461\Autofac.dll" />
 		</Component>
 		<!-- Palaso assemblies used by chorus -->
 		<Component Id="icu.net.dll" Guid="C1EE09F7-E382-11DE-8A39-0800200C9A66">
-		  <File Id="icu.net.dll" Name="icu.net.dll" KeyPath="yes" Source="..\..\output\release\icu.net.dll" />
+		  <File Id="icu.net.dll" Name="icu.net.dll" KeyPath="yes" Source="..\..\output\Release\net461\icu.net.dll" />
 		</Component>
-		<Component Id="icudt56.dll" Guid="C1EE3118-E382-11DE-8A39-0800200C9A66">
-		  <File Id="icudt56.dll" Name="icudt56.dll" KeyPath="yes" Source="..\..\output\Release\lib\win-x86\icudt56.dll" />
+		<Component Id="icudt59.dll" Guid="C1EE3118-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icudt59.dll" Name="icudt59.dll" KeyPath="yes" Source="..\..\output\Release\net461\lib\win-x86\icudt59.dll" />
 		</Component>
-		<Component Id="icuin56.dll" Guid="C1EE3117-E382-11DE-8A39-0800200C9A66">
-		  <File Id="icuin56.dll" Name="icuin56.dll" KeyPath="yes" Source="..\..\output\Release\lib\win-x86\icuin56.dll" />
+		<Component Id="icuin59.dll" Guid="C1EE3117-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icuin59.dll" Name="icuin59.dll" KeyPath="yes" Source="..\..\output\Release\net461\lib\win-x86\icuin59.dll" />
 		</Component>
-		<Component Id="icuuc56.dll" Guid="C1EE3116-E382-11DE-8A39-0800200C9A66">
-		  <File Id="icuuc56.dll" Name="icuuc56.dll" KeyPath="yes" Source="..\..\output\Release\lib\win-x86\icuuc56.dll" />
+		<Component Id="icuuc59.dll" Guid="C1EE3116-E382-11DE-8A39-0800200C9A66">
+		  <File Id="icuuc59.dll" Name="icuuc59.dll" KeyPath="yes" Source="..\..\output\Release\net461\lib\win-x86\icuuc59.dll" />
 		</Component>
 		<Component Id="SIL.Core.dll" Guid="C1EE09F8-E382-11DE-8A39-0800200C9A66">
-		  <File Id="SIL.Core.dll" Name="SIL.Core.dll" KeyPath="yes" Source="..\..\output\release\SIL.Core.dll" />
+		  <File Id="SIL.Core.dll" Name="SIL.Core.dll" KeyPath="yes" Source="..\..\output\Release\net461\SIL.Core.dll" />
 		</Component>
 		<Component Id="SIL.Lift.dll" Guid="C1EE09F9-E382-11DE-8A39-0800200C9A66">
-		  <File Id="SIL.Lift.dll" Name="SIL.Lift.dll" KeyPath="yes" Source="..\..\output\release\SIL.Lift.dll" />
+		  <File Id="SIL.Lift.dll" Name="SIL.Lift.dll" KeyPath="yes" Source="..\..\output\Release\net461\SIL.Lift.dll" />
 		</Component>
 		<Component Id="SIL.Windows.Forms.dll" Guid="c1ee09fa-e382-11de-8a39-0800200c9a66">
-		  <File Id="SIL.Windows.Forms.dll" Name="SIL.Windows.Forms.dll" KeyPath="yes" Source="..\..\output\release\SIL.Windows.Forms.dll" />
+		  <File Id="SIL.Windows.Forms.dll" Name="SIL.Windows.Forms.dll" KeyPath="yes" Source="..\..\output\Release\net461\SIL.Windows.Forms.dll" />
 		</Component>
 	  </Directory>
 	</Directory>
@@ -87,9 +87,9 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 	<ComponentRef Id="Vulcan.Uczniowie.HelpProvider.dll"/>
 	<ComponentRef Id="Autofac.dll"/>
 	<ComponentRef Id="icu.net.dll"/>
-	<ComponentRef Id="icudt56.dll"/>
-	<ComponentRef Id="icuin56.dll"/>
-	<ComponentRef Id="icuuc56.dll"/>
+	<ComponentRef Id="icudt59.dll"/>
+	<ComponentRef Id="icuin59.dll"/>
+	<ComponentRef Id="icuuc59.dll"/>
 	<ComponentRef Id="SIL.Core.dll"/>
 	<ComponentRef Id="SIL.Lift.dll"/>
 	<ComponentRef Id="SIL.Windows.Forms.dll"/>
