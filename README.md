@@ -37,13 +37,13 @@ The following list of features should help you understand why we built this laye
  * Support a Master branch which does not automatically accept changes from anyone
 
  * Files can be marked as shared by the team or user-specific. This allows things like
-   preferences/configurations to be part of the repository, but kept separate for each
+   preferences/configurations to be part of the repository but kept separate for each
    individual. This will also allow one team member to make configuration changes for another,
    remote member, and push those changes through the system to that user, without physically
    accessing their computer.
 
  * 3-Way, schema-savvy XML merging. Various policies can be implemented for choosing a winner in
-   the case of conflicts. Regardless of the policy, details of the conflict are logged in an xml
+   the case of conflicts. Regardless of the policy, details of the conflict are logged in an XML
    file which also under version control. At a time and place of the team's choosing, these
    automatic choices can be reviewed and reversed.
 
@@ -64,14 +64,14 @@ The following list of features should help you understand why we built this laye
    (if any) were encountered during synchronization.
 
  * A built-in "notes" system which makes it very cheap to give users the ability to add notes to
-   any piece of data, and to carry on conversations about about the data until they mark the
+   any piece of data, and to carry on conversations about the data until they mark the
    note as "resolved".
 
 ### Status
 
 Chorus is functional and being used in several applications with different development teams.
 However, we are not really interested in supporting
-any further uses until things mature and someone writes good develop documentation.
+any further uses until things mature and someone writes good developer documentation.
 Documentation (what little exists) drips out in the form of occasional blogs
 [here](http://chorussr.wordpress.com/).
 
@@ -98,7 +98,7 @@ https://trello.com/board/chorus/4f3a90277ae2b69b010988ac
 Chorus is written in C#. The UI widgets use Windows Forms, but you could make your own using a
 different platform and just use the engine.
 
-After cloning the project you should now have a solution which you can build using any edition
+After cloning the project you should now have a solution that you can build using any edition
 of Visual Studio 2010, including the free Express version. We could help you do it in VS 2008,
 if necessary.
 
