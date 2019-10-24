@@ -110,7 +110,7 @@ The source tree contains a script that downloads all necessary dependencies.
 
 #### Windows
 
-Open a "git bash" window, then change into the build directory and run the `buildupdate.win.sh` script:
+Download "git bash" from "https://git-scm.com/download/win" and open a "git bash" window, then change into the build directory and run the `buildupdate.win.sh` script:
 
 	cd /c/dev/chorus/build
 	./buildupdate.win.sh
