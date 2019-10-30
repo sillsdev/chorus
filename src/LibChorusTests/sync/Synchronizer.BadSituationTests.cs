@@ -46,7 +46,8 @@ namespace LibChorus.Tests.sync
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
 			using (var setup = new RepositorySetup("bob"))
 			{
-				using (new StreamWriter(setup.ProjectFolder.Combine(".hg", "hgrc")))
+				using (var stream = new FileStream(setup.ProjectFolder.Combine(".hg", "hgrc"), FileMode.Create, FileAccess.Write, FileShare.None))
+				using (new StreamWriter(stream))
 				{
 					var results = setup.CheckinAndPullAndMerge();
 					Assert.IsFalse(results.Succeeded);

@@ -315,7 +315,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var setup = new HgTestSetup())
 			{
 				setup.Repository.SetUserNameInIni("me", new NullProgress());
-				using (new StreamWriter(setup.Root.Combine(".hg", "hgrc")))
+				using (var stream = new FileStream(setup.Root.Combine(".hg", "hgrc"), FileMode.Create, FileAccess.Write, FileShare.None))
+				using (new StreamWriter(stream))
 				{
 					Assert.Throws<TimeoutException>(() =>
 						setup.Repository.SetUserNameInIni("otherme", new NullProgress()));
