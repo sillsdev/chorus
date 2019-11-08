@@ -1,4 +1,4 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build;Pack">
 	<PropertyGroup>
 		<RootDir Condition="'$(teamcity_build_checkoutDir)' == '' And '$(RootDir)'==''">$(MSBuildProjectDirectory)/..</RootDir>
 		<RootDir Condition="'$(teamcity_build_checkoutDir)' != ''">$(teamcity_build_checkoutDir)</RootDir>
@@ -254,6 +254,13 @@
 			Command="tar -czf $(SourcePackageFileName) $(ApplicationNameLC)-$(GitVersion_AssemblySemFileVer)"
 			WorkingDirectory="$(OutputDir)"
 		/>
+	</Target>
+
+	<Target Name="Pack" DependsOnTargets="RestorePackages">
+		<MSBuild
+			Projects="$(SolutionPath)"
+			Targets="pack"
+			Properties="Configuration=$(Configuration)" />
 	</Target>
 
 </Project>
