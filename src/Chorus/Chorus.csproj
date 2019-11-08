@@ -10,7 +10,7 @@
     <Authors>SIL International</Authors>
     <Product>chorus</Product>
     <Copyright>Copyright © 2010-2019 SIL International</Copyright>
-    <PackageId>SIL.Chorus</PackageId>
+    <PackageId>SIL.Chorus.App</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/sillsdev/chorus</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -25,6 +25,7 @@
     <AppendToReleaseNotesProperty><![CDATA[
 See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHANGELOG.md]]>
     </AppendToReleaseNotesProperty>
+    <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
   </PropertyGroup>
 
   <ItemGroup>
