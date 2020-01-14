@@ -15,8 +15,8 @@ CopyToWeSayDev.bat
 lib/Palaso.TestUtilities.pdb
 *~
 *.pidb
-Mercurial/*
-mercurial/*
+Mercurial/
+mercurial/
 *ReSharper*
 build/old
 lib/$(Configuration)
@@ -27,9 +27,7 @@ src/Chorus.Tests/bin/*
 src/ChorusMerge.Tests/bin/*
 src/SampleApp/bin/*
 CopyTo Dev WeSay.bat
-MercurialExtensions/fixutf8/*.pyc
-MercurialExtensions/fixutf8/cpmap.pyo
-MercurialExtensions/fixutf8/cpmap.py
+MercurialExtensions/
 test-results
 *.mdb
 src/LibChorusTests/test-results/LibChorus.Tests.csproj.test-cache
@@ -39,6 +37,7 @@ L10NSharp.dll
 lib/Chorus_Help.chm
 packages/
 .idea/
+.vs/
 riderModule.iml
 src/LibChorus/icu4c.readme.txt
 *.files

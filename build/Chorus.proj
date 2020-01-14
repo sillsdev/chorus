@@ -23,19 +23,15 @@
 	<Target Name="RestoreBuildTasks" DependsOnTargets="CheckPrerequisites">
 		<Message Text="RestartBuild=$(RestartBuild)" />
 		<Exec Command='$(NuGetCommand) install NUnit.Runners.Net4 -version 2.6.4 -solutionDirectory "$(RootDir)"' />
-		<Exec Command='$(NuGetCommand) install SIL.BuildTasks -excludeVersion -version 2.2.0 -solutionDirectory "$(RootDir)"' />
-		<Exec Command='$(NuGetCommand) install MSBuild.Extension.Pack -version 1.9.0 -solutionDirectory "$(RootDir)"' />
+		<Exec Command='$(NuGetCommand) install SIL.BuildTasks -excludeVersion -version 2.3.2 -solutionDirectory "$(RootDir)"' />
 		<Exec Command='$(NuGetCommand) install BuildDependencyTasks -excludeVersion -version 0.4.3 -solutionDirectory "$(RootDir)"' />
 	</Target>
 
 	<UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="'$(OS)'=='Windows_NT'"/>
 	<UsingTask TaskName="Archive" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="'$(OS)'!='Windows_NT'"/>
 	<UsingTask TaskName="FileUpdate" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" />
-	<UsingTask TaskName="DNZip" AssemblyFile="$(RootDir)/packages/MSBuild.Extension.Pack.1.9.0/tools/net40/MSBuild.ExtensionPack.dll" />
 	<UsingTask TaskName="NUnit" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" />
 	<UsingTask TaskName="Dependencies" AssemblyFile="$(SolutionDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll" />
-	<UsingTask TaskName="NUnitTeamCity" AssemblyFile="$(teamcity_dotnet_nunitlauncher_msbuild_task)" Condition=" '$(teamcity_version)' != '' And '$(OS)'=='Windows_NT'"/>
-	<UsingTask TaskName="NUnitTeamCity" AssemblyFile="$(agent_home_dir)/plugins/dotnetPlugin/bin/JetBrains.BuildServer.MSBuildLoggers.dll" Condition=" '$(teamcity_version)' != '' And '$(OS)'!='Windows_NT'"/>
 
 	<Target Name="DownloadDependencies" DependsOnTargets="RestoreBuildTasks">
 		<Dependencies DependencyFile="Chorus.dep" UseDependencyFile="true"
@@ -84,7 +80,7 @@
 		<Delete Files="@(ExistingInstallerFiles)" />
 	</Target>
 
-	<Target Name="Compile" DependsOnTargets="RestorePackages;UnzipMercurial;DownloadDependencies">
+	<Target Name="Compile" DependsOnTargets="RestorePackages;DownloadDependencies">
 		<MSBuild
 			Projects="$(SolutionPath)"
 			Targets="Build"
@@ -115,34 +111,12 @@
 			ToolPath="$(NUnitRunnerPackage)/tools"
 			TestInNewThread="false"
 			ExcludeCategory="$(ExtraExcludeCategories)$(excludedCategories)"
-			WorkingDirectory="$(RootDir)/output/$(Configuration)"
+			WorkingDirectory="$(RootDir)/output/$(Configuration)/net461/"
 			Force32Bit="$(useNUnit-x86)"
 			Verbose="true"
-			OutputXmlFile="$(RootDir)/output/$(Configuration)/TestResults.xml"/>
-		<Message Text="##teamcity[importData type='nunit' path='$(RootDir)/output/$(Configuration)/TestResults.xml']"
+			OutputXmlFile="$(RootDir)/output/$(Configuration)/net461/TestResults.xml"/>
+		<Message Text="##teamcity[importData type='nunit' path='$(RootDir)/output/$(Configuration)/net461/TestResults.xml']"
 			Condition="'$(teamcity_version)' != '' and '$(OS)'!='Windows_NT'"/>
-	</Target>
-
-	<Target Name="UnzipMercurial" DependsOnTargets="UnzipMercurial-Windows;UnzipMercurial-Linux"/>
-
-	<Target Name="UnzipMercurial-Windows" Condition="'$(OS)'=='Windows_NT'">
-		<!-- Extract a zip file-->
-		<DNZip TaskAction="Extract" ExtractPath="$(RootDir)" ZipFileName="$(RootDir)/lib/common/Mercurial.zip"/>
-	</Target>
-
-	<Target Name="UnzipMercurial-Linux" Condition="'$(OS)'!='Windows_NT'">
-		<!-- Remember, Unix/Linux commands return 0 for success ("true") -->
-		<Exec Command="/usr/bin/test `arch` = x86_64" ContinueOnError="true" IgnoreExitCode="true">
-			<Output TaskParameter="ExitCode" PropertyName="ZeroIf64BitCpu"/>
-		</Exec>
-		<Exec Command="/usr/bin/test `arch` = i686" ContinueOnError="true" IgnoreExitCode="true">
-			<Output TaskParameter="ExitCode" PropertyName="ZeroIf32BitCpu"/>
-		</Exec>
-		<!-- Extract the appropriate zip file. -->
-		<Exec Condition="'$(ZeroIf64BitCpu)'=='0'" Command="/usr/bin/unzip -uqo $(RootDir)/lib/common/Mercurial-x86_64.zip -d $(RootDir)" />
-		<Exec Condition="'$(ZeroIf32BitCpu)'=='0'" Command="/usr/bin/unzip -uqo $(RootDir)/lib/common/Mercurial-i686.zip -d $(RootDir)" />
-		<!-- Zip doesn't seem to retain the permission bits we need. -->
-		<Exec Command="/bin/chmod +x $(RootDir)/Mercurial/hg*" ContinueOnError="true"/>
 	</Target>
 
 	<!-- Windows installer stuff -->
@@ -179,12 +153,13 @@
 		<Exec Command='sign "$(RootDir)\output\Release\ChorusHubInstaller.msi" ' />
 	</Target>
 
-	<Target Name="MakeWixForDistFiles" Condition="'$(OS)'=='Windows_NT'">
+	<Target Name="MakeWixForDistFiles" DependsOnTargets="Compile" Condition="'$(OS)'=='Windows_NT'">
 		<MakeWixForDirTree
 			DirectoryReferenceId="mercurial"
 			ComponentGroupId="Mercurial"
 			RootDirectory="$(RootDir)\mercurial"
 			OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurial.wxs"
+			IgnoreRegExPattern="IGNOREME|\.gitignore"
 			Exclude="$(RootDir)\mercurial\mercurial.ini"
 			MatchRegExPattern=".*">
 			<Output TaskParameter="OutputFilePath" ItemName="Compile" />
@@ -194,6 +169,7 @@
 			ComponentGroupId="MercurialExtensions"
 			RootDirectory="$(RootDir)\MercurialExtensions"
 			OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurialExtensions.wxs"
+			IgnoreRegExPattern="IGNOREME|\.gitignore"
 			MatchRegExPattern=".*">
 			<Output TaskParameter="OutputFilePath" ItemName="Compile" />
 		</MakeWixForDirTree>

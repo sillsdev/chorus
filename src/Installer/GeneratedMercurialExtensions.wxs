@@ -2,63 +2,64 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
         <DirectoryRef Id="MercurialExtensions">
-            <Component Id="MercurialExtensions.Dummy.txt" Guid="C6205DCE-8A61-4D8B-878A-DFABA113C88C">
-                <File Id="MercurialExtensions.Dummy.txt" Name="Dummy.txt" KeyPath="yes" Source="..\..\MercurialExtensions\Dummy.txt" />
-            </Component>
             <Directory Id="MercurialExtensions.fixutf8" Name="fixutf8">
-					<Component Id="MercurialExtensions.fixutf8..gitignore" Guid="A1C9937A-8A76-4CB6-8F74-0EDC59F745BF">
-                    <File Id="MercurialExtensions.fixutf8..gitignore" Name=".gitignore" KeyPath="yes" Source="..\..\MercurialExtensions\fixutf8\.gitignore" />
-                </Component>
-                <Component Id="MercurialExtensions.fixutf8..hgignore" Guid="DCC771FB-2B8E-4DC9-8D2F-4D8C076E6291">
-                    <File Id="MercurialExtensions.fixutf8..hgignore" Name=".hgignore" Source="..\..\MercurialExtensions\fixutf8\.hgignore" />
-                </Component>
-                <Component Id="MercurialExtensions.fixutf8..hg_archival.txt" Guid="40268CA2-46CA-418A-9CAB-10528C74C113">
-                    <File Id="MercurialExtensions.fixutf8..hg_archival.txt" Name=".hg_archival.txt" Source="..\..\MercurialExtensions\fixutf8\.hg_archival.txt" />
-                </Component>
                 <Component Id="MercurialExtensions.fixutf8.buildcpmap.py" Guid="229A890A-2903-4294-9B88-7D26DF158596">
-                    <File Id="MercurialExtensions.fixutf8.buildcpmap.py" Name="buildcpmap.py" Source="..\..\MercurialExtensions\fixutf8\buildcpmap.py" />
+                    <File Id="MercurialExtensions.fixutf8.buildcpmap.py" Name="buildcpmap.py" KeyPath="yes" Source="..\..\MercurialExtensions\fixutf8\buildcpmap.py" />
+                    <RemoveFile Id="_a8c2b03c72eb44e9bbb83072d360e9a8" On="both" Name="*.*" />
+                </Component>
+                <Component Id="MercurialExtensions.fixutf8.cpmap.py" Guid="7E86108A-054E-4639-8A90-A1D78327A4A1">
+                    <File Id="MercurialExtensions.fixutf8.cpmap.py" Name="cpmap.py" Source="..\..\MercurialExtensions\fixutf8\cpmap.py" />
+                    <RemoveFile Id="_38684329826f4029b435aeb13eb01e70" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.cpmap.pyc" Guid="EFE88174-6357-41BB-BC0E-6413635F89B2">
                     <File Id="MercurialExtensions.fixutf8.cpmap.pyc" Name="cpmap.pyc" Source="..\..\MercurialExtensions\fixutf8\cpmap.pyc" />
+                    <RemoveFile Id="_897b48f876ab438889a270b7d78edce1" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.fixutf8.py" Guid="4E259FD4-1C1D-4DD9-98D3-E11F75BCD354">
                     <File Id="MercurialExtensions.fixutf8.fixutf8.py" Name="fixutf8.py" Source="..\..\MercurialExtensions\fixutf8\fixutf8.py" />
+                    <RemoveFile Id="_d6616895414a4153a54d6155d0f46990" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.fixutf8.pyc" Guid="5E357E7C-FC92-4C4D-B620-A26E2B5A68B3">
                     <File Id="MercurialExtensions.fixutf8.fixutf8.pyc" Name="fixutf8.pyc" Source="..\..\MercurialExtensions\fixutf8\fixutf8.pyc" />
+                    <RemoveFile Id="_4f3dcc3e32254cfda9194a76be75fc6f" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.fixutf8.pyo" Guid="E2F3BA7A-A7F1-4B1E-B92D-9B41985D76ED">
                     <File Id="MercurialExtensions.fixutf8.fixutf8.pyo" Name="fixutf8.pyo" Source="..\..\MercurialExtensions\fixutf8\fixutf8.pyo" />
+                    <RemoveFile Id="_345b30f31f2b48fe9b407f94b793c4e2" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.osutil.py" Guid="3FDCFA06-1BEE-479A-B62C-81C4A59580D5">
                     <File Id="MercurialExtensions.fixutf8.osutil.py" Name="osutil.py" Source="..\..\MercurialExtensions\fixutf8\osutil.py" />
+                    <RemoveFile Id="_3d1bbab80ac04b9a9f6cb158ed6ce2bc" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.osutil.pyc" Guid="AB3127DD-9BEB-4E56-800A-77FF5935AFA9">
                     <File Id="MercurialExtensions.fixutf8.osutil.pyc" Name="osutil.pyc" Source="..\..\MercurialExtensions\fixutf8\osutil.pyc" />
+                    <RemoveFile Id="_463c5a429c544ae8ae653ef6e31bfb80" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.osutil.pyo" Guid="16FF6D2F-39B1-48BF-B4DE-3107F68D5657">
                     <File Id="MercurialExtensions.fixutf8.osutil.pyo" Name="osutil.pyo" Source="..\..\MercurialExtensions\fixutf8\osutil.pyo" />
+                    <RemoveFile Id="_a2a1d5452308414a8b131036dcf2af6e" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.README" Guid="258101CF-9BE2-4FA4-A9AB-2DECCC9DE2D1">
                     <File Id="MercurialExtensions.fixutf8.README" Name="README" Source="..\..\MercurialExtensions\fixutf8\README" />
+                    <RemoveFile Id="_84ce148f30b943f592fa9f1e92df80f9" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.win32helper.py" Guid="8C8DC005-BE3F-4978-BE53-C15C275B721D">
                     <File Id="MercurialExtensions.fixutf8.win32helper.py" Name="win32helper.py" Source="..\..\MercurialExtensions\fixutf8\win32helper.py" />
+                    <RemoveFile Id="_d4f27d2716da4613b2304084d00a24f6" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.win32helper.pyc" Guid="3F7C9583-9291-44C7-B6E0-2A2854EE7256">
                     <File Id="MercurialExtensions.fixutf8.win32helper.pyc" Name="win32helper.pyc" Source="..\..\MercurialExtensions\fixutf8\win32helper.pyc" />
+                    <RemoveFile Id="_ba7ffb2a876441ad8505c8b1c113ea71" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.win32helper.pyo" Guid="317E099A-E1A1-4E31-9868-BA91AC3B8420">
                     <File Id="MercurialExtensions.fixutf8.win32helper.pyo" Name="win32helper.pyo" Source="..\..\MercurialExtensions\fixutf8\win32helper.pyo" />
+                    <RemoveFile Id="_019eb677f68e466c95d5f0b695f9ec3c" On="both" Name="*.*" />
                 </Component>
             </Directory>
         </DirectoryRef>
         <ComponentGroup Id="MercurialExtensions">
-            <ComponentRef Id="MercurialExtensions.Dummy.txt" />
-            <ComponentRef Id="MercurialExtensions.fixutf8..gitignore" />
-            <ComponentRef Id="MercurialExtensions.fixutf8..hgignore" />
-            <ComponentRef Id="MercurialExtensions.fixutf8..hg_archival.txt" />
             <ComponentRef Id="MercurialExtensions.fixutf8.buildcpmap.py" />
+            <ComponentRef Id="MercurialExtensions.fixutf8.cpmap.py" />
             <ComponentRef Id="MercurialExtensions.fixutf8.cpmap.pyc" />
             <ComponentRef Id="MercurialExtensions.fixutf8.fixutf8.py" />
             <ComponentRef Id="MercurialExtensions.fixutf8.fixutf8.pyc" />
