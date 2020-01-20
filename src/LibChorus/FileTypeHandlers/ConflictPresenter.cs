@@ -38,7 +38,7 @@ namespace Chorus.FileTypeHandlers
 			_report = report;// as XmlAdditionChangeReport;
 			if (_report == null)
 			{
-				_conflict = new UnreadableConflict(report.ChildNode);
+				_conflict = new UnreadableConflict(null);
 			}
 			else
 			{
