@@ -1,0 +1,6 @@
+extraction:
+  # We don't use python in Chorus, so we ignore all files to prevent failing LGTM builds
+  python:
+    index:
+      filters:
+       - exclude: "**/*.*"
