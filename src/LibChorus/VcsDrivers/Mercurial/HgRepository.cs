@@ -146,6 +146,12 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			_mercurialTwoCompatible = true;
 			_hgrcUpdateNeeded = updateHgrc;
+			var timeoutOverride = Environment.GetEnvironmentVariable("CHORUS_LOCAL_TIMEOUT_SECONDS");
+			int timeoutValue;
+			if (int.TryParse(timeoutOverride, out timeoutValue))
+			{
+				SecondsBeforeTimeoutOnLocalOperation = timeoutValue;
+			}
 		}
 
 		/// <summary>
