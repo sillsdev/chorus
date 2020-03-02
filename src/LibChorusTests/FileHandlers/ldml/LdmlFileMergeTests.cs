@@ -416,6 +416,111 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		}
 
 		[Test]
+		public void SurrogatePairCrash()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='' />
+		<generation date='2019-10-30T23:46:17Z' />
+		<language type='en' />
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:identity windowsLCID='1033' />
+		</special>
+	</identity>
+	<characters>
+		<exemplarCharacters>['\-A-Za-z]</exemplarCharacters>
+		<exemplarCharacters type='punctuation'>[\ -""\&amp;(),./\:;?\[\]\{\}\u2013\u2018\u2019\u201C\u201D]</exemplarCharacters>
+	</characters>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:font name='Times New Roman' types='default' />
+		</sil:external-resources>
+	</special>
+	<layout>
+		<orientation>
+			<characterOrder>left-to-right</characterOrder>
+		</orientation>
+	</layout>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision$' />
+		<generation date='2019-10-29T02:18:37Z' />
+		<language type='en' />
+	</identity>
+	<characters>
+		<exemplarCharacters>[a-z]</exemplarCharacters>
+		<exemplarCharacters type='auxiliary'>[\u00E0-\u00EF\u00F1-\u00F4\u00F6\u00F8-\u00FC\u00FF\u0101\u0103\u0113\u0115\u012B\u012D\u014D\u014F\u0153\u016B\u016D]</exemplarCharacters>
+		<exemplarCharacters type='index'>[A-Z]</exemplarCharacters>
+		<exemplarCharacters type='punctuation'>[!-#\&amp;-*,-/\:;?@\[\]\u00A7\u2010\u2013\u2014\u2018\u2019\u201C\u201D\u2020\u2021\u2026\u2032\u2033]</exemplarCharacters>
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:exemplarCharacters type='numbers'>[%+-.0-9\u2030]</sil:exemplarCharacters>
+		</special>
+	</characters>
+	<delimiters>
+		<quotationStart>“</quotationStart>
+		<quotationEnd>”</quotationEnd>
+		<alternateQuotationStart>‘</alternateQuotationStart>
+		<alternateQuotationEnd>’</alternateQuotationEnd>
+		<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+			<sil:quotation-marks>
+				<sil:quotationContinue></sil:quotationContinue>
+			</sil:quotation-marks>
+		</special>
+	</delimiters>
+	<layout>
+		<orientation>
+			<characterOrder>left-to-right</characterOrder>
+		</orientation>
+	</layout>
+	<collations>
+		<defaultCollation>standard</defaultCollation>
+		<collation type='standard' />
+	</collations>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:font name='Charis SIL' types='default' />
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			string theirContent = commonAncestor;
+
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/characters/exemplarCharacters[@type='index' and text()='[A-Z]']",
+					@"ldml/characters/exemplarCharacters[@type='auxiliary' and text()='[\u00E0-\u00EF\u00F1-\u00F4\u00F6\u00F8-\u00FC\u00FF\u0101\u0103\u0113\u0115\u012B\u012D\u014D\u014F\u0153\u016B\u016D]']",
+					@"ldml/characters/exemplarCharacters[@type='punctuation' and text()='[!-#\&amp;-*,-/\:;?@\[\]\u00A7\u2010\u2013\u2014\u2018\u2019\u201C\u201D\u2020\u2021\u2026\u2032\u2033]']",
+					@"ldml/characters/exemplarCharacters[text()='[a-z]']"
+				},
+				new List<string>
+				{
+					@"ldml/characters/exemplarCharacters[text()='[1 2 3 4 5 6 7 8 9 0]']"
+				},
+				3, new List<Type>
+				{
+					typeof (BothEditedTheSameAtomicElement),
+					typeof (BothEditedTheSameAtomicElement),
+					typeof (AmbiguousInsertConflict)
+				},
+				5, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlTextBothMadeSameChangeReport), typeof(XmlAttributeBothAddedReport),
+					typeof(XmlTextAddedReport), typeof(XmlTextAddedReport)
+				});
+		}
+
+		[Test]
 		public void Merging_Different_Characters_Changes_Works()
 		{
 			const string baseCharacters =
