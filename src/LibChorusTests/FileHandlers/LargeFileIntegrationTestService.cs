@@ -15,10 +15,10 @@ namespace LibChorus.Tests.FileHandlers
 {
 	/// <summary>
 	/// Static class that tests (integration, not unit, since it involves so many units)
-	/// to make sure a given file extension is, or is not, included in a respository,
+	/// to make sure a given file extension is, or is not, included in a repository,
 	/// when committed by the Synchronizer class.
 	///
-	/// No filtering for large files is done at the respository commit level.
+	/// No filtering for large files is done at the repository commit level.
 	/// </summary>
 	public static class LargeFileIntegrationTestService
 	{
