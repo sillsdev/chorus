@@ -29,7 +29,11 @@ namespace Chorus.merge.xml.generic
 		[Obsolete("Use TimeFormatWithTimeZone instead, as TimeFormatNoTimeZone produces incorrect results when used with DateTime.Now")]
 		public static string TimeFormatNoTimeZone = @"yyyy-MM-ddTHH:mm:ssZ";
 		public static string TimeFormatWithTimeZone = @"yyyy-MM-ddTHH:mm:ssK";
-
+		private static readonly Encoding Utf8Encoder = Encoding.GetEncoding(
+			"UTF-8",
+			new EncoderReplacementFallback(string.Empty), // Drop any problem characters
+			new DecoderExceptionFallback()
+		);
 		private ContextDescriptor _context = new NullContextDescriptor();
 
 		protected Guid _guid = GuidProvider.Current.NewGuid();
@@ -171,18 +175,26 @@ namespace Chorus.merge.xml.generic
 		protected virtual void WriteAttributes(XmlWriter writer)
 		{
 			writer.WriteAttributeString(@"typeGuid", string.Empty, GetTypeGuid());
-			writer.WriteAttributeString(@"class", string.Empty, this.GetType().FullName);
+			writer.WriteAttributeString(@"class", string.Empty, GetType().FullName);
 			writer.WriteAttributeString(@"relativeFilePath", string.Empty, RelativeFilePath);
 			writer.WriteAttributeString(@"type", string.Empty, Description);
 			writer.WriteAttributeString(@"guid", string.Empty, Guid.ToString());
 			writer.WriteAttributeString(@"date", string.Empty, DateTimeProvider.Current.UtcNow.ToString(TimeFormatWithTimeZone));
 			writer.WriteAttributeString(@"whoWon", _whoWon);
-			writer.WriteAttributeString(@"htmlDetails", HtmlDetails);
+			WriteSanitizedHtmlDetails(writer, HtmlDetails);
 
 			if (Context != null)
 			{
 				Context.WriteAttributes(writer);
 			}
+		}
+
+		private static void WriteSanitizedHtmlDetails(XmlWriter writer, string htmlDetails)
+		{
+			// Drop out any characters that can't be Utf8 encoded. We wouldn't be able to display them
+			// and they might cause a crash writing to the xml file.
+			var safeHtmlDetails = string.IsNullOrEmpty(htmlDetails) ? string.Empty : Utf8Encoder.GetString(Utf8Encoder.GetBytes(htmlDetails));
+			writer.WriteAttributeString(@"htmlDetails", safeHtmlDetails);
 		}
 
 		private string GetTypeGuid()
