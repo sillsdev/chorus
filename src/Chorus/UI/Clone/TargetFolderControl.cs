@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows.Forms;
 using L10NSharp;
@@ -44,10 +44,7 @@ namespace Chorus.UI.Clone
 				}
 				else if (!_model.HaveWellFormedTargetLocation)
 				{
-					if (_localFolderName.Text.Trim().Length == 0)
-						_targetInfoLabel.Text = LocalizationManager.GetString("Messages.PleaseEnterName", "Please enter a name");
-					else
-						_targetInfoLabel.Text = LocalizationManager.GetString("Messages.IllegalCharacters", "That name contains characters which are not allowed.");
+					_targetInfoLabel.Text = _localFolderName.Text.Length == 0 ? LocalizationManager.GetString("Messages.PleaseEnterName", "Please enter a name") : LocalizationManager.GetString("Messages.IllegalCharacters", "That name contains characters which are not allowed.");
 				}
 				else if (!_model.TargetLocationIsUnused)
 				{
@@ -66,8 +63,11 @@ namespace Chorus.UI.Clone
 
 		private void _localName_TextChanged(object sender, EventArgs e)
 		{
-			if (_model.LocalFolderName != _localFolderName.Text)
-				_model.LocalFolderName = _localFolderName.Text;
+			// LT-19858 don't allow whitespace before or after name of destination folder; this handles before
+			// trimming the end is trickier because we'd like to allow spaces inside the name.
+			var trimmedVersion = _localFolderName.Text.TrimStart();
+			if (_model.LocalFolderName != trimmedVersion)
+				_model.LocalFolderName = trimmedVersion;
 		   UpdateDisplay();
 		}
 
