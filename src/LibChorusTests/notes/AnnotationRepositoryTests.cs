@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Chorus.VcsDrivers.Mercurial;
 using Chorus.notes;
 using LibChorus.TestUtilities;
@@ -213,6 +214,54 @@ namespace LibChorus.Tests.notes
 			}
 		}
 
+		// I'm not very happy with this test. It's more integration than unit test. It might be flaky,
+		// if some build agent's file system is slow to send file modification notifications.
+		// It doesn't guarantee that both the guards against sending notifications for our own Saves
+		// work.
+		// OTOH, the only way I see to make it less flaky is to expose more of the implementation
+		// and allow test code to call the file-modified event handler directly. Then we aren't testing
+		// the setup of the watcher or the code in Save that tries to prevent the notifications at all,
+		// which is more than half the code this test wants to exercise.
+		[Test]
+		public void ExternalFileModification_NotifiesIndices_ButSaveDoesNot()
+		{
+			using (var t = new TempFile(@"<notes version='0'><annotation guid='123'>
+<message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
+			{
+				using (var r = AnnotationRepository.FromFile("id", t.Path, new NullProgress()))
+				{
+					var index = new TestAnnotationIndex();
+					r.AddObserver(index, _progress);
+
+					File.WriteAllText(t.Path, @"<notes version='0'><annotation guid='123'>
+<message guid='234'>&lt;p&gt;goodbye</message></annotation></notes>");
+
+					int tries = 0;
+					while (index.StaleNotifications == 0 && tries++ < 3)
+					{
+						Thread.Sleep(10);
+
+					}
+					Assert.AreEqual(1, index.StaleNotifications);
+
+					var annotation = new Annotation("question", "foo://blah.org?id=1", @"c:\pretendPath");
+					r.AddAnnotation(annotation);
+
+					r.Save(new NullProgress());
+
+					tries = 0;
+					while (index.StaleNotifications == 1 && tries++ < 3)
+					{
+						Thread.Sleep(10);
+
+					}
+					// It's still 1, after waiting long enough to be fairly sure we would have
+					// seen the notification.
+					Assert.AreEqual(1, index.StaleNotifications);
+				}
+			}
+		}
+
 		[Test]
 		public void CloseAnnotation_AnnotationWasAddedDynamically_RepositoryNotifiesIndices()
 		{
@@ -332,6 +381,7 @@ namespace LibChorus.Tests.notes
 		public int Additions;
 		public int Modification;
 		public int Deletions;
+		public int StaleNotifications;
 
 		public TestAnnotationIndex()
 		{
@@ -354,6 +404,11 @@ namespace LibChorus.Tests.notes
 		public void NotifyOfDeletion(Annotation annotation)
 		{
 			Deletions++;
+		}
+
+		public void NotifyOfStaleList()
+		{
+			StaleNotifications++;
 		}
 	}
 

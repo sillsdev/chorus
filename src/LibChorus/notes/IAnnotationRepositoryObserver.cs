@@ -11,5 +11,6 @@ namespace Chorus.notes
 		void NotifyOfAddition(Annotation annotation);
 		void NotifyOfModification(Annotation annotation);
 		void NotifyOfDeletion(Annotation annotation);
+		void NotifyOfStaleList();
 	}
 }
