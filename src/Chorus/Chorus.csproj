@@ -208,13 +208,14 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="Vulcan.Uczniowie.HelpProvider">
-      <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
-    </Reference>
     <ProjectReference Include="..\LibChorus\LibChorus.csproj">
       <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
       <Name>LibChorus</Name>
     </ProjectReference>
+    <Reference Include="Vulcan.Uczniowie.HelpProvider, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c5e47f534b8ee927">
+      <HintPath>..\..\packages\Vulcan.Uczniowie.HelpProvider.1.0.1\lib\net461\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arguments.cs" />
@@ -441,6 +442,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

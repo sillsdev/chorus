@@ -134,7 +134,6 @@ mkdir -p ../lib/common
 
 # download artifact dependencies
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt216/latest.lastSuccessful/Chorus_Help.chm ../lib/Chorus_Help.chm
-copy_auto http://build.palaso.org/guestAuth/repository/download/bt225/latest.lastSuccessful/Vulcan.Uczniowie.HelpProvider.dll ../lib/common/Vulcan.Uczniowie.HelpProvider.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt471/latest.lastSuccessful/icudt54.dll ../lib/Debug/icudt54.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt471/latest.lastSuccessful/icuin54.dll ../lib/Debug/icuin54.dll
 copy_auto http://build.palaso.org/guestAuth/repository/download/bt471/latest.lastSuccessful/icuuc54.dll ../lib/Debug/icuuc54.dll

@@ -135,8 +135,9 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Vulcan.Uczniowie.HelpProvider">
-      <HintPath>..\..\lib\common\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
+    <Reference Include="Vulcan.Uczniowie.HelpProvider, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c5e47f534b8ee927">
+      <HintPath>..\..\packages\Vulcan.Uczniowie.HelpProvider.1.0.1\lib\net461\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +174,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
