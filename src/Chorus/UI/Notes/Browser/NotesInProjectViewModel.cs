@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -294,6 +294,12 @@ namespace Chorus.UI.Notes.Browser
 			//NB: this notification would come from the repository, not the view
 			_reloadPending=true;
 			SaveChanges();
+		}
+
+		public void NotifyOfStaleList()
+		{
+			_reloadPending = true;
+			ReloadMessagesNow();
 		}
 
 

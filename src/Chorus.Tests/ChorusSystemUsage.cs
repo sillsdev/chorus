@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -225,6 +225,11 @@ namespace Chorus.Tests
 
 		public void NotifyOfDeletion(Annotation annotation)
 		{
+		}
+
+		public void NotifyOfStaleList()
+		{
+
 		}
 
 		#endregion

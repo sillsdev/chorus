@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Chorus.notes;
@@ -133,6 +133,11 @@ namespace Chorus.UI.Notes.Bar
 		}
 
 		public void NotifyOfDeletion(Annotation annotation)
+		{
+			_reloadPending = true;
+		}
+
+		public void NotifyOfStaleList()
 		{
 			_reloadPending = true;
 		}
