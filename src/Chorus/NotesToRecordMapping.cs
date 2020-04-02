@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -46,14 +46,15 @@ namespace Chorus
 		public AdditionalIdGeneratorFunction FunctionToGoFromObjectToAdditionalIds = DefaultAdditionalIdGeneratorFunction;
 
 		/// <summary>
-		/// Used to make new annotations with a url refelctign the current object/insertion-point/whatever.
+		/// Used to make new annotations with a url reflecting the current object/insertion-point/whatever.
 		/// You must include and "id" part, and normally you'll include your own "label" part too. You can add
 		/// other parts to the url as suits you; for example, you might have the id lead you to the right paragraph, but
-		/// then add other attributes to tell you which word(s) to hilite.
+		/// then add other attributes to tell you which word(s) to highlight.
 		/// Note, the key will be "escaped" (made safe for going in a url) for you, so don't make
 		/// your UrlGeneratorFunction do that.
 		/// <example>(escapedId) => string.Format("myimages://image?id={0}&amp;label=myMugShot&amp;type=jpg",escapedId)</example>
 		/// <example>(ignoreIt) => string.Format("myimages://image?id={0}&amp;type={1}",_currentImage.Guid, _currentImage.FileType)</example>
+		/// </summary>
 		public UrlGeneratorFunction FunctionToGetCurrentUrlForNewNotes = DefaultUrlGenerator;
 	}
 }

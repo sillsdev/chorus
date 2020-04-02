@@ -243,13 +243,9 @@ namespace Chorus.merge.xml.generic
 		private XmlNode _parentNode;
 
 		/// <summary>
-		/// Most recent acceptable targets among children of _parentNode
-		/// </summary>
-		private HashSet<XmlNode> _acceptableTargets;
-		/// <summary>
 		/// Map from KeyPosition in _parentNode to corresponding node (for each node that has a key).
 		/// </summary>
-		Dictionary<KeyPosition, XmlNode> _parentMap = new Dictionary<KeyPosition, XmlNode>();
+		readonly Dictionary<KeyPosition, XmlNode> _parentMap = new Dictionary<KeyPosition, XmlNode>();
 
 		/// <summary>
 		/// Of the last nodeToMatch.
@@ -283,7 +279,7 @@ namespace Chorus.merge.xml.generic
 				GetKeyPositions(_sourceNode.ChildNodes.Cast<XmlNode>(), (node, kp) => _sourceMap[node] = kp);
 			}
 
-			if (_parentNode != parentToSearchIn || _acceptableTargets != acceptableTargets)
+			if (_parentNode != parentToSearchIn || acceptableTargets != null)
 			{
 				_parentMap.Clear();
 				_parentNode = parentToSearchIn;
@@ -538,7 +534,7 @@ namespace Chorus.merge.xml.generic
 	}
 
 	/// <summary>
-	/// e.g. <grammatical-info>  there can only be one
+	/// e.g. &lt;grammatical-info&gt; there can only be one
 	/// </summary>
 	public class FindFirstElementWithSameName : IFindMatchingNodesToMerge
 	{

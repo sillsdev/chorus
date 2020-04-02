@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -55,15 +55,15 @@ namespace ChorusHub
 
 				var arguments = "serve -A accessLog.txt -E log.txt -p " + Port + " --verbose ";
 
-				const float kHgVersion = (float)1.5;
-				if (kHgVersion < 1.9)
-				{
+				//const float kHgVersion = (float)1.5;
+				//if (kHgVersion < 1.9)
+				//{
 					arguments += "--webdir-conf hgweb.config";
-				}
-				else
-				{
-					arguments += "--web-conf hgweb.config";
-				}
+				//}
+				//else
+				//{
+				//	arguments += "--web-conf hgweb.config";
+				//}
 
 #if CommandWindow
 				_hgServeProcess = new Process();
@@ -106,7 +106,7 @@ namespace ChorusHub
 
 				return true;
 			}
-			catch (Exception error)
+			catch
 			{
 				//EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);
 				return false;
@@ -146,41 +146,34 @@ namespace ChorusHub
 				{
 					while (true)
 					{
-						try
-						{
-							var line = reader.ReadLine();
-							if (line == null)
-								return;
+						var line = reader.ReadLine();
+						if (line == null)
+							return;
 
-							var start = line.IndexOf("GET /") + 5;
-							var end = line.IndexOf("?");
-							if (line.Contains("404") && start > 9 & end > 0)
+						var start = line.IndexOf("GET /") + 5;
+						var end = line.IndexOf("?");
+						if (line.Contains("404") && start > 9 & end > 0)
+						{
+							var name = line.Substring(start, end - start);
+							string directory = Path.Combine(_rootFolder, name);
+
+							directory = SIL.Network.HttpUtilityFromMono.UrlDecode(directory); // convert %20 --> space
+							if (!Directory.Exists(directory))
 							{
-								var name = line.Substring(start, end - start);
-								string directory = Path.Combine(_rootFolder, name);
-
-								directory = SIL.Network.HttpUtilityFromMono.UrlDecode(directory); // convert %20 --> space
-								if (!Directory.Exists(directory))
-								{
-									//Progress.WriteMessage("Creating new folder '" + name + "'");
-									Directory.CreateDirectory(directory);
-								}
-								if (!Directory.Exists(Path.Combine(directory, ".hg")))
-								{
-									//Progress.WriteMessage("Initializing blank repository: " + name +
-									//				  ". Try Sending again in a few minutes, when hg notices the new directory.");
-									HgRepository.CreateRepositoryInExistingDir(directory, new ConsoleProgress());
-								}
+								//Progress.WriteMessage("Creating new folder '" + name + "'");
+								Directory.CreateDirectory(directory);
 							}
-						}
-						catch (Exception)
-						{
-							throw;
+							if (!Directory.Exists(Path.Combine(directory, ".hg")))
+							{
+								//Progress.WriteMessage("Initializing blank repository: " + name +
+								//				  ". Try Sending again in a few minutes, when hg notices the new directory.");
+								HgRepository.CreateRepositoryInExistingDir(directory, new ConsoleProgress());
+							}
 						}
 					}
 				}
 			}
-			catch (Exception error)
+			catch
 			{
 				//EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);
 			}

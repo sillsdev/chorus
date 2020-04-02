@@ -158,7 +158,7 @@ namespace Chorus.sync
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
 			}
-			catch (UserCancelledException error)
+			catch (UserCancelledException)
 			{
 				results.Succeeded = false;
 				results.Cancelled = true;
@@ -670,8 +670,6 @@ namespace Chorus.sync
 		/// <summary>
 		/// This method handles post merge tasks including the commit after the merge
 		/// </summary>
-		/// <param name="head"></param>
-		/// <param name="peopleWeMergedWith"></param>
 		private void DoPostMergeCommit(Revision head)
 		{
 			//that merge may have generated notes files where they didn't exist before,

@@ -1,12 +1,10 @@
-﻿
-using System;
 using System.Drawing;
 
 namespace Chorus
 {
 	/// <summary>
-	/// THis is used to pass to Chorus font & keyboard information, without requiring you to
-	/// use our (Palaso's) WritingSytem classes.
+	/// This is used to pass font &amp; keyboard information to Chorus without requiring clients to
+	/// use our (Palaso's) WritingSystem classes.
 	/// </summary>
 	public interface IWritingSystem
 	{

@@ -120,7 +120,7 @@ namespace Chorus.merge
 
 			//NB: these aren't needed to do the merge; we're given the actual 3 files.  But they are needed
 			//for the conflict record, so that we can later look up exactly what were the 3 inputs at the time of merging.
-		   //string pathToFileInRepository = Environment.GetEnvironmentVariable(MergeSituation.kPathToFileInRepository);
+			//string pathToFileInRepository = Environment.GetEnvironmentVariable(MergeSituation.kPathToFileInRepository);
 			//we don't have access to this yet: string ancestorRevision = Environment.GetEnvironmentVariable(MergeSituation.kAncestorRevision);
 			string alphaId = Environment.GetEnvironmentVariable(MergeSituation.kAlphaUserId);
 			string betaId = Environment.GetEnvironmentVariable(MergeSituation.kBetaUserId);
@@ -136,8 +136,6 @@ namespace Chorus.merge
 		/// this isn't all we want to know, but it's all the guy telling hg to merge two branches knows.
 		/// This is called to put this info into env vars where we can retrieve it once chorus.exe is called by hg
 		/// </summary>
-		/// <param name="alphaUserRevision"></param>
-		/// <param name="betaUserRevision"></param>
 		public static void PushRevisionsToEnvironmentVariables(string userAlphaId, string alphaUserRevision, string userBetaId, string betaUserRevision)
 		{
 			Environment.SetEnvironmentVariable(kAlphaUserId, userAlphaId);
@@ -146,13 +144,6 @@ namespace Chorus.merge
 			Environment.SetEnvironmentVariable(kBetaUserId, userBetaId);
 			Environment.SetEnvironmentVariable(kBetaUserRevision, betaUserRevision);
 		}
-//
-//        public void WriteXml(XmlWriter writer)
-//        {
-//            writer.WriteStartElement("MergeSituation");
-//            writer.WriteAttributeString("PathToFileInRepository",this.PathToFileInRepository);
-//            writer.WriteEndElement();
-//        }
 
 
 		public static MergeSituation FromXml(XmlNode node)
@@ -174,7 +165,7 @@ namespace Chorus.merge
 				mode = MergeOrder.ConflictHandlingModeChoices.Unknown;
 			}
 
-			//Note, we can't use the normal construtor, because it switches who is alpha/beta
+			//Note, we can't use the normal constructor, because it switches who is alpha/beta
 			//depending on the conflict handling mode.  We don't want to switch them again
 			//when we're re-constituting the situation
 			var situation = new MergeSituation(node.GetStringAttribute("path"), mode);

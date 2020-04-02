@@ -47,7 +47,7 @@ namespace Chorus.FileTypeHandlers.ldml
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			return FileUtils.CheckValidPathname(pathToFile, Extension);
+			return PathHelper.CheckValidPathname(pathToFile, Extension);
 		}
 
 		/// <summary>
@@ -58,7 +58,7 @@ namespace Chorus.FileTypeHandlers.ldml
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
 			if (mergeOrder == null)
-				throw new ArgumentNullException("mergeOrder");
+				throw new ArgumentNullException(nameof(mergeOrder));
 
 			bool addedCollationAttr;
 			PreMergeFile(mergeOrder, out addedCollationAttr);
@@ -80,7 +80,6 @@ namespace Chorus.FileTypeHandlers.ldml
 				var readerSettings = CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Auto);
 				readerSettings.NameTable = nameSpaceManager.NameTable;
 				readerSettings.XmlResolver = null;
-				readerSettings.ProhibitDtd = false;
 				if (addedCollationAttr)
 				{
 					// Remove the optional 'key' attr we added.
