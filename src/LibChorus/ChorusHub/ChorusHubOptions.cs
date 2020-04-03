@@ -10,10 +10,19 @@ namespace Chorus.ChorusHub
 
 		//these numbers were selected by looking at the IANA registry and intentionally *not* picking,
 		//"undefined" ones (which could become defined in the future), but rather ones already assigned to stuff
-		//that looks unlike to be running on the same subnet
-		public const int AdvertisingPort = 5911;//"Controller Pilot Data Link Communication"
-		public const int ServicePort = 5912;//"Flight Information Services"
-		public const int MercurialPort = 5913; //"Automatic Dependent Surveillance"
+		//that looks unlikely to be running on the same subnet
+		/// <summary>
+		/// "Controller Pilot Data Link Communication"
+		/// </summary>
+		public const int AdvertisingPort = 5911;
+		/// <summary>
+		/// "Flight Information Services"
+		/// </summary>
+		public const int ServicePort = 5912;
+		/// <summary>
+		/// "Automatic Dependent Surveillance"
+		/// </summary>
+		public const int MercurialPort = 5913;
 
 		/// <summary>
 		/// Path to a folder where all the repositories will be placed.

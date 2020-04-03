@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -50,7 +50,7 @@ namespace Chorus.UI.Clone
 				string[] directories = new string[0];
 				try
 				{ // this is all complicated because the yield can't be inside the try/catch
-					directories = DirectoryUtilities.GetSafeDirectories(drive.RootDirectory.FullName);
+					directories = DirectoryHelper.GetSafeDirectories(drive.RootDirectory.FullName);
 				}
 				catch (Exception error)
 				{

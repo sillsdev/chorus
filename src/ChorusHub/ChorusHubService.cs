@@ -139,7 +139,7 @@ namespace ChorusHub
 				//EventLog.WriteEntry("Application", string.Format("Client requested repositories matching {0}.", searchPatternString), EventLogEntryType.Information);
 				return string.Join("/", CombRepositoriesForMatchingNames(allDirectoryTuples, searchPatternString).ToArray());
 			}
-			catch (ApplicationException e)
+			catch (ApplicationException)
 			{
 				// Url parser couldn't parse the url.
 				//EventLog.WriteEntry("Application", "GetRepositoryInformation(): " + e.Message, EventLogEntryType.Warning);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Chorus.VcsDrivers;
 
@@ -11,35 +11,35 @@ namespace Chorus.ChorusHub
 	/// <example>{"name": "fooProject", "id": "123abc"}</example>
 	public static class ImitationHubJSONService
 	{
-		private const string format1 = "{\"name\": \"";
-		private const string format2 = "\", \"id\": \"";
-		private const string format3 = "\"}";
+		private const string Format1 = "{\"name\": \"";
+		private const string Format2 = "\", \"id\": \"";
+		private const string Format3 = "\"}";
 
-		// Serialize
+		/// <summary>Serialize</summary>
 		public static string MakeJsonString(string name, string id)
 		{
-			return format1 + name + format2 + id + format3;
+			return Format1 + name + Format2 + id + Format3;
 		}
 
-		// Deserialize one
+		/// <summary>Deserialize one</summary>
 		public static RepositoryInformation DechipherJsonString(string jsonString)
 		{
 			// Probably not the best way to do this, but...
 			// If the parse fails for any reason, will throw ArgumentException.
-			if (string.IsNullOrEmpty(jsonString) || !jsonString.StartsWith(format1) ||
-				!jsonString.EndsWith(format3))
+			if (string.IsNullOrEmpty(jsonString) || !jsonString.StartsWith(Format1) ||
+				!jsonString.EndsWith(Format3))
 			{
 				throw new ArgumentException("JSON object begins or ends with wrong format.");
 			}
 			var strippedString = jsonString.Substring(10, jsonString.Length - 12); // strip off 'format1' and 'format3'
-			var endOfNameIndex = strippedString.IndexOf(format2, StringComparison.CurrentCulture);
+			var endOfNameIndex = strippedString.IndexOf(Format2, StringComparison.CurrentCulture);
 			var name = strippedString.Substring(0, endOfNameIndex);
 			var begOfIdIndex = endOfNameIndex + 10;
 			var id = strippedString.Substring(begOfIdIndex, strippedString.Length - begOfIdIndex);
 			return new RepositoryInformation(name, id);
 		}
 
-		// Deserialize a bunch
+		/// <summary>Deserialize many</summary>
 		public static IEnumerable<RepositoryInformation> ParseJsonStringsToChorusHubRepoInfos(string jsonInput)
 		{
 			var jsonStrings = jsonInput.Split(new [] {'/'}, StringSplitOptions.RemoveEmptyEntries);
@@ -50,9 +50,9 @@ namespace Chorus.ChorusHub
 				{
 					result.Add(DechipherJsonString(jsonString));
 				}
-				catch (ArgumentException e)
+				catch
 				{
-					continue;
+					// ignored
 				}
 			}
 			return result;

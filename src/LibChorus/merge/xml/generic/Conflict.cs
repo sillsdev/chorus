@@ -418,7 +418,7 @@ namespace Chorus.merge.xml.generic
 				var typeGuid = conflictNode.GetStringAttribute(@"typeGuid");
 				return ConflictFactory.ResolveNamed<IConflict>(typeGuid, new TypedParameter(typeof(XmlNode), conflictNode));
 			}
-			catch (Exception error)
+			catch
 			{
 				return new UnreadableConflict(conflictNode);
 			}
@@ -1585,18 +1585,9 @@ namespace Chorus.merge.xml.generic
 	[TypeGuid(@"c1ed6dc2-e382-11de-8a39-0800200c9a66")]
 	public sealed class IncompatibleMoveConflict : Conflict // NB: Be sure to register any new instances in CreateFromConflictElement method
 	{
-		private readonly string _elementName;
-		private readonly XmlNode _alphaNode;
-		private readonly XmlNode _betaNode;
-		private readonly IElementDescriber _elementDescriber;
-
 		public IncompatibleMoveConflict(string elementName, XmlNode alphaNode)
 			: base(null, LocalizationManager.GetString(@"Conflict.Dunno", "Dunno", "A version of 'who won' used when we don't know"))
 		{
-			_elementName = elementName;
-			_alphaNode = alphaNode;
-			_betaNode = null;
-			_elementDescriber = null;
 		}
 
 		public IncompatibleMoveConflict(XmlNode xmlRepresentation)

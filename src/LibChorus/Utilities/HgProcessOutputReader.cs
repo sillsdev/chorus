@@ -49,8 +49,6 @@ namespace Chorus.Utilities
 		/// <summary>
 		/// Safely read the streams of the process
 		/// </summary>
-		/// <param name="process"></param>
-		/// <param name="secondsBeforeTimeOut"></param>
 		/// <returns>true if the process completed before the timeout or cancellation</returns>
 		public bool Read(ref Process process, int secondsBeforeTimeOut, IProgress progress)
 		{

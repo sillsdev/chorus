@@ -17,8 +17,8 @@ namespace Chorus.merge.xml.generic
 		/// </summary>
 		/// <param name="keys">The keys in MergeStrategies dictionary.</param>
 		/// <param name="element">The element currently being processed, that the key if needed for.</param>
-		/// <returns>The key in the MergeStrategies disctionary that is used to look up the ElementStrategy.</returns>
-		/// <exception cref="ArgumentNullException">Thrown if <param name="element" /> is null.</exception>
+		/// <returns>The key in the MergeStrategies dictionary that is used to look up the ElementStrategy.</returns>
+		/// <exception cref="ArgumentNullException">Thrown if <c>element</c> is null.</exception>
 		string GetKeyFromElement(HashSet<string> keys, XmlNode element);
 	}
 }

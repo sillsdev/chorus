@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -12,6 +12,7 @@ using Chorus.FileTypeHandlers.xml;
 using Chorus.merge;
 using Chorus.merge.xml.generic;
 using Chorus.VcsDrivers.Mercurial;
+using SIL.Code;
 
 namespace Chorus.FileTypeHandlers.LexiconSettings
 {
@@ -45,7 +46,7 @@ namespace Chorus.FileTypeHandlers.LexiconSettings
 
 		public bool CanValidateFile(string pathToFile)
 		{
-			return FileUtils.CheckValidPathname(pathToFile, Extension);
+			return PathHelper.CheckValidPathname(pathToFile, Extension);
 		}
 
 		/// <summary>
@@ -55,8 +56,7 @@ namespace Chorus.FileTypeHandlers.LexiconSettings
 		/// The must not have any UI, no interaction with the user.</remarks>
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			if (mergeOrder == null)
-				throw new ArgumentNullException("mergeOrder");
+			Guard.AgainstNull(mergeOrder, nameof(mergeOrder));
 
 			bool addedCollationAttr;
 			PreMergeFile(mergeOrder, out addedCollationAttr);
@@ -71,7 +71,6 @@ namespace Chorus.FileTypeHandlers.LexiconSettings
 			{
 				var readerSettings = CanonicalXmlSettings.CreateXmlReaderSettings(ConformanceLevel.Auto);
 				readerSettings.XmlResolver = null;
-				readerSettings.ProhibitDtd = false;
 				using (var nodeReader = XmlReader.Create(new MemoryStream(Encoding.UTF8.GetBytes(result.MergedNode.OuterXml)), readerSettings))
 				{
 					writer.WriteNode(nodeReader, false);

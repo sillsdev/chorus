@@ -110,10 +110,11 @@ namespace Chorus
 		/// GetXAppDataFolder()/localizations, where GetXAppDataFolder would typically return something like
 		/// Company/Program (e.g. SIL/SayMore)
 		/// </summary>
+		/// <param name="kind"></param>
 		/// <param name="desiredUiLangId"></param>
 		/// <param name="rootDirectoryOfInstalledTranslationFiles">The folder path of the original TMX files
 		/// installed with the application.  The Chorus TMX files will be in a Chorus subdirectory of this directory.</param>
-		/// <param name="relativeDirectoryOfUserModifiedTranslationFiles">The path, relative to %appdata%, where your
+		/// <param name="relativeDirectoryOfUserModifiedTranslationFiles">The path, relative to %APPDATA%, where your
 		/// application stores user settings (e.g., "SIL\SayMore"). A folder named "Chorus\localizations" will be created there.</param>
 		public static void SetUpLocalization(TranslationMemory kind, string desiredUiLangId,
 			string rootDirectoryOfInstalledTranslationFiles, string relativeDirectoryOfUserModifiedTranslationFiles)
@@ -371,6 +372,7 @@ namespace Chorus
 		/// Check in, to the local disk repository, any changes to this point.
 		/// </summary>
 		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
+		/// <param name="callbackWhenFinished"></param>
 		public void AsyncLocalCheckIn(string checkinDescription,  Action<SyncResults> callbackWhenFinished)
 		{
 			var model = _container.Resolve<SyncControlModel>();

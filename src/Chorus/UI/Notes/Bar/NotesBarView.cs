@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -31,16 +31,10 @@ namespace Chorus.UI.Notes.Bar
 		/// <summary>
 		/// Makes a view control. An instance of this Factory method is created by Autofac for us.
 		/// </summary>
-		/// <param name="key">This is the value, like the id of the target.
-		/// An annotation has a @ref attribute.  In that, there is a section of name/value pairs,
-		/// e.g. somthing://blahblah?id=foo&offset=35
-		/// Here, the key is foo, and the name, "id", must be what the AnnotationRepository was give
-		/// as its key attribute, as well.</param>
-		/// <returns></returns>
 		public delegate NotesBarView Factory();//autofac uses this
 
 		internal readonly NotesBarModel _model;
-		private AnnotationEditorModel.Factory _annotationEditorModelFactory;
+		private readonly AnnotationEditorModel.Factory _annotationEditorModelFactory;
 
 		/// <summary>
 		/// Normally, don't use this, use the autofac-generated factory instead.
@@ -55,19 +49,10 @@ namespace Chorus.UI.Notes.Bar
 			this.Height = 25;//nb: there is some confusion here.
 		}
 
-//        public NotesBarView(NotesBarModel model, AnnotationEditorModel.Factory annotationViewModelFactory)
-//        {
-//            _model = model;
-//            _annotationEditorModelFactory = annotationViewModelFactory;
-//            InitializeComponent();
-//            _model.UpdateContent+=new EventHandler(OnUpdateContent);
-//            ButtonHeight = 32;
-//        }
-
-	   // public int ButtonHeight { get; set; }
-
-		//this is duplicated on the view so that clients don't have to know/think about
-		//how this control is split into view and model
+		/// <remarks>
+		/// this is duplicated on the view so that clients don't have to know/think about
+		/// how this control is split into view and model
+		/// </remarks>
 		public void SetTargetObject(object target)
 		{
 			_model.SetTargetObject(target);
