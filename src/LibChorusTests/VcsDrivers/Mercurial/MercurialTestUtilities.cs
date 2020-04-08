@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Chorus.VcsDrivers.Mercurial;
@@ -34,7 +34,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				extensions.Add("eol", ""); //for converting line endings on windows machines
 			extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 			extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
-			string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
+			string fixUtfFolder = FileLocationUtilities.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
 			if (!string.IsNullOrEmpty(fixUtfFolder))
 				extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 

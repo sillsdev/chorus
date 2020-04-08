@@ -79,6 +79,11 @@ namespace Chorus.notes
 			_keyToObjectsMap.RemoveKeyItemPair(key, annotation);
 		}
 
+		public void NotifyOfStaleList()
+		{
+			// Can we do anything useful here?
+		}
+
 		public IEnumerable<Annotation> GetMatches(Func<string, bool> predicateOnKey, IProgress progress)
 		{
 			foreach (var x in _keyToObjectsMap)

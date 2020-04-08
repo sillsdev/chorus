@@ -22,6 +22,7 @@ build/old
 lib/$(Configuration)
 *.resources
 *.userprefs
+.vs/
 src/Chorus.Tests/bin/*
 src/ChorusMerge.Tests/bin/*
 src/SampleApp/bin/*

@@ -19,8 +19,10 @@ namespace Chorus.ChorusHub
 		private readonly string _port;
 		public string HostName;
 		public int VersionOfServerChorusHub;
-		// Updated JohnT September 2013 for change making GetRepositoryInformation return a single string instead of enumeration.
-		// Note: a few implementations with the code change but still having the old version may have escaped.
+		/// <remarks>
+		/// Updated JohnT September 2013 for change making GetRepositoryInformation return a single string instead of enumeration.
+		/// Note: a few implementations with the code change but still having the old version may have escaped.
+		/// </remarks>
 		public const int VersionOfThisCode = 3;
 
 		public ChorusHubServerInfo(string ipAddress, string port, string hostName, int version)
@@ -74,20 +76,15 @@ namespace Chorus.ChorusHub
 			return parameters.StartsWith("ChorusHubInfo");
 		}
 
-		public bool ServerIsCompatibleWithThisClient
-		{
-			get { return VersionOfServerChorusHub == VersionOfThisCode; }
-		}
+		public bool ServerIsCompatibleWithThisClient => VersionOfServerChorusHub == VersionOfThisCode;
 
+		/// <inheritdoc />
 		public override string ToString()
 		{
-			return string.Format("ChorusHubInfo?version={0}&address={1}&port={2}&hostname={3}", VersionOfThisCode, _ipAddress, _port, HostName);
+			return $"ChorusHubInfo?version={VersionOfThisCode}&address={_ipAddress}&port={_port}&hostname={HostName}";
 		}
 
-		public string ServiceUri
-		{
-			get { return string.Format("net.tcp://{0}:{1}", _ipAddress, ChorusHubOptions.ServicePort); }
-		}
+		public string ServiceUri => $"net.tcp://{_ipAddress}:{ChorusHubOptions.ServicePort}";
 
 		public string GetHgHttpUri(string directoryName)
 		{

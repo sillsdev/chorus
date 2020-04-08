@@ -72,7 +72,7 @@ namespace Chorus.notes
         }
 
         /// <summary>
-		/// Gets the ref with any reserved characters (e.g. &, <, >) still escaped to be safe in the xml
+		/// Gets the ref with any reserved characters (e.g. &amp;, &lt;, &gt;) still escaped to be safe in the xml
         /// </summary>
         public string RefStillEscaped
         {

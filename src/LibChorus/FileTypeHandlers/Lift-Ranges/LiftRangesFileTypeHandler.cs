@@ -49,7 +49,7 @@ namespace Chorus.FileTypeHandlers
 			if (extension[0] != '.')
 				return false;
 
-			return FileUtils.CheckValidPathname(pathToFile, Extension);
+			return PathHelper.CheckValidPathname(pathToFile, Extension);
 		}
 		public string ValidateFile(string pathToFile, IProgress progress)
 		{
@@ -59,7 +59,7 @@ namespace Chorus.FileTypeHandlers
 
 		public void Do3WayMerge(MergeOrder mergeOrder)
 		{
-			Guard.AgainstNull(mergeOrder, "mergeOrder");
+			Guard.AgainstNull(mergeOrder, nameof(mergeOrder));
 
 			// <mergenotice>
 			// When the WeSay1.3 branch gets merged, do this:

@@ -289,12 +289,12 @@ namespace Chorus.merge.xml.generic
 			if (ourStatus == TextNodeStatus.IsNotTextNodeContainer || theirStatus == TextNodeStatus.IsNotTextNodeContainer || ancestorStatus == TextNodeStatus.IsNotTextNodeContainer)
 				return false;
 			// Unable to determine, so guess no.
-			if (ourStatus == TextNodeStatus.IsAmbiguous && theirStatus == TextNodeStatus.IsAmbiguous & ancestorStatus == TextNodeStatus.IsAmbiguous)
+			if (ourStatus == TextNodeStatus.IsAmbiguous && theirStatus == TextNodeStatus.IsAmbiguous && ancestorStatus == TextNodeStatus.IsAmbiguous)
 				return false;
 
 			/******************* WARNING *****************/
 			// Don't let R# 'help' with the return layout, or it will continue 'helping',
-			// until there is only one gianormous return that is undertandable only by the compiler.
+			// until there is only one gianormous return that is understandable only by the compiler.
 			/******************* WARNING *****************/
 			if (ourStatus == TextNodeStatus.IsTextNodeContainer || theirStatus == TextNodeStatus.IsTextNodeContainer || ancestorStatus == TextNodeStatus.IsTextNodeContainer)
 				return true; // One node is a text container, even if the other two aren't sure.

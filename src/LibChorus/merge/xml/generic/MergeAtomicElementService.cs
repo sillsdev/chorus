@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Xml;
 using Chorus.FileTypeHandlers.xml;
+using SIL.Code;
 
 namespace Chorus.merge.xml.generic
 {
@@ -12,17 +13,15 @@ namespace Chorus.merge.xml.generic
 	internal static class MergeAtomicElementService
 	{
 		/// <summary>
-		/// "Merge" elemement if it is 'atomic' and return true. Otherwise, do nothing and return false.
+		/// "Merge" element if it is 'atomic' and return true. Otherwise, do nothing and return false.
 		/// </summary>
 		/// <remarks>
-		/// <param name="ours" /> may be changed to <param name="theirs"/>,
-		/// if <param name="ours"/> is null and <param name="theirs"/> is not null.
+		/// <c>ours</c> may be changed to <c>theirs</c> if <c>ours</c> is null and <c>theirs</c> is not null.
 		/// </remarks>
-		/// <returns>'True' if the given elements were 'atomic'. Otherwise 'false'.</returns>
 		internal static void Run(XmlMerger merger, XmlNode ourParent, ref XmlNode ours, XmlNode theirs, XmlNode commonAncestor)
 		{
-			if (merger == null)
-				throw new ArgumentNullException("merger"); // Route tested.
+			// Route tested.
+			Guard.AgainstNull(merger, nameof(merger));
 			if (ours == null && theirs == null && commonAncestor == null)
 				throw new ArgumentNullException(); // Route tested.
 

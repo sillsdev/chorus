@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Chorus.UI.Notes
 {
 	/// <summary>
-	/// Used to pass stuff like fonts & keyboards from the client to the ChorusNotesSystem
+	/// Used to pass stuff like fonts and keyboards from the client to the ChorusNotesSystem
 	/// </summary>
 	public class ChorusNotesDisplaySettings
 	{

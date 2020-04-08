@@ -14,6 +14,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../FieldWorks.snk</AssemblyOriginatorKeyFile>
     <IsTestProject>true</IsTestProject>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

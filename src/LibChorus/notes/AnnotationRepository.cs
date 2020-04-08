@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -15,11 +15,14 @@ namespace Chorus.notes
 	{
 		private XDocument _doc;
 		private readonly string _annotationFilePath;
+		private DateTime _lastAnnotationFileWriteTime;
 		private static int kCurrentVersion=0;
 		public static string FileExtension = "ChorusNotes";
 		private List<IAnnotationRepositoryObserver> _observers = new List<IAnnotationRepositoryObserver>();
 		private AnnotationIndex _indexOfAllAnnotationsByKey;
 		private bool _isDirty;
+		private FileSystemWatcher _watcher = null;
+		private bool _writingFileOurselves = false;
 
 		public string AnnotationFilePath
 		{
@@ -37,7 +40,17 @@ namespace Chorus.notes
 				}
 				var doc = XDocument.Load(path);
 				ThrowIfVersionTooHigh(doc, path);
-				return new AnnotationRepository(primaryRefParameter, doc, path, progress);
+				var result = new AnnotationRepository(primaryRefParameter, doc, path, progress);
+				// Set up a watcher so that if something else...typically FLEx...modifies our file, we update our display.
+				// This is useful in its own right for keeping things consistent, but more importantly, if we don't do
+				// this and then the user does something in FlexBridge that changes the file, we could overwrite the
+				// changes made elsewhere (LT-20074).
+				result.UpateAnnotationFileWriteTime();
+				result._watcher = new FileSystemWatcher(Path.GetDirectoryName(path), Path.GetFileName(path));
+				result._watcher.NotifyFilter = NotifyFilters.LastWrite;
+				result._watcher.Changed += result.UnderlyingFileChanged;
+				result._watcher.EnableRaisingEvents = true;
+				return result;
 			}
 			catch (XmlException error)
 			{
@@ -45,6 +58,26 @@ namespace Chorus.notes
 			}
 		}
 
+		private void UpateAnnotationFileWriteTime()
+		{
+			_lastAnnotationFileWriteTime = new FileInfo(AnnotationFilePath).LastWriteTime;
+		}
+
+		private void UnderlyingFileChanged(object sender, FileSystemEventArgs e)
+		{
+			// We check both these things because there seems to be some async behavior involved in exactly
+			// when the change notification fires. If it fires before we note the new modify time,
+			// _writingFileOurselves will still be true. If it fires after we noted the new write time
+			// when we wrote it ourselves and cleared _writingFileOurselves, we will see that the write
+			// time has not changed.
+			if (!_writingFileOurselves  && new FileInfo(AnnotationFilePath).LastWriteTime > _lastAnnotationFileWriteTime)
+			{
+				UpateAnnotationFileWriteTime();
+				_doc = XDocument.Load(AnnotationFilePath);
+				SetupDocument();
+				_observers.ForEach(observer => observer.NotifyOfStaleList());
+			}
+		}
 
 		public static AnnotationRepository FromString(string primaryRefParameter, string contents)
 		{
@@ -65,6 +98,12 @@ namespace Chorus.notes
 			_doc = doc;
 			_annotationFilePath = path;
 
+			SetupDocument();
+			SetPrimaryRefParameter(primaryRefParameter, progress);
+		}
+
+		private void SetupDocument()
+		{
 			if (_doc.Root != null)
 			{
 				foreach (var element in _doc.Root.Elements())
@@ -74,7 +113,6 @@ namespace Chorus.notes
 					element.Changed += new EventHandler<XObjectChangeEventArgs>(AnnotationElement_Changed);
 				}
 			}
-			SetPrimaryRefParameter(primaryRefParameter, progress);
 		}
 
 		/// <summary>
@@ -102,6 +140,11 @@ namespace Chorus.notes
 				{
 					element.Changed -= AnnotationElement_Changed;
 				}
+			}
+
+			if (_watcher != null)
+			{
+				_watcher.Dispose();
 			}
 			SaveNowIfNeeded(new NullProgress());
 			_doc = null;
@@ -151,21 +194,31 @@ namespace Chorus.notes
 			{
 				if (string.IsNullOrEmpty(AnnotationFilePath))
 				{
-					throw new InvalidOperationException("Cannot save if the repository was created from a string");
+					throw new InvalidOperationException(
+						"Cannot save if the repository was created from a string");
 				}
+
 				progress.WriteStatus("Saving Chorus Notes...");
-				using (var writer = XmlWriter.Create(AnnotationFilePath, CanonicalXmlSettings.CreateXmlWriterSettings())
-					)
+				_writingFileOurselves = true;
+				using (var writer = XmlWriter.Create(AnnotationFilePath,
+					CanonicalXmlSettings.CreateXmlWriterSettings())
+				)
 				{
 					_doc.Save(writer);
 				}
+
 				progress.WriteStatus("");
 				_isDirty = false;
+				UpateAnnotationFileWriteTime();
 			}
 			catch(Exception e)
 			{
 				SIL.Reporting.ErrorReport.NotifyUserOfProblem(e, "Chorus has a problem saving notes for {0}.",
 																 _annotationFilePath);
+			}
+			finally
+			{
+				_writingFileOurselves = false;
 			}
 		}
 
