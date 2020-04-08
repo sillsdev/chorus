@@ -21,7 +21,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 			public MercurialExtensionHider()
 			{
-				_extensionPath = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
+				_extensionPath = FileLocationUtilities.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
 				_extensionPathRenamed = _extensionPath + "-HidingForTest";
 				Directory.Move(_extensionPath, _extensionPathRenamed);
 			}

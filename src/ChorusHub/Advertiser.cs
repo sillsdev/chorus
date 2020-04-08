@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -53,7 +53,7 @@ namespace ChorusHub
 				//Progress.WriteVerbose("Advertiser Thread Aborting (that's normal)");
 				_client.Close();
 			}
-			catch(Exception error)
+			catch(Exception)
 			{
 				//EventLog.WriteEntry("Application", string.Format("Error in Advertiser: {0}", error.Message), EventLogEntryType.Error);
 			}
@@ -64,7 +64,7 @@ namespace ChorusHub
 		}
 
 		/// <summary>
-		/// Since this migt not be a real "server", its ipaddress could be assigned dynamically,
+		/// Since this might not be a real "server", its ip address could be assigned dynamically,
 		/// and could change each time someone "wakes up the server laptop" each morning
 		/// </summary>
 		private void UpdateAdvertisementBasedOnCurrentIpAddress()

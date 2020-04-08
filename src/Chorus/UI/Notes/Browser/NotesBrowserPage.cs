@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -62,7 +62,6 @@ namespace Chorus.UI.Notes.Browser
 		/// Check that there is no unsaved message text in the AnnotationEditorView before loading a
 		/// new annotation selected by the NotesInProjectView.
 		/// </summary>
-		/// <param name="annotation"></param><param name="message"></param>
 		private void _notesView_SelectionChanged(object sender, CancelEventArgs e)
 		{
 			// if no text has been entered or the user would like to discard entered text, perform the action

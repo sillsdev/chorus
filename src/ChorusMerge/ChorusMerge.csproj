@@ -26,6 +26,7 @@
 See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHANGELOG.md]]>
     </AppendToReleaseNotesProperty>
     <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

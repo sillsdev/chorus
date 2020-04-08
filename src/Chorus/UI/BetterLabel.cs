@@ -1,11 +1,10 @@
-﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace Chorus.UI
 {
 	/// <summary>
-	/// Labels are fairly limitted even in .net, but on mono so far, multi-line
+	/// Labels are fairly limited even in .net, but on mono so far, multi-line
 	/// labels are trouble.  This class uses TextBox to essentially be a better
 	/// cross-platform label.
 	/// </summary>
@@ -35,7 +34,7 @@ namespace Chorus.UI
 					backgroundColorSource.BackColorChanged += ((x, y) => BackColor = backgroundColorSource.BackColor);
 				}
 			}
-			catch (Exception error)
+			catch
 			{
 				//trying to harden this against the mysteriously disappearing from a host designer
 			}

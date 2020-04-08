@@ -493,7 +493,7 @@ namespace Chorus.VcsDrivers
 
 		private static List<string> CollectPathsWithRepositories(string path)
 		{
-			return (from directory in DirectoryUtilities.GetSafeDirectories(path)
+			return (from directory in DirectoryHelper.GetSafeDirectories(path)
 					where Directory.Exists(Path.Combine(directory, ".hg"))
 									select directory).ToList();
 		}

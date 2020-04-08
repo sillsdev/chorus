@@ -66,30 +66,23 @@ namespace Chorus.VcsDrivers.Mercurial
 			// path (inserted by the Hg Clone process). See https://trello.com/card/send-receive-dialog-displays-default-as-a-configured-local-network-location-for-newly-obtained-projects/4f3a90277ae2b69b010988ac/37
 			// This could be a problem if there was some way for the user to create a 'default' path, but the paths we want
 			// to find here are currently always named with an adaptation of the path. I don't think that process can produce 'default'.
-			try
+			var paths = GetRepositoryPathsInHgrc();
+			var networkPaths = paths.Where(p => p is T && p.Name != "default");
+
+			//none found in the hgrc
+			if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
+				return null;
+
+
+			var defaultAliases = GetDefaultSyncAliases();
+
+			foreach (var path in networkPaths)
 			{
-				var paths = GetRepositoryPathsInHgrc();
-				var networkPaths = paths.Where(p => p is T && p.Name != "default");
-
-				//none found in the hgrc
-				if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
-					return null;
-
-
-				var defaultAliases = GetDefaultSyncAliases();
-
-				foreach (var path in networkPaths)
-				{
-					RepositoryAddress path1 = path;//avoid "acces to modified closure"
-					if (defaultAliases.Any(a => a == path1.Name))
-						return path;
-				}
-				return networkPaths.First();
+				RepositoryAddress path1 = path;//avoid "acces to modified closure"
+				if (defaultAliases.Any(a => a == path1.Name))
+					return path;
 			}
-			catch (Exception error) //this would happen if the hgrc was locked
-			{
-				throw;
-			}
+			return networkPaths.First();
 		}
 
 		/// <summary>
@@ -142,6 +135,12 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			_mercurialTwoCompatible = true;
 			_hgrcUpdateNeeded = updateHgrc;
+			var timeoutOverride = Environment.GetEnvironmentVariable("CHORUS_LOCAL_TIMEOUT_SECONDS");
+			int timeoutValue;
+			if (int.TryParse(timeoutOverride, out timeoutValue))
+			{
+				SecondsBeforeTimeoutOnLocalOperation = timeoutValue;
+			}
 		}
 
 		/// <summary>
@@ -168,7 +167,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception error)
 			{
-				throw new ApplicationException(string.Format("Failed to set up extensions for the repository: {0}", error.Message));
+				throw new ApplicationException($"Failed to set up extensions for the repository: {error.Message}", error);
 			}
 		}
 
@@ -190,7 +189,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				extensions.Add("eol", ""); //for converting line endings
 				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
-				string fixUtfFolder = FileLocator.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
+				string fixUtfFolder = FileLocationUtilities.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
 				if(!string.IsNullOrEmpty(fixUtfFolder))
 					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 				return extensions;
@@ -670,9 +669,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 #if DEBUG
 				throw e;
-#endif
+#else
 				//else swallow
 				return "Error in SafeGetStatus(): " + e.Message;
+#endif
 			}
 		}
 
@@ -1911,7 +1911,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{   //use glog if it is installd and enabled
 				progress.WriteMessage(GetTextFromQuery("glog -l 100", 30, _progress));
 			}
-			catch (Exception)
+			catch
 			{
 				progress.WriteMessage(GetTextFromQuery("log -l 100", 30, _progress));
 			}
@@ -1931,7 +1931,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				progress.WriteMessage(File.ReadAllText(Path.Combine(_pathToRepository, ".hgignore")));
 			}
-			catch (Exception error)
+			catch
 			{
 				progress.WriteMessage("No .hgignore found");
 			}
@@ -1942,7 +1942,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				progress.WriteMessage(File.ReadAllText(Path.Combine(Path.Combine(_pathToRepository, ".hg"), "hgrc")));
 			}
-			catch (Exception error)
+			catch
 			{
 				progress.WriteError("No .hg/hgrc found");
 			}
@@ -2214,7 +2214,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private static string GetUniqueFolderPath(IProgress progress, string proposedTargetDirectory)
 		{
-			// proposedTargetDirectory and actualTarget may be the same, or actualTarget may have 1 (or higher) appeneded to it.
+			// proposedTargetDirectory and actualTarget may be the same, or actualTarget may have 1 (or higher) appended to it.
 			var uniqueTarget = GetUniqueFolderPath(progress,
 														 "Could not use folder {0}, since it already exists. Using new folder {1}, instead.",
 														 proposedTargetDirectory);
@@ -2223,18 +2223,18 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		/// Ensure a local clone is going into a uniquly named and non-existant folder.
+		/// Ensure a local clone is going into a uniquely named and nonexistent folder.
 		/// </summary>
-		/// <returns>The original folder name, or one similiar to it, but with a counter digit appended to to it to make it unique.</returns>
+		/// <returns>The original folder name, or one similar to it, but with a counter digit appended to to it to make it unique.</returns>
 		public static string GetUniqueFolderPath(IProgress progress, string formattableMessage, string targetDirectory)
 		{
-			if (Directory.Exists(targetDirectory) && DirectoryUtilities.GetSafeDirectories(targetDirectory).Length == 0 && Directory.GetFiles(targetDirectory).Length == 0)
+			if (Directory.Exists(targetDirectory) && DirectoryHelper.GetSafeDirectories(targetDirectory).Length == 0 && Directory.GetFiles(targetDirectory).Length == 0)
 			{
 				// Empty folder, so delete it, so the clone can be made in the original folder, rather than in another with a 1 after it.
 				Directory.Delete(targetDirectory);
 			}
 
-			var uniqueTarget = DirectoryUtilities.GetUniqueFolderPath(targetDirectory);
+			var uniqueTarget = PathHelper.GetUniqueFolderPath(targetDirectory);
 			if (targetDirectory != uniqueTarget)
 				progress.WriteWarning(String.Format(formattableMessage, targetDirectory, uniqueTarget));
 

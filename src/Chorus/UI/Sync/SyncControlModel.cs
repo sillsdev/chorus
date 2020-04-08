@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -280,7 +280,7 @@ namespace Chorus.UI.Sync
 		/// Check in, to the local disk repository, any changes to this point.
 		/// </summary>
 		/// <param name="checkinDescription">A description of what work was done that you're wanting to checkin. E.g. "Delete a Book"</param>
-		/// <param name="progress">Can be null if you don't want any progress report</param>
+		/// <param name="callbackWhenFinished">Can be null if you don't want any progress report</param>
 		public void AsyncLocalCheckIn(string checkinDescription, Action<SyncResults> callbackWhenFinished)
 		{
 			var repoPath = this._synchronizer.Repository.PathToRepo.CombineForPath(".hg");
@@ -293,10 +293,10 @@ namespace Chorus.UI.Sync
 				_asyncLocalCheckInWorker.Dispose(); //timidly avoid a leak
 			}
 			_asyncLocalCheckInWorker = new BackgroundWorker();
-			_asyncLocalCheckInWorker.DoWork += new DoWorkEventHandler((o, args) =>
+			_asyncLocalCheckInWorker.DoWork += (o, args) =>
 			{
 
-				var options = new SyncOptions()
+				var options = new SyncOptions
 				{
 					CheckinDescription = checkinDescription,
 					DoMergeWithOthers = false,
@@ -310,11 +310,8 @@ namespace Chorus.UI.Sync
 				{
 					result = _synchronizer.SyncNow(options);
 				}
-				if (callbackWhenFinished != null)
-				{
-					callbackWhenFinished(result);
-				}
-			});
+				callbackWhenFinished?.Invoke(result);
+			};
 			_asyncLocalCheckInWorker.RunWorkerAsync();
 		}
 	}

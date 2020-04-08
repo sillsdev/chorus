@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.Composition.Primitives;
 using System.ComponentModel.Composition.Hosting;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 /// <summary>
 /// Represents a catalog after a filter function is applied to it.
 /// </summary>
-/// <remarks>The code comes from http://mef.codeplex.com/wikipage?title=Filtering%20Catalogs&referringTitle=Guide.
+/// <remarks>The code comes from https://github.com/microsoftarchive/mef/blob/master/Wiki/Filtering%20Catalogs.md.
 /// Newer versions of .NET (>= 4.5) come with a FilteredCatalog class</remarks>
 public class FilteredCatalog : ComposablePartCatalog, INotifyComposablePartCatalogChanged
 {

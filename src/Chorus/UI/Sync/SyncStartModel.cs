@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -128,7 +128,7 @@ namespace Chorus.UI.Sync
 				var address = _repository.GetDefaultNetworkAddress<DirectoryRepositorySource>();
 				return address != null;
 			}
-			catch (Exception error)//probably, hgrc is locked
+			catch (Exception)//probably, hgrc is locked
 			{
 				return false;
 			}

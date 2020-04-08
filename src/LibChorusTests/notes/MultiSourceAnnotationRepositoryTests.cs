@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -180,6 +180,11 @@ namespace LibChorus.Tests.notes
 		}
 
 		public void NotifyOfDeletion(Annotation annotation)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void NotifyOfStaleList()
 		{
 			throw new NotImplementedException();
 		}

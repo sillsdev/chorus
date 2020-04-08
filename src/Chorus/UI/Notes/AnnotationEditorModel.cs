@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using Chorus.notes;
 using Chorus.UI.Notes.Html;
@@ -19,14 +18,11 @@ namespace Chorus.UI.Notes
 
 		private readonly IChorusUser _user;
 		private readonly StyleSheet _styleSheet;
-		private Annotation _annotation;
 		private readonly NavigateToRecordEvent _navigateToRecordEventToRaise;
 		private readonly ChorusNotesDisplaySettings _displaySettings;
-		private Message _currentFocussedMessage; //this is the part of the annotation in focus
-		private string _newMessageText;
-		private EmbeddedMessageContentHandlerRepository m_embeddedMessageContentHandlerRepository;
+		private Message _currentFocusedMessage; //this is the part of the annotation in focus
 		private bool _showLabelAsHyperLink=true;
-		public MessageSelectedEvent EventToRaiseForChangedMessage { get; private set; }
+		public MessageSelectedEvent EventToRaiseForChangedMessage { get; }
 
 		internal event EventHandler UpdateContent;
 		internal event EventHandler UpdateStates;
@@ -44,9 +40,9 @@ namespace Chorus.UI.Notes
 			bool showLabelAsHyperlink)
 		{
 			_user = user;
-			m_embeddedMessageContentHandlerRepository = embeddedMessageContentHandlerRepository;
+			MessageContentHandlerRepository = embeddedMessageContentHandlerRepository;
 			_styleSheet = styleSheet;
-			_annotation = annotation;
+			Annotation = annotation;
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
 			_displaySettings = displaySettings;
 			_showLabelAsHyperLink = showLabelAsHyperlink;
@@ -60,7 +56,7 @@ namespace Chorus.UI.Notes
 						ChorusNotesDisplaySettings displaySettings)
 		{
 			_user = user;
-			m_embeddedMessageContentHandlerRepository = embeddedMessageContentHandlerRepository;
+			MessageContentHandlerRepository = embeddedMessageContentHandlerRepository;
 			_navigateToRecordEventToRaise = navigateToRecordEventToRaise;
 			_styleSheet = styleSheet;
 			_displaySettings = displaySettings;
@@ -68,15 +64,12 @@ namespace Chorus.UI.Notes
 			EventToRaiseForChangedMessage = messageSelectedEventToSubscribeTo;
 		}
 
-		public EmbeddedMessageContentHandlerRepository MessageContentHandlerRepository
-		{
-			get { return m_embeddedMessageContentHandlerRepository; }
-		}
+		public EmbeddedMessageContentHandlerRepository MessageContentHandlerRepository { get; }
 
 		private void SetAnnotationAndFocussedMessage(Annotation annotation, Message message)
 		{
-			_annotation = annotation;
-			_currentFocussedMessage = message;
+			Annotation = annotation;
+			_currentFocusedMessage = message;
 			UpdateContentNow();
 		}
 
@@ -88,15 +81,11 @@ namespace Chorus.UI.Notes
 			}
 		}
 
-		public Annotation Annotation
-		{
-		   get { return _annotation; }
-
-		}
+		public Annotation Annotation { get; private set; }
 
 		public string GetNewMessageHtml()
 		{
-			if (_annotation == null)
+			if (Annotation == null)
 				return string.Empty;
 
 			return @"<html><body></body></html>";
@@ -105,12 +94,12 @@ namespace Chorus.UI.Notes
 
 		public IEnumerable<Message> Messages
 		{
-			get { return _annotation.Messages; }
+			get { return Annotation.Messages; }
 		}
 
 		public string GetExistingMessagesHtml()
 		{
-			if(_annotation == null)
+			if(Annotation == null)
 				return string.Empty;
 
 			var builder = new StringBuilder();
@@ -119,10 +108,10 @@ namespace Chorus.UI.Notes
 			builder.AppendLine(@"<body>");
 
 			string status=string.Empty;
-			foreach (var message in _annotation.Messages)
+			foreach (var message in Annotation.Messages)
 			{
 				builder.AppendLine(@"<hr/>");
-				if (_currentFocussedMessage!=null && message.Guid == _currentFocussedMessage.Guid) //REVIEW: guid shouldn't be needed
+				if (_currentFocusedMessage!=null && message.Guid == _currentFocusedMessage.Guid) //REVIEW: guid shouldn't be needed
 				{
 					builder.AppendLine(@"<div class='selected message'>");
 				}
@@ -132,14 +121,14 @@ namespace Chorus.UI.Notes
 				}
 
 				//add rounded borders CAN'T GET THIS STUFF TO WORK IN THE EMBEDDED BROWSER (BUT IT'S OK IN IE & FIREFOX)
-//                builder.AppendLine(
-//                    "<div class='t'><div class='b'><div class='l'><div class='r'><div class='bl'><div class='br'><div class='tl'><div class='tr'>");
+//				builder.AppendLine(
+//					"<div class='t'><div class='b'><div class='l'><div class='r'><div class='bl'><div class='br'><div class='tl'><div class='tr'>");
 
 
 					builder.AppendFormat(@"<span class='sender'>{0}</span> <span class='when'> - {1}</span>", message.Author, message.Date.ToLongDateString());
 
 					builder.AppendLine(@"<div class='messageContents'>");
-					builder.AppendLine(message.GetHtmlText(m_embeddedMessageContentHandlerRepository));
+					builder.AppendLine(message.GetHtmlText(MessageContentHandlerRepository));
 
 					if (message.Status != status)
 					{
@@ -171,32 +160,32 @@ namespace Chorus.UI.Notes
 
 		public bool IsResolved
 		{
-			get { return _annotation.Status == Annotation.Closed; }
+			get { return Annotation.Status == Annotation.Closed; }
 			set
 			{
-				_annotation.SetStatus(_user.Name, value ? Annotation.Closed : Annotation.Open);
+				Annotation.SetStatus(_user.Name, value ? Annotation.Closed : Annotation.Open);
 				UpdateContentNow();
 			}
 		}
 
 		public bool ResolvedControlShouldBeVisible
 		{
-			get { return _annotation.CanResolve; }
+			get { return Annotation.CanResolve; }
 		}
 
 		public string ClassLabel
 		{
-			get { return _annotation.ClassName; }
+			get { return Annotation.ClassName; }
 		}
 
 		public string DetailsText
 		{
-			get { return string.Format("ref={0} status={1}", _annotation.RefStillEscaped, _annotation.Status); }
+			get { return string.Format("ref={0} status={1}", Annotation.RefStillEscaped, Annotation.Status); }
 		}
 
 		public bool IsVisible
 		{//wait for an annotation to be selected
-			get { return _annotation != null; }
+			get { return Annotation != null; }
 		}
 
 		public string ResolveButtonText
@@ -228,7 +217,7 @@ namespace Chorus.UI.Notes
 
 		public string AnnotationLabel
 		{
-			get { return _annotation.LabelOfThingAnnotated; }
+			get { return Annotation.LabelOfThingAnnotated; }
 		}
 
 		//In a dialog situation, we might not want to offer the hyperlink, if we don't plan to act on it.
@@ -256,17 +245,17 @@ namespace Chorus.UI.Notes
 		/// <returns></returns>
 		public Image GetAnnotationLogoImage()
 		{
-			return _annotation.GetImage(32);
+			return Annotation.GetImage(32);
 		}
 
 		public string GetLongLabel()
 		{
-			return _annotation.GetLongLabel();
+			return Annotation.GetLongLabel();
 		}
 
 		public void AddMessage(string newMessageText)
 		{
-			_annotation.AddMessage(_user.Name, null, newMessageText);
+			Annotation.AddMessage(_user.Name, null, newMessageText);
 			UpdateContentNow();
 		}
 
@@ -276,7 +265,7 @@ namespace Chorus.UI.Notes
 		/// <param name="newMessageText"></param>
 		public void UnResolveAndAddMessage(string newMessageText)
 		{
-			_annotation.AddMessage(_user.Name,
+			Annotation.AddMessage(_user.Name,
 				IsResolved ? Annotation.Open : Annotation.Closed, // Invert the status
 				newMessageText);
 			UpdateContentNow();
@@ -284,21 +273,21 @@ namespace Chorus.UI.Notes
 
 		public string GetAllInfoForMessageBox()
 		{
-			return _annotation.GetDiagnosticDump();
+			return Annotation.GetDiagnosticDump();
 		}
 
 		public void HandleLinkClicked(Uri uri)
 		{
-			var handler = m_embeddedMessageContentHandlerRepository.GetHandlerOrDefaultForUrl(uri);
+			var handler = MessageContentHandlerRepository.GetHandlerOrDefaultForUrl(uri);
 			if(handler!=null)
 			{
-				handler.HandleUrl(uri, _annotation.AnnotationFilePath);
+				handler.HandleUrl(uri, Annotation.AnnotationFilePath);
 			}
 		}
 
 		public void JumpToAnnotationTarget()
 		{
-			_navigateToRecordEventToRaise.Raise(_annotation.RefUnEscaped);
+			_navigateToRecordEventToRaise.Raise(Annotation.RefUnEscaped);
 		}
 
 		public void ActivateKeyboard()

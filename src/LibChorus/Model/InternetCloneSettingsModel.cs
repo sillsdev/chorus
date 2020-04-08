@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using SIL.Progress;
 using Chorus.Model;
@@ -64,7 +64,9 @@ namespace Chorus.Model
 		{
 			get
 			{
-				return (!string.IsNullOrEmpty(LocalFolderName) && LocalFolderName.LastIndexOfAny(Path.GetInvalidPathChars()) == -1);
+				return !string.IsNullOrEmpty(LocalFolderName) &&
+				       LocalFolderName.LastIndexOfAny(Path.GetInvalidPathChars()) == -1 &&
+				       LocalFolderName == LocalFolderName.TrimEnd(); // LT-19858 don't accept spaces at end
 			}
 		}
 
@@ -74,11 +76,9 @@ namespace Chorus.Model
 		{
 			get
 			{
-				if(string.IsNullOrEmpty(LocalFolderName))
-				{
-					return "";
-				}
-				return Path.Combine(ParentDirectoryToPutCloneIn, LocalFolderName);
+				return string.IsNullOrWhiteSpace(LocalFolderName?.TrimEnd()) ?
+					string.Empty :
+					Path.Combine(ParentDirectoryToPutCloneIn, LocalFolderName.TrimEnd());
 			}
 		}
 
