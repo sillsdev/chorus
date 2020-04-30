@@ -72,10 +72,20 @@ namespace Chorus.notes
 			// time has not changed.
 			if (!_writingFileOurselves  && new FileInfo(AnnotationFilePath).LastWriteTime > _lastAnnotationFileWriteTime)
 			{
+				var writeTimeBeforeLoad = _lastAnnotationFileWriteTime;
 				UpateAnnotationFileWriteTime();
-				_doc = XDocument.Load(AnnotationFilePath);
-				SetupDocument();
-				_observers.ForEach(observer => observer.NotifyOfStaleList());
+				try
+				{
+					_doc = XDocument.Load(AnnotationFilePath);
+					SetupDocument();
+					_observers.ForEach(observer => observer.NotifyOfStaleList());
+				}
+				catch (IOException)
+				{
+					// If someone is writing to the file and blocking access, hopefully we will get an new notification.
+					// Roll back the write time so that we will try again.
+					_lastAnnotationFileWriteTime = writeTimeBeforeLoad;
+				}
 			}
 		}
 
