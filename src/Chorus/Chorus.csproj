@@ -9,7 +9,7 @@
     <Company>SIL International</Company>
     <Authors>SIL International</Authors>
     <Product>chorus</Product>
-    <Copyright>Copyright © 2010-2019 SIL International</Copyright>
+    <Copyright>Copyright © 2010-2020 SIL International</Copyright>
     <PackageId>SIL.Chorus.App</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/sillsdev/chorus</PackageProjectUrl>
@@ -27,10 +27,11 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
     </AppendToReleaseNotesProperty>
     <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
     <NoWarn>1591</NoWarn>
+    <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="2.6.3.862" />
-    <PackageReference Include="GitVersionTask" Version="5.0.1">
+    <PackageReference Include="GitVersionTask" Version="5.3.4">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="L10NSharp" Version="4.0.2" />

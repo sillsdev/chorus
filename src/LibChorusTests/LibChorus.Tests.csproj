@@ -9,16 +9,17 @@
     <Company>SIL International</Company>
     <Authors>SIL International</Authors>
     <Product>chorus</Product>
-    <Copyright>Copyright © 2010-2019 SIL International</Copyright>
+    <Copyright>Copyright © 2010-2020 SIL International</Copyright>
     <OutputPath>../../output/$(Configuration)</OutputPath>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../FieldWorks.snk</AssemblyOriginatorKeyFile>
     <IsTestProject>true</IsTestProject>
     <NoWarn>1591</NoWarn>
+    <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="5.0.1">
+    <PackageReference Include="GitVersionTask" Version="5.3.4">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="ICSharpCode.SharpZipLib.Patched" Version="0.86.5.1" />
