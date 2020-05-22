@@ -81,13 +81,9 @@ Please see [Tips for Testing Palaso Software](https://docs.google.com/document/d
 
 ## Developers
 
-### Mailing List
-
-Sign up here: https://groups.google.com/forum/#!forum/chorusdev
-
 ### Road Map & Workflow
 
-https://trello.com/board/chorus/4f3a90277ae2b69b010988ac
+https://github.com/sillsdev/chorus/issues
 
 ### Coding Standards
 
@@ -99,46 +95,6 @@ Chorus is written in C#. The UI widgets use Windows Forms, but you could make yo
 different platform and just use the engine.
 
 After cloning the project you should now have a solution that you can build using any edition
-of Visual Studio 2010, including the free Express version. We could help you do it in VS 2008,
-if necessary.
+of Visual Studio 2017, including the free Express version, or Visual Studio Code.
 
 On Linux you can open and build the solution in MonoDevelop, or run the `build/TestBuild.sh` script.
-
-### Getting up-to-date libraries
-
-The source tree contains a script that downloads all necessary dependencies.
-
-#### Windows
-
-Download "git bash" from "https://git-scm.com/download/win" and open a "git bash" window, then change into the build directory and run the `buildupdate.win.sh` script:
-
-	cd /c/dev/chorus/build
-	./buildupdate.win.sh
-
-Alternately, if you are working on libpalaso or another dependency, you can update to your local
-build using `UpdateDependencies.bat`, which is run automatically when you run `GetAndBuildThis.bat`:
-
-	cd c:\dev\chorus
-	UpdateDependencies.bat
-
-##### Mercurial
-
-If developing on windows, unzip the file `lib/common/mercurial.zip` into `output/Debug` (or `output/Release`), so that you'll end up with a subdirectory `output/Debug/Mercurial`. That way, you know the tests are running against the approved version of Mercurial, not whatever you happen to have on your machine.
-
-#### Linux
-
-In order to build and run all the tests on Linux the SIL mono package will need to be installed.
-It can be found at http://packages.sil.org/
-That version of mono will be used when you run `build/TestBuild.sh`
-
-Open a terminal window, change into the build directory and run the `buildupdate.mono.sh` script:
-
-	cd chorus/build
-	./buildupdate.mono.sh
-
-Alternately, if you are working on libpalaso or another dependency, you can update to your local
-build using `UpdateDependencies.sh`:
-
-	cd chorus
-	./UpdateDependencies.sh
-
