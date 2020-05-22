@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Web;
 using Chorus.VcsDrivers.Mercurial;
 using SIL.CommandLineProcessing;
 using SIL.Progress;
@@ -157,7 +158,7 @@ namespace ChorusHub
 							var name = line.Substring(start, end - start);
 							string directory = Path.Combine(_rootFolder, name);
 
-							directory = SIL.Network.HttpUtilityFromMono.UrlDecode(directory); // convert %20 --> space
+							directory = HttpUtility.UrlDecode(directory); // convert %20 --> space
 							if (!Directory.Exists(directory))
 							{
 								//Progress.WriteMessage("Creating new folder '" + name + "'");

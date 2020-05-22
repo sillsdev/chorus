@@ -70,9 +70,9 @@ namespace Chorus.Model
 		public virtual void InitFromUri(string url)
 		{
 			SetServerLabelFromUrl(url);
-			Password = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPassword(url));
-			AccountName = HttpUtilityFromMono.UrlDecode(UrlHelper.GetUserName(url));
-			ProjectId = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPathAfterHost(url));
+			Password = HttpUtility.UrlDecode(UrlHelper.GetPassword(url));
+			AccountName = HttpUtility.UrlDecode(UrlHelper.GetUserName(url));
+			ProjectId = HttpUtility.UrlDecode(UrlHelper.GetPathAfterHost(url));
 			CustomUrl = UrlHelper.GetPathOnly(url);
 			//CustomUrlSelected = true;
 		}
@@ -113,9 +113,9 @@ namespace Chorus.Model
 				}
 
 				return SelectedServerModel.Protocol + "://" +
-					HttpUtilityFromMono.UrlEncode((string)AccountName) + ":" +
-					HttpUtilityFromMono.UrlEncode((string)Password) + "@" + SelectedServerModel.DomainName + "/" +
-					HttpUtilityFromMono.UrlEncode(ProjectId);
+					HttpUtility.UrlEncode((string)AccountName) + ":" +
+					HttpUtility.UrlEncode((string)Password) + "@" + SelectedServerModel.DomainName + "/" +
+					HttpUtility.UrlEncode(ProjectId);
 				}
 			}
 
