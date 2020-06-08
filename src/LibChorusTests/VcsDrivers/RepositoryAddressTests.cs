@@ -104,12 +104,12 @@ namespace LibChorus.Tests.VcsDrivers
 			Assert.IsTrue(InvokeTryGetBestRepoMatch(
 				"AnyIDWillDo", _duplicateRepo.RepoName, out matchName, out warningMessage));
 			Assert.AreEqual(_newRepo.RepoName, matchName);
-			Assert.IsNotNullOrEmpty(warningMessage);
+			Assert.That(warningMessage, Is.Not.Null.Or.Empty);
 
 			// Case 5: There is no matching repo
 			Assert.IsFalse(InvokeTryGetBestRepoMatch(
 				"DoesNotExist", "DoesNotExist", out matchName, out warningMessage));
-			Assert.IsNotNullOrEmpty(warningMessage);
+			Assert.That(warningMessage, Is.Not.Null.Or.Empty);
 		}
 
 		[Test]

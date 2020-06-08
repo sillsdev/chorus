@@ -12,7 +12,7 @@ using SIL.TestUtilities;
 
 namespace Chorus.Tests
 {
-	[TestFixture, RequiresSTA]
+	[TestFixture, Apartment(ApartmentState.STA)]
 	public class ChorusSystemTests
 	{
 		private TemporaryFolder _folder;

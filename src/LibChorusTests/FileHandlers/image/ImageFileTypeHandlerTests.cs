@@ -14,14 +14,14 @@ namespace LibChorus.Tests.FileHandlers.image
 	{
 		private IChorusFileTypeHandler _imageFileHandler;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_imageFileHandler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
 				handler => handler.GetType().Name == "ImageFileTypeHandler")).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_imageFileHandler = null;

@@ -446,13 +446,13 @@ namespace LibChorus.Tests.merge.xml.generic
 
 		private static void CheckEditVsDeleteDetails(string html)
 		{
-			Assert.That(html, Is.StringContaining("changes:"));
-			Assert.That(html, Is.Not.StringContaining("version"),
+			Assert.That(html, Does.Contain("changes:"));
+			Assert.That(html, Does.Not.Contain("version"),
 				"This appears if we try to do HTML diffs on the representation of <a></a>");
 			Assert.That(html.IndexOf("changes", StringComparison.InvariantCulture),
 				Is.EqualTo(html.LastIndexOf("changes", StringComparison.InvariantCulture)),
 				"On EditVsDelete, we should display only one set of changes in details");
-			Assert.That(html, Is.StringContaining("my html"), "Should have used the custom HTML generator we configured for B");
+			Assert.That(html, Does.Contain("my html"), "Should have used the custom HTML generator we configured for B");
 		}
 
 		[Test]

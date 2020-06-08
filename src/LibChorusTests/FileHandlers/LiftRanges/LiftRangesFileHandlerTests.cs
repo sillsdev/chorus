@@ -19,7 +19,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		private IChorusFileTypeHandler _liftRangesFileHandler;
 		private ListenerForUnitTests _eventListener;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_liftRangesFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
@@ -27,7 +27,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 						 select handler).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_liftRangesFileHandler = null;

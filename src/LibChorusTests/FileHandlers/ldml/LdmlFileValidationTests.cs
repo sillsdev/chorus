@@ -20,7 +20,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		private TempFile _goodXmlButNotLdmlTempFile;
 		private TempFile _nonXmlTempFile;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_handler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
@@ -44,7 +44,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				$"This is not an ldml file.{nl}");
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_handler = null;

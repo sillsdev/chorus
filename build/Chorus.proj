@@ -13,25 +13,29 @@
 		<useNUnit-x86 Condition="'$(OS)'=='Windows_NT'">true</useNUnit-x86>
 		<useNUnit-x86 Condition="'$(OS)'!='Windows_NT'">false</useNUnit-x86>
 		<OutputDir>$(RootDir)/output/$(Configuration)</OutputDir>
+		<TeamCity Condition="'$(teamcity_version)' != ''">true</TeamCity>
+		<TeamCity Condition="'$(teamcity_version)' == ''">false</TeamCity>
 
-		<RestartBuild Condition="!Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')">true</RestartBuild>
-		<RestartBuild Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')">false</RestartBuild>
+		<RestartBuild Condition="!Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll') Or !Exists('$(RootDir)/packages/NUnit.ConsoleRunner/tools/nunit3-console.exe') Or !Exists('$(RootDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll')">true</RestartBuild>
+		<RestartBuild Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll') And Exists('$(RootDir)/packages/NUnit.ConsoleRunner/tools/nunit3-console.exe') And Exists('$(RootDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll')">false</RestartBuild>
 	</PropertyGroup>
 
 	<Import Project="NuGet.targets"/>
 
 	<Target Name="RestoreBuildTasks" DependsOnTargets="CheckPrerequisites">
 		<Message Text="RestartBuild=$(RestartBuild)" />
-		<Exec Command='$(NuGetCommand) install NUnit.Runners.Net4 -version 2.6.4 -solutionDirectory "$(RootDir)"' />
+		<Exec Command='$(NuGetCommand) install NUnit.Console -excludeVersion -version 3.11.1 -solutionDirectory "$(RootDir)"' />
 		<Exec Command='$(NuGetCommand) install SIL.BuildTasks -excludeVersion -version 2.3.2 -solutionDirectory "$(RootDir)"' />
 		<Exec Command='$(NuGetCommand) install BuildDependencyTasks -excludeVersion -version 0.4.3 -solutionDirectory "$(RootDir)"' />
 	</Target>
 
-	<UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="'$(OS)'=='Windows_NT'"/>
-	<UsingTask TaskName="Archive" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="'$(OS)'!='Windows_NT'"/>
-	<UsingTask TaskName="FileUpdate" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" />
-	<UsingTask TaskName="NUnit" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" />
-	<UsingTask TaskName="Dependencies" AssemblyFile="$(SolutionDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll" />
+	<UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll"
+		Condition="'$(OS)'=='Windows_NT' And Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')"/>
+	<UsingTask TaskName="Archive" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll"
+		Condition="'$(OS)'!='Windows_NT' And Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')"/>
+	<UsingTask TaskName="FileUpdate" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')"/>
+	<UsingTask TaskName="NUnit3" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')"/>
+	<UsingTask TaskName="Dependencies" AssemblyFile="$(SolutionDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll" Condition="Exists('$(RootDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll')"/>
 
 	<Target Name="DownloadDependencies" DependsOnTargets="RestoreBuildTasks">
 		<Dependencies DependencyFile="Chorus.dep" UseDependencyFile="true"
@@ -88,35 +92,27 @@
 	</Target>
 
 	<Target Name="Test" DependsOnTargets="Build">
-		<CallTarget Targets="TestOnly"/>
+		<CallTarget Targets="TestOnly" Condition="!$(RestartBuild)" />
+		<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="TestOnly"
+			Properties="Configuration=$(Configuration);RootDir=$(RootDir)"
+			Condition="$(RestartBuild)" />
 	</Target>
 
 	<Target Name="TestOnly">
-		<PropertyGroup>
-			<NUnitVersion>2.6.4</NUnitVersion>
-			<NUnitRunnerPackage>$(RootDir)/packages/NUnit.Runners.Net4.$(NUnitVersion)</NUnitRunnerPackage>
-		</PropertyGroup>
 		<ItemGroup>
 			<TestAssemblies
 				Include="$(RootDir)/output/$(Configuration)/net461/*.Tests.dll"
 				Exclude="$(RootDir)/output/$(Configuration)/net461/SIL.WritingSystems.Tests.dll"/>
-			<NUnitAddinFiles Include="$(teamcity_dotnet_nunitaddin)-$(NUnitVersion).*" />
 		</ItemGroup>
 
-		<MakeDir Directories="$(NUnitRunnerPackage)/tools/addins"
-			Condition="'$(teamcity_version)' != ''"/>
-		<Copy SourceFiles="@(NUnitAddinFiles)" DestinationFolder="$(NUnitRunnerPackage)/tools/addins"
-			Condition="'$(teamcity_version)' != ''"/>
-		<NUnit Assemblies="@(TestAssemblies)"
-			ToolPath="$(NUnitRunnerPackage)/tools"
-			TestInNewThread="false"
+		<NUnit3 Assemblies="@(TestAssemblies)"
+			ToolPath="$(RootDir)/packages/NUnit.ConsoleRunner/tools"
 			ExcludeCategory="$(ExtraExcludeCategories)$(excludedCategories)"
 			WorkingDirectory="$(RootDir)/output/$(Configuration)/net461/"
 			Force32Bit="$(useNUnit-x86)"
-			Verbose="true"
-			OutputXmlFile="$(RootDir)/output/$(Configuration)/net461/TestResults.xml"/>
-		<Message Text="##teamcity[importData type='nunit' path='$(RootDir)/output/$(Configuration)/net461/TestResults.xml']"
-			Condition="'$(teamcity_version)' != '' and '$(OS)'!='Windows_NT'"/>
+			UseNUnit3Xml="false"
+			OutputXmlFile="$(RootDir)/output/$(Configuration)/net461/TestResults.xml"
+			TeamCity="$(TeamCity)"/>
 	</Target>
 
 	<!-- Windows installer stuff -->

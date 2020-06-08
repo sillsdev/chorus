@@ -77,7 +77,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 </ProjectLexiconSettings>".Replace("'", "\""), element);
 		}
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_projectLexiconSettingsFileHandler =
@@ -86,7 +86,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 					select handler).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_projectLexiconSettingsFileHandler = null;

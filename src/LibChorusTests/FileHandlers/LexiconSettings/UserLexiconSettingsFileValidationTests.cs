@@ -20,7 +20,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		private TempFile _goodXmlButNotUserLexiconSettingsTempFile;
 		private TempFile _nonXmlTempFile;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_handler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
@@ -44,7 +44,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 				$"This is not a user lexicon settings file.{nl}");
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_handler = null;

@@ -17,7 +17,7 @@ namespace ChorusMerge.Tests
 	public class ChorusMergeTests
 	{
 		// The file is held onto by R#'s test taskrunner for some reason.
-		//[TestFixtureTearDown]
+		//[OneTimeTearDown]
 		//public void FixtureTearDown()
 		//{
 		//    var file = Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById");

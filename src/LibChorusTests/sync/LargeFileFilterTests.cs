@@ -19,8 +19,8 @@ namespace LibChorus.Tests.sync
 		private string _longData;
 		private ChorusFileTypeHandlerCollection _handlersColl;
 
-		[TestFixtureSetUp]
-		public void TestFixtureSetup()
+		[OneTimeSetUp]
+		public void OneTimeSetUp()
 		{
 			_handlersColl = ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly();
 			var testHandler = (from handler in _handlersColl.Handlers

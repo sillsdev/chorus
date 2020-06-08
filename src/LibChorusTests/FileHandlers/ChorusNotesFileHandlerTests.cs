@@ -21,7 +21,7 @@ namespace LibChorus.Tests.FileHandlers
 	{
 		private IChorusFileTypeHandler _chorusNotesFileHandler;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_chorusNotesFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
@@ -29,7 +29,7 @@ namespace LibChorus.Tests.FileHandlers
 									  select handler).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_chorusNotesFileHandler = null;

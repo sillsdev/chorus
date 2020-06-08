@@ -23,8 +23,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
-    <PackageReference Include="NUnit" Version="2.6.4" />
-    <PackageReference Include="SIL.TestUtilities" Version="7.0.1-beta0023" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="SIL.TestUtilities" Version="8.0.0-beta0142" />
   </ItemGroup>
 
   <ItemGroup>

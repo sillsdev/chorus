@@ -19,7 +19,7 @@ namespace LibChorus.Tests.sync
 				using(var cop = new CommitCop(bob.Repository , ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly(), bob.Progress))
 				{
 					bob.AddAndCheckinFile("test.abc", "hello");
-					Assert.IsNullOrEmpty(cop.ValidationResult);
+					Assert.That(cop.ValidationResult, Is.Null.Or.Empty);
 				}
 				bob.AssertLocalRevisionNumber(0);
 			}
@@ -34,7 +34,7 @@ namespace LibChorus.Tests.sync
 				{
 					bob.AddAndCheckinFile("test.chorusTest", "hello");
 					// SUT
-					Assert.IsNullOrEmpty(cop.ValidationResult);
+					Assert.That(cop.ValidationResult, Is.Null.Or.Empty);
 				}
 				bob.AssertLocalRevisionNumber(0);
 			}
@@ -69,7 +69,7 @@ namespace LibChorus.Tests.sync
 				{
 					bob.ChangeFile("test.chorusTest", "aloha");
 					bob.AddAndCheckinFile("test2.chorusTest", "hi");
-					Assert.IsNullOrEmpty(cop.ValidationResult);
+					Assert.That(cop.ValidationResult, Is.Null.Or.Empty);
 				}
 				bob.AssertHeadCount(1);
 				bob.AssertLocalRevisionNumber(1);
@@ -89,7 +89,7 @@ namespace LibChorus.Tests.sync
 				using(var cop = new CommitCop(bob.Repository, ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly(), bob.Progress))
 				{
 					bob.Repository.AddAndCheckinFile("test.chorusTest");
-					Assert.That(cop.ValidationResult, Is.StringContaining("Failed"));
+					Assert.That(cop.ValidationResult, Does.Contain("Failed"));
 				}
 				Debug.WriteLine(bob.Repository.GetLog(-1));
 				bob.AssertHeadCount(1);
@@ -116,7 +116,7 @@ namespace LibChorus.Tests.sync
 					}
 				}
 			});
-			Assert.That(validationResult, Is.StringContaining("Failed"));
+			Assert.That(validationResult, Does.Contain("Failed"));
 		}
 	}
 }

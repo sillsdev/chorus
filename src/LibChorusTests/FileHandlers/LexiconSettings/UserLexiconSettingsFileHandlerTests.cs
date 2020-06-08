@@ -14,14 +14,14 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 	{
 		private IChorusFileTypeHandler _userLexiconSettingsFileHandler;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_userLexiconSettingsFileHandler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
 				handler => handler.GetType().Name == "UserLexiconSettingsFileHandler")).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_userLexiconSettingsFileHandler = null;

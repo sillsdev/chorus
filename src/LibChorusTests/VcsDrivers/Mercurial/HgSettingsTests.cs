@@ -402,7 +402,8 @@ a =
 
 		// This test won't throw as expected because the HgRepository code attempts to write
 		// a good ini file, and we can't make it bad without it fixing it again.
-		[Test, Ignore]
+		[Test]
+		[Ignore("HgRepository code attempts to write a good ini file, and we can't make it bad without it fixing it again")]
 		public void BadMercurialIni_Throws()
 		{
 			using (new MercurialIniHider())

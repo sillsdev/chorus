@@ -24,7 +24,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		private IChorusFileTypeHandler _ldmlFileHandler;
 		private ListenerForUnitTests _eventListener;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_ldmlFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
@@ -32,7 +32,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 								select handler).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_ldmlFileHandler = null;
@@ -431,7 +431,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	</identity>
 	<characters>
 		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
-		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters>
 		<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
 		<ellipsis type='initial'>…{ 0}</ellipsis>
 	</characters>
@@ -450,7 +450,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	</identity>
 	<characters>
 		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
-			<exemplarCharacters type='index'>[A B C D E F G H I J K L N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+			<exemplarCharacters type='index'>[A B C D E F G H I J K L N O P Q R S T U V W X Y Z]</exemplarCharacters>
 			<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
 			<ellipsis type='final'>{0}…</ellipsis>
 			<ellipsis type='initial'>…{ 0}</ellipsis>
@@ -470,7 +470,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	</identity>
 	<characters>
 		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
-		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters>
 		<exemplarCharacters>[a b c [ch] d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
 		<ellipsis type='final'>{0}…</ellipsis>
 		<ellipsis type='initial'>…{ 0}</ellipsis>
@@ -575,7 +575,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 					@"ldml/characters/exemplarCharacters[text()='[a b c d e f g h i j k l m n o p q r s t u v w x y z]']", // original is gone
 					@"ldml/characters/exemplarCharacters[text()='[a b c d e f g h i j k l n o p q r s t u v w x y z]']" // theirs loses and is gone
 				},
-				1, new List<Type> { typeof(BothEditedTheSameAtomicElement) }, 
+				1, new List<Type> { typeof(BothEditedTheSameAtomicElement) },
 				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
 		}
 
@@ -661,7 +661,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		[Test]
 		public void LayoutIsMerged()
 		{
-			string commonAncestor = 
+			string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <ldml>
 	<identity>
@@ -885,9 +885,9 @@ namespace LibChorus.Tests.FileHandlers.ldml
 					typeof(AmbiguousInsertConflict),
 					typeof(BothEditedTheSameAtomicElement)
 				},
-				6, new List<Type> 
-				{ 
-					typeof(XmlAttributeBothMadeSameChangeReport), 
+				6, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport),
 					typeof(XmlBothDeletionChangeReport),
 					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport),
@@ -976,12 +976,12 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				{
 					typeof(BothEditedTheSameAtomicElement),
 				},
-				4, new List<Type> 
-				{ 
-					typeof(XmlAttributeBothMadeSameChangeReport), 
+				4, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport),
 					typeof(XmlBothDeletionChangeReport),
 					typeof(XmlAdditionChangeReport),
-					typeof(XmlAdditionChangeReport) 
+					typeof(XmlAdditionChangeReport)
 				});
 		}
 
@@ -1065,12 +1065,12 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				{
 					typeof(BothEditedTheSameAtomicElement),
 				},
-				4, new List<Type> 
-				{ 
-					typeof(XmlAttributeBothMadeSameChangeReport), 
+				4, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport),
 					typeof(XmlBothDeletionChangeReport),
 					typeof(XmlAdditionChangeReport),
-					typeof(XmlAdditionChangeReport) 
+					typeof(XmlAdditionChangeReport)
 				});
 		}
 
@@ -1138,15 +1138,15 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				},
 				new List<string>(0),
 				0, new List<Type>(0),
-				7, new List<Type> 
-				{ 
-					typeof(XmlAttributeBothMadeSameChangeReport), 
+				7, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport),
 					typeof(XmlBothDeletionChangeReport),
 					typeof(XmlBothAddedSameChangeReport),
 					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport),
-					typeof(XmlAdditionChangeReport) 
+					typeof(XmlAdditionChangeReport)
 				});
 		}
 
@@ -1463,7 +1463,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				namespaces,
 				new List<string>(),
 				new List<string>(),
-				0, null, 
+				0, null,
 				3, new List<Type> { typeof(XmlBothDeletionChangeReport), typeof(XmlAttributeBothMadeSameChangeReport) , typeof(XmlBothAddedSameChangeReport) }));
 
 		}

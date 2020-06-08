@@ -33,12 +33,12 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
     <PackageReference Include="GitVersionTask" Version="5.3.4">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="NUnit" Version="2.6.4" />
-    <PackageReference Include="SIL.Core" Version="7.0.1-beta0023" />
-    <PackageReference Include="SIL.ReleaseTasks" Version="[2.2.0,)">
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="SIL.Core" Version="8.0.0-beta0142" />
+    <PackageReference Include="SIL.ReleaseTasks" Version="[2.3.2,)">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="SIL.TestUtilities" Version="7.0.1-beta0023" />
+    <PackageReference Include="SIL.TestUtilities" Version="8.0.0-beta0142" />
   </ItemGroup>
 
   <ItemGroup>

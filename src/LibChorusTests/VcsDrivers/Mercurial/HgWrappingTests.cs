@@ -32,7 +32,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void GetEnvironmentReadinessMessageIsNull()
 		{
 			var s = HgRepository.GetEnvironmentReadinessMessage("en");
-			Assert.IsNullOrEmpty(s);
+			Assert.That(s, Is.Null.Or.Empty);
 		}
 
 		[Test, Ignore("By Hand only")]

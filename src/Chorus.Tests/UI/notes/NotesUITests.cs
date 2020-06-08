@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.notes;
 using Chorus.UI.Notes;
@@ -62,7 +63,7 @@ namespace Chorus.Tests.notes
 			}
 		}
 
-		[Test, RequiresSTA, Ignore("By Hand only")]
+		[Test, Apartment(ApartmentState.STA), Ignore("By Hand only")]
 		public void ShowNotesBrowser_LargeNumber()
 		{
 			using (var f = new TempFile("<notes version='0'/>"))
@@ -81,7 +82,7 @@ namespace Chorus.Tests.notes
 			}
 		}
 
-		[Test, Ignore("By Hand only"), RequiresSTA]
+		[Test, Ignore("By Hand only"), Apartment(ApartmentState.STA)]
 		public void ShowNotesBrowser_SmallNumber()
 		{
 			using (var folder = new TemporaryFolder("NotesModelTests"))

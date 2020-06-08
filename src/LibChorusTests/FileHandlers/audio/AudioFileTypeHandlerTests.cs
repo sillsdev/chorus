@@ -14,14 +14,14 @@ namespace LibChorus.Tests.FileHandlers.audio
 	{
 		private IChorusFileTypeHandler _audioFileHandler;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_audioFileHandler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
 				handler => handler.GetType().Name == "AudioFileTypeHandler")).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_audioFileHandler = null;

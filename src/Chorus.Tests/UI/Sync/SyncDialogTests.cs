@@ -13,7 +13,7 @@ namespace Chorus.Tests.UI.Sync
 	public class SyncDialogTests
 	{
 		[Test, Ignore("Run by hand only")]
-		[NUnit.Framework.RequiresSTA]
+		[Apartment(ApartmentState.STA)]
 		public void ShowSyncStartControl_NoPaths()
 		{
 			using(var setup = new RepositorySetup("pedro"))
@@ -27,7 +27,7 @@ namespace Chorus.Tests.UI.Sync
 		}
 
 		[Test, Ignore("Run by hand only")]
-		[NUnit.Framework.RequiresSTA]
+		[Apartment(ApartmentState.STA)]
 		public void ShowSyncDialog_InternetAndNetworkPaths_WindowsStyle()
 		{
 			Application.EnableVisualStyles();
@@ -50,7 +50,7 @@ namespace Chorus.Tests.UI.Sync
 		}
 
 		[Test, Ignore("Run by hand only")]
-		[NUnit.Framework.RequiresSTA]
+		[Apartment(ApartmentState.STA)]
 		public void ShowSyncDialog_InternetAndNetworkPaths()
 		{
 			Application.EnableVisualStyles();

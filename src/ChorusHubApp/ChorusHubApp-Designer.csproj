@@ -69,52 +69,52 @@
     <LangVersion>6</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AtkSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\packages\AtkSharp.3.22.24.37\lib\netstandard2.0\AtkSharp.dll</HintPath>
+    <Reference Include="AtkSharp, Version=3.22.25.74, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\AtkSharp.3.22.25.74\lib\netstandard2.0\AtkSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="CairoSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\packages\CairoSharp.3.22.24.37\lib\netstandard2.0\CairoSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="DialogAdapters, Version=0.1.3.26068, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\packages\DialogAdapters.0.1.3.26068\lib\net45\DialogAdapters.dll</HintPath>
+    <Reference Include="CairoSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=313398f2149d753f">
+      <HintPath>..\..\packages\CairoSharp-signed.3.22.24.37\lib\netstandard2.0\CairoSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Enchant.Net, Version=1.4.0.0, Culture=neutral, PublicKeyToken=ae135aeb3d479ab9">
       <HintPath>..\..\packages\Enchant.Net.1.4.2\lib\net461\Enchant.Net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GioSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\packages\GioSharp.3.22.24.37\lib\netstandard2.0\GioSharp.dll</HintPath>
+    <Reference Include="GdkSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=313398f2149d753f">
+      <HintPath>..\..\packages\GdkSharp-signed.3.22.24.37\lib\netstandard2.0\GdkSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GLibSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\packages\GLibSharp.3.22.24.37\lib\netstandard2.0\GLibSharp.dll</HintPath>
+    <Reference Include="GioSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=313398f2149d753f">
+      <HintPath>..\..\packages\GioSharp-signed.3.22.24.37\lib\netstandard2.0\GioSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GtkSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\packages\GtkSharp.3.22.24.37\lib\netstandard2.0\GtkSharp.dll</HintPath>
+    <Reference Include="GLibSharp, Version=3.22.25.74, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\packages\GLibSharp.3.22.25.74\lib\netstandard2.0\GLibSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="icu.net, Version=2.5.0.0, Culture=neutral, PublicKeyToken=416fdd914afa6b66">
-      <HintPath>..\..\packages\icu.net.2.5.4\lib\net451\icu.net.dll</HintPath>
+    <Reference Include="GtkSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=313398f2149d753f">
+      <HintPath>..\..\packages\GtkSharp-signed.3.22.24.37\lib\netstandard2.0\GtkSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="icu.net, Version=2.6.0.0, Culture=neutral, PublicKeyToken=416fdd914afa6b66">
+      <HintPath>..\..\packages\icu.net.2.6.0\lib\net451\icu.net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="L10NSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=fd0b3e309a5b7c28">
-      <HintPath>..\..\packages\L10NSharp.4.0.2\lib\net461\L10NSharp.dll</HintPath>
+      <HintPath>..\..\packages\L10NSharp.4.0.3\lib\net461\L10NSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MarkdownDeep, Version=1.5.6607.21413, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\packages\MarkdownDeep.NET.Patched.1.5.0.1\lib\net35\MarkdownDeep.dll</HintPath>
+    <Reference Include="MarkdownDeep, Version=1.5.7366.28328, Culture=neutral, PublicKeyToken=a3790ba34fe8597c">
+      <HintPath>..\..\packages\MarkdownDeep.NET.Patched.1.5.0.2\lib\net35\MarkdownDeep.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.DotNet.PlatformAbstractions, Version=2.0.4.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-      <HintPath>..\..\packages\Microsoft.DotNet.PlatformAbstractions.2.0.4\lib\net45\Microsoft.DotNet.PlatformAbstractions.dll</HintPath>
+    <Reference Include="Microsoft.DotNet.PlatformAbstractions, Version=3.1.4.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\..\packages\Microsoft.DotNet.PlatformAbstractions.3.1.4\lib\net45\Microsoft.DotNet.PlatformAbstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyModel, Version=2.0.4.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
-      <HintPath>..\..\packages\Microsoft.Extensions.DependencyModel.2.0.4\lib\net451\Microsoft.Extensions.DependencyModel.dll</HintPath>
+    <Reference Include="Microsoft.Extensions.DependencyModel, Version=3.1.4.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+      <HintPath>..\..\packages\Microsoft.Extensions.DependencyModel.3.1.4\lib\net451\Microsoft.Extensions.DependencyModel.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
@@ -130,24 +130,24 @@
       <HintPath>..\..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PangoSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\packages\PangoSharp.3.22.24.37\lib\netstandard2.0\PangoSharp.dll</HintPath>
+    <Reference Include="PangoSharp, Version=3.22.24.37, Culture=neutral, PublicKeyToken=313398f2149d753f">
+      <HintPath>..\..\packages\PangoSharp-signed.3.22.24.37\lib\netstandard2.0\PangoSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SIL.Core, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Core.7.0.1-beta0023\lib\net461\SIL.Core.dll</HintPath>
+    <Reference Include="SIL.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
+      <HintPath>..\..\packages\SIL.Core.8.0.0-beta0142\lib\net461\SIL.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SIL.Core.Desktop, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Core.Desktop.7.0.1-beta0023\lib\net461\SIL.Core.Desktop.dll</HintPath>
+    <Reference Include="SIL.Core.Desktop, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
+      <HintPath>..\..\packages\SIL.Core.Desktop.8.0.0-beta0142\lib\net461\SIL.Core.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SIL.Windows.Forms, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Windows.Forms.7.0.1-beta0023\lib\net461\SIL.Windows.Forms.dll</HintPath>
+    <Reference Include="SIL.Windows.Forms, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
+      <HintPath>..\..\packages\SIL.Windows.Forms.8.0.0-beta0142\lib\net461\SIL.Windows.Forms.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SIL.WritingSystems, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.WritingSystems.7.0.1-beta0023\lib\net461\SIL.WritingSystems.dll</HintPath>
+    <Reference Include="SIL.WritingSystems, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
+      <HintPath>..\..\packages\SIL.WritingSystems.8.0.0-beta0142\lib\net461\SIL.WritingSystems.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Spart, Version=1.0.0.0, Culture=neutral, PublicKeyToken=14d24e064e474331">
@@ -155,18 +155,22 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Configuration" />
-    <Reference Include="System.IO.FileSystem.AccessControl, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\..\packages\System.IO.FileSystem.AccessControl.4.4.0\lib\net461\System.IO.FileSystem.AccessControl.dll</HintPath>
+    <Reference Include="System.IO.FileSystem.AccessControl, Version=4.0.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\packages\System.IO.FileSystem.AccessControl.4.7.0\lib\net461\System.IO.FileSystem.AccessControl.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Management" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Security.AccessControl, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\..\packages\System.Security.AccessControl.4.4.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Security.Principal.Windows, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\..\packages\System.Security.Principal.Windows.4.4.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.AccessControl, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\packages\System.Security.AccessControl.4.7.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\packages\System.Security.Principal.Windows.4.7.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.ServiceModel" />
@@ -174,6 +178,7 @@
       <HintPath>..\..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="TagLibSharp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=db62eba44689b5b0">
       <HintPath>..\..\packages\TagLibSharp.2.2.0\lib\net45\TagLibSharp.dll</HintPath>
       <Private>True</Private>

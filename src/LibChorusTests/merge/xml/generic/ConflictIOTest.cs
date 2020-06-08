@@ -82,7 +82,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			var annotationXml = XmlTestHelper.WriteConflictAnnotation(conflict);
 			Conflict.RegisterContextClass(typeof(DemoConflict));
 			var regurgitated = Conflict.CreateFromChorusNotesAnnotation(annotationXml);
-			Assert.That(regurgitated.HtmlDetails, Is.StringContaining("Badegg"));// the /uDB80 should have dropped
+			Assert.That(regurgitated.HtmlDetails, Does.Contain("Badegg"));// the /uDB80 should have dropped
 		}
 
 		[Test]

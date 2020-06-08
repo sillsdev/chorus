@@ -394,7 +394,7 @@ namespace LibChorus.Tests.sync
 
 			var rev2 = new Revision(null, "default", "Fred", "1235", "hash1235", "change something else");
 			revs = new[] { rev2 };
-			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Is.StringContaining("Fred"));
+			Assert.That(LiftSynchronizerAdjunct.GetRepositoryBranchCheckData(revs, "7.2.1", ref savedSettings), Does.Contain("Fred"));
 		}
 
 		[Test]

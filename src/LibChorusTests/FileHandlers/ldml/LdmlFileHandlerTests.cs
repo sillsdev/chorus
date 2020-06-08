@@ -14,14 +14,14 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	{
 		private IChorusFileTypeHandler _ldmlFileHandler;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_ldmlFileHandler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
 				handler => handler.GetType().Name == "LdmlFileHandler")).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_ldmlFileHandler = null;

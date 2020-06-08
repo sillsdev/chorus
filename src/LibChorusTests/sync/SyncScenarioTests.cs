@@ -17,7 +17,7 @@ namespace LibChorus.Tests.sync
 		private string _pathToTestRootBase;
 		private string _pathToTestRoot;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_pathToTestRootBase = Path.Combine(Path.GetTempPath(), "ChorusSyncScenarioTests");
@@ -26,7 +26,7 @@ namespace LibChorus.Tests.sync
 			Directory.CreateDirectory(_pathToTestRootBase);
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			Directory.Delete(_pathToTestRootBase, true);
@@ -156,7 +156,7 @@ namespace LibChorus.Tests.sync
 			public string SetupClone(string targetPath)
 			{
 				//return GetSynchronizer().MakeClone(Path.Combine(targetPath, BobSetup.ProjectFolderName), true);
-				return HgHighLevel.MakeCloneFromUsbToLocal(_languageProjectPath, 
+				return HgHighLevel.MakeCloneFromUsbToLocal(_languageProjectPath,
 					Path.Combine(targetPath, BobSetup.ProjectFolderName), _progress);
 			}
 

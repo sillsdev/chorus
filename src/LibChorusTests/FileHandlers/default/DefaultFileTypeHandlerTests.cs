@@ -13,13 +13,13 @@ namespace LibChorus.Tests.FileHandlers.Default
 	{
 		private IChorusFileTypeHandler _defaultFileHandler;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_defaultFileHandler = new DefaultFileTypeHandler();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_defaultFileHandler = null;
