@@ -112,7 +112,8 @@
 			Force32Bit="$(useNUnit-x86)"
 			UseNUnit3Xml="false"
 			OutputXmlFile="$(RootDir)/output/$(Configuration)/net461/TestResults.xml"
-			TeamCity="$(TeamCity)"/>
+			TeamCity="$(TeamCity)"
+			Verbose="true" />
 	</Target>
 
 	<!-- Windows installer stuff -->
