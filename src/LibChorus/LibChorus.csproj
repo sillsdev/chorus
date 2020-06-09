@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461</TargetFrameworks>
-    <RootNamespace>Chorus</RootNamespace>
+	<RootNamespace>Chorus</RootNamespace>
     <AssemblyTitle>LibChorus</AssemblyTitle>
     <Configurations>Debug;Release</Configurations>
     <Description>End-user collaboration library via 3-way xml merging and hg dvcs under the hood.</Description>
@@ -48,12 +48,12 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
 
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="System.ServiceModel" />
+	<Reference Include="System.ServiceModel" />
   </ItemGroup>
 
-  <PropertyGroup>
+	<PropertyGroup>
     <!-- See https://github.com/dotnet/sdk/issues/987#issuecomment-286307697 why that is needed -->
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
-  </PropertyGroup>
+	</PropertyGroup>
 
 </Project>

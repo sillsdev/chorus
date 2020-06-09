@@ -11,7 +11,6 @@
 
 		<!-- Download NuGet.exe if it does not already exist -->
 		<DownloadNuGetExe Condition=" '$(DownloadNuGetExe)' == '' ">true</DownloadNuGetExe>
-		<NuGetExeUrl>https://dist.nuget.org/win-x86-commandline/latest/nuget.exe</NuGetExeUrl>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -23,6 +22,7 @@
 
 		<NuGetCommand Condition=" '$(OS)' == 'Windows_NT'">"$(NuGetExePath)"</NuGetCommand>
 		<NuGetCommand Condition=" '$(OS)' != 'Windows_NT' ">mono $(NuGetExePath)</NuGetCommand>
+		<NuGetDownloadUrl>https://dist.nuget.org/win-x86-commandline/latest/nuget.exe</NuGetDownloadUrl>
 	</PropertyGroup>
 
 	<Target Name="CheckPrerequisites">
@@ -41,7 +41,7 @@
 	<Target Name="_DownloadNuGet" Condition=" '$(DownloadNuGetExe)' == 'true' AND !Exists('$(NuGetExePath)')">
 		<DownloadNuGet OutputFilename="$(NuGetExePath)"
 			Condition="'$(OS)' == 'Windows_NT'" />
-		<Exec Command="wget $(NuGetExeUrl) || curl -O -L $(NuGetExeUrl)"
+		<Exec Command="wget $(NuGetDownloadUrl) || curl -O -L $(NuGetDownloadUrl)"
 			WorkingDirectory="$(NuGetToolsPath)"
 			Condition="'$(OS)' != 'Windows_NT'" />
 	</Target>
@@ -77,7 +77,7 @@
 
 					Log.LogMessage("Downloading latest version of nuget.exe...");
 					WebClient webClient = new WebClient();
-					webClient.DownloadFile("$(NuGetExeUrl)", OutputFilename);
+					webClient.DownloadFile("$(NuGetDownloadUrl)", OutputFilename);
 
 					return true;
 				}
