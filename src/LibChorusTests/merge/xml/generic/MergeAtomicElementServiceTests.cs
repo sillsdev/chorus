@@ -151,7 +151,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		public void DefaultIsFalse()
 		{
 			var elementStrategy = new ElementStrategy(false);
-			Assert.IsFalse(elementStrategy.IsAtomic);
+			Assert.That(elementStrategy.IsAtomic, Is.False);
 		}
 
 		[Test]
@@ -161,7 +161,7 @@ namespace LibChorus.Tests.merge.xml.generic
 				{
 					IsAtomic = true
 				};
-			Assert.IsTrue(elementStrategy.IsAtomic);
+			Assert.That(elementStrategy.IsAtomic, Is.True);
 		}
 
 		[Test]

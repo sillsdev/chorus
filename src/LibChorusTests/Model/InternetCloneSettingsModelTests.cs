@@ -16,7 +16,7 @@ namespace LibChorus.Tests.Model
 				var model = new InternetCloneSettingsModel(testFolder.Path);
 				model.InitFromUri("http://john:myPassword@hg-languagedepot.org/tpi?localFolder=tokPisin");
 				Assert.AreEqual("tokPisin", model.LocalFolderName);
-				Assert.IsTrue(model.ReadyToDownload);
+				Assert.That(model.ReadyToDownload, Is.True);
 				Assert.AreEqual("http://john:myPassword@hg-languagedepot.org/tpi",model.URL);
 			}
 		}

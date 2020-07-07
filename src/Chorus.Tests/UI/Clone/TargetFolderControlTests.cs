@@ -41,7 +41,7 @@ namespace Chorus.Tests.UI.Clone
 				model.LocalFolderName = "";
 				var ctrl = new TargetFolderControl(model);
 				ctrl._localFolderName.Text = "  Bob";
-				Assert.IsFalse(model.TargetHasProblem);
+				Assert.That(model.TargetHasProblem, Is.False);
 				Assert.AreEqual(Path.Combine(testFolder.Path, "Bob"), model.TargetDestination);
 			}
 		}
@@ -58,7 +58,7 @@ namespace Chorus.Tests.UI.Clone
 				model.LocalFolderName = "";
 				var ctrl = new TargetFolderControl(model);
 				ctrl._localFolderName.Text = "Billy ";
-				Assert.IsTrue(model.TargetHasProblem);
+				Assert.That(model.TargetHasProblem, Is.True);
 				Assert.AreEqual(Path.Combine(testFolder.Path, "Billy"), model.TargetDestination);
 			}
 		}

@@ -98,7 +98,7 @@ namespace LibChorus.TestUtilities
 		{
 			if (Repository != null)
 			{
-				Assert.IsFalse(Repository.GetHasLocks(), "A lock was left over, after the test.");
+				Assert.That(Repository.GetHasLocks(), Is.False, "A lock was left over, after the test.");
 			}
 			if (ProjectFolder != null)
 			{
@@ -199,17 +199,17 @@ namespace LibChorus.TestUtilities
 
 		public void AssertFileExistsRelativeToRoot(string relativePath)
 		{
-			Assert.IsTrue(File.Exists(RootFolder.Combine(relativePath)));
+			Assert.That(RootFolder.Combine(relativePath), Does.Exist);
 		}
 
 		public void AssertFileExistsInRepository(string pathRelativeToRepositoryRoot)
 		{
-			Assert.IsTrue(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot));
+			Assert.That(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot), Is.True);
 		}
 
 		public void AssertFileDoesNotExistInRepository(string pathRelativeToRepositoryRoot)
 		{
-			Assert.IsFalse(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot));
+			Assert.That(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot), Is.False);
 		}
 
 		public static void MakeRepositoryForTest(string newRepositoryPath, string userId, IProgress progress)
@@ -262,7 +262,7 @@ namespace LibChorus.TestUtilities
 
 		public void AssertFileExists(string relativePath)
 		{
-			Assert.IsTrue(File.Exists(ProjectFolder.Combine(relativePath)));
+			Assert.That(ProjectFolder.Combine(relativePath), Does.Exist);
 		}
 
 		public void AssertFileContents(string relativePath, string expectedContents)

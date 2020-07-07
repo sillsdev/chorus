@@ -81,7 +81,7 @@ namespace LibChorus.Tests.Model
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
-			Assert.IsFalse(m.CustomUrlSelected);
+			Assert.That(m.CustomUrlSelected, Is.False);
 		}
 
 		[Test]
@@ -97,7 +97,7 @@ namespace LibChorus.Tests.Model
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("http://somewhereelse.net/xyz");
-			Assert.IsTrue(m.CustomUrlSelected);
+			Assert.That(m.CustomUrlSelected, Is.True);
 		}
 
 		[Test]
@@ -105,7 +105,7 @@ namespace LibChorus.Tests.Model
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("\\mybox\tpi");
-			Assert.IsTrue(m.CustomUrlSelected);
+			Assert.That(m.CustomUrlSelected, Is.True);
 		}
 
 		[Test]
@@ -113,7 +113,7 @@ namespace LibChorus.Tests.Model
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("\\mybox\tpi");
-			Assert.IsTrue(m.SelectedServerLabel.ToLower().Contains("custom"));
+			Assert.That(m.SelectedServerLabel, Does.Contain("custom").IgnoreCase);
 		}
 
 		[Test]
@@ -126,8 +126,8 @@ namespace LibChorus.Tests.Model
 				m.InitFromProjectPath(folder.Path);
 				m.SetUrlToUseIfSettingsAreEmpty(url);
 				m.SaveSettings();
-				Assert.IsTrue(Directory.Exists(folder.Combine(".hg")));
-				Assert.IsTrue(File.Exists(folder.Combine(".hg","hgrc")));
+				Assert.That(folder.Combine(".hg"), Does.Exist);
+				Assert.That(folder.Combine(".hg","hgrc"), Does.Exist);
 				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 				Assert.AreEqual("languageDepot.org[safemode]".ToLower(), address.Name.ToLower());
@@ -148,8 +148,8 @@ namespace LibChorus.Tests.Model
 				m.InitFromProjectPath(folder.Path);
 				m.Password = "newPassword";
 				m.SaveSettings();
-				Assert.IsTrue(Directory.Exists(folder.Combine(".hg")));
-				Assert.IsTrue(File.Exists(folder.Combine(".hg", "hgrc")));
+				Assert.That(folder.Combine(".hg"), Does.Exist);
+				Assert.That(folder.Combine(".hg", "hgrc"), Does.Exist);
 				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 				Assert.AreEqual("http://joe:newPassword@hg-public.languagedepot.org/tpi", address.URI);

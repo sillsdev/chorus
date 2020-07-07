@@ -12,11 +12,11 @@ namespace LibChorus.Tests.merge.xml.lift
 		public void CanValidateFile_AcceptsCorrectSet()
 		{
 			var handler = new LiftFileHandler();
-			Assert.IsTrue(handler.CanValidateFile("foo.lift"));
-			Assert.IsTrue(handler.CanValidateFile("foo.LiFt"));
-			Assert.IsFalse(handler.CanValidateFile("foo.WeSayConfig"));
-			Assert.IsFalse(handler.CanValidateFile("foo.xml"));
-			Assert.IsFalse(handler.CanValidateFile("foo.abc"));
+			Assert.That(handler.CanValidateFile("foo.lift"), Is.True);
+			Assert.That(handler.CanValidateFile("foo.LiFt"), Is.True);
+			Assert.That(handler.CanValidateFile("foo.WeSayConfig"), Is.False);
+			Assert.That(handler.CanValidateFile("foo.xml"), Is.False);
+			Assert.That(handler.CanValidateFile("foo.abc"), Is.False);
 		}
 
 		[Test]
@@ -26,7 +26,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			using(var file = new TempFile("<lift/>"))
 			{
 				var result = handler.ValidateFile(file.Path, new ConsoleProgress());
-				Assert.IsNull(result);
+				Assert.That(result, Is.Null);
 			}
 		}
 
@@ -37,7 +37,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			using (var file = new TempFile("<lift>"))
 			{
 				var result = handler.ValidateFile(file.Path, new ConsoleProgress());
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 			}
 		}
 
@@ -48,7 +48,7 @@ namespace LibChorus.Tests.merge.xml.lift
 			using (var file = new TempFile("<lift><foo/></lift>"))
 			{
 				var result = handler.ValidateFile(file.Path, new ConsoleProgress());
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 			}
 		}
 	}

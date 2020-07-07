@@ -29,8 +29,8 @@ namespace LibChorus.Tests.sync
 
 					string notesFile = ChorusNotesMergeEventListener.GetChorusNotesFilePath(sally.UserFile.Path);
 					Console.WriteLine("notesFile '{0}'", notesFile);
-					Assert.IsTrue(File.Exists(notesFile), "Conflict file should have been in working set");
-					Assert.IsTrue(sally.Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(notesFile),"Notes file should have been added to repository");
+					Assert.That(notesFile, Does.Exist, "Conflict file should have been in working set");
+					Assert.That(sally.Synchronizer.Repository.GetFileIsInRepositoryFromFullPath (notesFile), Is.True, "Notes file should have been added to repository");
 
 				}
 			}

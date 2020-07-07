@@ -46,7 +46,7 @@ namespace LibChorus.Tests.FileHandlers
 		[Test]
 		public void CanValidate_IsFalse()
 		{
-			Assert.IsFalse(_chorusNotesFileHandler.CanValidateFile(null));
+			Assert.That(_chorusNotesFileHandler.CanValidateFile(null), Is.False);
 		}
 
 		[Test]
@@ -61,7 +61,7 @@ namespace LibChorus.Tests.FileHandlers
 			using (var tempFile = TempFile.WithExtension("." + AnnotationRepository.FileExtension))
 			{
 				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<notes />");
-				Assert.IsTrue(_chorusNotesFileHandler.CanMergeFile(tempFile.Path));
+				Assert.That(_chorusNotesFileHandler.CanMergeFile(tempFile.Path), Is.True);
 			}
 		}
 
@@ -262,9 +262,9 @@ namespace LibChorus.Tests.FileHandlers
 
 		private static void CheckResults(bool expectedToMatch, string source, string target)
 		{
-			Assert.IsTrue(target.Contains("524786f4-8e27-4ebf-b7ea-02846723c2d8"));
-			Assert.IsTrue(target.Contains("a0481907-3fff-45a2-bb1c-961c3198c86a"));
-			Assert.IsTrue(target.Contains("<![CDATA[<conflict"));
+			Assert.That(target, Does.Contain("524786f4-8e27-4ebf-b7ea-02846723c2d8"));
+			Assert.That(target, Does.Contain("a0481907-3fff-45a2-bb1c-961c3198c86a"));
+			Assert.That(target, Does.Contain("<![CDATA[<conflict"));
 			CompareResults(expectedToMatch, source, target);
 		}
 

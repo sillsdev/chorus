@@ -104,7 +104,7 @@ two = http://foo.com");
 		{
 			using (new MercurialIniForTests())
 			{
-				Assert.IsFalse(GetIsReady(@""));
+				Assert.That(GetIsReady(@""), Is.False);
 			}
 		}
 
@@ -113,7 +113,7 @@ two = http://foo.com");
 		{
 			using (new MercurialIniForTests())
 			{
-				Assert.IsFalse(GetIsReady(@"LanguageDepot = http://hg-public.languagedepot.org/xyz"));
+				Assert.That(GetIsReady(@"LanguageDepot = http://hg-public.languagedepot.org/xyz"), Is.False);
 			}
 		}
 
@@ -122,7 +122,7 @@ two = http://foo.com");
 		{
 			using (new MercurialIniForTests())
 			{
-				Assert.IsTrue(GetIsReady(@"LanguageDepot = http://joe_user:xyz@hg-public.languagedepot.org/xyz"));
+				Assert.That(GetIsReady(@"LanguageDepot = http://joe_user:xyz@hg-public.languagedepot.org/xyz"), Is.True);
 			}
 		}
 
@@ -312,7 +312,7 @@ username = Joe Schmoe
 
 		private void AssertHgrcNowContainsUri(HgRepository repository, string uri)
 		{
-			Assert.IsNotNull(repository.GetRepositoryPathsInHgrc().FirstOrDefault(a=>a.URI == uri));
+			Assert.That(repository.GetRepositoryPathsInHgrc().FirstOrDefault(a=>a.URI == uri), Is.Not.Null);
 		}
 
 		[Test]

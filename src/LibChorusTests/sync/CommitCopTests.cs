@@ -49,7 +49,7 @@ namespace LibChorus.Tests.sync
 				bob.ChangeFile("test.chorusTest",ChorusTestFileHandler.GetInvalidContents());
 				using (var cop = new CommitCop(bob.Repository, ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly(), bob.Progress))
 				{
-					Assert.IsFalse(string.IsNullOrEmpty(cop.ValidationResult));
+					Assert.That(cop.ValidationResult, Is.Not.Null.And.Not.Empty);
 					bob.Repository.Commit(false, "bad data");
 				}
 				Debug.WriteLine(bob.Repository.GetLog(-1));

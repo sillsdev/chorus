@@ -37,8 +37,8 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		public void HandlerOnlySupportsProjectLexiconSettingsExtension()
 		{
 			var extensions = _projectLexiconSettingsFileHandler.GetExtensionsOfKnownTextFileTypes();
-			Assert.IsTrue(extensions.Count() == 1);
-			Assert.AreEqual("plsx", extensions.First());
+			Assert.That(extensions.Count(), Is.EqualTo(1));
+			Assert.That(extensions.First(), Is.EqualTo("plsx"));
 		}
 
 		[Test]

@@ -69,7 +69,7 @@ namespace LibChorus.Tests.sync
 
 			synchronizer.SyncNow(options);
 			string dir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
-			Assert.IsTrue(Directory.Exists(dir));
+			Assert.That(dir, Does.Exist);
 
 		}
 
@@ -86,12 +86,12 @@ namespace LibChorus.Tests.sync
 
 			synchronizer.SyncNow(options);
 			var projectDir = Path.Combine(UsbKeyRepositorySource.RootDirForUsbSourceDuringUnitTest, "foo project");
-			Assert.IsTrue(Directory.Exists(projectDir));
+			Assert.That(projectDir, Does.Exist);
 			// SUT backward compatible clone has no dotencode in the requires file
 			var requiresLines = File.ReadAllLines(Path.Combine(projectDir, ".hg", "requires"));
 			CollectionAssert.DoesNotContain(requiresLines, "dotencode");
 			// SUT bare clone should get this text file
-			Assert.IsTrue(File.Exists(projectDir.CombineForPath(projectDir, "~~Folder has an invisible repository.txt")));
+			Assert.That(projectDir.CombineForPath(projectDir, "~~Folder has an invisible repository.txt"), Does.Exist);
 		}
 
 		[Test]

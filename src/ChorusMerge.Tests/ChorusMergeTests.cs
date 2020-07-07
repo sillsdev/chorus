@@ -30,10 +30,10 @@ namespace ChorusMerge.Tests
 		{
 			using (var group = new GroupOfConflictingLiftFiles())
 			{
-				Assert.AreEqual(0, DoMerge(group));
-				Assert.IsTrue(File.Exists(group.BobTextConflictsPath));
+				Assert.That(DoMerge(group), Is.EqualTo(0));
+				Assert.That(group.BobTextConflictsPath, Does.Exist);
 				var text = File.ReadAllText(group.BobTextConflictsPath);
-				Assert.AreNotEqual(string.Empty, text);
+				Assert.That(text, Is.Not.Empty);
 			}
 		}
 

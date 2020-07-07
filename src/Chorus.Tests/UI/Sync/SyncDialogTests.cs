@@ -206,7 +206,7 @@ namespace Chorus.Tests.UI.Sync
 				{
 					dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
 					dlg.ShowDialog();
-					Assert.IsTrue(dlg.FinalStatus.WarningEncountered);
+					Assert.That(dlg.FinalStatus.WarningEncountered, Is.True);
 				}
 			}
 		}
@@ -220,7 +220,7 @@ namespace Chorus.Tests.UI.Sync
 			var syncStartModel = new SyncStartModel(null);
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
-			Assert.IsFalse(result, "Should fail!");
+			Assert.That(result, Is.False, "Should fail!");
 			Assert.AreEqual("First insert a USB flash drive.", message);
 		}
 
@@ -233,7 +233,7 @@ namespace Chorus.Tests.UI.Sync
 			var syncStartModel = new SyncStartModel(null);
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
-			Assert.IsFalse(result, "Should fail!");
+			Assert.That(result, Is.False, "Should fail!");
 			Assert.AreEqual("More than one USB drive detected. Please remove one.", message);
 		}
 
@@ -246,8 +246,8 @@ namespace Chorus.Tests.UI.Sync
 			var syncStartModel = new SyncStartModel(null);
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
-			Assert.IsTrue(result, "Should pass!");
-			Assert.IsTrue(message.StartsWith("C:"));
+			Assert.That(result, Is.True, "Should pass!");
+			Assert.That(message.StartsWith("C:"), Is.True);
 		}
 	}
 }

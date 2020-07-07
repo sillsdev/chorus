@@ -44,11 +44,11 @@ namespace LibChorus.Tests.sync
 			using (var bob = new RepositorySetup("bob", true))
 			{
 				var synchronizer = bob.CreateSynchronizer();
-				Assert.IsNotNull(synchronizer.SynchronizerAdjunct);
+				Assert.That(synchronizer.SynchronizerAdjunct, Is.Not.Null);
 				Assert.IsInstanceOf<DefaultSychronizerAdjunct>(synchronizer.SynchronizerAdjunct);
 
 				synchronizer.SynchronizerAdjunct = null;
-				Assert.IsNotNull(synchronizer.SynchronizerAdjunct);
+				Assert.That(synchronizer.SynchronizerAdjunct, Is.Not.Null);
 				Assert.IsInstanceOf<DefaultSychronizerAdjunct>(synchronizer.SynchronizerAdjunct);
 			}
 		}
@@ -101,7 +101,7 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 
 				var syncResults = bob.SyncWithOptions(options, synchronizer);
-				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
+				Assert.That(syncResults.DidGetChangesFromOthers, Is.False);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false, true, false);
 			}
 		}
@@ -127,7 +127,7 @@ namespace LibChorus.Tests.sync
 				var synchronizer = bob.Synchronizer;
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 				var syncResults = bob.SyncWithOptions(options, synchronizer);
-				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
+				Assert.That(syncResults.DidGetChangesFromOthers, Is.False);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, false, false, true, true);
 			}
 		}
@@ -164,7 +164,7 @@ namespace LibChorus.Tests.sync
 				alistair.SyncWithOptions(options);
 				susanna.ReplaceSomethingElse("no problems.");
 				var syncResults = susanna.SyncWithOptions(bobOptions, synchronizer);
-				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
+				Assert.That(syncResults.DidGetChangesFromOthers, Is.True);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
@@ -198,7 +198,7 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
-				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
+				Assert.That(syncResults.DidGetChangesFromOthers, Is.True);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
@@ -231,7 +231,7 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
-				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
+				Assert.That(syncResults.DidGetChangesFromOthers, Is.True);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, true, true, true);
 			}
 		}
@@ -262,7 +262,7 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
-				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
+				Assert.That(syncResults.DidGetChangesFromOthers, Is.True);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false, true, true);
 			}
 		}
@@ -296,9 +296,9 @@ namespace LibChorus.Tests.sync
 				using (new FailureSimulator("SychronizerAdjunct"))
 				{
 					var syncResults = sally.SyncWithOptions(options, synchronizer);
-					Assert.IsTrue(syncResults.DidGetChangesFromOthers);
-					Assert.IsFalse(syncResults.Cancelled);
-					Assert.IsFalse(syncResults.Succeeded);
+					Assert.That(syncResults.DidGetChangesFromOthers, Is.True);
+					Assert.That(syncResults.Cancelled, Is.False);
+					Assert.That(syncResults.Succeeded, Is.False);
 					CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, false);
 				}
 			}
@@ -328,7 +328,7 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 
 				var syncResults = sally.SyncWithOptions(options, synchronizer);
-				Assert.IsTrue(syncResults.DidGetChangesFromOthers);
+				Assert.That(syncResults.DidGetChangesFromOthers, Is.True);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, true, false, false, true, true);
 				var lines = File.ReadAllLines(syncAdjunct.CheckRepoBranchesPathName);
 				Assert.AreEqual(lines.Length, 2, "Wrong number of branches on CheckBranches call");
@@ -358,9 +358,9 @@ namespace LibChorus.Tests.sync
 				synchronizer.SynchronizerAdjunct = syncAdjunct;
 
 				var syncResults = bob.SyncWithOptions(options, synchronizer);
-				Assert.IsFalse(syncResults.Cancelled);
-				Assert.IsFalse(syncResults.DidGetChangesFromOthers);
-				Assert.IsFalse(syncResults.Succeeded);
+				Assert.That(syncResults.Cancelled, Is.False);
+				Assert.That(syncResults.DidGetChangesFromOthers, Is.False);
+				Assert.That(syncResults.Succeeded, Is.False);
 				CheckExistanceOfAdjunctFiles(syncAdjunct, true, false, true, false, true, false);
 			}
 		}
@@ -465,44 +465,44 @@ namespace LibChorus.Tests.sync
 														 bool branchesFileShouldExist)
 		{
 			if (commitFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.CommitPathname), "CommitFile should exist.");
+				Assert.That(syncAdjunct.CommitPathname, Does.Exist, "CommitFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.CommitPathname), "CommitFile should not exist.");
+				Assert.That(syncAdjunct.CommitPathname, Does.Not.Exist, "CommitFile should not exist.");
 
 			if (pullFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.PullPathname), "PullFile should exist.");
+				Assert.That(syncAdjunct.PullPathname, Does.Exist, "PullFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.PullPathname), "PullFile should not exist.");
+				Assert.That(syncAdjunct.PullPathname, Does.Not.Exist, "PullFile should not exist.");
 
 			if (rollbackFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.RollbackPathname), "RollbackFile should exist.");
+				Assert.That(syncAdjunct.RollbackPathname, Does.Exist, "RollbackFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.RollbackPathname), "RollbackFile shouldn't exist.");
+				Assert.That(syncAdjunct.RollbackPathname, Does.Not.Exist, "RollbackFile shouldn't exist.");
 
 			if (mergeFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.MergePathname), "MergeFile should exist.");
+				Assert.That(syncAdjunct.MergePathname, Does.Exist, "MergeFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.MergePathname), "MergeFile shouldn't exist.");
+				Assert.That(syncAdjunct.MergePathname, Does.Not.Exist, "MergeFile shouldn't exist.");
 
 			if (branchNameFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.BranchNamePathName), "BranchNameFile should exist.");
+				Assert.That(syncAdjunct.BranchNamePathName, Does.Exist, "BranchNameFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.BranchNamePathName), "BranchNameFile shouldn't exist.");
+				Assert.That(syncAdjunct.BranchNamePathName, Does.Not.Exist, "BranchNameFile shouldn't exist.");
 
 			if (branchesFileShouldExist)
-				Assert.IsTrue(File.Exists(syncAdjunct.CheckRepoBranchesPathName), "CheckRepoBranchesFile should exist.");
+				Assert.That(syncAdjunct.CheckRepoBranchesPathName, Does.Exist, "CheckRepoBranchesFile should exist.");
 			else
-				Assert.IsFalse(File.Exists(syncAdjunct.CheckRepoBranchesPathName), "CheckRepoBranchesFile shouldn't exist.");
+				Assert.That(syncAdjunct.CheckRepoBranchesPathName, Does.Not.Exist, "CheckRepoBranchesFile shouldn't exist.");
 		}
 
 		private static void CheckNoFilesExist(FileWriterSychronizerAdjunct syncAdjunct)
 		{
-			Assert.IsFalse(File.Exists(syncAdjunct.CommitPathname));
-			Assert.IsFalse(File.Exists(syncAdjunct.PullPathname));
-			Assert.IsFalse(File.Exists(syncAdjunct.RollbackPathname));
-			Assert.IsFalse(File.Exists(syncAdjunct.MergePathname));
-			Assert.IsFalse(File.Exists(syncAdjunct.BranchNamePathName));
-			Assert.IsFalse(File.Exists(syncAdjunct.CheckRepoBranchesPathName));
+			Assert.That(syncAdjunct.CommitPathname, Does.Not.Exist);
+			Assert.That(syncAdjunct.PullPathname, Does.Not.Exist);
+			Assert.That(syncAdjunct.RollbackPathname, Does.Not.Exist);
+			Assert.That(syncAdjunct.MergePathname, Does.Not.Exist);
+			Assert.That(syncAdjunct.BranchNamePathName, Does.Not.Exist);
+			Assert.That(syncAdjunct.CheckRepoBranchesPathName, Does.Not.Exist);
 		}
 
 		private class FileWriterSychronizerAdjunct : ISychronizerAdjunct

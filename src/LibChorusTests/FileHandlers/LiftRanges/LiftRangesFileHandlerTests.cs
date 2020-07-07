@@ -54,13 +54,13 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		[Test]
 		public void CannotDiffAFile()
 		{
-			Assert.IsFalse(_liftRangesFileHandler.CanDiffFile(null));
+			Assert.That(_liftRangesFileHandler.CanDiffFile(null), Is.False);
 		}
 
 		[Test]
 		public void CannotValidateAFile()
 		{
-			Assert.IsFalse(_liftRangesFileHandler.CanValidateFile(null));
+			Assert.That(_liftRangesFileHandler.CanValidateFile(null), Is.False);
 		}
 
 		[Test]
@@ -69,20 +69,20 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			using (var tempFile = TempFile.WithExtension(".lift-ranges"))
 			{
 				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<lift-ranges />");
-				Assert.IsTrue(_liftRangesFileHandler.CanMergeFile(tempFile.Path));
+				Assert.That(_liftRangesFileHandler.CanMergeFile(tempFile.Path), Is.True);
 			}
 		}
 
 		[Test]
 		public void CannotPresentANullFile()
 		{
-			Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(null));
+			Assert.That(_liftRangesFileHandler.CanPresentFile(null), Is.False);
 		}
 
 		[Test]
 		public void CannotPresentAnEmptyFileName()
 		{
-			Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(""));
+			Assert.That(_liftRangesFileHandler.CanPresentFile(""), Is.False);
 		}
 
 		[Test]
@@ -90,7 +90,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		{
 			using (var tempFile = TempFile.WithExtension(".ClassData"))
 			{
-				Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(tempFile.Path));
+				Assert.That(_liftRangesFileHandler.CanPresentFile(tempFile.Path), Is.False);
 			}
 		}
 
@@ -99,7 +99,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		{
 			using (var tempFile = TempFile.WithExtension(".ClassData"))
 			{
-				Assert.IsFalse(_liftRangesFileHandler.CanPresentFile(tempFile.Path));
+				Assert.That(_liftRangesFileHandler.CanPresentFile(tempFile.Path), Is.False);
 			}
 		}
 
@@ -119,7 +119,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 </lift-ranges>";
 			using (var tempFile = new TempFile(data))
 			{
-				Assert.IsNull(_liftRangesFileHandler.ValidateFile(tempFile.Path, new NullProgress()));
+				Assert.That(_liftRangesFileHandler.ValidateFile(tempFile.Path, new NullProgress()), Is.Null);
 			}
 		}
 

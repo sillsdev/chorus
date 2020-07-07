@@ -93,7 +93,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				bool result = branchingHelper.IsLatestBranchDifferent(myVersion, out revNum);
 
 				// Verification
-				Assert.IsTrue(result, "The only branch should be default.");
+				Assert.That(result, Is.True, "The only branch should be default.");
 				var revision = repoWithFiles.Repository.GetRevision(revNum);
 				Assert.AreEqual(newBranchName, revision.Branch, "Wrong branch name in new branch.");
 				var revisions = repoWithFiles.Repository.GetAllRevisions();
@@ -123,7 +123,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				bool result = branchingHelper.IsLatestBranchDifferent(myVersion, out revNum);
 
 				// Verification
-				Assert.IsFalse(result, "The only branch should be default.");
+				Assert.That(result, Is.False, "The only branch should be default.");
 			}
 		}
 
