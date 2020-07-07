@@ -35,7 +35,7 @@ namespace LibChorus.Tests.FileHandlers.Default
 		public void HandlerSupportsCorrectExtensions()
 		{
 			var extensions = _defaultFileHandler.GetExtensionsOfKnownTextFileTypes().ToList();
-			Assert.IsTrue(extensions.Count == 0);
+			Assert.That(extensions.Count, Is.EqualTo(0));
 		}
 
 		[Test]

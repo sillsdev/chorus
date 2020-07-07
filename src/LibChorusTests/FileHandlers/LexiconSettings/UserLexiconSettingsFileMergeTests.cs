@@ -96,7 +96,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		[Test]
 		public void CannotMergeNonexistantFile()
 		{
-			Assert.IsFalse(_userLexiconSettingsFileHandler.CanMergeFile("bogusPathname"));
+			Assert.That(_userLexiconSettingsFileHandler.CanMergeFile("bogusPathname"), Is.False);
 		}
 
 		[Test]
@@ -105,20 +105,20 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			using (var tempFile = TempFile.WithExtension(".ulsx"))
 			{
 				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<UserLexiconSettings />");
-				Assert.IsTrue(_userLexiconSettingsFileHandler.CanMergeFile(tempFile.Path));
+				Assert.That(_userLexiconSettingsFileHandler.CanMergeFile(tempFile.Path), Is.True);
 			}
 		}
 
 		[Test]
 		public void CannotMergeEmptyStringFile()
 		{
-			Assert.IsFalse(_userLexiconSettingsFileHandler.CanMergeFile(String.Empty));
+			Assert.That(_userLexiconSettingsFileHandler.CanMergeFile(String.Empty), Is.False);
 		}
 
 		[Test]
 		public void CannotMergeNullFile()
 		{
-			Assert.IsFalse(_userLexiconSettingsFileHandler.CanMergeFile(null));
+			Assert.That(_userLexiconSettingsFileHandler.CanMergeFile(null), Is.False);
 		}
 
 		[Test]
@@ -145,9 +145,9 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			XmlMergeService.RemoveAmbiguousChildren(merger.EventListener, merger.MergeStrategies, badRootNode);
 			XmlMergeService.RemoveAmbiguousChildNodes = oldValue;
 			var childNodes = badRootNode.SelectNodes("WritingSystems");
-			Assert.IsNotNull(childNodes);
-			Assert.IsTrue(childNodes.Count == 1);
-			Assert.IsNull(childNodes[0].Attributes["goner"]);
+			Assert.That(childNodes, Is.Not.Null);
+			Assert.That(childNodes.Count, Is.EqualTo(1));
+			Assert.That(childNodes[0].Attributes["goner"], Is.Null);
 		}
 
 		[Test]

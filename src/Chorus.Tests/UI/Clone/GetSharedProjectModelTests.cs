@@ -35,7 +35,7 @@ namespace Chorus.Tests.UI.Clone
 
 				var extantRepoIdentifiers = GetSharedProjectModel.ExtantRepoIdentifiers(parentFolder.Path, null);
 				Assert.AreEqual(1, extantRepoIdentifiers.Count);
-				Assert.IsTrue(extantRepoIdentifiers.ContainsKey(repo.Identifier));
+				Assert.That(extantRepoIdentifiers, Does.ContainKey(repo.Identifier));
 				Assert.That(extantRepoIdentifiers[repo.Identifier], Is.EqualTo("childFolder"));
 			}
 		}
@@ -56,7 +56,7 @@ namespace Chorus.Tests.UI.Clone
 
 				var extantRepoIdentifiers = GetSharedProjectModel.ExtantRepoIdentifiers(parentFolder.Path, "otherRepositories");
 				Assert.AreEqual(1, extantRepoIdentifiers.Count);
-				Assert.IsTrue(extantRepoIdentifiers.ContainsKey(repo.Identifier));
+				Assert.That(extantRepoIdentifiers, Does.ContainKey(repo.Identifier));
 				Assert.That(extantRepoIdentifiers[repo.Identifier], Is.EqualTo("childFolder"));
 			}
 		}

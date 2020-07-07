@@ -91,7 +91,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				//setup.ProjectFolderConfig.IncludePatterns.Add("*.wav");
 				//setup.AddAndCheckIn();
 				//setup.AssertFileDoesNotExistInRepository(utf8FilePath);
-				//Assert.IsTrue(setup.GetProgressString().Contains("Failed to set up extensions"));
+				//Assert.That(setup.GetProgressString(), Does.Contain("Failed to set up extensions"));
 			}
 		}
 
@@ -140,8 +140,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					other.AssertFileExists(utf8FilePath);
 					string[] fileNames = Directory.GetFiles(other.ProjectFolder.Path, "*.wav");
 					Assert.AreEqual(1, fileNames.Length);
-
-					//Assert.IsTrue(setup.GetProgressString().Contains());
 				}
 
 			}
@@ -169,8 +167,6 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					other.AssertFileExists(utf8FilePath);
 					string[] fileNames = Directory.GetFiles(other.ProjectFolder.Path, "*.wav");
 					Assert.AreEqual(1, fileNames.Length);
-
-					//Assert.IsTrue(setup.GetProgressString().Contains());
 				}
 
 			}

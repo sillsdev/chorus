@@ -70,15 +70,15 @@ namespace LibChorus.Tests.FileHandlers
 					};
 
 				var syncResults = synchronizer.SyncNow(syncOptions);
-				Assert.IsTrue(syncResults.Succeeded);
+				Assert.That(syncResults.Succeeded, Is.True);
 
 				projectFolderConfiguration.ExcludePatterns.Remove(ProjectFolderConfiguration.BareFolderReadmeFileName);
-				Assert.AreEqual(2, projectFolderConfiguration.ExcludePatterns.Count);
-				Assert.IsTrue(projectFolderConfiguration.ExcludePatterns[0].Contains(whopperFileName));
+				Assert.That(projectFolderConfiguration.ExcludePatterns.Count, Is.EqualTo(2));
+				Assert.That(projectFolderConfiguration.ExcludePatterns[0], Does.Contain(whopperFileName));
 
 				var repo = new HgRepository(pathToTestRoot, progress);
-				Assert.IsTrue(repo.GetFileExistsInRepo(goodFileName), goodFileName);
-				Assert.IsFalse(repo.GetFileExistsInRepo(whopperFileName), whopperFileName);
+				Assert.That(repo.GetFileExistsInRepo(goodFileName), Is.True, goodFileName);
+				Assert.That(repo.GetFileExistsInRepo(whopperFileName), Is.False, whopperFileName);
 			}
 			finally
 			{

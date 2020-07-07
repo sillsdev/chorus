@@ -26,7 +26,7 @@ namespace Chorus.Tests.clone
 				var progress = new ConsoleProgress();
 				progress.ShowVerbose = true;
 				model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
-				Assert.IsTrue(Directory.Exists(f.Combine(RepositorySetup.ProjectNameForTest, ".hg")));
+				Assert.That(f.Combine(RepositorySetup.ProjectNameForTest, ".hg"), Does.Exist);
 			}
 		}
 
@@ -47,8 +47,8 @@ namespace Chorus.Tests.clone
 				Directory.CreateDirectory(extantSubfolderPath);
 
 				var cloneFolder = model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
-				Assert.AreEqual(extantFolder + "1", cloneFolder);
-				Assert.IsTrue(Directory.Exists(extantFolder + "1"));
+				Assert.That(cloneFolder, Is.EqualTo(extantFolder + "1"));
+				Assert.That(extantFolder + "1", Does.Exist);
 			}
 		}
 
@@ -66,9 +66,9 @@ namespace Chorus.Tests.clone
 				Directory.CreateDirectory(extantFolder);
 
 				var cloneFolder = model.MakeClone(repo.ProjectFolder.Path, f.Path, progress);
-				Assert.AreEqual(extantFolder, cloneFolder);
-				Assert.IsTrue(Directory.Exists(extantFolder));
-				Assert.IsFalse(Directory.Exists(extantFolder + "1"));
+				Assert.That(cloneFolder, Is.EqualTo(extantFolder));
+				Assert.That(extantFolder, Does.Exist);
+				Assert.That(extantFolder + "1", Does.Not.Exist);
 			}
 		}
 

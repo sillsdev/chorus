@@ -37,7 +37,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		public void HandlerOnlySupportsldmlExtension()
 		{
 			var extensions = _ldmlFileHandler.GetExtensionsOfKnownTextFileTypes();
-			Assert.IsTrue(extensions.Count() == 1);
+			Assert.That(extensions.Count(), Is.EqualTo(1));
 			Assert.AreEqual("ldml", extensions.First());
 		}
 

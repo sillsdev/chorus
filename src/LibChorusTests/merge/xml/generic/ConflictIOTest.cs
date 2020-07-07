@@ -140,7 +140,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			var conflict2 = Conflict.CreateFromConflictElement(node2);
 
 			//verify
-			Assert.IsFalse(ReferenceEquals(conflict1, conflict2), "Two different conflicts of the same type but different istances.");
+			Assert.That(ReferenceEquals(conflict1, conflict2), Is.False, "Two different conflicts of the same type but different istances.");
 			Assert.AreNotEqual(conflict1.Guid, conflict2.Guid);
 		}
 	}

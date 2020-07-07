@@ -32,8 +32,8 @@ namespace LiftIO.Tests.Merging
 			XmlMergeService.RemoveAmbiguousChildNodes = true;
 			var result = XmlMergeService.RemoveAmbiguousChildren(new ListenerForUnitTests(), new MergeStrategies(), data, "some.lift");
 			XmlMergeService.RemoveAmbiguousChildNodes = originalValue;
-			Assert.IsFalse(result.Contains("<element name=\"text\">first</element>"), "Still has bogus <element> element.");
-			Assert.IsTrue(result.Contains("<text>myStuff</text>"), "Converted <text> element is not present.");
+			Assert.That(result, Does.Not.Contain("<element name=\"text\">first</element>"), "Still has bogus <element> element.");
+			Assert.That(result, Does.Contain("<text>myStuff</text>"), "Converted <text> element is not present.");
 		}
 
 		[Test]
@@ -55,8 +55,8 @@ namespace LiftIO.Tests.Merging
 			doc.LoadXml(data);
 			var results = XmlMergeService.RemoveAmbiguousChildren(new ListenerForUnitTests(), new MergeStrategies(), data, "some.lift-ranges");
 			XmlMergeService.RemoveAmbiguousChildNodes = originalValue;
-			Assert.IsFalse(results.Contains("<element name=\"text\">first</element>"), "Still has bogus <element> element.");
-			Assert.IsTrue(results.Contains("<text>myStuff</text>"), "Converted <text> element is not present.");
+			Assert.That(results, Does.Not.Contain("<element name=\"text\">first</element>"), "Still has bogus <element> element.");
+			Assert.That(results, Does.Contain("<text>myStuff</text>"), "Converted <text> element is not present.");
 		}
 
 		[Test]
@@ -81,8 +81,8 @@ namespace LiftIO.Tests.Merging
 			doc.LoadXml(data);
 			XmlMergeService.RemoveAmbiguousChildren(new ListenerForUnitTests(), new MergeStrategies(), doc.DocumentElement);
 			XmlMergeService.RemoveAmbiguousChildNodes = originalValue;
-			Assert.IsFalse(doc.DocumentElement.OuterXml.Contains("<text>myStuff</text>"), "Converted <element> element to <text>, but should not have.");
-			Assert.IsTrue(doc.DocumentElement.OuterXml.Contains("<element name=\"text\">myStuff</element>"), "Element <element> went away, but should have been present.");
+			Assert.That(doc.DocumentElement.OuterXml, Does.Not.Contain("<text>myStuff</text>"), "Converted <element> element to <text>, but should not have.");
+			Assert.That(doc.DocumentElement.OuterXml, Does.Contain("<element name=\"text\">myStuff</element>"), "Element <element> went away, but should have been present.");
 		}
 /*
 		[Test]
@@ -188,7 +188,7 @@ namespace LiftIO.Tests.Merging
 								</form>
 							</lexical-unit>";
 
-			Assert.IsFalse(Utilities.AreXmlElementsEqual(red, blue));
+			Assert.That(Utilities.AreXmlElementsEqual(red, blue), Is.False);
 
 			CheckBothWays(red, blue, ancestor,
 				"lexical-unit/form[@lang='one']/text[text()='first']");

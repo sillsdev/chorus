@@ -42,13 +42,13 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		[Test]
 		public void CannotMergeNonexistantFile()
 		{
-			Assert.IsFalse(_ldmlFileHandler.CanMergeFile("bogusPathname"));
+			Assert.That(_ldmlFileHandler.CanMergeFile("bogusPathname"), Is.False);
 		}
 
 		[Test]
 		public void CannotMergeEmptyStringFile()
 		{
-			Assert.IsFalse(_ldmlFileHandler.CanMergeFile(String.Empty));
+			Assert.That(_ldmlFileHandler.CanMergeFile(String.Empty), Is.False);
 		}
 
 		[Test]
@@ -57,14 +57,14 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			using (var tempFile = TempFile.WithExtension(".ldml"))
 			{
 				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml />");
-				Assert.IsTrue(_ldmlFileHandler.CanMergeFile(tempFile.Path));
+				Assert.That(_ldmlFileHandler.CanMergeFile(tempFile.Path), Is.True);
 			}
 		}
 
 		[Test]
 		public void CannotMergeNullFile()
 		{
-			Assert.IsFalse(_ldmlFileHandler.CanMergeFile(null));
+			Assert.That(_ldmlFileHandler.CanMergeFile(null), Is.False);
 		}
 
 		[Test]
@@ -97,26 +97,26 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			XmlMergeService.RemoveAmbiguousChildren(merger.EventListener, merger.MergeStrategies, badRootNode);
 			XmlMergeService.RemoveAmbiguousChildNodes = oldValue;
 			var childNodes = badRootNode.SelectNodes("special");
-			Assert.IsTrue(childNodes.Count == 4);
+			Assert.That(childNodes.Count, Is.EqualTo(4));
 			for (var idx = 0; idx < 4; ++idx)
 			{
 				XmlNode currentNode = childNodes[idx];
 				switch (idx)
 				{
 					case 0:
-						Assert.IsNotNull(currentNode.Attributes["xmlns:palaso"]);
+						Assert.That(currentNode.Attributes["xmlns:palaso"], Is.Not.Null);
 						break;
 					case 1:
-						Assert.IsNotNull(currentNode.Attributes["xmlns:palaso2"]);
+						Assert.That(currentNode.Attributes["xmlns:palaso2"], Is.Not.Null);
 						break;
 					case 2:
-						Assert.IsNotNull(currentNode.Attributes["xmlns:fw"]);
+						Assert.That(currentNode.Attributes["xmlns:fw"], Is.Not.Null);
 						break;
 					case 3:
-						Assert.IsNotNull(currentNode.Attributes["xmlns:sil"]);
+						Assert.That(currentNode.Attributes["xmlns:sil"], Is.Not.Null);
 						break;
 				}
-				Assert.IsNull(currentNode.Attributes["goner"]);
+				Assert.That(currentNode.Attributes["goner"], Is.Null);
 			}
 		}
 

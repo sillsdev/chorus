@@ -52,10 +52,10 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					_handlersColl);
-				Assert.IsFalse(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Not.Null.And.Not.Empty);
 				var shortpath = fullPathname.Replace(pathToRepo, "");
-				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns.Contains(shortpath), Is.True);
+				Assert.That(config.IncludePatterns.Contains(shortpath), Is.False);
 			}
 		}
 
@@ -79,10 +79,10 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					_handlersColl);
-				Assert.IsFalse(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Not.Null.And.Not.Empty);
 				var shortpath = fullPathname.Replace(pathToRepo, "");
-				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns.Contains(shortpath), Is.True);
+				Assert.That(config.IncludePatterns.Contains(shortpath), Is.False);
 			}
 		}
 
@@ -115,10 +115,10 @@ namespace LibChorus.Tests.sync
 				bob.AssertLocalRevisionNumber(1); // 'forget' marks it as deleted in the repo.
 				bob.AssertFileContents(fullPathname, _longData);
 
-				Assert.IsFalse(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Not.Null.And.Not.Empty);
 				var shortpath = fullPathname.Replace(pathToRepo, "");
-				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -141,10 +141,10 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					_handlersColl);
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 				var shortpath = fullPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -166,10 +166,10 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					_handlersColl);
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 				var shortpath = fullPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -201,10 +201,10 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					_handlersColl);
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 				var shortpath = fullPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -231,10 +231,10 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsFalse(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Not.Null.And.Not.Empty);
 				var shortpath = fullPathname.Replace(pathToRepo, "");
-				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 				bob.Repository.AddAndCheckinFiles(config.IncludePatterns, config.ExcludePatterns, "Some commit");
 				bob.AssertFileDoesNotExistInRepository("big.wav");
 			}
@@ -265,11 +265,11 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 
 				var shortpath = largeFwdataPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -301,11 +301,11 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 
 				var shortpath = largeVideoPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -339,11 +339,11 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 
 				var shortpath = largeVideoPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -393,12 +393,12 @@ namespace LibChorus.Tests.sync
 				Assert.True(string.IsNullOrEmpty(result), @"Cache folder at root was improperly filtered by foo\**\Cache");
 
 				var shortpath = largeNestedVideoPathname.Replace(pathToRepo, null);
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 
 				shortpath = smallNestedVideoPathname.Replace(pathToRepo, null);
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -441,15 +441,14 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsFalse(string.IsNullOrEmpty(result), @"Cache folder at root wasn't properly filtered by large file filer in [repo]\Cache\biggie.mov");
-
+				Assert.That(result, Is.Not.Null.And.Not.Empty, @"Cache folder at root wasn't properly filtered by large file filer in [repo]\Cache\biggie.mov");
 				var shortpath = largeNestedVideoPathname.Replace(pathToRepo, null);
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 
 				shortpath = biggieNestedNonExcludedVideoPathname.Replace(pathToRepo, null);
-				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -484,11 +483,11 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 
 				var shortpath = largeVideoPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -519,11 +518,11 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 
 				var shortpath = largeVideoPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -556,10 +555,10 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 				var shortpath = fullDictionaryPathname.Replace(pathToRepo, "");
-				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -587,14 +586,14 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 				var shortpath = fullDictionaryPathname.Replace(pathToRepo, "");
-				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 
 				shortpath = fullRandomPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -636,18 +635,18 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsTrue(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Null.Or.Empty);
 				var shortpath = fullDictionaryPathname.Replace(pathToRepo, "");
-				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 
 				shortpath = fullOldDictionaryPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 
 				shortpath = fullLargeVideoPathname.Replace(pathToRepo, "");
-				Assert.IsFalse(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Not.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -673,10 +672,10 @@ namespace LibChorus.Tests.sync
 					bob.Repository,
 					config,
 					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
-				Assert.IsFalse(string.IsNullOrEmpty(result));
+				Assert.That(result, Is.Not.Null.And.Not.Empty);
 				var shortpath = fullPathname.Replace(pathToRepo, "");
-				Assert.IsTrue(config.ExcludePatterns.Contains(shortpath));
-				Assert.IsFalse(config.IncludePatterns.Contains(shortpath));
+				Assert.That(config.ExcludePatterns, Does.Contain(shortpath));
+				Assert.That(config.IncludePatterns, Does.Not.Contain(shortpath));
 			}
 		}
 
@@ -715,15 +714,15 @@ namespace LibChorus.Tests.sync
 
 				var results = LargeFileFilter.GetStatusOfFilesOfInterest(repo.Repository, repo.ProjectFolderConfig);
 				Assert.AreEqual(3, results.Keys.Count);
-				Assert.IsTrue(results.ContainsKey("M")); // tracked and modifed
-				Assert.IsTrue(results.ContainsKey("A")); // Added with hg add
-				Assert.IsTrue(results.ContainsKey("?")); // untracked
+				Assert.That(results, Does.ContainKey("M")); // tracked and modified
+				Assert.That(results, Does.ContainKey("A")); // Added with hg add
+				Assert.That(results, Does.ContainKey("?")); // untracked
 
 				foreach (var resultKvp in results)
 				{
 					var resultValue = resultKvp.Value;
 					Assert.AreEqual(1, resultValue.Keys.Count);
-					Assert.IsTrue(resultValue.ContainsKey("txt"));
+					Assert.That(resultValue, Does.ContainKey("txt"));
 					Assert.AreEqual(1, resultValue.Values.Count);
 					switch (resultKvp.Key)
 					{

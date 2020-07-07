@@ -89,12 +89,12 @@ namespace LibChorus.Tests.sync
 			_synchronizer.SyncNow(options);
 
 			string path = Path.Combine(_pathToProjectRoot, "foo.txt");
-			Assert.IsTrue(File.Exists(path));
+			Assert.That(path, Does.Exist);
 			_synchronizer.SyncNow(options);
 			File.Delete(path);
 			_synchronizer.SyncNow(options);
 
-			Assert.IsFalse(File.Exists(path));
+			Assert.That(path, Does.Not.Exist);
 		}
 
 		/// <summary>
@@ -108,9 +108,9 @@ namespace LibChorus.Tests.sync
 
 		   // WriteTestFile("version two");
 
-			Assert.IsTrue(_synchronizer.SyncNow(options).Succeeded);
+			Assert.That(_synchronizer.SyncNow(options).Succeeded, Is.True);
 			string dir = Path.Combine(_pathToBackupFolder, "foo project.2");
-			Assert.IsTrue(Directory.Exists(dir));
+			Assert.That(dir, Does.Exist);
 		}
 
 		[Test]

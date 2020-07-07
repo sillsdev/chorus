@@ -50,7 +50,7 @@ namespace LibChorus.Tests.sync
 				using (new StreamWriter(stream))
 				{
 					var results = setup.CheckinAndPullAndMerge();
-					Assert.IsFalse(results.Succeeded);
+					Assert.That(results.Succeeded, Is.False);
 				}
 			}
 		}
@@ -69,7 +69,7 @@ namespace LibChorus.Tests.sync
 					{
 						sally.CheckinAndPullAndMerge(bob);
 					}
-					Assert.IsTrue(sally.ProgressString.Contains("InduceChorusFailure"));
+					Assert.That(sally.ProgressString, Does.Contain("InduceChorusFailure"));
 
 				   sally.AssertHeadCount(2);
 					//ok, Bob's the tip, but...
@@ -77,13 +77,13 @@ namespace LibChorus.Tests.sync
 					//make sure we didn't move up to that tip, because we weren't able to merge with it
 					var currentRevision = sally.GetRepository().GetRevisionWorkingSetIsBasedOn();
 					Assert.AreEqual("sally",  sally.GetRepository().GetRevision(currentRevision.Number.Hash).UserId);
-					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("sallyWasHere"));
+					Assert.That(File.ReadAllText(sally.UserFile.Path), Does.Contain("sallyWasHere"));
 
 					//and over at Bob's house, it's as if Sally had never connected
 
 					bob.AssertHeadCount(1);
 					Assert.AreEqual("bob", bob.Repository.GetTip().UserId);
-					Assert.IsTrue(File.ReadAllText(bob.UserFile.Path).Contains("bobWasHere"));
+					Assert.That(File.ReadAllText(bob.UserFile.Path), Does.Contain("bobWasHere"));
 				}
 			}
 			File.Delete(Path.Combine(Path.GetTempPath(), "LiftMerger.FindEntryById"));
@@ -146,7 +146,7 @@ namespace LibChorus.Tests.sync
 						sally.AddAndCheckinFile("aaa.txt", "sally-apple");
 						sally.AddAndCheckinFile("bbb.txt", "sally-bread");
 						sally.AddAndCheckinFile("zzz.txt", "sally-zipper");
-						Assert.IsFalse(sally.CheckinAndPullAndMerge(bob).Succeeded);
+						Assert.That(sally.CheckinAndPullAndMerge(bob).Succeeded, Is.False);
 
 					   //make sure we ended up on Sally's revision, even though Bob's are newer
 						var currentRevision = sally.Repository.GetRevisionWorkingSetIsBasedOn();
@@ -159,7 +159,7 @@ namespace LibChorus.Tests.sync
 
 //                        sally.ShowInTortoise();
 					   sally.AssertHeadCount(2);
-						Assert.IsFalse(sally.GetProgressString().Contains("creates new remote heads"));
+						Assert.That(sally.GetProgressString(), Does.Not.Contain("creates new remote heads"));
 					}
 				}
 			}
@@ -173,7 +173,7 @@ namespace LibChorus.Tests.sync
 			using (var bob = new RepositorySetup("bob"))
 			{
 				var result = bob.CheckinAndPullAndMerge();
-				Assert.IsTrue(result.Succeeded, result.ErrorEncountered==null?"":result.ErrorEncountered.Message);
+				Assert.That(result.Succeeded, Is.True, result.ErrorEncountered?.Message);
 			}
 		}
 
@@ -192,7 +192,7 @@ namespace LibChorus.Tests.sync
 				bob.AddAndCheckIn();
 				sally.WriteNewContentsToTestFile("sallyWasHere");
 				var result = sally.CheckinAndPullAndMerge(bob);
-				Assert.IsFalse(result.Succeeded);
+				Assert.That(result.Succeeded, Is.False);
 
 				//make sure we ended up on Sally's revision, even though Bob's are newer
 				var currentRevision = sally.Repository.GetRevisionWorkingSetIsBasedOn();
@@ -205,7 +205,7 @@ namespace LibChorus.Tests.sync
 				Assert.AreEqual("bob", sally.Repository.GetTip().UserId,"if bob's not the tip, we're not testing the right situation");
 
 				result = sally.CheckinAndPullAndMerge(bob);
-				Assert.IsFalse(result.Succeeded);
+				Assert.That(result.Succeeded, Is.False);
 				result = sally.CheckinAndPullAndMerge(bob);
 
 				Assert.AreEqual("sally",sally.Repository.GetRevisionWorkingSetIsBasedOn().UserId);
@@ -235,14 +235,14 @@ namespace LibChorus.Tests.sync
 					using (sally.GetFileLockForWriting("one.txt"))
 					{
 						// Note: Mono succeeds here
-						Assert.IsFalse(sally.CheckinAndPullAndMerge(bob).Succeeded, "CheckinAndPullAndMerge should have failed");
+						Assert.That(sally.CheckinAndPullAndMerge(bob).Succeeded, Is.False, "CheckinAndPullAndMerge should have failed");
 						sally.AssertFileContents("one.txt", "hello");
 					}
 					sally.AssertSingleHead();
 
 					//ok, now whatever was holding that file is done with it, and we try again
 
-					Assert.IsTrue(sally.CheckinAndPullAndMerge(bob).Succeeded, "ChecinAndPullAndMerge(bob) should have succeeded");
+					Assert.That(sally.CheckinAndPullAndMerge(bob).Succeeded, Is.True, "ChecinAndPullAndMerge(bob) should have succeeded");
 					sally.AssertFileContents("one.txt", "hello-bob");
 				}
 			}
@@ -291,7 +291,7 @@ namespace LibChorus.Tests.sync
 
 					// nb: this is sally because the conflict handling mode is (at the time of this test
 					// writing) set to WeWin.
-					Assert.IsTrue(File.ReadAllText(sally.UserFile.Path).Contains("sallyWasHere"));
+					Assert.That(File.ReadAllText(sally.UserFile.Path), Does.Contain("sallyWasHere"));
 				}
 
 			}
@@ -494,13 +494,13 @@ namespace LibChorus.Tests.sync
 //            {
 //                memoryStream.Write(new byte[]{60},0,1 );
 //                string xmlString = Encoding.UTF8.GetString(memoryStream.ToArray());
-//                Assert.IsFalse(xmlString.Contains("\0"));
+//                Assert.That(xmlString, Does.Not.Contain("\0"));
 //
 //                xmlString = Encoding.UTF8.GetString(memoryStream.GetBuffer(), 0, (int)memoryStream.Position);
-//                Assert.IsFalse(xmlString.Contains("\0"));
+//                Assert.That(xmlString, Does.Not.Contain("\0"));
 //
 //                xmlString = Encoding.UTF8.GetString(memoryStream.GetBuffer());
-//                Assert.IsFalse(xmlString.Contains("\0"));
+//                Assert.That(xmlString, Does.Not.Contain("\0"));
 //            }
 //        }
 

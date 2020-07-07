@@ -69,7 +69,7 @@ namespace LibChorus.TestUtilities
 				doc.WriteContentTo(writer);
 				writer.Flush();
 			}
-			Assert.IsNotNull(node);
+			Assert.That(node, Is.Not.Null);
 		}
 
 		public static void AssertXPathIsNull(string xml, string xpath)
@@ -88,7 +88,7 @@ namespace LibChorus.TestUtilities
 				doc.WriteContentTo(writer);
 				writer.Flush();
 			}
-			Assert.IsNull(node);
+			Assert.That(node, Is.Null);
 		}
 
 		public static void AssertXPathMatchesExactlyOne(string xml, string xpath, Dictionary<string, string> namespaces)
@@ -137,7 +137,7 @@ namespace LibChorus.TestUtilities
 				doc.WriteContentTo(writer);
 				writer.Flush();
 			}
-			Assert.IsNull(node, "Unexpectedly found a match for: " + xpath);
+			Assert.That(node, Is.Null, "Unexpectedly found a match for: " + xpath);
 		}
 
 		public static string DoMerge(

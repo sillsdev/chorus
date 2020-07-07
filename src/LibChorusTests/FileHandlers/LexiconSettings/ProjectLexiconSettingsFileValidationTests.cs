@@ -64,61 +64,61 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		[Test]
 		public void Cannot_Validate_Nonexistant_File()
 		{
-			Assert.IsFalse(_handler.CanValidateFile("bogusPathname"));
+			Assert.That(_handler.CanValidateFile("bogusPathname"), Is.False);
 		}
 
 		[Test]
 		public void Cannot_Validate_Null_File()
 		{
-			Assert.IsFalse(_handler.CanValidateFile(null));
+			Assert.That(_handler.CanValidateFile(null), Is.False);
 		}
 
 		[Test]
 		public void Cannot_Validate_Empty_String_File()
 		{
-			Assert.IsFalse(_handler.CanValidateFile(String.Empty));
+			Assert.That(_handler.CanValidateFile(string.Empty), Is.False);
 		}
 
 		[Test]
 		public void Cannot_Validate_Nonxml_File()
 		{
-			Assert.IsFalse(_handler.CanValidateFile(_nonXmlTempFile.Path));
+			Assert.That(_handler.CanValidateFile(_nonXmlTempFile.Path), Is.False);
 		}
 
 		[Test]
 		public void Can_Validate_Fw_Xml_File()
 		{
-			Assert.IsTrue(_handler.CanValidateFile(_goodXmlTempFile.Path));
+			Assert.That(_handler.CanValidateFile(_goodXmlTempFile.Path), Is.True);
 		}
 
 		[Test]
 		public void ValidateFile_Returns_Message_For_Empty_Pathname()
 		{
-			Assert.IsNotNull(_handler.ValidateFile("", null));
+			Assert.That(_handler.ValidateFile("", null), Is.Not.Null);
 		}
 
 		[Test]
 		public void ValidateFile_Returns_Message_For_Null_Pathname()
 		{
-			Assert.IsNotNull(_handler.ValidateFile(null, null));
+			Assert.That(_handler.ValidateFile(null, null), Is.Not.Null);
 		}
 
 		[Test]
 		public void ValidateFile_Returns_Null_For_Good_File()
 		{
-			Assert.IsNull(_handler.ValidateFile(_goodXmlTempFile.Path, null));
+			Assert.That(_handler.ValidateFile(_goodXmlTempFile.Path, null), Is.Null);
 		}
 
 		[Test]
 		public void ValidateFile_Returns_Message_For_Crummy_ProjectLexiconSettings_File()
 		{
-			Assert.IsNotNull(_handler.ValidateFile(_illformedXmlTempFile.Path, null));
+			Assert.That(_handler.ValidateFile(_illformedXmlTempFile.Path, null), Is.Not.Null);
 		}
 
 		[Test]
 		public void ValidateFile_Returns_Message_For_Good_But_Not_ProjectLexiconSettings_File()
 		{
-			Assert.IsNotNull(_handler.ValidateFile(_goodXmlButNotProjectLexiconSettingsTempFile.Path, null));
+			Assert.That(_handler.ValidateFile(_goodXmlButNotProjectLexiconSettingsTempFile.Path, null), Is.Not.Null);
 		}
 	}
 }
