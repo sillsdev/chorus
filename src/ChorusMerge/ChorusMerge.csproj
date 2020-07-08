@@ -34,6 +34,7 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
     <PackageReference Include="GitVersionTask" Version="5.3.4">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="SIL.ReleaseTasks" Version="[2.3.2,)">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
