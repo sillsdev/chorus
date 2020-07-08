@@ -71,6 +71,10 @@
       <HintPath>..\..\packages\CairoSharp-signed.3.22.24.37\lib\netstandard2.0\CairoSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="DialogAdapters, Version=0.1.10.0, Culture=neutral, PublicKeyToken=7dc842182b0626dc">
+      <HintPath>..\..\packages\DialogAdapters.Gtk2.0.1.10\lib\net461\DialogAdapters.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Enchant.Net, Version=1.4.0.0, Culture=neutral, PublicKeyToken=ae135aeb3d479ab9">
       <HintPath>..\..\packages\Enchant.Net.1.4.2\lib\net461\Enchant.Net.dll</HintPath>
       <Private>True</Private>
@@ -95,8 +99,8 @@
       <HintPath>..\..\packages\icu.net.2.6.0\lib\net451\icu.net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="L10NSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=fd0b3e309a5b7c28">
-      <HintPath>..\..\packages\L10NSharp.4.0.3\lib\net461\L10NSharp.dll</HintPath>
+    <Reference Include="L10NSharp, Version=4.1.0.0, Culture=neutral, PublicKeyToken=fd0b3e309a5b7c28">
+      <HintPath>..\..\packages\L10NSharp.4.1.0-beta0047\lib\net461\L10NSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="MarkdownDeep, Version=1.5.7366.28328, Culture=neutral, PublicKeyToken=a3790ba34fe8597c">
@@ -124,6 +128,10 @@
       <HintPath>..\..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Vulcan.Uczniowie.HelpProvider, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c5e47f534b8ee927">
+      <HintPath>..\..\packages\Vulcan.Uczniowie.HelpProvider.1.0.16\lib\net461\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=2.6.3.862, Culture=neutral, PublicKeyToken=17863af14b0044da">
@@ -139,23 +147,23 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="SIL.Core, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Core.8.0.0-beta0142\lib\net461\SIL.Core.dll</HintPath>
+      <HintPath>..\..\packages\SIL.Core.8.0.0-beta0153\lib\net461\SIL.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SIL.Core.Desktop, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Core.Desktop.8.0.0-beta0142\lib\net461\SIL.Core.Desktop.dll</HintPath>
+      <HintPath>..\..\packages\SIL.Core.Desktop.8.0.0-beta0153\lib\net461\SIL.Core.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SIL.Windows.Forms, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Windows.Forms.8.0.0-beta0142\lib\net461\SIL.Windows.Forms.dll</HintPath>
+      <HintPath>..\..\packages\SIL.Windows.Forms.8.0.0-beta0153\lib\net461\SIL.Windows.Forms.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SIL.Windows.Forms.GeckoBrowserAdapter, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.Windows.Forms.GeckoBrowserAdapter.8.0.0-beta0142\lib\net461\SIL.Windows.Forms.GeckoBrowserAdapter.dll</HintPath>
+      <HintPath>..\..\packages\SIL.Windows.Forms.GeckoBrowserAdapter.8.0.0-beta0153\lib\net461\SIL.Windows.Forms.GeckoBrowserAdapter.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SIL.WritingSystems, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cab3c8c5232dfcf2">
-      <HintPath>..\..\packages\SIL.WritingSystems.8.0.0-beta0142\lib\net461\SIL.WritingSystems.dll</HintPath>
+      <HintPath>..\..\packages\SIL.WritingSystems.8.0.0-beta0153\lib\net461\SIL.WritingSystems.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Spart, Version=1.0.0.0, Culture=neutral, PublicKeyToken=14d24e064e474331">
@@ -200,10 +208,6 @@
     </ProjectReference>
     <Reference Include="TagLibSharp, Version=2.2.0.0, Culture=neutral, PublicKeyToken=db62eba44689b5b0">
       <HintPath>..\..\packages\TagLibSharp.2.2.0\lib\net45\TagLibSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Vulcan.Uczniowie.HelpProvider, Version=0.1.0.0, Culture=neutral, PublicKeyToken=c5e47f534b8ee927">
-      <HintPath>..\..\packages\Vulcan.Uczniowie.HelpProvider.1.0.0\lib\net461\Vulcan.Uczniowie.HelpProvider.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -675,8 +679,10 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\packages\NDesk.DBus.0.15.0\build\NDesk.DBus.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\NDesk.DBus.0.15.0\build\NDesk.DBus.targets'))" />
     <Error Condition="!Exists('..\..\packages\Mono.Posix.5.4.0.201\build\net45\Mono.Posix.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Mono.Posix.5.4.0.201\build\net45\Mono.Posix.targets'))" />
+    <Error Condition="!Exists('..\..\packages\SIL.Windows.Forms.8.0.0-beta0153\build\SIL.Windows.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\SIL.Windows.Forms.8.0.0-beta0153\build\SIL.Windows.Forms.targets'))" />
   </Target>
   <Import Project="..\..\packages\Mono.Posix.5.4.0.201\build\net45\Mono.Posix.targets" Condition="Exists('..\..\packages\Mono.Posix.5.4.0.201\build\net45\Mono.Posix.targets')" />
+  <Import Project="..\..\packages\SIL.Windows.Forms.8.0.0-beta0153\build\SIL.Windows.Forms.targets" Condition="Exists('..\..\packages\SIL.Windows.Forms.8.0.0-beta0153\build\SIL.Windows.Forms.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
 	   Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
