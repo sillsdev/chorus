@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Security.Principal;
 using NUnit.Framework;
 using SIL.Progress;
@@ -17,7 +17,7 @@ namespace LibChorus.Tests.Model
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
-			Assert.AreEqual("joe",m.AccountName);
+			Assert.AreEqual("joe",m.Username);
 		}
 
 		[Test]
@@ -27,14 +27,14 @@ namespace LibChorus.Tests.Model
 			const string accountName = "joe@user.com";
 			const string password = "pass@with%specials&";
 			const string projectId = "projectId";
-			model.AccountName = accountName;
+			model.Username = accountName;
 			model.Password = password;
 			model.ProjectId = projectId;
 			var urlWithEncodedChars = model.URL;
 
 			var newModel = new ServerSettingsModel();
 			newModel.InitFromUri(urlWithEncodedChars);
-			Assert.AreEqual(accountName, newModel.AccountName);
+			Assert.AreEqual(accountName, newModel.Username);
 			Assert.AreEqual(password, newModel.Password);
 			Assert.AreEqual(projectId, newModel.ProjectId);
 		}
@@ -54,27 +54,27 @@ namespace LibChorus.Tests.Model
 			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
 			Assert.AreEqual("tpi", m.ProjectId);
 		}
-		[Test]
-		public void InitFromUri_FullTypicalLangDepot_SelectedServerPathCorrect()
-		{
-			var m = new ServerSettingsModel();
-			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
-			Assert.AreEqual("hg-public.languagedepot.org", m.SelectedServerModel.DomainName);
-		}
-		[Test]
-		public void InitFromUri_FullTypicalLangDepot_SelectedServerLabel()
-		{
-			var m = new ServerSettingsModel();
-			m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
-			Assert.AreEqual("languagedepot.org [safe mode]", m.SelectedServerLabel.ToLower());
-		}
-		[Test]
-		public void InitFromUri_FullPrivateLangDepot_SelectedServerLabel()
-		{
-			var m = new ServerSettingsModel();
-			m.InitFromUri("http://joe:pass@hg-private.languagedepot.org/tpi");
-			Assert.AreEqual("languagedepot.org [private safe mode]", m.SelectedServerLabel.ToLower());
-		}
+		//[Test]
+		//public void InitFromUri_FullTypicalLangDepot_SelectedServerPathCorrect()
+		//{
+		//	var m = new ServerSettingsModel();
+		//	m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
+		//	Assert.AreEqual("hg-public.languagedepot.org", m.SelectedServerModel.DomainName);
+		//}
+		//[Test]
+		//public void InitFromUri_FullTypicalLangDepot_SelectedServerLabel()
+		//{
+		//	var m = new ServerSettingsModel();
+		//	m.InitFromUri("http://joe:pass@hg-public.languagedepot.org/tpi");
+		//	Assert.AreEqual("languagedepot.org [safe mode]", m.SelectedServerLabel.ToLower());
+		//}
+		//[Test]
+		//public void InitFromUri_FullPrivateLangDepot_SelectedServerLabel()
+		//{
+		//	var m = new ServerSettingsModel();
+		//	m.InitFromUri("http://joe:pass@hg-private.languagedepot.org/tpi");
+		//	Assert.AreEqual("languagedepot.org [private safe mode]", m.SelectedServerLabel.ToLower());
+		//}
 
 		[Test]
 		public void InitFromUri_FullTypicalLangDepot_CustomUrlFalse()
@@ -108,13 +108,13 @@ namespace LibChorus.Tests.Model
 			Assert.IsTrue(m.CustomUrlSelected);
 		}
 
-		[Test]
-		public void InitFromUri_LANPathGiven_SelectedServerLabelIsCorrect()
-		{
-			var m = new ServerSettingsModel();
-			m.InitFromUri("\\mybox\tpi");
-			Assert.IsTrue(m.SelectedServerLabel.ToLower().Contains("custom"));
-		}
+		//[Test]
+		//public void InitFromUri_LANPathGiven_SelectedServerLabelIsCorrect()
+		//{
+		//	var m = new ServerSettingsModel();
+		//	m.InitFromUri("\\mybox\tpi");
+		//	Assert.IsTrue(m.SelectedServerLabel.ToLower().Contains("custom"));
+		//}
 
 		[Test]
 		public void SaveSettings_NoHgFolderExists_CreatesOneWithCorrectPath()
@@ -194,14 +194,14 @@ namespace LibChorus.Tests.Model
 			}
 		}
 
-		/// <summary>
-		/// The new default (as of 8 Nov 2012) is resumable.
-		/// </summary>
-		[Test]
-		public void DefaultIsResumable()
-		{
-			var m = new ServerSettingsModel();
-			Assert.AreEqual("resumable.languagedepot.org", m.Servers[m.SelectedServerLabel].DomainName);
-		}
+		///// <summary>
+		///// The new default (as of 8 Nov 2012) is resumable.
+		///// </summary>
+		//[Test]
+		//public void DefaultIsResumable()
+		//{
+		//	var m = new ServerSettingsModel();
+		//	Assert.AreEqual("resumable.languagedepot.org", m.Servers[m.SelectedServerLabel].DomainName);
+		//}
 	}
 }

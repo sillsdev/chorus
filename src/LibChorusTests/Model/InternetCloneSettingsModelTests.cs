@@ -27,7 +27,7 @@ namespace LibChorus.Tests.Model
 			using (var testFolder = new TemporaryFolder("clonetest"))
 			{
 				var model = new InternetCloneSettingsModel(testFolder.Path);
-				model.AccountName = "account";
+				model.Username = "account";
 				model.Password = "password";
 				model.ProjectId = "id";
 				Assert.AreEqual("http://account:password@resumable.languagedepot.org/id", model.URL.ToLower());

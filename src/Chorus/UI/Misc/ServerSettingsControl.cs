@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using Chorus.Model;
@@ -9,8 +8,8 @@ namespace Chorus.UI.Misc
 {
 	///<summary>
 	/// This control lets the user identify the server to use with send/receive,
-	/// including account information. Normally used with Either ServerSEetingsDialog,
-	/// or in conjunction with TargetFolderControl in GetCloneFromInterentDialog
+	/// including account information. Normally used with either ServerSettingsDialog,
+	/// or in conjunction with TargetFolderControl in GetCloneFromInternetDialog
 	///</summary>
 	public partial class ServerSettingsControl : UserControl
 	{
@@ -21,7 +20,8 @@ namespace Chorus.UI.Misc
 		public ServerSettingsControl()
 		{
 			InitializeComponent();
-			SynchronizePasswordControls();
+
+			_bandwidth.Items.AddRange(ServerSettingsModel.Bandwidths);
 		}
 
 		public ServerSettingsModel Model
@@ -32,47 +32,28 @@ namespace Chorus.UI.Misc
 				_model = value;
 				if (value == null)
 					return;
-				foreach (KeyValuePair<string, ServerModel> pair in Model.Servers)
-				{
-					_serverCombo.Items.Add(pair.Key);
-				}
-				_serverCombo.SelectedIndexChanged += OnSelectedIndexChanged;
-			}
-		}
-
-		private void OnSelectedIndexChanged(object sender, EventArgs e)
-		{
-			if (Model.SelectedServerLabel != (string)_serverCombo.SelectedItem)
-			{
-				Model.SelectedServerLabel = (string)_serverCombo.SelectedItem;
-
-				UpdateDisplay();
+				// TODO (Hasso)
 			}
 		}
 
 		private void UpdateDisplay()
 		{
-			_serverCombo.SelectedItem = Model.SelectedServerLabel;
+			_accountName.Text = Model.Username;
+			_password.Text = Model.Password;
 
 			_customUrl.Text = Model.URL;
 			_customUrl.Visible = Model.CustomUrlSelected;
-			_customUrlLabel.Visible = Model.CustomUrlSelected;
 
-			_accountName.Text = Model.AccountName;
-			_password.Text = Model.Password;
+			_buttonLogIn.Visible = !Model.CustomUrlSelected;
+			_buttonLogIn.Enabled = Model.CanLogIn;
+
+			_bandwidth.SelectedItem = Model.Bandwidth;
+			_bandwidthLabel.Visible = _bandwidth.Visible = !Model.CustomUrlSelected && Model.HasLoggedIn;
+
 			_projectId.Text = Model.ProjectId;
+			_projectIdLabel.Visible = _projectId.Visible = !Model.CustomUrlSelected && Model.HasLoggedIn;
 
-
-			_accountName.Visible = Model.NeedProjectDetails;
-			_projectId.Visible = Model.NeedProjectDetails;
-			_password.Visible = Model.NeedProjectDetails;
-			_showCharacters.Visible = Model.NeedProjectDetails;
-			_accountLabel.Visible = Model.NeedProjectDetails;
-			_projectIdLabel.Visible = Model.NeedProjectDetails;
-			_passwordLabel.Visible = Model.NeedProjectDetails;
-
-			if (DisplayUpdated != null)
-				DisplayUpdated.Invoke(this, null);
+			DisplayUpdated?.Invoke(this, null);
 		}
 
 		private void _customUrl_TextChanged(object sender, EventArgs e)
@@ -89,7 +70,7 @@ namespace Chorus.UI.Misc
 
 		private void _accountName_TextChanged(object sender, EventArgs e)
 		{
-			Model.AccountName = _accountName.Text;
+			Model.Username = _accountName.Text;
 			UpdateDisplay();
 		}
 
@@ -98,7 +79,7 @@ namespace Chorus.UI.Misc
 		/// <summary>
 		/// Record whether the incoming character was from the space bar key.
 		/// </summary>
-		private void _textbox_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+		private void _textbox_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.KeyCode == Keys.Space)
 				_spaceForTextBox = true;
@@ -107,7 +88,7 @@ namespace Chorus.UI.Misc
 		/// <summary>
 		/// If the incoming character is a space, ignore it.
 		/// </summary>
-		private void _textbox_KeyPress(object sender, System.Windows.Forms.KeyPressEventArgs e)
+		private void _textbox_KeyPress(object sender, KeyPressEventArgs e)
 		{
 			if (_spaceForTextBox)
 			{
@@ -134,14 +115,21 @@ namespace Chorus.UI.Misc
 			UpdateDisplay();
 		}
 
-		private void _showCharacters_CheckedChanged(object sender, EventArgs e)
+		private void _checkCustomUrl_CheckedChanged(object sender, EventArgs e)
 		{
-			SynchronizePasswordControls();
+			Model.CustomUrlSelected = _checkCustomUrl.Checked;
+			UpdateDisplay();
 		}
 
-		private void SynchronizePasswordControls()
+		private void _bandwidth_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			_password.UseSystemPasswordChar = !_showCharacters.Checked;
+			Model.Bandwidth = (ServerSettingsModel.BandwidthItem)_bandwidth.SelectedItem;
+		}
+
+		private void _buttonLogIn_Click(object sender, EventArgs e)
+		{
+			Model.HasLoggedIn = !Model.HasLoggedIn; // TODO (Hasso) actually log in
+			UpdateDisplay();
 		}
 	}
 }

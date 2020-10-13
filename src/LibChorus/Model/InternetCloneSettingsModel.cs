@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using SIL.Progress;
-using Chorus.Model;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -31,13 +30,7 @@ namespace Chorus.Model
 			LocalFolderName = UrlHelper.GetValueFromQueryStringOfRef(url, @"localFolder", string.Empty);
 		}
 
-		public bool ReadyToDownload
-		{
-			get
-			{
-				return HaveNeededAccountInfo && HaveWellFormedTargetLocation && TargetLocationIsUnused;
-			}
-		}
+		public bool ReadyToDownload => HaveGoodUrl && HaveWellFormedTargetLocation && TargetLocationIsUnused;
 
 		public bool TargetLocationIsUnused
 		{
@@ -90,9 +83,7 @@ namespace Chorus.Model
 			}
 		}
 
-		///<summary>
-		///</summary>
-		///<returns>true of successful; false if failed</returns>
+		///<returns>true if successful; false if failed</returns>
 		public virtual bool SetRepositoryAddress()
 		{
 			var repo = new HgRepository(TargetDestination, _progress);

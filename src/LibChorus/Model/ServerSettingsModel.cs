@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,49 +8,53 @@ using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using SIL.Code;
 using SIL.Network;
+using SIL.ObjectModel;
 using SIL.Progress;
 
 namespace Chorus.Model
 {
-	public class ServerModel
-	{
-		public string DomainName { get; set; }
-		public string Protocol { get; set; }
-
-		public ServerModel(string domainName, bool isSecureProtocol = true)
-		{
-			DomainName = domainName;
-			Protocol = isSecureProtocol ? "https" : "http";
-		}
-	}
-
 	public class ServerSettingsModel
 	{
-		public readonly Dictionary<string, ServerModel> Servers = new Dictionary<string, ServerModel>();
-		private string _pathToRepo;
-
-
-		public ServerSettingsModel()
+		internal enum BandwidthEnum
 		{
-			const string languageDepotLabel = "LanguageDepot.org";
-			Servers.Add(languageDepotLabel, new ServerModel("resumable.languagedepot.org", false));
-			Servers.Add(languageDepotLabel + " [Secure]", new ServerModel("resumable.languagedepot.org"));
-			Servers.Add("LanguageDepot.org [Safe Mode]", new ServerModel("hg-public.languagedepot.org", false));
-			Servers.Add("LanguageDepot.org [Secure + Safe Mode]", new ServerModel("hg-public.languagedepot.org"));
-			Servers.Add("LanguageDepot.org [Private Safe Mode]", new ServerModel("hg-private.languagedepot.org", false));
-			Servers.Add("LanguageDepot.org [Private Secure + Safe Mode]", new ServerModel("hg-private.languagedepot.org"));
-			Servers.Add("LanguageDepot.org [test server]", new ServerModel("hg.languageforge.org"));
-
-			Servers.Add(LocalizationManager.GetString("Messages.CustomLocation", "Custom Location..."), new ServerModel(""));
-			SelectedServerLabel = languageDepotLabel;
+			Low, High
 		}
 
+		public class BandwidthItem
+		{
+			internal BandwidthEnum Value { get; }
+
+			internal BandwidthItem(BandwidthEnum value)
+			{
+				Value = value;
+			}
+
+			public override string ToString()
+			{
+				return $"{Value} bandwidth";
+			}
+
+			// TODO (Hasso) 2020.10: override Equals and GetHashCode?
+		}
+
+		private string _pathToRepo;
+
+		public static readonly BandwidthItem[] Bandwidths;
+
+		static ServerSettingsModel()
+		{
+			Bandwidths = new[] {new BandwidthItem(BandwidthEnum.Low), new BandwidthItem(BandwidthEnum.High)};
+		}
+
+		//	Servers.Add("LanguageDepot.org []", new ServerModel("resumable.languagedepot.org"));
+		//	Servers.Add("LanguageDepot.org [Safe Mode]", new ServerModel("hg-public.languagedepot.org"));
+		//	Servers.Add("LanguageDepot.org [Private Secure + Safe Mode]", new ServerModel("hg-private.languagedepot.org"));
+		//	Servers.Add("LanguageForge.org [test server]", new ServerModel("hg.languageforge.org"));
 
 		///<summary>
 		/// Show settings for an existing project. The project doesn't need to have any
 		/// previous chorus activity (e.g. no .hg folder is needed).
 		///</summary>
-		///<param name="path"></param>
 		public virtual void InitFromProjectPath(string path)
 		{
 			RequireThat.Directory(path).Exists();
@@ -69,39 +73,11 @@ namespace Chorus.Model
 
 		public virtual void InitFromUri(string url)
 		{
-			SetServerLabelFromUrl(url);
 			Password = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPassword(url));
-			AccountName = HttpUtilityFromMono.UrlDecode(UrlHelper.GetUserName(url));
+			Username = HttpUtilityFromMono.UrlDecode(UrlHelper.GetUserName(url));
 			ProjectId = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPathAfterHost(url));
 			CustomUrl = UrlHelper.GetPathOnly(url);
-			//CustomUrlSelected = true;
 		}
-
-		private void SetServerLabelFromUrl(string url)
-		{
-			var host = UrlHelper.GetHost(url).ToLower();
-			var pair = Servers.FirstOrDefault((p) => p.Value.DomainName.ToLower() == host);
-			if (pair.Key == null)
-			{
-				SelectedServerLabel = Servers.Last().Key;
-			}
-			else
-			{
-				SelectedServerLabel = pair.Key;
-			}
-		}
-
-		public string NameOfProjectOnRepository
-		{
-			get
-			{
-				if (!HaveNeededAccountInfo)
-					return string.Empty;
-				return ProjectId;
-			}
-		}
-
-		public string ProjectId { get; set; }
 
 		public string URL
 		{
@@ -112,78 +88,49 @@ namespace Chorus.Model
 					return CustomUrl;
 				}
 
-				return SelectedServerModel.Protocol + "://" +
-					HttpUtilityFromMono.UrlEncode((string)AccountName) + ":" +
-					HttpUtilityFromMono.UrlEncode((string)Password) + "@" + SelectedServerModel.DomainName + "/" +
+				return "https://" +
+					HttpUtilityFromMono.UrlEncode(Username) + ":" +
+					HttpUtilityFromMono.UrlEncode(Password) + "@" +
+					//"{0}.LanguageForge.org/" +
+					"resumable.languagedepot.org/" +
 					HttpUtilityFromMono.UrlEncode(ProjectId);
 				}
 			}
 
-		public string CustomUrl { get; set; }
 
-		public bool HaveNeededAccountInfo
-		{
-			get
-			{
-				if (!NeedProjectDetails)
-					return true;
+		public bool HaveGoodUrl => true; // TODO
+		//{
+		//	get
+		//	{
+		//		if (CustomUrlSelected)
+		//			return true;
 
-					try
-					{
-						return !string.IsNullOrEmpty(ProjectId) &&
-							   !string.IsNullOrEmpty(AccountName) &&
-							   !string.IsNullOrEmpty(Password);
-					}
-					catch (Exception)
-					{
-						return false;
-					}
-				}
-			}
+		//		try
+		//		{
+		//			return !string.IsNullOrEmpty(ProjectId) &&
+		//				   !string.IsNullOrEmpty(Username) &&
+		//				   !string.IsNullOrEmpty(Password);
+		//		}
+		//		catch (Exception)
+		//		{
+		//			return false;
+		//		}
+		//	}
+		//}
 
 		public string Password { get; set; }
-		public string AccountName { get; set; }
+		public string Username { get; set; }
+		public bool CustomUrlSelected { get; set; }
+		public string CustomUrl { get; set; }
+		public BandwidthItem Bandwidth { get; set; } = Bandwidths[0];
+		public string ProjectId { get; set; }
 
-		public bool HaveGoodUrl
-		{
-			get { return HaveNeededAccountInfo; }
-		}
+		/// <summary>
+		/// True if the user has logged in since this ServerSettingsModel was created, or has already connected this project to an internet server.
+		/// </summary>
+		public bool HasLoggedIn { get; set; }
 
-		public ServerModel SelectedServerModel
-		{
-			get
-			{
-				ServerModel serverModel;
-				if (Servers.TryGetValue(SelectedServerLabel, out serverModel))
-				{
-					return serverModel;
-				}
-				throw new ApplicationException("Somehow SelectedServerLabel was empty, when called from SelectedServerModel.");
-			}
-		}
-
-		public string SelectedServerLabel
-		{
-			get; set;
-		}
-
-		public bool NeedProjectDetails
-		{
-			get { return !CustomUrlSelected; }
-		}
-
-		public bool CustomUrlSelected
-		{
-			get
-			{
-				ServerModel server;
-				if (!Servers.TryGetValue(SelectedServerLabel, out server))
-				{
-					SelectedServerLabel = Servers.Keys.First();
-				}
-				return Servers[SelectedServerLabel].DomainName == string.Empty;
-			}
-		}
+		public bool CanLogIn => !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
 
 		/// <summary>
 		/// Save the settings in the folder's .hg, creating the folder and settings if necessary.
@@ -205,19 +152,8 @@ namespace Chorus.Model
 
 		public string AliasName
 		{
-			get
-			{
-				if (CustomUrlSelected)
-				{
-					Uri uri;
-					if (Uri.TryCreate(URL, UriKind.Absolute, out uri) && !String.IsNullOrEmpty(uri.Host))
-						return uri.Host;
-						return "custom";
-					}
-
-					return SelectedServerLabel.Replace(" ","");
-				}
-			}
+			get { throw new NotImplementedException(); }
+		}
 
 		/// <summary>
 		/// Use this to make use of, say, the contents of the clipboard (if it looks like a url)
