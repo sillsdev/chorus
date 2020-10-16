@@ -12,22 +12,12 @@ namespace Chorus.UI.Clone
 {
 	public class GetCloneFromInternetModel : InternetCloneSettingsModel
 	{
-		private bool _showCloneSpecificSettings;
-
-		public GetCloneFromInternetModel(): base()
-		{
-			_showCloneSpecificSettings = false;
-		}
-
 		public GetCloneFromInternetModel(string parentDirectoryToPutCloneIn): base(parentDirectoryToPutCloneIn)
 		{
-			_showCloneSpecificSettings = true;
+			ShowCloneOnlyControls = true;
 		}
 
-		public bool ShowCloneOnlyControls
-		{
-			get { return _showCloneSpecificSettings; }
-		}
+		public bool ShowCloneOnlyControls { get; }
 
 		public bool CancelRequested
 		{
@@ -79,9 +69,9 @@ namespace Chorus.UI.Clone
 				}
 				if (error is RepositoryAuthorizationException)
 				{
-					_progress.WriteError(LocalizationManager.GetString("Messages.ServerRejectedLogon", "The server {0} did not accept the request of {1} to clone from {2} using password {3}."), "TODO", Username, ProjectId, Password); // TODO (Hasso)
+					_progress.WriteError(LocalizationManager.GetString("Messages.ServerRejectedLogon", "The server {0} did not accept the request of {1} to clone from {2} using password {3}."), Host, Username, ProjectId, Password);
 					ErrorReport.NotifyUserOfProblem(LocalizationManager.GetString("Messages.RejectedLogonDetails", "The server ({0}) rejected the project name ({1}), user name ({2}), or password ({3}) (sorry, it didn't tell us which one). Make sure that each of these is correct, and that '{2}' is a member of the '{1}' project, with permission to read data."),
-						"TODO", ProjectId, Username, Password); // TODO (Hasso) 2020.10
+						Host, ProjectId, Username, Password);
 				}
 
 				else if (error is HgCommonException)

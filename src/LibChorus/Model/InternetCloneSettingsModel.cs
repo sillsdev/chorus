@@ -106,7 +106,7 @@ namespace Chorus.Model
 		public virtual void DoClone()
 		{
 			//review: do we need to get these out of the DoWorkEventArgs instead?
-			var actualCloneLocation = HgRepository.Clone(new HttpRepositoryPath(URL, URL, false), TargetDestination, _progress);
+			var actualCloneLocation = HgRepository.Clone(CreateRepositoryAddress(URL), TargetDestination, _progress);
 			LocalFolderName = Path.GetFileName(actualCloneLocation.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 		}
 

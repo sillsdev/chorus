@@ -1,20 +1,20 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.Security.Cryptography;
+using System.Text;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
-using L10NSharp;
 using SIL.Code;
 using SIL.Network;
-using SIL.ObjectModel;
 using SIL.Progress;
 
 namespace Chorus.Model
 {
 	public class ServerSettingsModel
 	{
+		#region static and constant
+		private const string EntropyValue = "LAMED videte si est dolor sicut dolor meus";
+
 		internal enum BandwidthEnum
 		{
 			Low, High
@@ -34,16 +34,31 @@ namespace Chorus.Model
 				return $"{Value} bandwidth";
 			}
 
-			// TODO (Hasso) 2020.10: override Equals and GetHashCode?
-		}
+			public override bool Equals(object other)
+			{
+				return (other as BandwidthItem)?.Value == Value;
+			}
 
-		private string _pathToRepo;
+			public override int GetHashCode()
+			{
+				return (int) Value;
+			}
+		}
 
 		public static readonly BandwidthItem[] Bandwidths;
 
 		static ServerSettingsModel()
 		{
 			Bandwidths = new[] {new BandwidthItem(BandwidthEnum.Low), new BandwidthItem(BandwidthEnum.High)};
+		}
+		#endregion static and constant
+
+		private string _pathToRepo;
+
+		public ServerSettingsModel()
+		{
+			Username = Properties.Settings.Default.LanguageForgeUser;
+			Password = DecryptPassword(Properties.Settings.Default.LanguageForgePass);
 		}
 
 		//	Servers.Add("LanguageDepot.org []", new ServerModel("resumable.languagedepot.org"));
@@ -73,36 +88,42 @@ namespace Chorus.Model
 
 		public virtual void InitFromUri(string url)
 		{
-			Password = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPassword(url));
-			Username = HttpUtilityFromMono.UrlDecode(UrlHelper.GetUserName(url));
+			var urlUsername = HttpUtilityFromMono.UrlDecode(UrlHelper.GetUserName(url));
+			if (!string.IsNullOrEmpty(urlUsername))
+			{
+				Username = urlUsername;
+				Password = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPassword(url));
+			}
 			ProjectId = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPathAfterHost(url));
+			Bandwidth = new BandwidthItem(RepositoryAddress.IsKnownResumableRepository(url) ? BandwidthEnum.Low : BandwidthEnum.High);
 			CustomUrl = UrlHelper.GetPathOnly(url);
+			IsCustomUrl = !UrlHelper.GetHost(url).Equals(Host);
 		}
 
 		public string URL
 		{
 			get
 			{
-				if (CustomUrlSelected)
+				if (IsCustomUrl)
 				{
 					return CustomUrl;
 				}
 
-				return "https://" +
-					HttpUtilityFromMono.UrlEncode(Username) + ":" +
-					HttpUtilityFromMono.UrlEncode(Password) + "@" +
-					//"{0}.LanguageForge.org/" +
-					"resumable.languagedepot.org/" +
-					HttpUtilityFromMono.UrlEncode(ProjectId);
-				}
+				return $"https://{Host}/{HttpUtilityFromMono.UrlEncode(ProjectId)}";
 			}
+		}
+
+		// TODO: "{0}.LanguageForge.org/" +
+		protected internal string Host => IsCustomUrl
+			? UrlHelper.GetHost(CustomUrl)
+			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : "hg-public")}.languagedepot.org";
 
 
 		public bool HaveGoodUrl => true; // TODO
 		//{
 		//	get
 		//	{
-		//		if (CustomUrlSelected)
+		//		if (IsCustomUrl)
 		//			return true;
 
 		//		try
@@ -120,10 +141,11 @@ namespace Chorus.Model
 
 		public string Password { get; set; }
 		public string Username { get; set; }
-		public bool CustomUrlSelected { get; set; }
+		public bool IsCustomUrl { get; set; }
 		public string CustomUrl { get; set; }
 		public BandwidthItem Bandwidth { get; set; } = Bandwidths[0];
 		public string ProjectId { get; set; }
+		public string[] AvailableProjects { get; private set; } = new string[0];
 
 		/// <summary>
 		/// True if the user has logged in since this ServerSettingsModel was created, or has already connected this project to an internet server.
@@ -147,12 +169,64 @@ namespace Chorus.Model
 			var repo = HgRepository.CreateOrUseExisting(_pathToRepo, new NullProgress());
 
 			// Use safer SetTheOnlyAddressOfThisType method, as it won't clobber a shared network setting, if that was the clone source.
-			repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(AliasName, URL, false));
+			repo.SetTheOnlyAddressOfThisType(CreateRepositoryAddress(AliasName));
+
+			SaveUserSettings();
+		}
+
+		protected RepositoryAddress CreateRepositoryAddress(string name)
+		{
+			return new HttpRepositoryPath(name, URL, false, Username, Password, Bandwidth.Value == BandwidthEnum.Low);
+		}
+
+		private void SaveUserSettings()
+		{
+			Properties.Settings.Default.LanguageForgeUser = Username;
+			Properties.Settings.Default.LanguageForgePass = EncryptPassword(Password);
+			Properties.Settings.Default.Save();
+		}
+
+		public void LogIn()
+		{
+			HasLoggedIn = !HasLoggedIn; // TODO (Hasso) actually log in
+			AvailableProjects = new[] {"sample", "data"};
+			SaveUserSettings();
 		}
 
 		public string AliasName
 		{
-			get { throw new NotImplementedException(); }
+			get
+			{
+				if (IsCustomUrl)
+				{
+					Uri uri;
+					if (Uri.TryCreate(URL, UriKind.Absolute, out uri) && !string.IsNullOrEmpty(uri.Host))
+						return uri.Host;
+					return "custom";
+				}
+
+				return Host;
+			}
+		}
+
+		internal static string EncryptPassword(string encryptMe)
+		{
+			if (string.IsNullOrEmpty(encryptMe))
+			{
+				return encryptMe;
+			}
+			byte[] encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+			return Convert.ToBase64String(encryptedData);
+		}
+
+		internal static string DecryptPassword(string decryptMe)
+		{
+			if (string.IsNullOrEmpty(decryptMe))
+			{
+				return decryptMe;
+			}
+			byte[] decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+			return Encoding.Unicode.GetString(decryptedData);
 		}
 
 		/// <summary>

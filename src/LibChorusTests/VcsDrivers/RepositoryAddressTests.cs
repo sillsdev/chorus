@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Reflection;
 using Chorus.VcsDrivers;
-using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using SIL.Progress;
 
@@ -134,6 +133,39 @@ namespace LibChorus.Tests.VcsDrivers
 			// Case 5: There is no matching repo
 			uri = _source.GetPotentialRepoUri("DoesNotExist", "DoesNotExist", _progress);
 			Assert.AreEqual(_chorusHubURL + "DoesNotExist", uri);
+		}
+	}
+
+	[TestFixture]
+	class HttpRepositoryPathTests
+	{
+		private const string Username = "usern@me";
+		private const string Password = "pa5$word";
+		private const string DomainPlus = "resumable.languageforge.org/project/";
+		private const string ProjectName = "tpi-flex";
+		private const string UrlTemplate = "https://" + DomainPlus + RepositoryAddress.ProjectNameVariable;
+		private const string UrlSansCredentials = "https://" + DomainPlus + ProjectName;
+		private const string UrlWithCredentials = "https://usern%40me:pa5%24word@" + DomainPlus + ProjectName;
+
+		[Test]
+		public void GetPotentialRepoUri_ReplacesProjectNameVariable()
+		{
+			var source = new HttpRepositoryPath("test", UrlTemplate, true, Username, Password);
+			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", ProjectName, null));
+		}
+
+		[Test]
+		public void GetPotentialRepoUri_ToleratesNullProjectName()
+		{
+			var source = new HttpRepositoryPath("test", UrlSansCredentials, true, Username, Password);
+			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", null, null));
+		}
+
+		[Test]
+		public void GetPotentialRepoUri_LeavesExistingUserInfo()
+		{
+			var source = new HttpRepositoryPath("test", UrlWithCredentials, true, "something", "else");
+			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", null, null));
 		}
 	}
 }

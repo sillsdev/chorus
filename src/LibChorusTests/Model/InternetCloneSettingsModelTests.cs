@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using NUnit.Framework;
 using SIL.TestUtilities;
 using Chorus.Model;
@@ -30,7 +30,7 @@ namespace LibChorus.Tests.Model
 				model.Username = "account";
 				model.Password = "password";
 				model.ProjectId = "id";
-				Assert.AreEqual("http://account:password@resumable.languagedepot.org/id", model.URL.ToLower());
+				Assert.AreEqual("https://account:password@resumable.languagedepot.org/id", model.URL.ToLower());
 			}
 		}
 
@@ -41,7 +41,7 @@ namespace LibChorus.Tests.Model
 			{
 				var model = new InternetCloneSettingsModel(testFolder.Path);
 				model.LocalFolderName = "SomeFolder";
-				// Ideally would call model to start the clone - but that's in the dialog for now so fake it instead.
+				// REVIEW: Ideally would call model to start the clone - but that's in the dialog for now so fake it instead.
 				Directory.CreateDirectory(model.TargetDestination);
 				Assert.That(Directory.Exists(model.TargetDestination), Is.True);
 

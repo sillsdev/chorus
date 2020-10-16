@@ -39,12 +39,11 @@ namespace Chorus.sync
 
 		public HgRepository Repository
 		{
+			// REVIEW (Hasso) 2020.10: should this be cached?
 			get { return new HgRepository(_localRepositoryPath, _progress); }
 		}
-		public string RepoProjectName
-		{
-			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath)+Path.GetExtension(_localRepositoryPath); }
-		}
+
+		public string RepoProjectName => Path.GetFileNameWithoutExtension(_localRepositoryPath) + Path.GetExtension(_localRepositoryPath);
 
 		public RepositoryAddress UsbPath
 		{
@@ -246,7 +245,7 @@ namespace Chorus.sync
 			{
 				ThrowIfCancelPending();
 
-				if (!address.ReadOnly)
+				if (!address.IsReadOnly)
 				{
 					SendToOneOther(address, connectionAttempt, repo);
 				}

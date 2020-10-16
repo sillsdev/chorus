@@ -15,8 +15,10 @@ namespace LibChorus.Tests.sync
 	[Category("Sync")]
 	public class ProxyTests
 	{
-		private string _cloneableTestProjectUrl = "http://chorus:notasecret@hg-public.languagedepot.org/testing-clone";
-		private ConsoleProgress _progress = new ConsoleProgress(){ShowVerbose = true};
+		private const string Username = "chorus";
+		private const string Password = "notasecret";
+		private const string CloneableTestProjectUrl = "https://hg-public.languagedepot.org/testing-clone";
+		private readonly ConsoleProgress _progress = new ConsoleProgress{ShowVerbose = true};
 
 
 		[SetUp]
@@ -31,7 +33,7 @@ namespace LibChorus.Tests.sync
 		   // RobustNetworkOperation.ClearCredentialSettings();
 			using (var f = new TemporaryFolder("clonetest"))
 			{
-				HgRepository.Clone(new HttpRepositoryPath("cloneableTestProjectUrl", _cloneableTestProjectUrl, false), f.Path, _progress);
+				HgRepository.Clone(new HttpRepositoryPath("cloneableTestProjectUrl", CloneableTestProjectUrl, false, Username, Password, false), f.Path, _progress);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
 			}
 		}
@@ -44,8 +46,8 @@ namespace LibChorus.Tests.sync
 			using (var f = new TemporaryFolder("pulltest"))
 			{
 				var repo = HgRepository.CreateOrUseExisting(f.Path, _progress);
-				var address = new HttpRepositoryPath("default", _cloneableTestProjectUrl, false);
-				repo.Pull(address, _cloneableTestProjectUrl);
+				var address = new HttpRepositoryPath("default", CloneableTestProjectUrl, false, Username, Password, false);
+				repo.Pull(address, CloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
 			}
 		}
@@ -57,13 +59,13 @@ namespace LibChorus.Tests.sync
 			using (var f = new TemporaryFolder("pulltest"))
 			{
 				var repo = HgRepository.CreateOrUseExisting(f.Path, _progress);
-				var address = new HttpRepositoryPath("default", _cloneableTestProjectUrl, false);
-				repo.Pull(address, _cloneableTestProjectUrl);
+				var address = new HttpRepositoryPath("default", CloneableTestProjectUrl, false, Username, Password, false);
+				repo.Pull(address, CloneableTestProjectUrl);
 				Assert.IsTrue(Directory.Exists(f.Combine(f.Path, ".hg")));
 
 				//nb: this is safe to do over an over, because it will just say "no changes found", never actually add a changeset
 
-				repo.Push(address, _cloneableTestProjectUrl);
+				repo.Push(address, CloneableTestProjectUrl);
 			}
 		}
 	}

@@ -1,23 +1,21 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Web;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
 
 	public class HgResumeRestApiServer : IApiServer
 	{
-		public const string APIVERSION = "03";
+		public const string ApiVersion = "03";
 
 		private readonly Uri _url;
-		private string _urlExecuted;
 
 		public HgResumeRestApiServer(string url)
 		{
 			_url = new Uri(url);
-			_urlExecuted = "";
+			Url = "";
 
 			// http://jira.palaso.org/issues/browse/CHR-26
 			// Fix to support HTTP/1.0 proxy servers (ipcop) that stand between the client an our server (and that fail with a HTTP 417 Expectation Failed error, if you don't have this fix)
@@ -42,9 +40,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters parameters, byte[] contentToSend, int secondsBeforeTimeout)
 		{
 			string queryString = parameters.BuildQueryString();
-			_urlExecuted = String.Format("{0}://{1}/api/v{2}/{3}?{4}", _url.Scheme, _url.Host, APIVERSION, method, queryString);
-			var req = WebRequest.Create(_urlExecuted) as HttpWebRequest;
-			req.UserAgent = String.Format("HgResume v{0}", APIVERSION);
+			Url = String.Format("{0}://{1}/api/v{2}/{3}?{4}", _url.Scheme, _url.Host, ApiVersion, method, queryString);
+			var req = (HttpWebRequest) WebRequest.Create(Url);
+			req.UserAgent = $"HgResume v{ApiVersion}";
 			req.PreAuthenticate = true;
 			if (!_url.UserInfo.Contains(":"))
 			{
@@ -163,9 +161,6 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		public string Url
-		{
-			get { return _urlExecuted; }
-		}
+		public string Url { get; private set; }
 	}
 }

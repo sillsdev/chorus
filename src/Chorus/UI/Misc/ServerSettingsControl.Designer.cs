@@ -32,7 +32,7 @@ namespace Chorus.UI.Misc
 			this._projectIdLabel = new System.Windows.Forms.Label();
 			this._accountLabel = new System.Windows.Forms.Label();
 			this._passwordLabel = new System.Windows.Forms.Label();
-			this._accountName = new System.Windows.Forms.TextBox();
+			this._username = new System.Windows.Forms.TextBox();
 			this._password = new SIL.Windows.Forms.Widgets.PasswordBox();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this._customUrlLabel = new System.Windows.Forms.Label();
@@ -89,20 +89,20 @@ namespace Chorus.UI.Misc
 			this._passwordLabel.TabIndex = 8;
 			this._passwordLabel.Text = "Password";
 			// 
-			// _accountName
+			// _username
 			// 
-			this._accountName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-			this.l10NSharpExtender1.SetLocalizableToolTip(this._accountName, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._accountName, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._accountName, "ServerSettingsControl.ServerSettingsControl._accountName");
-			this._accountName.Location = new System.Drawing.Point(83, 7);
-			this._accountName.Name = "_accountName";
-			this._accountName.Size = new System.Drawing.Size(263, 20);
-			this._accountName.TabIndex = 2;
-			this.toolTip1.SetToolTip(this._accountName, "This is your account on the server, which must already be set up.");
-			this._accountName.TextChanged += new System.EventHandler(this._accountName_TextChanged);
-			this._accountName.KeyDown += new System.Windows.Forms.KeyEventHandler(this._textbox_KeyDown);
-			this._accountName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this._textbox_KeyPress);
+			this._username.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._username, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._username, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._username, "ServerSettingsControl.ServerSettingsControl._username");
+			this._username.Location = new System.Drawing.Point(83, 7);
+			this._username.Name = "_username";
+			this._username.Size = new System.Drawing.Size(263, 20);
+			this._username.TabIndex = 2;
+			this.toolTip1.SetToolTip(this._username, "This is your account on the server, which must already be set up.");
+			this._username.TextChanged += new System.EventHandler(this._username_TextChanged);
+			this._username.KeyDown += new System.Windows.Forms.KeyEventHandler(this._textbox_KeyDown);
+			this._username.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this._textbox_KeyPress);
 			// 
 			// _password
 			// 
@@ -143,7 +143,7 @@ namespace Chorus.UI.Misc
 			this.tableLayoutPanel1.Controls.Add(this._passwordLabel, 0, 1);
 			this.tableLayoutPanel1.Controls.Add(this._bandwidthLabel, 0, 4);
 			this.tableLayoutPanel1.Controls.Add(this._accountLabel, 0, 0);
-			this.tableLayoutPanel1.Controls.Add(this._accountName, 1, 0);
+			this.tableLayoutPanel1.Controls.Add(this._username, 1, 0);
 			this.tableLayoutPanel1.Controls.Add(this._tlpCustomUrl, 1, 2);
 			this.tableLayoutPanel1.Controls.Add(this._password, 1, 1);
 			this.tableLayoutPanel1.Controls.Add(this._buttonLogIn, 1, 3);
@@ -287,7 +287,7 @@ namespace Chorus.UI.Misc
 		private System.Windows.Forms.Label _projectIdLabel;
 		private System.Windows.Forms.Label _accountLabel;
 		private System.Windows.Forms.Label _passwordLabel;
-		private System.Windows.Forms.TextBox _accountName;
+		private System.Windows.Forms.TextBox _username;
 		private SIL.Windows.Forms.Widgets.PasswordBox _password;
 		private System.Windows.Forms.ToolTip toolTip1;
 		private System.Windows.Forms.Label _customUrlLabel;

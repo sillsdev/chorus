@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Windows.Forms;
 using Chorus.UI.Clone;
 using Chorus.VcsDrivers.Mercurial;
@@ -81,8 +81,7 @@ namespace Chorus.Tests.UI.Clone
 				model.InitFromUri(url);
 				using (var dlg = new GetCloneFromInternetDialog(model))
 				{
-					if (DialogResult.OK != dlg.ShowDialog())
-						return;
+					dlg.ShowDialog();
 				}
 			}
 		}
@@ -114,8 +113,7 @@ namespace Chorus.Tests.UI.Clone
 				using (var dlg = new GetCloneFromInternetDialog(targetComputer.Path))
 				{
 
-					if (DialogResult.OK != dlg.ShowDialog())
-						return;
+					dlg.ShowDialog();
 				}
 			}
 		}

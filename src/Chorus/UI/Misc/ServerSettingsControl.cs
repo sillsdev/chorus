@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using Chorus.Model;
+using SIL.Extensions;
 
 
 namespace Chorus.UI.Misc
@@ -32,28 +33,39 @@ namespace Chorus.UI.Misc
 				_model = value;
 				if (value == null)
 					return;
-				// TODO (Hasso)
+				// TODO (Hasso): load new projects list
 			}
 		}
 
 		private void UpdateDisplay()
 		{
-			_accountName.Text = Model.Username;
+			_username.Text = Model.Username;
 			_password.Text = Model.Password;
 
 			_customUrl.Text = Model.URL;
-			_customUrl.Visible = Model.CustomUrlSelected;
+			_customUrl.Visible = Model.IsCustomUrl;
 
-			_buttonLogIn.Visible = !Model.CustomUrlSelected;
+			_buttonLogIn.Visible = !Model.IsCustomUrl;
 			_buttonLogIn.Enabled = Model.CanLogIn;
 
 			_bandwidth.SelectedItem = Model.Bandwidth;
-			_bandwidthLabel.Visible = _bandwidth.Visible = !Model.CustomUrlSelected && Model.HasLoggedIn;
+			_bandwidthLabel.Visible = _bandwidth.Visible = !Model.IsCustomUrl && Model.HasLoggedIn;
 
 			_projectId.Text = Model.ProjectId;
-			_projectIdLabel.Visible = _projectId.Visible = !Model.CustomUrlSelected && Model.HasLoggedIn;
+			_projectIdLabel.Visible = _projectId.Visible = !Model.IsCustomUrl && Model.HasLoggedIn;
 
 			DisplayUpdated?.Invoke(this, null);
+		}
+
+		private void UpdateProjectIds()
+		{
+			var currentVal = Model.ProjectId;
+			_projectId.Items.Clear();
+			_projectId.Items.AddRange(Model.AvailableProjects);
+			if (!string.IsNullOrEmpty(currentVal) && Model.AvailableProjects.Contains(currentVal, StringComparison.Ordinal))
+			{
+				_projectId.SelectedItem = currentVal;
+			}
 		}
 
 		private void _customUrl_TextChanged(object sender, EventArgs e)
@@ -68,9 +80,9 @@ namespace Chorus.UI.Misc
 			UpdateDisplay();
 		}
 
-		private void _accountName_TextChanged(object sender, EventArgs e)
+		private void _username_TextChanged(object sender, EventArgs e)
 		{
-			Model.Username = _accountName.Text;
+			Model.Username = _username.Text;
 			UpdateDisplay();
 		}
 
@@ -117,7 +129,7 @@ namespace Chorus.UI.Misc
 
 		private void _checkCustomUrl_CheckedChanged(object sender, EventArgs e)
 		{
-			Model.CustomUrlSelected = _checkCustomUrl.Checked;
+			Model.IsCustomUrl = _checkCustomUrl.Checked;
 			UpdateDisplay();
 		}
 
@@ -128,7 +140,8 @@ namespace Chorus.UI.Misc
 
 		private void _buttonLogIn_Click(object sender, EventArgs e)
 		{
-			Model.HasLoggedIn = !Model.HasLoggedIn; // TODO (Hasso) actually log in
+			Model.LogIn();
+			UpdateProjectIds();
 			UpdateDisplay();
 		}
 	}
