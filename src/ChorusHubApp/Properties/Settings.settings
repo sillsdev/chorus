@@ -1,9 +1,9 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ChorusHub.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="ChorusHubApp.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-	<Setting Name="Reporting" Type="Palaso.Reporting.ReportingSettings" Scope="User">
-	  <Value Profile="(Default)" />
-	</Setting>
+    <Setting Name="Reporting" Type="SIL.Reporting.ReportingSettings" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

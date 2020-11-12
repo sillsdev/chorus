@@ -47,6 +47,18 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
     <ProjectReference Include="..\LibChorus\LibChorus.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
   <PropertyGroup>
     <!-- See https://github.com/dotnet/sdk/issues/987#issuecomment-286307697 why that is needed -->
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
