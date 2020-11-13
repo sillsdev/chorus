@@ -17,6 +17,13 @@
     <NoWarn>1591</NoWarn>
     <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
     <IsPackable>false</IsPackable>
+    <!-- We have to explicitly set PlatformTarget because we depend on LibChorus which
+    depends on Mercurial and icu4c which have platform dependent binaries, so msbuild decides
+    that Chorus is platform specific, regardless of the actual platform target. For the same
+    reason we have to set RuntimeIdentifiers when building with .NET 5 on AppVeyor. Otherwise
+    the build fails with an error that there is no target for'net461/win7-x86'. -->
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>

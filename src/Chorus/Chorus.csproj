@@ -28,6 +28,12 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
     <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
     <NoWarn>1591</NoWarn>
     <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
+    <!-- We have to explicitly set PlatformTarget because we depend on LibChorus which depends on
+    icu4c which has platform dependent binaries, so msbuild decides that this executable will
+    be platform specific. For the same reason we have to set RuntimeIdentifiers when building
+    with .NET 5 on AppVeyor. -->
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
