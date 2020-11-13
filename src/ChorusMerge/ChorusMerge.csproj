@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net461</TargetFrameworks>
@@ -31,13 +31,9 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="5.3.4">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="GitVersionTask" Version="5.3.4" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="SIL.ReleaseTasks" Version="2.3.4">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="SIL.ReleaseTasks" Version="2.3.4" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

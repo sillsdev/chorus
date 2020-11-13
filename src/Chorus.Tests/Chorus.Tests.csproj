@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net461</TargetFrameworks>
@@ -16,12 +16,11 @@
     <IsTestProject>true</IsTestProject>
     <NoWarn>1591</NoWarn>
     <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="5.3.4">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <PackageReference Include="GitVersionTask" Version="5.3.4" PrivateAssets="All" />
     <PackageReference Include="L10NSharp" Version="4.1.0-beta0047" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="NUnit" Version="3.12.0" />
