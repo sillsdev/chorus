@@ -27,7 +27,7 @@ namespace Chorus.merge.xml.generic
 
 		public void WarningOccurred(IConflict warning)
 		{
-			_stream.WriteLine("warning: "+warning.GetFullHumanReadableDescription());
+			_stream.WriteLine($"warning: {warning.GetFullHumanReadableDescription()}");
 		}
 
 		public void ChangeOccurred(IChangeReport change)
