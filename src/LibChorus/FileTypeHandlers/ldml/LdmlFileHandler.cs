@@ -13,6 +13,7 @@ using Chorus.VcsDrivers.Mercurial;
 using SIL.Extensions;
 using SIL.IO;
 using SIL.Progress;
+using SIL.Providers;
 using SIL.Xml;
 
 namespace Chorus.FileTypeHandlers.ldml
@@ -175,7 +176,6 @@ namespace Chorus.FileTypeHandlers.ldml
 		internal static void SetupElementStrategies(XmlMerger merger)
 		{
 			merger.MergeStrategies.ElementToMergeStrategyKeyMapper = new LdmlElementToMergeStrategyKeyMapper();
-
 			// See: Palaso repo: SIL.WritingSystems\LdmlDataMapper.cs
 			var strategy = ElementStrategy.CreateSingletonElement();
 			strategy.ContextDescriptorGenerator = new LdmlContextGenerator();
@@ -358,6 +358,10 @@ namespace Chorus.FileTypeHandlers.ldml
 			if (ourDoc == null || theirDoc == null)
 				return;
 
+			// ldml files are kind of big now we want to avoid unnecessary disk IO
+			bool commonNeedsSave, oursNeedsSave, theirsNeedsSave;
+			commonNeedsSave = oursNeedsSave = theirsNeedsSave = false;
+
 			// Add optional key attr and default value on 'collation' element that has no 'type' attr.
 			var ourDocDefaultCollation = GetDefaultCollationNode(ourDoc);
 			var theirDocDefaultCollation = GetDefaultCollationNode(theirDoc);
@@ -370,41 +374,79 @@ namespace Chorus.FileTypeHandlers.ldml
 					{
 						// add type attribute to the commonDoc only when we are certain it will also be added to at least one modified document
 						commonDocDefaultCollation.Add(new XAttribute("type", "standard"));
-						commonDoc.Save(mergeOrder.pathToCommonAncestor);
+						commonNeedsSave = true;
 					}
 				}
 			}
 			if (ourDocDefaultCollation != null)
 			{
 				ourDocDefaultCollation.Add(new XAttribute("type", "standard"));
-				ourDoc.Save(mergeOrder.pathToOurs);
+				oursNeedsSave = true;
 				addedCollationAttr = true;
 			}
 			if (theirDocDefaultCollation != null)
 			{
 				theirDocDefaultCollation.Add(new XAttribute("type", "standard"));
-				theirDoc.Save(mergeOrder.pathToTheirs);
+				theirsNeedsSave = true;
 				addedCollationAttr = true;
 			}
 
-			// Pre-merge <generation> date attr to newest, plus one second.
-			string ourRawGenDate;
-			var ourGenDate = GetGenDate(ourDoc, out ourRawGenDate);
+			// If there is no commonDoc then the results will be DateTime.MinValue and null
+			string ancestorRawGenDate;
+			GetGenDate(commonDoc, out ancestorRawGenDate);
+
 			string theirRawGenDate;
 			var theirGenDate = GetGenDate(theirDoc, out theirRawGenDate);
 
-			var newestGenDatePlusOneSecond = (ourGenDate == theirGenDate)
-				? ourGenDate
-				: ((ourGenDate > theirGenDate) ? ourGenDate : theirGenDate);
-			newestGenDatePlusOneSecond = newestGenDatePlusOneSecond.AddSeconds(1);
-			// date="2012-06-08T09:36:30"
-			var newestRawGenDatePlusOneSecond = newestGenDatePlusOneSecond.ToISO8601TimeFormatWithUTCString();
+			string ourRawGenDate;
+			var ourGenDate = GetGenDate(ourDoc, out ourRawGenDate);
 
-			// Write it out as one second newer than newest of the two, since merging does change it.
-			var ourData = File.ReadAllText(mergeOrder.pathToOurs).Replace(ourRawGenDate, newestRawGenDatePlusOneSecond);
-			File.WriteAllText(mergeOrder.pathToOurs, ourData);
-			var theirData = File.ReadAllText(mergeOrder.pathToTheirs).Replace(theirRawGenDate, newestRawGenDatePlusOneSecond);
-			File.WriteAllText(mergeOrder.pathToTheirs, theirData);
+			// If there was no common we will set the date to empty.
+			// The xml equality test will fail and the results will be correct
+			theirDoc.Root?.Element("identity")?.Element("generation")?.Attribute("date")?.SetValue(ancestorRawGenDate ?? string.Empty);
+			ourDoc.Root?.Element("identity")?.Element("generation")?.Attribute("date")?.SetValue(ancestorRawGenDate ?? string.Empty);
+			// if only the generation date has changed just use the newest timestamp
+			if (XmlUtilities.AreXmlElementsEqual(commonDoc?.Root, theirDoc.Root) &&
+				XmlUtilities.AreXmlElementsEqual(commonDoc?.Root, ourDoc.Root))
+			{
+				// Pre-merge <generation> date attr to newest
+				var mostRecentGenDate = ourGenDate == theirGenDate ? ourGenDate : ourGenDate > theirGenDate ? ourGenDate : theirGenDate;
+
+				if (theirGenDate != mostRecentGenDate)
+				{
+					theirDoc.Root?.Element("identity")?.Element("generation")?.Attribute("date")?.SetValue(mostRecentGenDate);
+					theirsNeedsSave = true;
+				}
+
+				if (ourGenDate != mostRecentGenDate)
+				{
+					ourDoc.Root?.Element("identity")?.Element("generation")?.Attribute("date")?.SetValue(mostRecentGenDate);
+					oursNeedsSave = true;
+				}
+			}
+			else
+			{
+				// Some real content changed so update to the current time to represent the merge
+				var mostRecentGenDateRaw = DateTimeProvider.Current.UtcNow.ToISO8601TimeFormatWithUTCString();
+				theirDoc.Root?.Element("identity")?.Element("generation")?.Attribute("date")?.SetValue(mostRecentGenDateRaw);
+				ourDoc.Root?.Element("identity")?.Element("generation")?.Attribute("date")?.SetValue(mostRecentGenDateRaw);
+				oursNeedsSave = theirsNeedsSave = true;
+			}
+
+			if (commonNeedsSave)
+			{
+				commonDoc?.Save(mergeOrder.pathToCommonAncestor);
+			}
+
+			if (theirsNeedsSave)
+			{
+				theirDoc?.Save(mergeOrder.pathToTheirs);
+			}
+
+			if (oursNeedsSave)
+			{
+				ourDoc?.Save(mergeOrder.pathToOurs);
+			}
 		}
 
 		private static XElement GetDefaultCollationNode(XDocument currentDocument)
@@ -423,9 +465,11 @@ namespace Chorus.FileTypeHandlers.ldml
 
 		private static DateTime GetGenDate(XDocument doc, out string rawGenDate)
 		{
-			rawGenDate = doc.Root.Element("identity").Element("generation").Attribute("date").Value;
+			rawGenDate = doc?.Root?.Element("identity")?.Element("generation")?.Attribute("date")?.Value;
 
-			return DateTimeExtensions.ParseISO8601DateTime(rawGenDate);
+			return string.IsNullOrEmpty(rawGenDate)
+				? DateTime.MinValue
+				: DateTimeExtensions.ParseISO8601DateTime(rawGenDate);
 		}
 	}
 }

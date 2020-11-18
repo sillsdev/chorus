@@ -10,8 +10,11 @@ using Chorus.merge;
 using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
+using SIL.Extensions;
 using SIL.IO;
+using SIL.Providers;
 using SIL.TestUtilities;
+using SIL.TestUtilities.Providers;
 
 namespace LibChorus.Tests.FileHandlers.ldml
 {
@@ -23,6 +26,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	{
 		private IChorusFileTypeHandler _ldmlFileHandler;
 		private ListenerForUnitTests _eventListener;
+		private DateTime _expectedUtcDateTime;
 
 		[TestFixtureSetUp]
 		public void FixtureSetup()
@@ -30,6 +34,9 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			_ldmlFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 								where handler.GetType().Name == "LdmlFileHandler"
 								select handler).First();
+			_expectedUtcDateTime = DateTime.UtcNow;
+			DateTimeProvider.SetProvider(new ReproducibleDateTimeProvider(_expectedUtcDateTime));
+
 		}
 
 		[TestFixtureTearDown]
@@ -144,7 +151,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				new List<string>(),
 				new List<string> { @"ldml/collations/collation[@type='standard']" }, // Should not be present, since the premerge code added it.
 				0, null,
-				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
+				0, null);
 		}
 
 		#region Top level LDML elements (V3)
@@ -1310,6 +1317,9 @@ namespace LibChorus.Tests.FileHandlers.ldml
 </ldml>";
 
 			var ourContent = commonAncestor.Replace("09:36:30", "09:37:30");
+			// Make a meaningless format change to verify that it doesn't break the logic which tests if there
+			// are other real changes to the xml
+			ourContent = ourContent.Replace($"/>{Environment.NewLine}</identity>", "/></identity>");
 			var theirContent = commonAncestor.Replace("09:36:30", "09:38:30");
 			var namespaces = new Dictionary<string, string>
 								{
@@ -1320,7 +1330,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// We made the change
 			DoMerge(commonAncestor, ourContent, theirContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31Z']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30Z']" },
 				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30Z']", @"ldml/identity/generation[@date='2012-06-08T09:37:30Z']" },
 				0, null,
 				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
@@ -1328,7 +1338,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// They made the change
 			DoMerge(commonAncestor, theirContent, ourContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31Z']" },
+				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:30Z']" },
 				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30Z']", @"ldml/identity/generation[@date='2012-06-08T09:37:30Z']" },
 				0, null,
 				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
@@ -1359,7 +1369,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// We made the change
 			DoMerge(commonAncestor, ourContent, theirContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31Z']", @"ldml/special" },
+				new List<string> { $"ldml/identity/generation[@date='{_expectedUtcDateTime.ToISO8601TimeFormatWithUTCString()}']", @"ldml/special" },
 				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30Z']", @"ldml/identity/generation[@date='2012-06-08T09:37:30Z']" },
 				0, null,
 				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });
@@ -1367,7 +1377,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			// They made the change
 			DoMerge(commonAncestor, theirContent, ourContent,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:38:31Z']", @"ldml/special" },
+				new List<string> { $"ldml/identity/generation[@date='{_expectedUtcDateTime.ToISO8601TimeFormatWithUTCString()}']", @"ldml/special" },
 				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:30Z']", @"ldml/identity/generation[@date='2012-06-08T09:37:30Z']" },
 				0, null,
 				2, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport), typeof(XmlAdditionChangeReport) });
@@ -1394,7 +1404,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 
 			Assert.DoesNotThrow( ()=> DoMerge(null, data, data,
 				namespaces,
-				new List<string> { @"ldml/identity/generation[@date='2012-06-08T09:36:31Z']" },
+				new List<string> { $"ldml/identity/generation[@date='{_expectedUtcDateTime.ToISO8601TimeFormatWithUTCString()}']" },
 				new List<string>(),
 				0, null,
 				1, new List<Type> {typeof (XmlBothAddedSameChangeReport)}));

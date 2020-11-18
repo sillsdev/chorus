@@ -300,7 +300,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception err)
 			{
-				_progress.WriteWarning("Could not send to " + targetUri + Environment.NewLine + err.Message);
+				_progress.WriteMessageWithColor("OrangeRed", "Could not send to " + targetUri + Environment.NewLine + err.Message);
 			}
 
 			if (GetIsLocalUri(targetUri))
@@ -311,8 +311,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				catch (Exception err)
 				{
-					_progress.WriteWarning("Could not update the actual files after a pushing to " + targetUri +
-										   Environment.NewLine + err.Message);
+					_progress.WriteMessageWithColor("OrangeRed",
+						$"Could not update the actual files after a pushing to {targetUri}{Environment.NewLine}{err.Message}");
 				}
 			}
 		}
