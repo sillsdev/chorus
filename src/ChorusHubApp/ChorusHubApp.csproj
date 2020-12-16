@@ -66,4 +66,8 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
   </PropertyGroup>
 
+  <Target Name="CopyPackage" AfterTargets="Pack" Condition="'$(LOCAL_NUGET_REPO)'!=''">
+    <Copy SourceFiles="$(OutputPath)../$(PackageId).$(PackageVersion).nupkg"
+      DestinationFolder="$(LOCAL_NUGET_REPO)"/>
+  </Target>
 </Project>
