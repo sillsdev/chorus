@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="GitVersionTask" Version="5.3.4" PrivateAssets="All" />
-    <PackageReference Include="L10NSharp" Version="4.1.0-beta0047" />
+    <PackageReference Include="L10NSharp" Version="*-*" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="NUnit" Version="3.12.0" />
   </ItemGroup>
