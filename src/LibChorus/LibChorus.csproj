@@ -40,11 +40,11 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
     <PackageReference Include="Autofac" Version="2.6.3.862" />
     <PackageReference Include="GitVersionTask" Version="5.3.4" PrivateAssets="All" />
     <PackageReference Include="icu.net" Version="2.6.0" />
-    <PackageReference Include="Icu4c.Win.Min" Version="59.1.7" />
+    <PackageReference Include="Icu4c.Win.Min" Version="59.1.7" IncludeAssets="build" />
     <PackageReference Include="L10NSharp" Version="4.1.0-beta0047" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="NDesk.DBus" Version="0.15.0" />
-    <PackageReference Include="SIL.Chorus.Mercurial" Version="3.0.1-beta5" PrivateAssets="native" />
+    <PackageReference Include="SIL.Chorus.Mercurial" Version="3.0.1-beta5" IncludeAssets="build" />
     <PackageReference Include="SIL.Core" Version="8.0.0-beta0160" />
     <PackageReference Include="SIL.Lift" Version="8.0.0-beta0160" />
     <PackageReference Include="SIL.ReleaseTasks" Version="2.3.4" PrivateAssets="All" />
@@ -52,7 +52,7 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
 
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition" />
-	<Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel" />
   </ItemGroup>
 
   <ItemGroup>
@@ -91,6 +91,6 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
   <PropertyGroup>
     <!-- See https://github.com/dotnet/sdk/issues/987#issuecomment-286307697 why that is needed -->
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
-	</PropertyGroup>
+  </PropertyGroup>
 
 </Project>
