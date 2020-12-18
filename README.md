@@ -95,6 +95,14 @@ Chorus is written in C#. The UI widgets use Windows Forms, but you could make yo
 different platform and just use the engine.
 
 After cloning the project you should now have a solution that you can build using any edition
-of Visual Studio 2017, including the free Express version, or Visual Studio Code.
+of Visual Studio 2019, including the free Express version, or Visual Studio Code.
 
 On Linux you can open and build the solution in MonoDevelop, or run the `build/TestBuild.sh` script.
+
+### Building client projects against locally-built artifacts
+
+  * Set an enviroment variable `LOCAL_NUGET_REPO` with the path to a folder on your computer (or local network) to publish locally-built packages
+  * See [these instructions](https://docs.microsoft.com/en-us/nuget/hosting-packages/local-feeds) to enable local package sources
+  * `build /t:pack` will pack nuget packages and publish them to `LOCAL_NUGET_REPO`
+
+Further instructions at https://github.com/sillsdev/libpalaso/wiki/Developing-with-locally-modified-nuget-packages
