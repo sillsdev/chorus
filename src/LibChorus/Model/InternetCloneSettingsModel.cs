@@ -88,12 +88,14 @@ namespace Chorus.Model
 		{
 			var repo = new HgRepository(TargetDestination, _progress);
 			var name = new Uri(URL).Host;
-			if (String.IsNullOrEmpty(name)) //This happens for repos on the local machine
+			if (string.IsNullOrEmpty(name)) //This happens for repos on the local machine
 			{
 				name = @"LocalRepository";
 			}
-			if (name.ToLower().Contains(@"languagedepot"))
-				name = @"LanguageDepot";
+			else if (name.ToLower().EndsWith(@"languageforge.org"))
+			{
+				name = @"LanguageForge";
+			}
 
 			var address = RepositoryAddress.Create(name, URL);
 

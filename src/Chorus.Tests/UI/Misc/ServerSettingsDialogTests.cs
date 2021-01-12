@@ -10,7 +10,7 @@ namespace Chorus.Tests.UI.Misc
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_FullAddress()
 		{
-			LaunchCustomUrl("http://joe:pass@hg-public.languagedepot.org/tpi");
+			LaunchCustomUrl("https://joe:pass@hg-public.languageforge.org/tpi");
 		}
 
 		[Test, Ignore("Run by hand only")]

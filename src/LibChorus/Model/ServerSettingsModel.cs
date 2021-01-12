@@ -73,11 +73,6 @@ namespace Chorus.Model
 			Password = DecryptPassword(Properties.Settings.Default.LanguageForgePass);
 		}
 
-		//	Servers.Add("LanguageDepot.org []", new ServerModel("resumable.languagedepot.org"));
-		//	Servers.Add("LanguageDepot.org [Safe Mode]", new ServerModel("hg-public.languagedepot.org"));
-		//	Servers.Add("LanguageDepot.org [Private Secure + Safe Mode]", new ServerModel("hg-private.languagedepot.org"));
-		//	Servers.Add("LanguageForge.org [test server]", new ServerModel("hg.languageforge.org"));
-
 		///<summary>
 		/// Show settings for an existing project. The project doesn't need to have any
 		/// previous chorus activity (e.g. no .hg folder is needed).

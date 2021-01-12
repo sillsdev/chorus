@@ -20,19 +20,19 @@ namespace Chorus.Tests.UI.Clone
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_GoodAddressNoFolder()
 		{
-			LaunchCustomUrl("http://hg-public.languagedepot.org/tpi");
+			LaunchCustomUrl("https://hg-public.languageforge.org/tpi");
 		}
 
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_GoodAddressWithFolderName()
 		{
-			LaunchCustomUrl("http://hg-public.languagedepot.org/tpi?localFolder=TokPisin");
+			LaunchCustomUrl("https://hg-public.languageforge.org/tpi?localFolder=TokPisin");
 		}
 //
 //        [Test, Ignore("Run by hand only")]
 //        public void LaunchDialog_GoodAddressSmallRepot()
 //        {
-//            Launch("http://hg.palaso.org/chorusdemo");
+//            Launch("https://hg.palaso.org/chorusdemo");
 //        }
 //
 //        [Test, Ignore("Run by hand only")]
@@ -43,12 +43,12 @@ namespace Chorus.Tests.UI.Clone
 //        [Test, Ignore("Run by hand only")]
 //        public void LaunchDialog_BogusAddress()//(in Ukarumpa) gives : HTTP Error 502: Proxy Error ( The host was not found. )
 //        {
-//            Launch("http://a73fsz.org/tpi");
+//            Launch("https://a73fsz.org/tpi");
 //        }
 //        [Test, Ignore("Run by hand only")]
 //        public void LaunchDialog_ProjectWontbeFound()//gives HTTP Error 404: Not Found
 //        {
-//            Launch("http://hg-public.languagedepot.org/NOTHERE");
+//            Launch("https://hg-public.languageforge.org/NOTHERE");
 //        }
 
 		[Test, Ignore("Run by hand only")]
