@@ -140,9 +140,17 @@ namespace Chorus.UI.Misc
 
 		private void _buttonLogIn_Click(object sender, EventArgs e)
 		{
-			Model.LogIn();
-			UpdateProjectIds();
-			UpdateDisplay();
+			string error;
+			Model.LogIn(out error);
+			if (string.IsNullOrEmpty(error))
+			{
+				UpdateProjectIds();
+				UpdateDisplay();
+			}
+			else
+			{
+				MessageBox.Show(error, "Error logging in", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+			}
 		}
 	}
 }

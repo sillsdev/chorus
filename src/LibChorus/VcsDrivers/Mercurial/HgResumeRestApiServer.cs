@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
+using Chorus.Utilities;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -112,32 +112,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			var apiResponse = new HgResumeApiResponse();
 			apiResponse.ResumableResponse = new HgResumeApiResponseHeaders(res.Headers);
 			apiResponse.HttpStatus = res.StatusCode;
-
-			var responseStream = res.GetResponseStream();
-
-			if (responseStream != null && !String.IsNullOrEmpty(res.Headers["Content-Length"]))
-			{
-				apiResponse.Content = ReadStream(responseStream, Convert.ToInt32(res.Headers["Content-Length"]));
-			}
-			else
-			{
-				apiResponse.Content = new byte[0];
-			}
-
+			apiResponse.Content = WebResponseHelper.ReadResponseContent(res);
 			return apiResponse;
-		}
-
-		private static byte[] ReadStream(Stream stream, int length)
-		{
-			var buffer = new byte[length];
-			int offset = 0;
-			int bytesRead;
-			do
-			{
-				bytesRead = stream.Read(buffer, offset, length - offset);
-				offset += bytesRead;
-			} while (bytesRead > 0 && offset < length);
-			return buffer;
 		}
 
 		public string Host

@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using Newtonsoft.Json;
 using SIL.Code;
 using SIL.Network;
 using SIL.Progress;
@@ -14,6 +18,14 @@ namespace Chorus.Model
 	{
 		#region static and constant
 		private const string EntropyValue = "LAMED videte si est dolor sicut dolor meus";
+
+		internal class Project
+		{
+			public string Identifier { get; set; }
+			public string Name { get; set; }
+			public string Repository { get; set; }
+			public string Role { get; set; }
+		}
 
 		internal enum BandwidthEnum
 		{
@@ -186,11 +198,47 @@ namespace Chorus.Model
 			Properties.Settings.Default.Save();
 		}
 
-		public void LogIn()
+		public void LogIn(out string error)
 		{
-			HasLoggedIn = !HasLoggedIn; // TODO (Hasso) actually log in
-			AvailableProjects = new[] {"sample", "data"};
-			SaveUserSettings();
+			try
+			{
+				var response = LogIn();
+				var content = Encoding.UTF8.GetString(WebResponseHelper.ReadResponseContent(response));
+				HasLoggedIn = true;
+				error = null;
+				SaveUserSettings();
+
+				// Do this last so, if the JSON is bad, the credentials are still saved
+				PopulateAvailableProjects(content);
+			}
+			catch (WebException e)
+			{
+				HasLoggedIn = false;
+				error = e.Message;
+			}
+			catch (JsonReaderException)
+			{
+				error = "The server accepted your password, but we couldn't understand the rest of its response.";
+			}
+		}
+
+		private WebResponse LogIn()
+		{
+			var request = WebRequest.Create($"https://admin.languageforge.org/api/user/{Username}/projects");
+			request.Method = "POST";
+			var passwordBytes = Encoding.UTF8.GetBytes($"password={Password}");
+			request.ContentType = "application/x-www-form-urlencoded";
+			request.ContentLength = passwordBytes.Length;
+			var passwordStream = request.GetRequestStream();
+			passwordStream.Write(passwordBytes, 0, passwordBytes.Length);
+			passwordStream.Close();
+			return request.GetResponse();
+		}
+
+		internal void PopulateAvailableProjects(string projectsJSON)
+		{
+			var projects = JsonConvert.DeserializeObject<List<Project>>(projectsJSON) ?? new List<Project>();
+			AvailableProjects = projects.Select(p => p.Identifier).ToArray();
 		}
 
 		public string AliasName
