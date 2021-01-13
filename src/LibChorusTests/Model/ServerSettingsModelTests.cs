@@ -165,7 +165,7 @@ namespace LibChorus.Tests.Model
 			// SUT
 			m.PopulateAvailableProjects(json);
 
-			Assert.AreEqual(3, m.AvailableProjects.Length, "number of available projects");
+			Assert.AreEqual(3, m.AvailableProjects.Count, "number of available projects");
 			CollectionAssert.Contains(m.AvailableProjects, id1);
 			CollectionAssert.Contains(m.AvailableProjects, id2);
 			CollectionAssert.Contains(m.AvailableProjects, id3);
@@ -184,7 +184,7 @@ namespace LibChorus.Tests.Model
 			// SUT
 			m.PopulateAvailableProjects(json);
 
-			Assert.AreEqual(1, m.AvailableProjects.Length, "number of available projects");
+			Assert.AreEqual(1, m.AvailableProjects.Count, "number of available projects");
 			CollectionAssert.Contains(m.AvailableProjects, id);
 		}
 

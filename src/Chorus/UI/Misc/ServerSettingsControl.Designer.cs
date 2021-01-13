@@ -247,6 +247,8 @@ namespace Chorus.UI.Misc
 			// _projectId
 			// 
 			this._projectId.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+			this._projectId.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+			this._projectId.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
 			this._projectId.FormattingEnabled = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._projectId, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._projectId, null);

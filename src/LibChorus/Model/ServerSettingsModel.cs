@@ -120,10 +120,9 @@ namespace Chorus.Model
 			}
 		}
 
-		// TODO: "{0}.LanguageForge.org/" +
 		protected internal string Host => IsCustomUrl
 			? UrlHelper.GetHost(CustomUrl)
-			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : "hg-public")}.languagedepot.org";
+			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : "hg-public")}.languageforge.org";
 
 
 		public bool HaveGoodUrl => true; // TODO
@@ -152,7 +151,7 @@ namespace Chorus.Model
 		public string CustomUrl { get; set; }
 		public BandwidthItem Bandwidth { get; set; } = Bandwidths[0];
 		public string ProjectId { get; set; }
-		public string[] AvailableProjects { get; private set; } = new string[0];
+		public List<string> AvailableProjects { get; private set; } = new List<string>();
 
 		/// <summary>
 		/// True if the user has logged in since this ServerSettingsModel was created, or has already connected this project to an internet server.
@@ -213,7 +212,7 @@ namespace Chorus.Model
 			}
 			catch (JsonReaderException)
 			{
-				error = "The server accepted your password, but we couldn't understand the rest of its response.";
+				error = "Your username and password are correct, but there was an error listing your projects. You can still try to download your project.";
 			}
 		}
 
@@ -233,7 +232,8 @@ namespace Chorus.Model
 		internal void PopulateAvailableProjects(string projectsJSON)
 		{
 			var projects = JsonConvert.DeserializeObject<List<Project>>(projectsJSON) ?? new List<Project>();
-			AvailableProjects = projects.Select(p => p.Identifier).ToArray();
+			AvailableProjects = projects.Select(p => p.Identifier).ToList();
+			AvailableProjects.Sort();
 		}
 
 		public string AliasName

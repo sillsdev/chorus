@@ -61,7 +61,7 @@ namespace Chorus.UI.Misc
 		{
 			var currentVal = Model.ProjectId;
 			_projectId.Items.Clear();
-			_projectId.Items.AddRange(Model.AvailableProjects);
+			_projectId.Items.AddRange(Model.AvailableProjects.ToArray());
 			if (!string.IsNullOrEmpty(currentVal) && Model.AvailableProjects.Contains(currentVal, StringComparison.Ordinal))
 			{
 				_projectId.SelectedItem = currentVal;
