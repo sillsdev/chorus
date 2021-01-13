@@ -4,7 +4,6 @@ using System.Windows.Forms;
 using Chorus.Model;
 using SIL.Extensions;
 
-
 namespace Chorus.UI.Misc
 {
 	///<summary>
@@ -16,8 +15,6 @@ namespace Chorus.UI.Misc
 	{
 		public event EventHandler DisplayUpdated;
 
-		private ServerSettingsModel _model;
-
 		public ServerSettingsControl()
 		{
 			InitializeComponent();
@@ -25,17 +22,7 @@ namespace Chorus.UI.Misc
 			_bandwidth.Items.AddRange(ServerSettingsModel.Bandwidths);
 		}
 
-		public ServerSettingsModel Model
-		{
-			get { return _model; }
-			set
-			{
-				_model = value;
-				if (value == null)
-					return;
-				// TODO (Hasso): load new projects list
-			}
-		}
+		public ServerSettingsModel Model { get; set; }
 
 		private void UpdateDisplay()
 		{
@@ -91,7 +78,7 @@ namespace Chorus.UI.Misc
 		/// <summary>
 		/// Record whether the incoming character was from the space bar key.
 		/// </summary>
-		private void _textbox_KeyDown(object sender, KeyEventArgs e)
+		private void _textBox_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (e.KeyCode == Keys.Space)
 				_spaceForTextBox = true;
@@ -100,14 +87,14 @@ namespace Chorus.UI.Misc
 		/// <summary>
 		/// If the incoming character is a space, ignore it.
 		/// </summary>
-		private void _textbox_KeyPress(object sender, KeyPressEventArgs e)
+		private void _textBox_KeyPress(object sender, KeyPressEventArgs e)
 		{
 			if (_spaceForTextBox)
 			{
 				e.Handled = true;
 				_spaceForTextBox = false;
 			}
-			else if (Char.IsWhiteSpace(e.KeyChar))
+			else if (char.IsWhiteSpace(e.KeyChar))
 			{
 				e.Handled = true;
 			}
@@ -145,12 +132,12 @@ namespace Chorus.UI.Misc
 			if (string.IsNullOrEmpty(error))
 			{
 				UpdateProjectIds();
-				UpdateDisplay();
 			}
 			else
 			{
 				MessageBox.Show(error, "Error logging in", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 			}
+			UpdateDisplay();
 		}
 	}
 }
