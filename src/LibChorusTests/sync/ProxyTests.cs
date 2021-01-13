@@ -17,7 +17,7 @@ namespace LibChorus.Tests.sync
 	{
 		private const string Username = "chorus";
 		private const string Password = "notasecret";
-		private const string CloneableTestProjectUrl = "https://hg-public.languagedepot.org/testing-clone";
+		private const string CloneableTestProjectUrl = "https://hg-public.languageforge.org/testing-clone";
 		private readonly ConsoleProgress _progress = new ConsoleProgress{ShowVerbose = true};
 
 

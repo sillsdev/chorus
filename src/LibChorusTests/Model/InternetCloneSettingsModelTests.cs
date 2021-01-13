@@ -14,10 +14,10 @@ namespace LibChorus.Tests.Model
 			using (var testFolder = new TemporaryFolder("clonetest"))
 			{
 				var model = new InternetCloneSettingsModel(testFolder.Path);
-				model.InitFromUri("http://john:myPassword@hg-languagedepot.org/tpi?localFolder=tokPisin");
+				model.InitFromUri("https://john:myPassword@hg-languageforge.org/tpi?localFolder=tokPisin");
 				Assert.AreEqual("tokPisin", model.LocalFolderName);
 				Assert.IsTrue(model.ReadyToDownload);
-				Assert.AreEqual("http://john:myPassword@hg-languagedepot.org/tpi",model.URL);
+				Assert.AreEqual("https://john:myPassword@hg-languageforge.org/tpi",model.URL);
 			}
 		}
 
@@ -30,7 +30,7 @@ namespace LibChorus.Tests.Model
 				model.Username = "account";
 				model.Password = "password";
 				model.ProjectId = "id";
-				Assert.AreEqual("https://account:password@resumable.languagedepot.org/id", model.URL.ToLower());
+				Assert.AreEqual("https://account:password@resumable.languageforge.org/id", model.URL.ToLower());
 			}
 		}
 

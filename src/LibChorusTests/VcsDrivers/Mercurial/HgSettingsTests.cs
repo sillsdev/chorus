@@ -49,12 +49,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				File.WriteAllText(testRoot.Combine(Path.Combine(".hg","hgrc")), @"
 [paths]
 one = c:\intentionally bogus
-two = http://foo.com");
+two = https://foo.com");
 				var repo = new HgRepository(testRoot.Path, _progress);
 				var sources = repo.GetRepositoryPathsInHgrc();
 				Assert.AreEqual(2, sources.Count());
 				Assert.AreEqual(@"c:\intentionally bogus" ,sources.First().URI);
-				Assert.AreEqual(@"http://foo.com", sources.Last().URI);
+				Assert.AreEqual(@"https://foo.com", sources.Last().URI);
 				Assert.AreEqual(@"one" ,sources.First().Name);
 				Assert.AreEqual(@"two", sources.Last().Name);
 			}
@@ -113,7 +113,7 @@ two = http://foo.com");
 		{
 			using (new MercurialIniForTests())
 			{
-				Assert.IsFalse(GetIsReady(@"LanguageDepot = http://hg-public.languagedepot.org/xyz"));
+				Assert.IsFalse(GetIsReady(@"LanguageDepot = https://hg-public.languageforge.org/xyz"));
 			}
 		}
 
@@ -122,7 +122,7 @@ two = http://foo.com");
 		{
 			using (new MercurialIniForTests())
 			{
-				Assert.IsTrue(GetIsReady(@"LanguageDepot = http://joe_user:xyz@hg-public.languagedepot.org/xyz"));
+				Assert.IsTrue(GetIsReady(@"LanguageDepot = https://joe_user:xyz@hg-public.languageforge.org/xyz"));
 			}
 		}
 
@@ -217,7 +217,7 @@ username = Joe Schmoe
 				setup.EnsureNoHgrcExists();
 				var repository = setup.CreateSynchronizer().Repository;
 				var x = RepositoryAddress.Create("one", @"c:\one");
-				var y = RepositoryAddress.Create("two", @"http://two.org");
+				var y = RepositoryAddress.Create("two", @"https://two.org");
 				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[]{x,y}));
 				Assert.AreEqual(2, repository.GetRepositoryPathsInHgrc().Count());
 				Assert.AreEqual(x.Name, repository.GetRepositoryPathsInHgrc().First().Name);
@@ -225,7 +225,7 @@ username = Joe Schmoe
 				Assert.AreEqual(y.Name, repository.GetRepositoryPathsInHgrc().ToArray()[1].Name);
 				Assert.AreEqual(y.URI, repository.GetRepositoryPathsInHgrc().ToArray()[1].URI);
 
-				var z = RepositoryAddress.Create("three", @"http://three.org");
+				var z = RepositoryAddress.Create("three", @"https://three.org");
 				//this time, the hgrc does exist
 				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[]{z}));
 				Assert.AreEqual(1, repository.GetRepositoryPathsInHgrc().Count());
@@ -257,7 +257,7 @@ username = Joe Schmoe
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.CreateSynchronizer().Repository;
-				var x = RepositoryAddress.Create("theInterent", @"http://two.org");
+				var x = RepositoryAddress.Create("theInterent", @"https://two.org");
 				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[] { x }));
 
 				var y2 = RepositoryAddress.Create("aPath2", @"\\someoneElse2\someOtherFolder");
@@ -276,7 +276,7 @@ username = Joe Schmoe
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.CreateSynchronizer().Repository;
-				var x = RepositoryAddress.Create("theInterent", @"http://two.org");
+				var x = RepositoryAddress.Create("theInterent", @"https://two.org");
 				var y1 = RepositoryAddress.Create("aPath1", @"\\someone1\someFolder");
 				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[] { x, y1 }));
 				Assert.AreEqual(y1.URI, repository.GetRepositoryPathsInHgrc().ToArray()[1].URI, "Test setup is wrong");
@@ -297,12 +297,12 @@ username = Joe Schmoe
 			{
 				setup.EnsureNoHgrcExists();
 				var repository = setup.CreateSynchronizer().Repository;
-				var x1 = RepositoryAddress.Create("interent1", @"http://one.org");
+				var x1 = RepositoryAddress.Create("interent1", @"https://one.org");
 				var y = RepositoryAddress.Create("aPath", @"\\someone1\someFolder");
 				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[] { x1, y }));
 				Assert.AreEqual(x1.URI, repository.GetRepositoryPathsInHgrc().ToArray()[0].URI, "Test setup is wrong");
 
-				var x2 = RepositoryAddress.Create("internet2", @"http://two.org");
+				var x2 = RepositoryAddress.Create("internet2", @"https://two.org");
 				repository.SetTheOnlyAddressOfThisType(x2);
 				Assert.AreEqual(2, repository.GetRepositoryPathsInHgrc().Count());
 				AssertHgrcNowContainsUri(repository, y.URI);
@@ -324,8 +324,8 @@ username = Joe Schmoe
 				setup.EnsureNoHgrcExists();
 				var repository = setup.CreateSynchronizer().Repository;
 				var x =  RepositoryAddress.Create("one", @"c:\one");
-				var y = RepositoryAddress.Create("two", @"http://two.org");
-				var z = RepositoryAddress.Create("three", @"http://three.org");
+				var y = RepositoryAddress.Create("two", @"https://two.org");
+				var z = RepositoryAddress.Create("three", @"https://three.org");
 				repository.SetKnownRepositoryAddresses(new List<RepositoryAddress>(new RepositoryAddress[] { x, y,z }));
 
 				repository.SetDefaultSyncRepositoryAliases(new string[] {"one", "three"});
