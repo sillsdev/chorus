@@ -125,25 +125,18 @@ namespace Chorus.Model
 			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : "hg-public")}.languageforge.org";
 
 
-		public bool HaveGoodUrl => true; // TODO
-		//{
-		//	get
-		//	{
-		//		if (IsCustomUrl)
-		//			return true;
+		public bool HaveGoodUrl
+		{
+			get
+			{
+				if (IsCustomUrl)
+					return true;
 
-		//		try
-		//		{
-		//			return !string.IsNullOrEmpty(ProjectId) &&
-		//				   !string.IsNullOrEmpty(Username) &&
-		//				   !string.IsNullOrEmpty(Password);
-		//		}
-		//		catch (Exception)
-		//		{
-		//			return false;
-		//		}
-		//	}
-		//}
+				return !string.IsNullOrEmpty(ProjectId) &&
+					   !string.IsNullOrEmpty(Username) &&
+					   !string.IsNullOrEmpty(Password);
+			}
+		}
 
 		public string Password { get; set; }
 		public string Username { get; set; }
