@@ -166,16 +166,15 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Ignore("not working yet")]
-		// TODO (Hasso) 2021.01: reimplement SUT per https://www.newtonsoft.com/json/help/html/SerializingJSONFragments.htm
 		public void PopulateAvailableProjects_ToleratesExtraProperties()
 		{
 			const string id = "nko";
-			const string json = @"[{
-				 ""identifier"":""" + id + @"""
+			const string json = @"[
+			{
+				 ""identifier"":""" + id + @""",
 				 ""name"":""Nkonya 2011"",
 				 ""repository"":""http:\/\/public.languageforge.org"",
-				 ""role"":""unknown""
+				 ""role"":""unknown"",
 				 ""owner"":""nko-admin""
 			}]";
 
