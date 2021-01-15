@@ -121,11 +121,10 @@ namespace Chorus.VcsDrivers
 		/// </summary>
 		public bool Enabled { get; set; }
 
-		public abstract string Password { get; }
-
+		[Obsolete] public string UserName => Username;
 		public abstract string Username { get; }
 
-		[Obsolete] public string UserName => Username;
+		public abstract string Password { get; }
 
 		public abstract bool CanConnect(HgRepository localRepository, string projectName, IProgress progress);
 
@@ -154,7 +153,7 @@ namespace Chorus.VcsDrivers
 	//[Obsolete]
 	public class HttpRepositoryPath : RepositoryAddress
 	{
-		public HttpRepositoryPath(string a, string b, bool c) : this(a, b, c, "user", "ao") { }
+		public HttpRepositoryPath(string name, string url, bool isReadOnly) : this(name, url, isReadOnly, null, null) { }
 		public HttpRepositoryPath(string name, string url, bool isReadOnly, string username, string password, bool resumable = true)
 			: base(name, url, isReadOnly)
 		{
@@ -169,7 +168,7 @@ namespace Chorus.VcsDrivers
 		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
 			var uri = URI.Replace(ProjectNameVariable, projectName);
-			if (string.IsNullOrEmpty(UrlHelper.GetUserName(uri)))
+			if (string.IsNullOrEmpty(UrlHelper.GetUserName(uri)) && !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password))
 			{
 				uri = uri.Replace("://", $"://{HttpUtilityFromMono.UrlEncode(Username)}:{HttpUtilityFromMono.UrlEncode(Password)}@");
 			}
@@ -177,8 +176,8 @@ namespace Chorus.VcsDrivers
 			return uri;
 		}
 
-		public override string Password { get; }
 		public override string Username { get; }
+		public override string Password { get; }
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
@@ -192,16 +191,6 @@ namespace Chorus.VcsDrivers
 			return new List<string>(new [] { GetPotentialRepoUri(repoIdentifier, projectName, progress) });
 		}
 	} // end class HttpRepositoryPath
-
-//#pragma warning disable 612
-//	public class HttpsRepositoryPath : HttpRepositoryPath
-//#pragma warning restore 612
-//	{
-//		public HttpsRepositoryPath(string name, string uri, bool isReadOnly)
-//			: base(name, uri, isReadOnly)
-//		{
-//		}
-//	}
 
 	public class ChorusHubRepositorySource : RepositoryAddress
 	{
@@ -311,8 +300,8 @@ namespace Chorus.VcsDrivers
 			return URI.Replace(ProjectNameVariable, matchName);
 		}
 
-		public override string Password => null;
 		public override string Username => null;
+		public override string Password => null;
 
 		/// <summary>
 		/// Find out if ChorusHub can connect or not.
@@ -359,8 +348,8 @@ namespace Chorus.VcsDrivers
 			return URI.Replace(ProjectNameVariable, projectName).TrimEnd(Path.DirectorySeparatorChar);
 		}
 
-		public override string Password => null;
 		public override string Username => null;
+		public override string Password => null;
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{

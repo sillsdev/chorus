@@ -2167,13 +2167,13 @@ namespace Chorus.VcsDrivers.Mercurial
 				return false;
 			}
 
-			if (string.IsNullOrEmpty(address.UserName))
+			if (string.IsNullOrEmpty(Properties.Settings.Default.LanguageForgeUser))
 			{
 				message = LocalizationManager.GetString("GetInternetStatus.AccountNameIsMissing", "The account name is missing.");
 				return false;
 			}
 
-			if (string.IsNullOrEmpty(address.Password))
+			if (string.IsNullOrEmpty(Properties.Settings.Default.LanguageForgePass))
 			{
 				message = string.Format(
 					LocalizationManager.GetString("GetInternetStatus.PasswordIsMissing", "The password for {0} is missing."), uri.Host);
@@ -2182,7 +2182,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			message = string.Format(
 				LocalizationManager.GetString("GetInternetStatus.ReadyToSR", "Ready to send/receive to {0} with project '{1}' and user '{2}'"),
-				uri.Host, uri.PathAndQuery.Trim(new char[]{'/'}), address.UserName);
+				uri.Host, uri.PathAndQuery.Trim('/'), address.Username);
 
 			return true;
 		}

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using NUnit.Framework;
 using SIL.Progress;
@@ -255,7 +256,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		public void SaveSettings_PreexistsButWeChangePasswordAndSave_ChangesPassword()
+		public void SaveSettings_PreexistsAndWeSave_RemovesPassword()
 		{
 			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
@@ -268,14 +269,14 @@ namespace LibChorus.Tests.Model
 
 				var m = new ServerSettingsModel();
 				m.InitFromProjectPath(folder.Path);
-				m.Password = "newPassword";
 				m.SaveSettings();
 				Assert.IsTrue(Directory.Exists(folder.Combine(".hg")));
 				Assert.IsTrue(File.Exists(folder.Combine(".hg", "hgrc")));
 				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 				Assert.AreEqual("https://hg-public.languageforge.org/tpi", address.URI);
-				Assert.AreEqual("newPassword", address.Password);
+				Assert.AreEqual("https://hg-public.languageforge.org/tpi", address.GetPotentialRepoUri(null, null, null));
+				Assert.AreEqual(null, address.Password);
 			}
 		}
 

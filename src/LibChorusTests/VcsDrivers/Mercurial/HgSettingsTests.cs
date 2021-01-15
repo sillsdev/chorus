@@ -109,10 +109,23 @@ two = https://foo.com");
 		}
 
 		[Test]
-		public void GetIsReadyForInternetSendReceive_MissingUserName_ReturnsFalse()
+		public void GetIsReadyForInternetSendReceive_MissingUsername_ReturnsFalse()
 		{
 			using (new MercurialIniForTests())
 			{
+				Chorus.Properties.Settings.Default.LanguageForgeUser = string.Empty;
+				Chorus.Properties.Settings.Default.LanguageForgePass = "password";
+				Assert.IsFalse(GetIsReady(@"LanguageDepot = https://hg-public.languageforge.org/xyz"));
+			}
+		}
+
+		[Test]
+		public void GetIsReadyForInternetSendReceive_MissingPassword_ReturnsFalse()
+		{
+			using (new MercurialIniForTests())
+			{
+				Chorus.Properties.Settings.Default.LanguageForgeUser = "username";
+				Chorus.Properties.Settings.Default.LanguageForgePass = string.Empty;
 				Assert.IsFalse(GetIsReady(@"LanguageDepot = https://hg-public.languageforge.org/xyz"));
 			}
 		}
@@ -122,7 +135,9 @@ two = https://foo.com");
 		{
 			using (new MercurialIniForTests())
 			{
-				Assert.IsTrue(GetIsReady(@"LanguageDepot = https://joe_user:xyz@hg-public.languageforge.org/xyz"));
+				Chorus.Properties.Settings.Default.LanguageForgeUser = "username";
+				Chorus.Properties.Settings.Default.LanguageForgePass = "password";
+				Assert.IsTrue(GetIsReady(@"LanguageDepot = https://hg-public.languageforge.org/xyz"));
 			}
 		}
 
