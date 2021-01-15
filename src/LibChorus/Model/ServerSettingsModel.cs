@@ -241,7 +241,7 @@ namespace Chorus.Model
 					return "custom";
 				}
 
-				return Host;
+				return $"languageForge.org [{Bandwidth.Value} Bandwidth]";
 			}
 		}
 

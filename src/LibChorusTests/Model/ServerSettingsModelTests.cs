@@ -256,26 +256,33 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		public void SaveSettings_PreexistsAndWeSave_RemovesPassword()
+		public void SaveSettings_PreexistsAndWeSave_MovesCredentials()
 		{
 			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
+				const string user = "joe";
+				const string pass = "pass";
+				const string host = "hg-public.languageforge.org/tpi";
+				const string url = "https://" + user + ":" + pass + "@" + host;
 				// Precondition is some url that is not our default from the ServerSettingsModel
 				var original = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				original.SetKnownRepositoryAddresses(new[]
 				{
-					new HttpRepositoryPath("languageForge.org [legacy sync]", "https://joe:oldPassword@hg-public.languageforge.org/tpi", false, null, null)
+					new HttpRepositoryPath("languageForge.org [legacy sync]", url, false, null, null)
 				});
 
 				var m = new ServerSettingsModel();
 				m.InitFromProjectPath(folder.Path);
 				m.SaveSettings();
+				Assert.AreEqual(user, Chorus.Properties.Settings.Default.LanguageForgeUser);
+				Assert.AreEqual(pass, ServerSettingsModel.DecryptPassword(Chorus.Properties.Settings.Default.LanguageForgePass));
 				Assert.IsTrue(Directory.Exists(folder.Combine(".hg")));
 				Assert.IsTrue(File.Exists(folder.Combine(".hg", "hgrc")));
 				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 				Assert.AreEqual("https://hg-public.languageforge.org/tpi", address.URI);
 				Assert.AreEqual("https://hg-public.languageforge.org/tpi", address.GetPotentialRepoUri(null, null, null));
+				Assert.AreEqual(null, address.Username);
 				Assert.AreEqual(null, address.Password);
 			}
 		}
