@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using Chorus.Model;
+using L10NSharp;
 using SIL.Extensions;
 
 namespace Chorus.UI.Misc
@@ -123,6 +124,7 @@ namespace Chorus.UI.Misc
 		private void _bandwidth_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			Model.Bandwidth = (ServerSettingsModel.BandwidthItem)_bandwidth.SelectedItem;
+			UpdateDisplay();
 		}
 
 		private void _buttonLogIn_Click(object sender, EventArgs e)
@@ -135,7 +137,8 @@ namespace Chorus.UI.Misc
 			}
 			else
 			{
-				MessageBox.Show(error, "Error logging in", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+				var caption = LocalizationManager.GetString("ServerSettings.ErrorLoggingIn", "Error logging in");
+				MessageBox.Show(error, caption, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 			}
 			UpdateDisplay();
 		}

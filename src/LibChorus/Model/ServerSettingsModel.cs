@@ -7,6 +7,7 @@ using System.Text;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using L10NSharp;
 using Newtonsoft.Json;
 using SIL.Code;
 using SIL.Network;
@@ -162,7 +163,7 @@ namespace Chorus.Model
 		{
 			if(string.IsNullOrEmpty(_pathToRepo))
 			{
-				throw new ArgumentException("SaveSettings() only works if you InitFromProjectPath()");
+				throw new ArgumentException("SaveSettings() works only if you InitFromProjectPath()");
 			}
 
 			var repo = HgRepository.CreateOrUseExisting(_pathToRepo, new NullProgress());
@@ -175,7 +176,7 @@ namespace Chorus.Model
 
 		protected RepositoryAddress CreateRepositoryAddress(string name)
 		{
-			return new HttpRepositoryPath(name, URL, false, Username, Password, Bandwidth.Value == BandwidthEnum.Low);
+			return new HttpRepositoryPath(name, URL, false, Bandwidth.Value == BandwidthEnum.Low);
 		}
 
 		private void SaveUserSettings()
@@ -195,7 +196,7 @@ namespace Chorus.Model
 				error = null;
 				SaveUserSettings();
 
-				// Do this last so, if the JSON is bad, the credentials are still saved
+				// Do this last so the credentials are saved even if JSON parsing crashes
 				PopulateAvailableProjects(content);
 			}
 			catch (WebException e)
@@ -205,7 +206,8 @@ namespace Chorus.Model
 			}
 			catch (JsonReaderException)
 			{
-				error = "Your username and password are correct, but there was an error listing your projects. You can still try to download your project.";
+				error = LocalizationManager.GetString("ServerSettings.ErrorListingProjects",
+					"Your username and password are correct, but there was an error listing your projects. You can still try to download your project.");
 			}
 		}
 
@@ -241,7 +243,7 @@ namespace Chorus.Model
 					return "custom";
 				}
 
-				return $"languageForge.org [{Bandwidth.Value} Bandwidth]";
+				return $"languageForge.org [{Bandwidth}]";
 			}
 		}
 

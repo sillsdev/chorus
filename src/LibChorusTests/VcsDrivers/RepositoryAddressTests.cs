@@ -162,10 +162,7 @@ namespace LibChorus.Tests.VcsDrivers
 		[Test]
 		public void GetPotentialRepoUri_LeavesExistingUserInfo()
 		{
-			var source = new HttpRepositoryPath("test", UrlWithCredentials, true, "something", "else");
-			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", null, null));
-
-			source = new HttpRepositoryPath("test", UrlWithCredentials, false);
+			var source = new HttpRepositoryPath("test", UrlWithCredentials, false);
 			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", null, null));
 		}
 	}

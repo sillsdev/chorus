@@ -2182,7 +2182,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			message = string.Format(
 				LocalizationManager.GetString("GetInternetStatus.ReadyToSR", "Ready to send/receive to {0} with project '{1}' and user '{2}'"),
-				uri.Host, uri.PathAndQuery.Trim('/'), address.Username);
+				uri.Host, uri.PathAndQuery.Trim('/'), Properties.Settings.Default.LanguageForgeUser);
 
 			return true;
 		}

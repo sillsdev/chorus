@@ -8,7 +8,6 @@ using Chorus.Utilities;
 using SIL.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
 using SIL.IO;
-using SIL.Network;
 using SIL.Progress;
 using SIL.Reporting;
 
@@ -109,7 +108,7 @@ namespace Chorus.VcsDrivers
 		}
 
 		/// <summary>
-		/// This will be false for, say, usb-keys or shared internet repos
+		/// This will be false for, say, USB keys or shared internet repos
 		/// but true for other people on LANs (maybe?)
 		/// </summary>
 		public bool IsReadOnly { get; set; }
@@ -121,10 +120,9 @@ namespace Chorus.VcsDrivers
 		/// </summary>
 		public bool Enabled { get; set; }
 
-		[Obsolete] public string UserName => Username;
-		public abstract string Username { get; }
-
-		public abstract string Password { get; }
+		// TODO (Hasso) 2021.01: remove Username and Password
+		[Obsolete] public string UserName => null;
+		[Obsolete] public string Password => null;
 
 		public abstract bool CanConnect(HgRepository localRepository, string projectName, IProgress progress);
 
@@ -153,12 +151,9 @@ namespace Chorus.VcsDrivers
 	//[Obsolete]
 	public class HttpRepositoryPath : RepositoryAddress
 	{
-		public HttpRepositoryPath(string name, string url, bool isReadOnly) : this(name, url, isReadOnly, null, null) { }
-		public HttpRepositoryPath(string name, string url, bool isReadOnly, string username, string password, bool resumable = true)
+		public HttpRepositoryPath(string name, string url, bool isReadOnly, bool resumable = true)
 			: base(name, url, isReadOnly)
 		{
-			Username = username;
-			Password = password;
 			IsResumable = resumable;
 		}
 
@@ -169,9 +164,6 @@ namespace Chorus.VcsDrivers
 		{
 			return URI.Replace(ProjectNameVariable, projectName);
 		}
-
-		public override string Username { get; }
-		public override string Password { get; }
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
@@ -294,9 +286,6 @@ namespace Chorus.VcsDrivers
 			return URI.Replace(ProjectNameVariable, matchName);
 		}
 
-		public override string Username => null;
-		public override string Password => null;
-
 		/// <summary>
 		/// Find out if ChorusHub can connect or not.
 		/// </summary>
@@ -342,9 +331,6 @@ namespace Chorus.VcsDrivers
 			return URI.Replace(ProjectNameVariable, projectName).TrimEnd(Path.DirectorySeparatorChar);
 		}
 
-		public override string Username => null;
-		public override string Password => null;
-
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{
 			var path = GetPotentialRepoUri(localRepository.Identifier, projectName, progress);
@@ -366,14 +352,11 @@ namespace Chorus.VcsDrivers
 			return result;
 		}
 
-		public bool LooksLikeLocalDirectory
-		{
-			get { return !(this.URI.StartsWith(_networkMachineSpecifier)); }
-		}
+		public bool LooksLikeLocalDirectory => !URI.StartsWith(_networkMachineSpecifier);
 
 		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
 		{
-			return new List<string>(new string[]{GetPotentialRepoUri(repoIdentifier, projectName, progress)});
+			return new List<string>(new[]{GetPotentialRepoUri(repoIdentifier, projectName, progress)});
 		}
 	}
 
@@ -518,10 +501,6 @@ namespace Chorus.VcsDrivers
 			}
 			return urisToTryCreationAt;
 		}
-
-		public override string Password => null;
-
-		public override string Username => null;
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
 		{

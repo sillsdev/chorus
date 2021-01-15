@@ -31,8 +31,6 @@ namespace LibChorus.Tests.Model
 				model.Password = "password";
 				model.ProjectId = "id";
 				Assert.AreEqual("https://resumable.languageforge.org/id", model.URL.ToLower());
-				Assert.AreEqual("account", model.Username);
-				Assert.AreEqual("password", model.Password);
 			}
 		}
 
