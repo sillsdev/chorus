@@ -163,17 +163,11 @@ namespace Chorus.VcsDrivers
 		}
 
 		/// <summary>
-		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
+		/// Gets what the uri of the named repository would be on this source (gets the full path).
 		/// </summary>
 		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
-			var uri = URI.Replace(ProjectNameVariable, projectName);
-			if (string.IsNullOrEmpty(UrlHelper.GetUserName(uri)) && !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password))
-			{
-				uri = uri.Replace("://", $"://{HttpUtilityFromMono.UrlEncode(Username)}:{HttpUtilityFromMono.UrlEncode(Password)}@");
-			}
-
-			return uri;
+			return URI.Replace(ProjectNameVariable, projectName);
 		}
 
 		public override string Username { get; }

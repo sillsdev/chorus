@@ -139,8 +139,6 @@ namespace LibChorus.Tests.VcsDrivers
 	[TestFixture]
 	class HttpRepositoryPathTests
 	{
-		private const string Username = "usern@me";
-		private const string Password = "pa5$word";
 		private const string DomainPlus = "resumable.languageforge.org/project/";
 		private const string ProjectName = "tpi-flex";
 		private const string UrlTemplate = "https://" + DomainPlus + RepositoryAddress.ProjectNameVariable;
@@ -150,21 +148,24 @@ namespace LibChorus.Tests.VcsDrivers
 		[Test]
 		public void GetPotentialRepoUri_ReplacesProjectNameVariable()
 		{
-			var source = new HttpRepositoryPath("test", UrlTemplate, true, Username, Password);
-			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", ProjectName, null));
+			var source = new HttpRepositoryPath("test", UrlTemplate, true);
+			Assert.AreEqual(UrlSansCredentials, source.GetPotentialRepoUri("testing", ProjectName, null));
 		}
 
 		[Test]
 		public void GetPotentialRepoUri_ToleratesNullProjectName()
 		{
-			var source = new HttpRepositoryPath("test", UrlSansCredentials, true, Username, Password);
-			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", null, null));
+			var source = new HttpRepositoryPath("test", UrlSansCredentials, true);
+			Assert.AreEqual(UrlSansCredentials, source.GetPotentialRepoUri("testing", null, null));
 		}
 
 		[Test]
 		public void GetPotentialRepoUri_LeavesExistingUserInfo()
 		{
 			var source = new HttpRepositoryPath("test", UrlWithCredentials, true, "something", "else");
+			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", null, null));
+
+			source = new HttpRepositoryPath("test", UrlWithCredentials, false);
 			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", null, null));
 		}
 	}
