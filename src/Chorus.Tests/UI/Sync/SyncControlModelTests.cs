@@ -111,7 +111,7 @@ namespace Chorus.Tests.UI.Sync
 		[Test]
 		[Category("SkipBehindProxy")]
 		[Category("SkipOnTeamCity")]
-		public void Sync_NonExistentLangDepotProject_ExitsGracefullyWithCorrectErrorResult()
+		public void Sync_NonExistentLangForgeProject_ExitsGracefullyWithCorrectErrorResult()
 		{
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
 			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "https://hg-public.languageforge.org/dummy"));

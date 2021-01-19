@@ -17,7 +17,9 @@ namespace LibChorus.Tests.Model
 				model.InitFromUri("https://john:myPassword@hg-languageforge.org/tpi?localFolder=tokPisin");
 				Assert.AreEqual("tokPisin", model.LocalFolderName);
 				Assert.IsTrue(model.ReadyToDownload);
-				Assert.AreEqual("https://john:myPassword@hg-languageforge.org/tpi",model.URL);
+				Assert.AreEqual("https://hg-languageforge.org/tpi", model.URL);
+				Assert.AreEqual("john", model.Username);
+				Assert.AreEqual("myPassword", model.Password);
 			}
 		}
 

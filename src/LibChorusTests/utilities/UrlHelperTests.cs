@@ -33,6 +33,20 @@ namespace LibChorus.Tests.utilities
 			Assert.AreEqual("lift://somefile.lift", x);
 		}
 
+		[Test]
+		public void StripCredentialsAndQuery_WorksForLift()
+		{
+			var x = UrlHelper.StripCredentialsAndQuery("lift://somefile.lift?label=it's");
+			Assert.AreEqual("lift://somefile.lift", x);
+		}
+
+		[Test]
+		public void StripCredentialsAndQuery_WorksForLanguageForge()
+		{
+			var x = UrlHelper.StripCredentialsAndQuery("https://uname:pass@hg-public.languageforge.org/tpi?localFolder=foo");
+			Assert.AreEqual("https://hg-public.languageforge.org/tpi", x);
+		}
+
 
 		[Test]
 		public void GetUserName_HasUserAndPassword_ReturnsUserName()

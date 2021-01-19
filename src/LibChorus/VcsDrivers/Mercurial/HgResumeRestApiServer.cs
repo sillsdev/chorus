@@ -27,28 +27,18 @@ namespace Chorus.VcsDrivers.Mercurial
 			return Execute(method, request, new byte[0], secondsBeforeTimeout);
 		}
 
-		public string UserName
-		{
-			get { return Uri.UnescapeDataString(_url.UserInfo.Split(':')[0]); }
-		}
-
-		public string Password
-		{
-			get { return Uri.UnescapeDataString(_url.UserInfo.Split(':')[1]); }
-		}
+		// TODO (Hasso) 2021.01: remove UserName and Password from this API
+		[Obsolete] public string UserName => Properties.Settings.Default.LanguageForgeUser;
+		[Obsolete] public string Password => Properties.Settings.Default.LanguageForgePass;
 
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters parameters, byte[] contentToSend, int secondsBeforeTimeout)
 		{
 			string queryString = parameters.BuildQueryString();
-			Url = String.Format("{0}://{1}/api/v{2}/{3}?{4}", _url.Scheme, _url.Host, ApiVersion, method, queryString);
+			Url = string.Format("{0}://{1}/api/v{2}/{3}?{4}", _url.Scheme, _url.Host, ApiVersion, method, queryString);
 			var req = (HttpWebRequest) WebRequest.Create(Url);
 			req.UserAgent = $"HgResume v{ApiVersion}";
 			req.PreAuthenticate = true;
-			if (!_url.UserInfo.Contains(":"))
-			{
-				throw new HgResumeException("Username or password were not supplied in custom location");
-			}
-			req.Credentials = new NetworkCredential(UserName, Password);
+			req.Credentials = new NetworkCredential(Properties.Settings.Default.LanguageForgeUser, Properties.Settings.Default.LanguageForgePass);
 			req.Timeout = secondsBeforeTimeout * 1000; // timeout is in milliseconds
 			if (contentToSend.Length == 0)
 			{

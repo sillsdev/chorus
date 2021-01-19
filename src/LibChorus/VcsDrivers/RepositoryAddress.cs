@@ -148,7 +148,6 @@ namespace Chorus.VcsDrivers
 		}
 	} // end class RepositoryAddress
 
-	//[Obsolete]
 	public class HttpRepositoryPath : RepositoryAddress
 	{
 		public HttpRepositoryPath(string name, string url, bool isReadOnly, bool resumable = true)
