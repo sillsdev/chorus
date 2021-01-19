@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -124,17 +124,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			Remote.Repository.AddAndCheckinFile(filePath);
 		}
 
-		public virtual void SyncRemoteFromLocal()
-		{
-			var address = new HttpRepositoryPath("localrepo", Local.Repository.PathToRepo, false);
-			Remote.Repository.Pull(address, Local.Repository.PathToRepo);
-			Remote.Repository.Update();
-		}
-
 		public void CloneRemoteFromLocal()
 		{
-			//Remote.Repository.Init();
-			var address = new HttpRepositoryPath("localrepo", Local.Repository.PathToRepo, false);
+			var address = new DirectoryRepositorySource("localrepo", Local.Repository.PathToRepo, false);
 			Remote.Repository.Pull(address, Local.Repository.PathToRepo);
 			Remote.Repository.Update();
 		}

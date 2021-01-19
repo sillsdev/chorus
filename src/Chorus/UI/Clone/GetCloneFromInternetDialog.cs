@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
@@ -81,8 +81,8 @@ namespace Chorus.UI.Clone
 				if (diff < _cancelButton.Left)
 					_fixSettingsButton.Left = _cancelButton.Left - diff;
 			}
-			 _targetFolderControl._downloadButton.Top = _okButton.Top-_targetFolderControl.Top	;
-			 _targetFolderControl._downloadButton.Left = _okButton.Left - 15;
+			_targetFolderControl._downloadButton.Top = _okButton.Top-_targetFolderControl.Top	;
+			_targetFolderControl._downloadButton.Left = _okButton.Left - 15;
 
 			_logBox.GetDiagnosticsMethod = (progress) =>
 											{

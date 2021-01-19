@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -17,9 +16,9 @@ namespace Chorus.VcsDrivers
 	public abstract class RepositoryAddress
 	{
 		/// <summary>
-		/// Can be a file path or an http address
+		/// Can be a file path or an https address
 		/// </summary>
-		public string URI { get; private set; }
+		public string URI { get; }
 
 		/// <summary>
 		/// This can be used in place of the project name, so that path can be specified which will work
@@ -54,16 +53,9 @@ namespace Chorus.VcsDrivers
 		/// In the case of a repo sitting on the user's machine, this will be a person's name.
 		/// It might also be the name of the web-based repo. It also gets the "alias" name, in the case of hg.
 		/// </summary>
-		public string Name{get; private set;}
+		public string Name{get; }
 
 		public enum HardWiredSources { UsbKey };
-
-		/// <summary>
-		/// THis will be false for, say, usb-keys or shared internet repos
-		/// but true for other people on LANs (maybe?)
-		/// </summary>
-		private bool _readOnly;
-
 
 		public static RepositoryAddress Create(string name,string uri)
 		{
@@ -75,7 +67,7 @@ namespace Chorus.VcsDrivers
 		/// </summary>
 		/// <param name="name">examples: SIL Language Depot, My Machine, USB Key, Greg</param>
 		/// <param name="uri">
-		/// examples: http://sil.org/chorus, c:\work, UsbKey, //GregSmith/public/language projects
+		/// examples: https://sil.org/chorus, c:\work, UsbKey, //GregSmith/public/language projects
 		/// Note: does not work for ChorusHub
 		/// </param>
 		/// <param name="readOnly">normally false for local repositories (usb, hard drive) and true for other people's repositories</param>
@@ -86,10 +78,8 @@ namespace Chorus.VcsDrivers
 			{
 				return new HttpRepositoryPath(name, uri, readOnly);
 			}
-			else
-			{
-				return new DirectoryRepositorySource(name, uri, readOnly);
-			}
+
+			return new DirectoryRepositorySource(name, uri, readOnly);
 
 		}
 
@@ -104,11 +94,11 @@ namespace Chorus.VcsDrivers
 			}
 		}
 
-		protected RepositoryAddress(string name, string uri, bool readOnly)
+		protected RepositoryAddress(string name, string uri, bool isReadOnly)
 		{
 			URI = uri;
 			Name = name;
-			ReadOnly = readOnly;
+			IsReadOnly = isReadOnly;
 			IsResumable = IsKnownResumableRepository(uri);
 		}
 
@@ -117,34 +107,22 @@ namespace Chorus.VcsDrivers
 			return uri.ToLower().Contains("hg-test.languageforge.org") || uri.ToLower().Contains("resumable");
 		}
 
-
-
 		/// <summary>
-		/// THis will be false for, say, usb-keys or shared internet repos
+		/// This will be false for, say, USB keys or shared internet repos
 		/// but true for other people on LANs (maybe?)
 		/// </summary>
-		public bool ReadOnly
-		{
-			get { return _readOnly; }
-			set { _readOnly = value; }
-		}
+		public bool IsReadOnly { get; set; }
 
-		public bool IsResumable { get; private set; }
+		public bool IsResumable { get; protected set; }
 
 		/// <summary>
 		/// Does the user want us to try to sync with this one?
 		/// </summary>
 		public bool Enabled { get; set; }
 
-		public string Password
-		{
-			get { return UrlHelper.GetPassword(URI); }
-		}
-
-		public string UserName
-		{
-			get { return UrlHelper.GetUserName(URI); }
-		}
+		// TODO (Hasso) 2021.01: remove Username and Password
+		[Obsolete] public string UserName => null;
+		[Obsolete] public string Password => null;
 
 		public abstract bool CanConnect(HgRepository localRepository, string projectName, IProgress progress);
 
@@ -170,15 +148,17 @@ namespace Chorus.VcsDrivers
 		}
 	} // end class RepositoryAddress
 
+	//[Obsolete]
 	public class HttpRepositoryPath : RepositoryAddress
 	{
-		public HttpRepositoryPath(string name, string uri, bool readOnly)
-			: base(name, uri, readOnly)
+		public HttpRepositoryPath(string name, string url, bool isReadOnly, bool resumable = true)
+			: base(name, url, isReadOnly)
 		{
+			IsResumable = resumable;
 		}
 
 		/// <summary>
-		/// Gets what the uri of the named repository would be, on this source. I.e., gets the full path.
+		/// Gets what the uri of the named repository would be on this source (gets the full path).
 		/// </summary>
 		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
@@ -194,16 +174,16 @@ namespace Chorus.VcsDrivers
 
 		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
 		{
-			return new List<string>(new string[] { GetPotentialRepoUri(repoIdentifier, projectName, progress) });
+			return new List<string>(new [] { GetPotentialRepoUri(repoIdentifier, projectName, progress) });
 		}
-	}
+	} // end class HttpRepositoryPath
 
 	public class ChorusHubRepositorySource : RepositoryAddress
 	{
 		private readonly List<RepositoryInformation> _sourceRepositoryInformation;
 
-		public ChorusHubRepositorySource(string name, string uri, bool readOnly, IEnumerable<RepositoryInformation> repositoryInformations)
-			: base(name, uri, readOnly)
+		public ChorusHubRepositorySource(string name, string uri, bool isReadOnly, IEnumerable<RepositoryInformation> repositoryInformations)
+			: base(name, uri, isReadOnly)
 		{
 			_sourceRepositoryInformation = new List<RepositoryInformation>(repositoryInformations);
 		}
@@ -336,8 +316,8 @@ namespace Chorus.VcsDrivers
 		private readonly string _networkMachineSpecifier;
 		private readonly string _alternativeMachineSpecifier;
 
-		public DirectoryRepositorySource(string name, string uri, bool readOnly)
-			: base(name, uri, readOnly)
+		public DirectoryRepositorySource(string name, string uri, bool isReadOnly)
+			: base(name, uri, isReadOnly)
 		{
 			_networkMachineSpecifier = new string(Path.DirectorySeparatorChar, 2);
 			_alternativeMachineSpecifier = new string(Path.AltDirectorySeparatorChar, 2);
@@ -372,14 +352,11 @@ namespace Chorus.VcsDrivers
 			return result;
 		}
 
-		public bool LooksLikeLocalDirectory
-		{
-			get { return !(this.URI.StartsWith(_networkMachineSpecifier)); }
-		}
+		public bool LooksLikeLocalDirectory => !URI.StartsWith(_networkMachineSpecifier);
 
 		public override List<string> GetPossibleCloneUris(string repoIdentifier, string projectName, IProgress progress)
 		{
-			return new List<string>(new string[]{GetPotentialRepoUri(repoIdentifier, projectName, progress)});
+			return new List<string>(new[]{GetPotentialRepoUri(repoIdentifier, projectName, progress)});
 		}
 	}
 
@@ -406,8 +383,8 @@ namespace Chorus.VcsDrivers
 			}
 		}
 
-		public UsbKeyRepositorySource(string sourceLabel, string uri, bool readOnly)
-			: base(sourceLabel, uri, readOnly)
+		public UsbKeyRepositorySource(string sourceLabel, string uri, bool isReadOnly)
+			: base(sourceLabel, uri, isReadOnly)
 		{
 
 		}

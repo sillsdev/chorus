@@ -74,7 +74,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var networkPaths = paths.Where(p => p is T && p.Name != "default");
 
 			//none found in the hgrc
-			if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
+			if (!networkPaths.Any()) //nb: because of lazy eval, the hgrc lock exception can happen here
 				return null;
 
 
@@ -82,8 +82,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			foreach (var path in networkPaths)
 			{
-				RepositoryAddress path1 = path;//avoid "acces to modified closure"
-				if (defaultAliases.Any(a => a == path1.Name))
+				//avoid "access to modified closure"
+				var pathName = path.Name;
+				if (defaultAliases.Any(a => a == pathName))
 					return path;
 			}
 			return networkPaths.First();
@@ -1037,7 +1038,8 @@ namespace Chorus.VcsDrivers.Mercurial
 											 targetPath);
 			var repo = new HgRepository(targetPath, progress);
 
-			var transport = repo.CreateTransportBetween(source, source.URI);
+			// Cannot pass repo.Identifier because the local repo doesn't exist yet.
+			var transport = repo.CreateTransportBetween(source, source.GetPotentialRepoUri(null, null, progress));
 			transport.Clone();
 			repo.Update();
 			progress.WriteMessage("Finished copying to this computer at {0}", targetPath);
@@ -1339,16 +1341,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		public IEnumerable<RepositoryAddress> GetRepositoryPathsInHgrc()
 		{
 			var section = GetMercurialConfigForRepository().Sections.GetOrCreate("paths");
-			//I repent            if (section.GetKeys().Count() == 0)
-			//            {
-			//                yield return
-			//                    RepositoryAddress.Create("LanguageDepot",
-			//                                             "http://hg-public.languagedepot.org/REPLACE_WITH_ETHNOLOGUE_CODE");
-			//            }
 			foreach (var name in section.GetKeys())
 			{
 				var uri = section.GetValue(name);
-				yield return RepositoryAddress.Create(name, uri, false);
+				yield return RepositoryAddress.Create(name, uri);
 			}
 		}
 
@@ -2171,13 +2167,13 @@ namespace Chorus.VcsDrivers.Mercurial
 				return false;
 			}
 
-			if (string.IsNullOrEmpty(address.UserName))
+			if (string.IsNullOrEmpty(Properties.Settings.Default.LanguageForgeUser))
 			{
 				message = LocalizationManager.GetString("GetInternetStatus.AccountNameIsMissing", "The account name is missing.");
 				return false;
 			}
 
-			if (string.IsNullOrEmpty(address.Password))
+			if (string.IsNullOrEmpty(Properties.Settings.Default.LanguageForgePass))
 			{
 				message = string.Format(
 					LocalizationManager.GetString("GetInternetStatus.PasswordIsMissing", "The password for {0} is missing."), uri.Host);
@@ -2186,7 +2182,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			message = string.Format(
 				LocalizationManager.GetString("GetInternetStatus.ReadyToSR", "Ready to send/receive to {0} with project '{1}' and user '{2}'"),
-				uri.Host, uri.PathAndQuery.Trim(new char[]{'/'}), address.UserName);
+				uri.Host, uri.PathAndQuery.Trim('/'), Properties.Settings.Default.LanguageForgeUser);
 
 			return true;
 		}

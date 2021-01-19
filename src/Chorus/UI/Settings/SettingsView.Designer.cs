@@ -37,14 +37,14 @@ namespace Chorus.UI.Settings
 			this.label3 = new System.Windows.Forms.Label();
 			this.pictureBox2 = new System.Windows.Forms.PictureBox();
 			this.label1 = new System.Windows.Forms.Label();
-			this.betterLabel1 = new Chorus.UI.BetterLabel();
+			this.instructionsLabel = new Chorus.UI.BetterLabel();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
 			this.SuspendLayout();
-			//
+			// 
 			// _repositoryAliases
-			//
-			this._repositoryAliases.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			// 
+			this._repositoryAliases.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this._repositoryAliases.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this._repositoryAliases.Location = new System.Drawing.Point(61, 153);
 			this._repositoryAliases.MaximumSize = new System.Drawing.Size(700, 90);
@@ -81,9 +81,9 @@ namespace Chorus.UI.Settings
 			this.label3.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
 			this.label3.Location = new System.Drawing.Point(58, 124);
 			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(313, 17);
+			this.label3.Size = new System.Drawing.Size(310, 17);
 			this.label3.TabIndex = 10;
-			this.label3.Text = "Chorus Repositories on servers and user\'s machines";
+			this.label3.Text = "Chorus repositories on servers and users\' machines";
 			//
 			// pictureBox2
 			//
@@ -104,30 +104,30 @@ namespace Chorus.UI.Settings
 			this.label1.Size = new System.Drawing.Size(183, 20);
 			this.label1.TabIndex = 13;
 			this.label1.Text = "Change Chorus Settings";
-			//
-			// betterLabel1
-			//
-			this.betterLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
-			this.betterLabel1.BackColor = System.Drawing.Color.DarkRed;
-			this.betterLabel1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.betterLabel1.Font = new System.Drawing.Font("Segoe UI", 9F);
-			this.betterLabel1.Location = new System.Drawing.Point(61, 226);
-			this.betterLabel1.Multiline = true;
-			this.betterLabel1.Name = "betterLabel1";
-			this.betterLabel1.ReadOnly = true;
-			this.betterLabel1.Size = new System.Drawing.Size(426, 175);
-			this.betterLabel1.TabIndex = 14;
-			this.betterLabel1.TabStop = false;
-			this.betterLabel1.Text = resources.GetString("betterLabel1.Text");
-			//
+			// 
+			// instructionsLabel
+			// 
+			this.instructionsLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.instructionsLabel.BackColor = System.Drawing.Color.DarkRed;
+			this.instructionsLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.instructionsLabel.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.instructionsLabel.Location = new System.Drawing.Point(61, 226);
+			this.instructionsLabel.Multiline = true;
+			this.instructionsLabel.Name = "instructionsLabel";
+			this.instructionsLabel.ReadOnly = true;
+			this.instructionsLabel.Size = new System.Drawing.Size(426, 175);
+			this.instructionsLabel.TabIndex = 14;
+			this.instructionsLabel.TabStop = false;
+			this.instructionsLabel.Text = resources.GetString("instructionsLabel.Text");
+			// 
 			// SettingsView
 			//
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.AutoScroll = true;
 			this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
-			this.Controls.Add(this.betterLabel1);
+			this.Controls.Add(this.instructionsLabel);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.pictureBox2);
 			this.Controls.Add(this.label3);
@@ -151,6 +151,6 @@ namespace Chorus.UI.Settings
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.PictureBox pictureBox2;
 		private System.Windows.Forms.Label label1;
-		private BetterLabel betterLabel1;
+		private BetterLabel instructionsLabel;
 	}
 }

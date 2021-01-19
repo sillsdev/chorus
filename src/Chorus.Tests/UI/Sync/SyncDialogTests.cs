@@ -1,4 +1,3 @@
-﻿
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.sync;
@@ -36,7 +35,7 @@ namespace Chorus.Tests.UI.Sync
 			{
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
-																	 RepositoryAddress.Create("language depot", "http://hg-public.languagedepot.org"),
+																	 RepositoryAddress.Create("language forge", "https://hg-public.languageforge.org"),
 																	 RepositoryAddress.Create("joe's mac", "\\\\suzie-pc\\public\\chorusTest")
 																 });
 
@@ -59,7 +58,7 @@ namespace Chorus.Tests.UI.Sync
 			{
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
-																	 RepositoryAddress.Create("language depot", "http://hg-public.languagedepot.org"),
+																	 RepositoryAddress.Create("language forge", "https://hg-public.languageforge.org"),
 																	 RepositoryAddress.Create("joe's mac", "//suzie-pc/public/chorusTest")
 																 });
 
@@ -81,9 +80,9 @@ namespace Chorus.Tests.UI.Sync
 
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
-																	 RepositoryAddress.Create("language depot", "http://pedro:mypassword@hg-public.languagedepot.org"),
+																	 RepositoryAddress.Create("language forge", "https://pedro:mypassword@hg-public.languageforge.org"),
 																 });
-				setup.Repository.SetDefaultSyncRepositoryAliases(new[] {"language depot"});
+				setup.Repository.SetDefaultSyncRepositoryAliases(new[] {"language forge"});
 
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
 												SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
@@ -103,9 +102,9 @@ namespace Chorus.Tests.UI.Sync
 
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
-																	 RepositoryAddress.Create("language depot", "http://automatedtest:testing@hg-public.languagedepot.org/tpi"),
+																	 RepositoryAddress.Create("language forge", "https://automatedtest:testing@hg-public.languageforge.org/tpi"),
 																 });
-				setup.Repository.SetDefaultSyncRepositoryAliases(new[] { "language depot" });
+				setup.Repository.SetDefaultSyncRepositoryAliases(new[] { "language forge" });
 
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
 												SyncUIDialogBehaviors.StartImmediately,
