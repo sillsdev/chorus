@@ -42,6 +42,7 @@ namespace LibChorus.Tests.Model
 			var m = new ServerSettingsModel();
 			m.InitFromUri("https://joe:pass@hg-public.languageforge.org/tpi");
 			Assert.AreEqual("hg-public.languageforge.org", m.Host);
+			Assert.AreEqual(ServerSettingsModel.BandwidthEnum.High, m.Bandwidth.Value);
 		}
 
 		[Test]
@@ -50,7 +51,7 @@ namespace LibChorus.Tests.Model
 			var m = new ServerSettingsModel();
 			m.InitFromUri("https://resumable.languageforge.org/tpi");
 			Assert.AreEqual("resumable.languageforge.org", m.Host);
-			Assert.AreEqual(new ServerSettingsModel.BandwidthItem(ServerSettingsModel.BandwidthEnum.Low), m.Bandwidth);
+			Assert.AreEqual(ServerSettingsModel.BandwidthEnum.Low, m.Bandwidth.Value);
 		}
 
 		[Test]
@@ -61,12 +62,66 @@ namespace LibChorus.Tests.Model
 			Assert.IsFalse(m.IsCustomUrl);
 		}
 
+		[TestCase("resumable", true)]
+		[TestCase("hg-public", false)]
+		[TestCase("hg-private", false)]
+		public void InitFromUri_LanguageDepot_ConvertedToLanguageForge(string subdomain, bool isResumable)
+		{
+			var expectedNewHost = $"{subdomain}.languageforge.org";
+			var expectedBandwidth = isResumable
+				? ServerSettingsModel.BandwidthEnum.Low
+				: ServerSettingsModel.BandwidthEnum.High;
+			var m = new ServerSettingsModel();
+			// SUT
+			// ReSharper disable once StringLiteralTypo - the old server used to be called Language Depot
+			m.InitFromUri($"http://joe:cool@{subdomain}.languagedepot.org/mcx");
+
+			if (subdomain.Equals("hg-private"))
+			{
+				Assert.True(m.IsCustomUrl, "not really custom, but no longer stores nicely in our memory model");
+			}
+			else
+			{
+				Assert.False(m.IsCustomUrl);
+			}
+			Assert.AreEqual(expectedNewHost, m.Host);
+			Assert.AreEqual("joe", m.Username);
+			Assert.AreEqual("cool", m.Password);
+			Assert.AreEqual(expectedBandwidth, m.Bandwidth.Value);
+			Assert.AreEqual("mcx", m.ProjectId);
+			Assert.AreEqual($"https://{expectedNewHost}/mcx", m.URL);
+		}
+
 		[Test]
 		public void InitFromUri_HasFolderDesignator_IdIsCorrect()
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("https://joe:pass@hg-public.languageforge.org/tpi?localFolder=foo");
 			Assert.AreEqual("tpi", m.ProjectId);
+		}
+
+		[Test]
+		public void InitFromUri_UnknownHttpGiven_InitializesEverything()
+		{
+			const string user = "Sally";
+			const string pass = "Guggenheim";
+			const string proj = "ngl";
+			const string host = "chorus.elsewhere.net";
+			const string hostAndProj = host + "/" + proj;
+			// URL is intentionally insecure: just in case some self-hosting user hasn't implemented security
+			const string url = "http://" + user + ":" + pass + "@" + hostAndProj;
+			const string urlSansCredentials = "http://" + hostAndProj;
+			var m = new ServerSettingsModel();
+			// SUT
+			m.InitFromUri(url);
+
+			Assert.IsTrue(m.IsCustomUrl);
+			Assert.AreEqual(host, m.Host);
+			Assert.AreEqual(user, m.Username);
+			Assert.AreEqual(pass, m.Password);
+			Assert.AreEqual(ServerSettingsModel.BandwidthEnum.High, m.Bandwidth.Value, "Custom URL's aren't known to be resumable");
+			Assert.AreEqual(proj, m.ProjectId);
+			Assert.AreEqual(urlSansCredentials, m.URL);
 		}
 
 		[Test]
@@ -239,8 +294,8 @@ namespace LibChorus.Tests.Model
 			{
 				const string user = "joe";
 				const string pass = "pass";
-				const string host = "hg-public.languageforge.org/tpi";
-				const string url = "https://" + user + ":" + pass + "@" + host;
+				const string oldHost = "hg-public.languagedepot.org/tpi";
+				const string url = "https://" + user + ":" + pass + "@" + oldHost;
 				// Precondition is some url that is not our default from the ServerSettingsModel
 				var original = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				original.SetKnownRepositoryAddresses(new[]
@@ -291,7 +346,7 @@ namespace LibChorus.Tests.Model
 				original.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("default", "c://abc.com", false) });
 
 				var m = new ServerSettingsModel();
-				var url = "c://joe:pass@hg-public.languageforge.org/tpi";
+				const string url = "unclickable://hg-private.languageforge.org/tpi";
 				m.InitFromProjectPath(folder.Path);
 				m.SetUrlToUseIfSettingsAreEmpty(url);
 				Assert.AreEqual(url, m.URL);

@@ -71,7 +71,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			// This could be a problem if there was some way for the user to create a 'default' path, but the paths we want
 			// to find here are currently always named with an adaptation of the path. I don't think that process can produce 'default'.
 			var paths = GetRepositoryPathsInHgrc();
-			var networkPaths = paths.Where(p => p is T && p.Name != "default");
+			var networkPaths = paths.Where(p => p is T && p.Name != "default").ToArray();
 
 			//none found in the hgrc
 			if (!networkPaths.Any()) //nb: because of lazy eval, the hgrc lock exception can happen here

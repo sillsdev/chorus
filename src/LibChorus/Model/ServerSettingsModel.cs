@@ -18,6 +18,8 @@ namespace Chorus.Model
 	public class ServerSettingsModel
 	{
 		#region static and constant
+		private const string LanguageForge = "languageforge.org";
+
 		private const string EntropyValue = "LAMED videte si est dolor sicut dolor meus";
 
 		internal class Project
@@ -104,7 +106,13 @@ namespace Chorus.Model
 			}
 			ProjectId = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPathAfterHost(url));
 			Bandwidth = new BandwidthItem(RepositoryAddress.IsKnownResumableRepository(url) ? BandwidthEnum.Low : BandwidthEnum.High);
-			CustomUrl = UrlHelper.GetPathOnly(url);
+
+			const string languageDepot = "languagedepot.org";
+			if (url.Contains(languageDepot))
+			{
+				url = url.Replace(languageDepot, LanguageForge).Replace("http://", "https://");
+			}
+			CustomUrl = UrlHelper.StripCredentialsAndQuery(url);
 			IsCustomUrl = !UrlHelper.GetHost(url).Equals(Host);
 		}
 
@@ -123,7 +131,7 @@ namespace Chorus.Model
 
 		protected internal string Host => IsCustomUrl
 			? UrlHelper.GetHost(CustomUrl)
-			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : "hg-public")}.languageforge.org";
+			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : "hg-public")}.{LanguageForge}";
 
 
 		public bool HaveGoodUrl
@@ -213,7 +221,7 @@ namespace Chorus.Model
 
 		private WebResponse LogIn()
 		{
-			var request = WebRequest.Create($"https://admin.languageforge.org/api/user/{Username}/projects");
+			var request = WebRequest.Create($"https://admin.{LanguageForge}/api/user/{Username}/projects");
 			request.Method = "POST";
 			var passwordBytes = Encoding.UTF8.GetBytes($"password={Password}");
 			request.ContentType = "application/x-www-form-urlencoded";
