@@ -105,6 +105,7 @@ namespace Chorus.Model
 				Password = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPassword(url));
 			}
 			ProjectId = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPathAfterHost(url));
+			HasLoggedIn = !string.IsNullOrEmpty(ProjectId);
 			Bandwidth = new BandwidthItem(RepositoryAddress.IsKnownResumableRepository(url) ? BandwidthEnum.Low : BandwidthEnum.High);
 
 			const string languageDepot = "languagedepot.org";

@@ -37,6 +37,16 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
+		public void InitFromUri_FullTypicalLangForge_ExistingProjectIdDisplayedOnLoad(
+			[Values(true, false)] bool hasProjId)
+		{
+			const string proj = "tpi";
+			var m = new ServerSettingsModel();
+			m.InitFromUri($"https://joe:pass@hg-public.languageforge.org/{(hasProjId ? proj : string.Empty)}");
+			Assert.AreEqual(hasProjId, m.HasLoggedIn);
+		}
+
+		[Test]
 		public void InitFromUri_FullTypicalLangForge_DomainAndBandwidthCorrect()
 		{
 			var m = new ServerSettingsModel();
