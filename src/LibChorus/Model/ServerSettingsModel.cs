@@ -200,7 +200,7 @@ namespace Chorus.Model
 			try
 			{
 				var response = LogIn();
-				var content = Encoding.UTF8.GetString(WebResponseHelper.ReadResponseContent(response));
+				var content = Encoding.UTF8.GetString(WebResponseHelper.ReadResponseContent(response, 300));
 				HasLoggedIn = true;
 				error = null;
 				SaveUserSettings();
