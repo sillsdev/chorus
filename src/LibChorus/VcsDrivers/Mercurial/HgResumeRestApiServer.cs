@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Net;
+using Chorus.Model;
 using Chorus.Utilities;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -28,8 +29,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		// TODO (Hasso) 2021.01: remove UserName and Password from this API
-		[Obsolete] public string UserName => Properties.Settings.Default.LanguageForgeUser;
-		[Obsolete] public string Password => Properties.Settings.Default.LanguageForgePass;
+		[Obsolete] public string UserName => null;
+		[Obsolete] public string Password => null;
 
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters parameters, byte[] contentToSend, int secondsBeforeTimeout)
 		{
@@ -38,7 +39,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			var req = (HttpWebRequest) WebRequest.Create(Url);
 			req.UserAgent = $"HgResume v{ApiVersion}";
 			req.PreAuthenticate = true;
-			req.Credentials = new NetworkCredential(Properties.Settings.Default.LanguageForgeUser, Properties.Settings.Default.LanguageForgePass);
+			if (string.IsNullOrEmpty(Properties.Settings.Default.LanguageForgeUser) ||
+				string.IsNullOrEmpty(Properties.Settings.Default.LanguageForgePass))
+			{
+				throw new HgResumeException("Missing username or password");
+			}
+			req.Credentials = new NetworkCredential(Properties.Settings.Default.LanguageForgeUser,
+				ServerSettingsModel.DecryptPassword(Properties.Settings.Default.LanguageForgePass));
 			req.Timeout = secondsBeforeTimeout * 1000; // timeout is in milliseconds
 			if (contentToSend.Length == 0)
 			{
