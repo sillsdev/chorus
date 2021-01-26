@@ -20,6 +20,12 @@ namespace Chorus.UI.Misc
 		{
 			InitializeComponent();
 
+			_serverLabel.Visible = ServerSettingsModel.IsQaServer;
+			if (_serverLabel.Visible)
+			{
+				_serverLabel.Text = string.Format(_serverLabel.Text, ServerSettingsModel.LanguageForgeServer);
+			}
+
 			_bandwidth.Items.AddRange(ServerSettingsModel.Bandwidths);
 		}
 

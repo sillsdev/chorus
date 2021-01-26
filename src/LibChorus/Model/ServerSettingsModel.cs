@@ -19,15 +19,18 @@ namespace Chorus.Model
 	{
 		#region static and constant
 		private const string LanguageForge = "languageforge.org";
+		private const string ServerEnvVar = "LanguageForgeServer";
 
 		public static string LanguageForgeServer
 		{
 			get
 			{
-				var lfServer = Environment.GetEnvironmentVariable("LanguageForgeServer");
+				var lfServer = Environment.GetEnvironmentVariable(ServerEnvVar);
 				return string.IsNullOrEmpty(lfServer) ? $".{LanguageForge}" : lfServer;
 			}
 		}
+
+		public static bool IsQaServer => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(ServerEnvVar));
 
 		private const string EntropyValue = "LAMED videte si est dolor sicut dolor meus";
 

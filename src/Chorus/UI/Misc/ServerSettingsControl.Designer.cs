@@ -45,9 +45,12 @@ namespace Chorus.UI.Misc
 			this._bandwidth = new System.Windows.Forms.ComboBox();
 			this._projectId = new System.Windows.Forms.ComboBox();
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this._tlpLogIn = new System.Windows.Forms.TableLayoutPanel();
+			this._serverLabel = new System.Windows.Forms.Label();
 			this.tableLayoutPanel1.SuspendLayout();
 			this._tlpCustomUrl.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
+			this._tlpLogIn.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// _projectIdLabel
@@ -146,9 +149,9 @@ namespace Chorus.UI.Misc
 			this.tableLayoutPanel1.Controls.Add(this._username, 1, 0);
 			this.tableLayoutPanel1.Controls.Add(this._tlpCustomUrl, 1, 2);
 			this.tableLayoutPanel1.Controls.Add(this._password, 1, 1);
-			this.tableLayoutPanel1.Controls.Add(this._buttonLogIn, 1, 3);
 			this.tableLayoutPanel1.Controls.Add(this._bandwidth, 1, 4);
 			this.tableLayoutPanel1.Controls.Add(this._projectId, 1, 5);
+			this.tableLayoutPanel1.Controls.Add(this._tlpLogIn, 1, 3);
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 6;
@@ -222,9 +225,9 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._buttonLogIn, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._buttonLogIn, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._buttonLogIn, "ServerSettingsControl.button1");
-			this._buttonLogIn.Location = new System.Drawing.Point(83, 105);
+			this._buttonLogIn.Location = new System.Drawing.Point(3, 3);
 			this._buttonLogIn.Name = "_buttonLogIn";
-			this._buttonLogIn.Size = new System.Drawing.Size(75, 23);
+			this._buttonLogIn.Size = new System.Drawing.Size(75, 24);
 			this._buttonLogIn.TabIndex = 22;
 			this._buttonLogIn.Text = "&Log in";
 			this._buttonLogIn.UseVisualStyleBackColor = true;
@@ -264,6 +267,36 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
 			this.l10NSharpExtender1.PrefixForNewItems = "ServerSettingsControl";
 			// 
+			// _tlpLogIn
+			// 
+			this._tlpLogIn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this._tlpLogIn.ColumnCount = 2;
+			this._tlpLogIn.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this._tlpLogIn.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 184F));
+			this._tlpLogIn.Controls.Add(this._buttonLogIn, 0, 0);
+			this._tlpLogIn.Controls.Add(this._serverLabel, 1, 0);
+			this._tlpLogIn.Location = new System.Drawing.Point(80, 102);
+			this._tlpLogIn.Margin = new System.Windows.Forms.Padding(0);
+			this._tlpLogIn.Name = "_tlpLogIn";
+			this._tlpLogIn.RowCount = 1;
+			this._tlpLogIn.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+			this._tlpLogIn.Size = new System.Drawing.Size(269, 34);
+			this._tlpLogIn.TabIndex = 30;
+			// 
+			// _serverLabel
+			// 
+			this._serverLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
+			this._serverLabel.AutoSize = true;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._serverLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._serverLabel, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._serverLabel, "ServerSettingsControl.label1");
+			this._serverLabel.Location = new System.Drawing.Point(88, 10);
+			this._serverLabel.Name = "_serverLabel";
+			this._serverLabel.Size = new System.Drawing.Size(33, 13);
+			this._serverLabel.TabIndex = 23;
+			this._serverLabel.Text = "to {0}";
+			// 
 			// ServerSettingsControl
 			// 
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -280,6 +313,8 @@ namespace Chorus.UI.Misc
 			this._tlpCustomUrl.ResumeLayout(false);
 			this._tlpCustomUrl.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
+			this._tlpLogIn.ResumeLayout(false);
+			this._tlpLogIn.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -302,5 +337,7 @@ namespace Chorus.UI.Misc
 		private System.Windows.Forms.Button _buttonLogIn;
 		private System.Windows.Forms.ComboBox _bandwidth;
 		private System.Windows.Forms.ComboBox _projectId;
+		private System.Windows.Forms.TableLayoutPanel _tlpLogIn;
+		private System.Windows.Forms.Label _serverLabel;
 	}
 }
