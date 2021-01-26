@@ -176,7 +176,11 @@ namespace Chorus.merge.xml.generic.xmldiff
 			}
 			else if (controlNodeType == XmlNodeType.Text)
 			{
-				CompareText(result);
+				CompareText(result, DifferenceType.TEXT_VALUE_ID);
+			}
+			else if (controlNodeType == XmlNodeType.CDATA)
+			{
+				CompareText(result, DifferenceType.CDATA_VALUE_ID);
 			}
 		}
 
@@ -277,13 +281,13 @@ namespace Chorus.merge.xml.generic.xmldiff
 				_testReader.MoveToElement();
 		}
 
-		private void CompareText(DiffResult result)
+		private void CompareText(DiffResult result, DifferenceType type)
 		{
 			string controlText = _controlReader.Value;
 			string testText = _testReader.Value;
-			if (!String.Equals(controlText, testText))
+			if (!string.Equals(controlText, testText))
 			{
-				DifferenceFound(DifferenceType.TEXT_VALUE_ID, result);
+				DifferenceFound(type, result);
 			}
 		}
 
