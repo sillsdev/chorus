@@ -993,6 +993,106 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		}
 
 		[Test]
+		public void FontsAndCollationChangesMergeCleanly()
+		{
+			string commonAncestor =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version
+			number='' />
+		<generation
+			date='2012-06-06T09:36:30Z' />
+		<language
+			type='en' />
+	</identity>
+	<collations>
+		<defaultCollation>standard</defaultCollation>
+		<collation
+			type='standard'>
+			<cr><![CDATA[&n<ng
+&l<ll]]></cr>
+		</collation>
+	</collations>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:font
+				name='Charis SIL'
+				types='default' />
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='' />
+		<generation date='2012-06-06T09:36:31Z' />
+		<language type='en' />
+	</identity>
+	<collations>
+		<defaultCollation>standard</defaultCollation>
+		<collation type='standard'>
+			<cr><![CDATA[&n<ng
+&l<ll]]></cr>
+		</collation>
+	</collations>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:font name='Charis SIL' types='default' />
+			<sil:font name='Times New Roman' types='default' />
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='' />
+		<generation date='2012-06-06T09:36:32Z' />
+		<language type='en' />
+	</identity>
+	<collations>
+		<defaultCollation>standard</defaultCollation>
+		<collation type='standard'>
+			<cr><![CDATA[&n<ng
+&l<ll
+&c<ch]]></cr>
+		</collation>
+	</collations>
+	<special xmlns:sil='urn://www.sil.org/ldml/0.1'>
+		<sil:external-resources>
+			<sil:font name='Charis SIL' types='default' />
+		</sil:external-resources>
+	</special>
+</ldml>".Replace("'", "\"");
+			var namespaces = new Dictionary<string, string>
+								{
+									{"sil", "urn://www.sil.org/ldml/0.1"},
+								};
+
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"/ldml/special/sil:external-resources/sil:font[@name='Charis SIL' and @types='default']",
+					@"/ldml/special/sil:external-resources/sil:font[@name='Times New Roman' and @types='default']",
+					@"/ldml/collations/collation/cr[contains(text(), 'c<ch')]"
+				},
+				new List<string>(0),
+				0, new List<Type>
+				{
+				},
+				3, new List<Type>
+				{
+
+					typeof(XmlAttributeBothMadeSameChangeReport),
+					typeof(XmlChangedRecordReport),
+					typeof(XmlAdditionChangeReport)
+				});
+		}
+
+		[Test]
 		public void SpellchecksAreMerged()
 		{
 			string commonAncestor =
