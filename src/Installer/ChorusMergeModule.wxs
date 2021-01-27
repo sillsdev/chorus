@@ -30,18 +30,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 					Value="[#MercurialExtensions.fixutf8.fixutf8.py]" />
 			</Component>
 			<!-- This will be filled in by the generated fragment GeneratedMercurial.wxs -->
-		</Directory>
-		<Directory Id="default.d" Name="default.d" >
-			<Component Id="mercurial.default.d.cacerts.rc" Guid="EBBE1FE8-F005-4582-A41C-24643CDA442C">
-				<File Id="mercurial.default.d.cacerts.rc" Name="cacerts.rc" Source="..\..\mercurial\default.d\cacerts.rc" />
-				<IniFile Id="mercurial.default.d.cacerts.rc_installLoc"
-					Action="addLine"
-					Directory="mercurial"
-					Section="web"
-					Name="cacerts.rc"
-					Key="cacerts"
-					Value="[#mercurial.cacert.pem]" />
-			</Component>
+			<Directory Id="default.d" Name="default.d" />
 		</Directory>
 		<Directory Id="MercurialExtensions" Name="MercurialExtensions">
 			<!-- This will be filled in by the generated fragment GeneratedMercurialExtensions.wxs -->
@@ -93,6 +82,18 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 		</Component>
 	  </Directory>
 	</Directory>
+	<DirectoryRef Id="default.d">
+		<Component Id="mercurial.default.d.cacerts.rc" Guid="EBBE1FE8-F005-4582-A41C-24643CDA442C">
+			<File Id="mercurial.default.d.cacerts.rc" Name="cacerts.rc" Source="..\..\mercurial\default.d\cacerts.rc" />
+			<IniFile Id="mercurial.default.d.cacerts.rc_installLoc"
+				Action="addLine"
+				Directory="mercurial"
+				Section="web"
+				Name="cacerts.rc"
+				Key="cacerts"
+				Value="[#mercurial.cacert.pem]" />
+		</Component>
+	</DirectoryRef>
 	<ComponentGroupRef Id="Mercurial"/>
 	<ComponentGroupRef Id="MercurialExtensions"/>
 	<ComponentRef Id="mercurial.ini" />
