@@ -41,16 +41,16 @@ namespace Chorus.UI.Misc
 			this._tlpCustomUrl = new System.Windows.Forms.TableLayoutPanel();
 			this._checkCustomUrl = new System.Windows.Forms.CheckBox();
 			this._customUrl = new System.Windows.Forms.TextBox();
-			this._buttonLogIn = new System.Windows.Forms.Button();
 			this._bandwidth = new System.Windows.Forms.ComboBox();
 			this._projectId = new System.Windows.Forms.ComboBox();
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this._tlpLogIn = new System.Windows.Forms.TableLayoutPanel();
+			this._buttonLogIn = new System.Windows.Forms.Button();
 			this._serverLabel = new System.Windows.Forms.Label();
+			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this.tableLayoutPanel1.SuspendLayout();
 			this._tlpCustomUrl.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this._tlpLogIn.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// _projectIdLabel
@@ -77,7 +77,7 @@ namespace Chorus.UI.Misc
 			this._accountLabel.Name = "_accountLabel";
 			this._accountLabel.Size = new System.Drawing.Size(33, 13);
 			this._accountLabel.TabIndex = 2;
-			this._accountLabel.Text = "Login";
+			this._accountLabel.Text = "Logi&n";
 			// 
 			// _passwordLabel
 			// 
@@ -90,7 +90,7 @@ namespace Chorus.UI.Misc
 			this._passwordLabel.Name = "_passwordLabel";
 			this._passwordLabel.Size = new System.Drawing.Size(53, 13);
 			this._passwordLabel.TabIndex = 8;
-			this._passwordLabel.Text = "Password";
+			this._passwordLabel.Text = "&Password";
 			// 
 			// _username
 			// 
@@ -220,19 +220,6 @@ namespace Chorus.UI.Misc
 			this._customUrl.TabIndex = 18;
 			this._customUrl.TextChanged += new System.EventHandler(this._customUrl_TextChanged);
 			// 
-			// _buttonLogIn
-			// 
-			this.l10NSharpExtender1.SetLocalizableToolTip(this._buttonLogIn, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._buttonLogIn, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._buttonLogIn, "ServerSettingsControl.button1");
-			this._buttonLogIn.Location = new System.Drawing.Point(3, 3);
-			this._buttonLogIn.Name = "_buttonLogIn";
-			this._buttonLogIn.Size = new System.Drawing.Size(75, 24);
-			this._buttonLogIn.TabIndex = 22;
-			this._buttonLogIn.Text = "&Log in";
-			this._buttonLogIn.UseVisualStyleBackColor = true;
-			this._buttonLogIn.Click += new System.EventHandler(this._buttonLogIn_Click);
-			// 
 			// _bandwidth
 			// 
 			this._bandwidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
@@ -262,11 +249,6 @@ namespace Chorus.UI.Misc
 			this._projectId.TabIndex = 29;
 			this._projectId.TextChanged += new System.EventHandler(this._projectId_TextChanged);
 			// 
-			// l10NSharpExtender1
-			// 
-			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
-			this.l10NSharpExtender1.PrefixForNewItems = "ServerSettingsControl";
-			// 
 			// _tlpLogIn
 			// 
 			this._tlpLogIn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -282,7 +264,20 @@ namespace Chorus.UI.Misc
 			this._tlpLogIn.RowCount = 1;
 			this._tlpLogIn.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
 			this._tlpLogIn.Size = new System.Drawing.Size(269, 34);
-			this._tlpLogIn.TabIndex = 30;
+			this._tlpLogIn.TabIndex = 25;
+			// 
+			// _buttonLogIn
+			// 
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._buttonLogIn, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._buttonLogIn, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._buttonLogIn, "ServerSettingsControl.button1");
+			this._buttonLogIn.Location = new System.Drawing.Point(3, 3);
+			this._buttonLogIn.Name = "_buttonLogIn";
+			this._buttonLogIn.Size = new System.Drawing.Size(75, 24);
+			this._buttonLogIn.TabIndex = 22;
+			this._buttonLogIn.Text = "&Log in";
+			this._buttonLogIn.UseVisualStyleBackColor = true;
+			this._buttonLogIn.Click += new System.EventHandler(this._buttonLogIn_Click);
 			// 
 			// _serverLabel
 			// 
@@ -296,6 +291,11 @@ namespace Chorus.UI.Misc
 			this._serverLabel.Size = new System.Drawing.Size(33, 13);
 			this._serverLabel.TabIndex = 23;
 			this._serverLabel.Text = "to {0}";
+			// 
+			// l10NSharpExtender1
+			// 
+			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
+			this.l10NSharpExtender1.PrefixForNewItems = "ServerSettingsControl";
 			// 
 			// ServerSettingsControl
 			// 
@@ -312,9 +312,9 @@ namespace Chorus.UI.Misc
 			this.tableLayoutPanel1.PerformLayout();
 			this._tlpCustomUrl.ResumeLayout(false);
 			this._tlpCustomUrl.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this._tlpLogIn.ResumeLayout(false);
 			this._tlpLogIn.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 
 		}
