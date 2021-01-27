@@ -36,7 +36,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 				<File Id="mercurial.default.d.cacerts.rc" Name="cacerts.rc" Source="..\..\mercurial\default.d\cacerts.rc" />
 				<IniFile Id="mercurial.default.d.cacerts.rc_installLoc"
 					Action="addLine"
-					Directory="mercurial"
+					Directory="default.d"
 					Section="web"
 					Name="cacerts.rc"
 					Key="cacerts"
