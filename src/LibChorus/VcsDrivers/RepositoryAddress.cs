@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
+using Chorus.Model;
 using Chorus.Utilities;
 using SIL.UsbDrive;
 using Chorus.VcsDrivers.Mercurial;
@@ -104,7 +105,10 @@ namespace Chorus.VcsDrivers
 
 		public static bool IsKnownResumableRepository(string uri)
 		{
-			return uri.ToLower().Contains("hg-test.languageforge.org") || uri.ToLower().Contains("resumable");
+			// REVIEW (Hasso) 2021.01: this seems to apply only to HTTP repositories, and is now stored in a separate property of
+			// ServerSettingsModel.cs. Perhaps we should move IsResumable to HttpRepositoryAddress and this logic to determine
+			// resumability to ServerSettingsModel.
+			return uri.ToLower().Contains("resumable");
 		}
 
 		/// <summary>
@@ -161,7 +165,15 @@ namespace Chorus.VcsDrivers
 		/// </summary>
 		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
-			return URI.Replace(ProjectNameVariable, projectName);
+			var uri = URI.Replace(ProjectNameVariable, projectName);
+			// Our resumable API supports passing credentials in request headers; Mercurial requires them in the URL.
+			if (!IsResumable && string.IsNullOrEmpty(UrlHelper.GetUserName(uri)))
+			{
+				var user = Properties.Settings.Default.LanguageForgeUser;
+				var pass = ServerSettingsModel.DecryptPassword(Properties.Settings.Default.LanguageForgePass);
+				uri = uri.Replace("://", $"://{user}:{pass}@");
+			}
+			return uri;
 		}
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
