@@ -39,7 +39,7 @@ See full changelog at https://github.com/sillsdev/chorus/blob/feature/nuget/CHAN
   <ItemGroup>
     <PackageReference Include="Autofac" Version="2.6.3.862" />
     <PackageReference Include="GitVersionTask" Version="5.3.4" PrivateAssets="All" />
-    <PackageReference Include="icu.net" Version="2.6.0" />
+    <PackageReference Include="icu.net" Version="2.7.0-beta.8" />
     <PackageReference Include="Icu4c.Win.Min" Version="59.1.7" IncludeAssets="build" />
     <PackageReference Include="L10NSharp" Version="4.1.0-*" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
