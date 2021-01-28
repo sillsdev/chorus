@@ -85,7 +85,7 @@ namespace Chorus.Model
 		public ServerSettingsModel()
 		{
 			Username = Properties.Settings.Default.LanguageForgeUser;
-			Password = DecryptPassword(Properties.Settings.Default.LanguageForgePass);
+			Password = PasswordForSession;
 		}
 
 		///<summary>
@@ -286,6 +286,34 @@ namespace Chorus.Model
 			}
 			byte[] decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 			return Encoding.Unicode.GetString(decryptedData);
+		}
+
+		private static string _passwordForSession;
+
+		/// <summary>
+		/// The password to use for the current Send and Receive session. Default is the saved password, but it
+		/// can be overridden for the current session by setting this property. For example, if the user chooses
+		/// not to save the password, it should cached here so the user has to enter the correct password only once.
+		/// See https://jira.sil.org/browse/LT-20549
+		/// </summary>
+		public static string PasswordForSession
+		{
+			internal get { return _passwordForSession ?? DecryptPassword(Properties.Settings.Default.LanguageForgePass); }
+			set { _passwordForSession = value; }
+		}
+
+		/// <remarks>
+		/// DO NOT USE. Internal for unit tests.
+		/// </remarks>>
+		internal const string PasswordAsterisks = "********";
+
+		/// <summary>
+		/// Removes the password from any URLs to be logged or otherwise displayed to the user, replacing it with asterisks.
+		/// </summary>
+		/// <param name="clearString">Any string containing a URL with the <see cref="PasswordForSession"/> in clear text.</param>
+		internal static string RemovePasswordForLog(string clearString)
+		{
+			return clearString?.Replace($":{PasswordForSession}@", $":{PasswordAsterisks}@");
 		}
 
 		/// <summary>

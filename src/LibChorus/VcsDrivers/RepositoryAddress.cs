@@ -169,9 +169,7 @@ namespace Chorus.VcsDrivers
 			// Our resumable API supports passing credentials in request headers; Mercurial requires them in the URL.
 			if (!IsResumable && string.IsNullOrEmpty(UrlHelper.GetUserName(uri)))
 			{
-				var user = Properties.Settings.Default.LanguageForgeUser;
-				var pass = ServerSettingsModel.DecryptPassword(Properties.Settings.Default.LanguageForgePass);
-				uri = uri.Replace("://", $"://{user}:{pass}@");
+				uri = uri.Replace("://", $"://{Properties.Settings.Default.LanguageForgeUser}:{ServerSettingsModel.PasswordForSession}@");
 			}
 			return uri;
 		}

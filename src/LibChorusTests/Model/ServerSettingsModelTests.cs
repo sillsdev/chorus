@@ -396,5 +396,23 @@ namespace LibChorus.Tests.Model
 			Assert.AreEqual(password, decrypted);
 			Assert.AreNotEqual(password, encrypted);
 		}
+
+		[Test]
+		public void RemovePasswordForLog_NullAndEmptyDoNotCrash()
+		{
+			Assert.DoesNotThrow(() => ServerSettingsModel.RemovePasswordForLog(null));
+			Assert.DoesNotThrow(() => ServerSettingsModel.RemovePasswordForLog(string.Empty));
+		}
+
+		[Test]
+		public void RemovePasswordForLog_RemovesOnlyThePassword()
+		{
+			const string password = "password";
+			const string logFormat = "Cannot connect to https://someone:{0}@hg-public.languageforge.org/flex-proj; check your {1} and try again.";
+			ServerSettingsModel.PasswordForSession = password;
+			// SUT
+			var scrubbed = ServerSettingsModel.RemovePasswordForLog(string.Format(logFormat, password, password));
+			Assert.AreEqual(string.Format(logFormat, ServerSettingsModel.PasswordAsterisks, password), scrubbed);
+		}
 	}
 }

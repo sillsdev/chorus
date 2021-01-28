@@ -14,6 +14,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Chorus.Utilities;
 using Chorus.merge;
+using Chorus.Model;
+using Chorus.Properties;
 using L10NSharp;
 using Nini.Ini;
 using SIL.Code;
@@ -283,7 +285,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool Pull(RepositoryAddress source, string targetUri)
 		{
 			_progress.WriteMessage("Receiving any changes from {0}", source.Name);
-			_progress.WriteVerbose("({0} is {1})", source.Name, targetUri);
+			_progress.WriteVerbose("({0} is {1})", source.Name, ServerSettingsModel.RemovePasswordForLog(targetUri));
 				CheckAndUpdateHgrc();
 
 			bool result;
@@ -301,7 +303,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception err)
 			{
-				_progress.WriteMessageWithColor("OrangeRed", "Could not send to " + targetUri + Environment.NewLine + err.Message);
+				_progress.WriteMessageWithColor("OrangeRed",
+					$"Could not send to {ServerSettingsModel.RemovePasswordForLog(targetUri)}{Environment.NewLine}{err.Message}");
 			}
 
 			if (GetIsLocalUri(targetUri))
@@ -313,7 +316,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				catch (Exception err)
 				{
 					_progress.WriteMessageWithColor("OrangeRed",
-						$"Could not update the actual files after a pushing to {targetUri}{Environment.NewLine}{err.Message}");
+						$"Could not update the actual files after a pushing to {ServerSettingsModel.RemovePasswordForLog(targetUri)}{Environment.NewLine}{err.Message}");
 				}
 			}
 		}
@@ -334,19 +337,20 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception error)
 			{
+				var targetUriForLog = ServerSettingsModel.RemovePasswordForLog(targetUri);
 				_progress.WriteWarning("Could not receive from " + targetLabel);
-				Exception specificError = error;
+				var specificError = error;
 				if (UriProblemException.ErrorMatches(error))
 				{
-					specificError = new UriProblemException(targetUri);
+					specificError = new UriProblemException(targetUriForLog);
 				}
 				else if (ProjectLabelErrorException.ErrorMatches(error))
 				{
-					specificError = new ProjectLabelErrorException(targetUri);
+					specificError = new ProjectLabelErrorException(targetUriForLog);
 				}
 				else if(UnrelatedRepositoryErrorException.ErrorMatches(error))
 				{
-					specificError = new UnrelatedRepositoryErrorException(targetUri);
+					specificError = new UnrelatedRepositoryErrorException(targetUriForLog);
 				}
 				else if (FirewallProblemSuspectedException.ErrorMatches(error))
 				{
@@ -358,7 +362,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				else if (PortProblemException.ErrorMatches(error))
 				{
-					specificError = new PortProblemException(targetUri);
+					specificError = new PortProblemException(targetUriForLog);
 				}
 				else if (RepositoryAuthorizationException.ErrorMatches(error))
 				{
@@ -404,14 +408,14 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void Push(RepositoryAddress source, string targetUri)
 		{
 			_progress.WriteMessage("Sending changes to {0}", source.Name);
-			_progress.WriteVerbose("({0} is {1})", source.Name, targetUri);
+			_progress.WriteVerbose("({0} is {1})", source.Name, ServerSettingsModel.RemovePasswordForLog(targetUri));
 			CheckAndUpdateHgrc();
 
 			var transport = CreateTransportBetween(source, targetUri);
 			transport.Push();
 		}
 
-		private bool GetIsLocalUri(string uri)
+		private static bool GetIsLocalUri(string uri)
 		{
 			return !(uri.StartsWith("http") || uri.StartsWith("ssh"));
 		}
@@ -568,12 +572,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			var b = new StringBuilder();
 			b.Append(cmd + " ");
-			foreach (string s in rest)
+			foreach (var s in rest)
 			{
 				b.Append(s + " ");
 			}
+			var hgCmdArgs = b.ToString();
 
-			ExecutionResult result = ExecuteErrorsOk(b.ToString(), _pathToRepository, secondsBeforeTimeout, _progress);
+			ExecutionResult result = ExecuteErrorsOk(hgCmdArgs, _pathToRepository, secondsBeforeTimeout, _progress);
 			if (HgProcessOutputReader.kCancelled == result.ExitCode)
 			{
 				_progress.WriteWarning("User Cancelled");
@@ -581,47 +586,46 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			if (0 != result.ExitCode && !failureIsOk && !(1 == result.ExitCode && noChangeIsOk))
 			{
-				var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
+				var detailsBuilder = new StringBuilder().AppendLine().AppendLine("hg command was")
+					.Append(ServerSettingsModel.RemovePasswordForLog(hgCmdArgs));
+				//var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
 				try
 				{
 					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout, _progress);
 					//trim the verbose copyright stuff
 					versionInfo = versionInfo.Substring(0, versionInfo.IndexOf("Copyright"));
-					details += Environment.NewLine + "hg version is: " + versionInfo;
+					detailsBuilder.AppendLine().Append($"hg version is {versionInfo}");
 				}
 				catch (Exception)
 				{
-					details += Environment.NewLine + "Could not get HG VERSION";
-
+					detailsBuilder.AppendLine().Append("Could not get HG VERSION");
 				}
 
 
-				if (!string.IsNullOrEmpty(result.StandardError))
+				if (string.IsNullOrEmpty(result.StandardError))
 				{
-					if (result.StandardError.Contains(@"unresolved merge conflicts"))
-					{
-						return RecoverFromFailedMerge(failureIsOk, secondsBeforeTimeout, cmd, rest);
-					}
-					if(result.StandardError.Contains(@"interrupted"))
-					{
-						return RecoverFromInterruptedUpdate(failureIsOk, secondsBeforeTimeout, cmd, rest);
-					}
-					if (result.StandardError.Contains("No such file or directory"))// trying to track down http://jira.palaso.org/issues/browse/BL-284
-					{
-						details += SafeGetStatus();
-					}
-					throw new ApplicationException(result.StandardError + details);
+					throw new ApplicationException(detailsBuilder.Insert(0, result.ExitCode).Insert(0, "Got return value ").ToString());
 				}
-				else
+				if (result.StandardError.Contains(@"unresolved merge conflicts"))
 				{
-					throw new ApplicationException("Got return value " + result.ExitCode + details);
+					return RecoverFromFailedMerge(failureIsOk, secondsBeforeTimeout, cmd, rest);
 				}
+				if(result.StandardError.Contains(@"interrupted"))
+				{
+					return RecoverFromInterruptedUpdate(failureIsOk, secondsBeforeTimeout, cmd, rest);
+				}
+				if (result.StandardError.Contains("No such file or directory"))// trying to track down http://jira.palaso.org/issues/browse/BL-284
+				{
+					detailsBuilder.Append(SafeGetStatus());
+				}
+				throw new ApplicationException(detailsBuilder.Insert(0, result.StandardError).ToString());
+
 			}
 			return result;
 		}
 
 		/// <summary>
-		/// The procedure for recoverring from an interrupted update, is to update again.
+		/// The procedure for recovering from an interrupted update is to update again.
 		/// </summary>
 		private ExecutionResult RecoverFromInterruptedUpdate(bool failureIsOk, int secondsBeforeTimeout, string cmd, string[] rest)
 		{
@@ -689,14 +693,16 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new UserCancelledException();
 			}
 
+			var commandToLog = ServerSettingsModel.RemovePasswordForLog(command);
+
 #if DEBUG
 			if (GetHasLocks(fromDirectory, progress))
 			{
-				progress.WriteWarning("Found a lock before executing: {0}.", command);
+				progress.WriteWarning("Found a lock before executing: {0}.", commandToLog);
 			}
 #endif
 
-			progress.WriteVerbose("Executing: " + command);
+			progress.WriteVerbose("Executing: " + commandToLog);
 			var result = HgRunner.Run("hg " + command, fromDirectory, secondsBeforeTimeout, progress);
 			if (result.DidTimeOut)
 			{
@@ -708,18 +714,18 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			if (!string.IsNullOrEmpty(result.StandardError))
 			{
-				progress.WriteVerbose("standerr: " + result.StandardError);//not necessarily and *error*, down this deep
+				progress.WriteVerbose("standerr: " + result.StandardError);//not necessarily an *error* down this deep
 			}
 			if (!string.IsNullOrEmpty(result.StandardOutput))
 			{
-				progress.WriteVerbose("standout: " + result.StandardOutput);//not necessarily and *error*, down this deep
+				progress.WriteVerbose("standout: " + result.StandardOutput);//not necessarily an *error* down this deep
 			}
 
 #if DEBUG
 			//nb: store/lock is so common with recover (in hg 1.3) that we don't even want to mention it
-			if (!command.Contains("recover") && GetHasLocks(fromDirectory, progress))
+			if (!commandToLog.Contains("recover") && GetHasLocks(fromDirectory, progress))
 			{
-				progress.WriteWarning("{0} left a lock.", command);
+				progress.WriteWarning("{0} left a lock.", commandToLog);
 			}
 #endif
 			return result;
@@ -736,17 +742,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string PathToRepo
 		{
 			get { return _pathToRepository; }
-		}
-
-//        public string UserName
-//        {
-//            get { return _userName; }
-//            set { _userName = value; }
-//        }
-
-		private string Name
-		{
-			get { return _userName; } //enhance... location is important, too
 		}
 
 		public string GetFilePath(string name)

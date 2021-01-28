@@ -78,6 +78,8 @@ namespace Chorus.UI.Sync
 			return result;
 		}
 
+		// REVIEW (Hasso) 2021.01: this seems to be unused
+		[Obsolete]
 		public bool GetNetworkStatusLink(out string message, out string tooltip, out string diagnosticNotes)
 		{
 			RepositoryAddress address;
@@ -110,7 +112,7 @@ namespace Chorus.UI.Sync
 			}
 			if (ready)
 			{
-				message = tooltip = address.GetPotentialRepoUri(address.URI, "", new NullProgress());
+				message = tooltip = address.URI;
 			}
 			else
 			{

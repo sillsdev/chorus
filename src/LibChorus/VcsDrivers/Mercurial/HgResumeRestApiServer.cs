@@ -44,8 +44,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				throw new HgResumeException("Missing username or password");
 			}
-			req.Credentials = new NetworkCredential(Properties.Settings.Default.LanguageForgeUser,
-				ServerSettingsModel.DecryptPassword(Properties.Settings.Default.LanguageForgePass));
+			req.Credentials = new NetworkCredential(Properties.Settings.Default.LanguageForgeUser, ServerSettingsModel.PasswordForSession);
 			req.Timeout = secondsBeforeTimeout * 1000; // timeout is in milliseconds
 			if (contentToSend.Length == 0)
 			{
