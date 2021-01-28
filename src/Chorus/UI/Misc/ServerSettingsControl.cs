@@ -37,9 +37,9 @@ namespace Chorus.UI.Misc
 			_password.Text = Model.Password;
 
 			_customUrl.Text = Model.URL;
-			_customUrl.Visible = Model.IsCustomUrl;
+			_customUrl.Visible = _checkCustomUrl.Checked = Model.IsCustomUrl;
 
-			_buttonLogIn.Visible = !Model.IsCustomUrl;
+			_tlpLogIn.Visible = !Model.IsCustomUrl;
 			_buttonLogIn.Enabled = Model.CanLogIn;
 
 			_bandwidth.SelectedItem = Model.Bandwidth;
