@@ -19,6 +19,18 @@ namespace Chorus.Model
 	{
 		#region static and constant
 		private const string LanguageForge = "languageforge.org";
+		private const string ServerEnvVar = "LanguageForgeServer";
+
+		public static string LanguageForgeServer
+		{
+			get
+			{
+				var lfServer = Environment.GetEnvironmentVariable(ServerEnvVar);
+				return string.IsNullOrEmpty(lfServer) ? $".{LanguageForge}" : lfServer;
+			}
+		}
+
+		public static bool IsQaServer => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(ServerEnvVar));
 
 		private const string EntropyValue = "LAMED videte si est dolor sicut dolor meus";
 
@@ -132,7 +144,7 @@ namespace Chorus.Model
 
 		protected internal string Host => IsCustomUrl
 			? UrlHelper.GetHost(CustomUrl)
-			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : "hg-public")}.{LanguageForge}";
+			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : "hg-public")}{LanguageForgeServer}";
 
 
 		public bool HaveGoodUrl
@@ -222,7 +234,7 @@ namespace Chorus.Model
 
 		private WebResponse LogIn()
 		{
-			var request = WebRequest.Create($"https://admin.{LanguageForge}/api/user/{Username}/projects");
+			var request = WebRequest.Create($"https://admin{LanguageForgeServer}/api/user/{Username}/projects");
 			request.Method = "POST";
 			var passwordBytes = Encoding.UTF8.GetBytes($"password={Password}");
 			request.ContentType = "application/x-www-form-urlencoded";

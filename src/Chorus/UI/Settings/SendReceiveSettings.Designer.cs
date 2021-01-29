@@ -1,4 +1,4 @@
-﻿using SIL.Windows.Forms.HtmlBrowser;
+using SIL.Windows.Forms.HtmlBrowser;
 using SIL.Windows.Forms.SettingProtection;
 
 namespace Chorus.UI.Settings
@@ -109,7 +109,7 @@ namespace Chorus.UI.Settings
 			this.internetTab.Padding = new System.Windows.Forms.Padding(3);
 			this.internetTab.Size = new System.Drawing.Size(476, 268);
 			this.internetTab.TabIndex = 0;
-			this.internetTab.Text = "Internet";
+			this.internetTab.Text = "&Internet";
 			this.internetTab.UseVisualStyleBackColor = true;
 			//
 			// pictureBox1
@@ -146,7 +146,7 @@ namespace Chorus.UI.Settings
 			this._internetButtonEnabledCheckBox.Name = "_internetButtonEnabledCheckBox";
 			this._internetButtonEnabledCheckBox.Size = new System.Drawing.Size(211, 17);
 			this._internetButtonEnabledCheckBox.TabIndex = 0;
-			this._internetButtonEnabledCheckBox.Text = "Show Internet as Send/Receive option";
+			this._internetButtonEnabledCheckBox.Text = "&Show Internet as Send/Receive option";
 			this._internetButtonEnabledCheckBox.UseVisualStyleBackColor = true;
 			//
 			// _serverSettingsControl
@@ -175,7 +175,7 @@ namespace Chorus.UI.Settings
 			this.chorusHubTab.Padding = new System.Windows.Forms.Padding(3);
 			this.chorusHubTab.Size = new System.Drawing.Size(476, 268);
 			this.chorusHubTab.TabIndex = 2;
-			this.chorusHubTab.Text = "Chorus Hub";
+			this.chorusHubTab.Text = "Chorus &Hub";
 			this.chorusHubTab.UseVisualStyleBackColor = true;
 			//
 			// _showChorusHubInSendReceive
@@ -189,7 +189,7 @@ namespace Chorus.UI.Settings
 			this._showChorusHubInSendReceive.Name = "_showChorusHubInSendReceive";
 			this._showChorusHubInSendReceive.Size = new System.Drawing.Size(240, 17);
 			this._showChorusHubInSendReceive.TabIndex = 5;
-			this._showChorusHubInSendReceive.Text = "Show Chorus Hub as a Send/Receive option";
+			this._showChorusHubInSendReceive.Text = "&Show Chorus Hub as a Send/Receive option";
 			this._showChorusHubInSendReceive.UseVisualStyleBackColor = true;
 			// 
 			// chorusHubSetup
@@ -235,7 +235,7 @@ namespace Chorus.UI.Settings
 			this._helpButton.Name = "_helpButton";
 			this._helpButton.Size = new System.Drawing.Size(75, 23);
 			this._helpButton.TabIndex = 5;
-			this._helpButton.Text = "Help";
+			this._helpButton.Text = "&Help";
 			this._helpButton.UseVisualStyleBackColor = true;
 			this._helpButton.Click += new System.EventHandler(this._helpButton_Click);
 			//
