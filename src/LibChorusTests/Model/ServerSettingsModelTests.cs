@@ -3,6 +3,7 @@ using NUnit.Framework;
 using SIL.Progress;
 using SIL.TestUtilities;
 using Chorus.Model;
+using Chorus.Properties;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using Newtonsoft.Json;
@@ -155,8 +156,8 @@ namespace LibChorus.Tests.Model
 		{
 			const string user = "john";
 			const string pass = "settings";
-			Chorus.Properties.Settings.Default.LanguageForgeUser = user;
-			Chorus.Properties.Settings.Default.LanguageForgePass = ServerSettingsModel.EncryptPassword(pass);
+			Settings.Default.LanguageForgeUser = user;
+			Settings.Default.LanguageForgePass = ServerSettingsModel.EncryptPassword(pass);
 			var m = new ServerSettingsModel();
 			m.InitFromUri("https://hg.languageforge.org/tpi");
 			Assert.AreEqual(user, m.Username);
@@ -167,8 +168,8 @@ namespace LibChorus.Tests.Model
 		[Test]
 		public void InitFromUri_UsernameAndPass_OverwritesSettings()
 		{
-			Chorus.Properties.Settings.Default.LanguageForgeUser = "from";
-			Chorus.Properties.Settings.Default.LanguageForgePass = ServerSettingsModel.EncryptPassword("settings");
+			Settings.Default.LanguageForgeUser = "from";
+			Settings.Default.LanguageForgePass = ServerSettingsModel.EncryptPassword("settings");
 			var m = new ServerSettingsModel();
 			m.InitFromUri("https://jan:pass@hg-public.languageforge.org/tps");
 			Assert.AreEqual("jan", m.Username);
@@ -298,32 +299,38 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		public void SaveSettings_PreexistsAndWeSave_MovesCredentials()
+		public void SaveSettings_PreexistsAndWeSave_MovesCredentials([Values(true, false)] bool isResumable)
 		{
+			ServerSettingsModel.PasswordForSession = null;
 			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
 				const string user = "joe";
 				const string pass = "pass";
-				const string oldHost = "hg-public.languagedepot.org/tpi";
-				const string url = "https://" + user + ":" + pass + "@" + oldHost;
+				var subdomain = isResumable ? "resumable" : "hg-public";
+				var oldHost = $"{subdomain}.languagedepot.org/tpi";
+				var oldUrl = $"https://{user}:{pass}@{oldHost}";
+				const string newDomainAndProj = ".languageforge.org/tpi";
+				var newUrl = $"https://{subdomain}{newDomainAndProj}";
+				var newUrlWithCredentials = $"https://{user}:{pass}@{subdomain}{newDomainAndProj}";
 				// Precondition is some url that is not our default from the ServerSettingsModel
 				var original = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				original.SetKnownRepositoryAddresses(new[]
 				{
-					new HttpRepositoryPath("languageForge.org [legacy sync]", url, false)
+					new HttpRepositoryPath("languageForge.org [legacy sync]", oldUrl, false)
 				});
 
 				var m = new ServerSettingsModel();
 				m.InitFromProjectPath(folder.Path);
 				m.SaveSettings();
-				Assert.AreEqual(user, Chorus.Properties.Settings.Default.LanguageForgeUser);
-				Assert.AreEqual(pass, ServerSettingsModel.DecryptPassword(Chorus.Properties.Settings.Default.LanguageForgePass));
+				Assert.AreEqual(user, Settings.Default.LanguageForgeUser);
+				Assert.AreEqual(pass, ServerSettingsModel.DecryptPassword(Settings.Default.LanguageForgePass));
 				Assert.IsTrue(Directory.Exists(folder.Combine(".hg")));
 				Assert.IsTrue(File.Exists(folder.Combine(".hg", "hgrc")));
 				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
-				Assert.AreEqual("https://hg-public.languageforge.org/tpi", address.URI);
-				Assert.AreEqual("https://hg-public.languageforge.org/tpi", address.GetPotentialRepoUri(null, null, null));
+				Assert.AreEqual(newUrl, address.URI);
+				Assert.AreEqual(isResumable ? newUrl : newUrlWithCredentials, address.GetPotentialRepoUri(null, null, null),
+					"The new 'potential' URI should contain credentials only when non-resumable");
 			}
 		}
 
@@ -398,6 +405,30 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
+		public void PasswordForSession_UsesSaved([Values(null, "", "myPass")] string password)
+		{
+			Settings.Default.LanguageForgePass = ServerSettingsModel.EncryptPassword(password);
+			ServerSettingsModel.PasswordForSession = null;
+			Assert.AreEqual(password, ServerSettingsModel.PasswordForSession);
+		}
+
+		[Test]
+		public void PasswordForSession_UsesCached()
+		{
+			try
+			{
+				const string pass = "yourPass";
+				ServerSettingsModel.PasswordForSession = pass;
+				Settings.Default.LanguageForgePass = null;
+				Assert.AreEqual(pass, ServerSettingsModel.PasswordForSession);
+			}
+			finally
+			{
+				ServerSettingsModel.PasswordForSession = null;
+			}
+		}
+
+		[Test]
 		public void RemovePasswordForLog_NullAndEmptyDoNotCrash()
 		{
 			Assert.DoesNotThrow(() => ServerSettingsModel.RemovePasswordForLog(null));
@@ -407,12 +438,19 @@ namespace LibChorus.Tests.Model
 		[Test]
 		public void RemovePasswordForLog_RemovesOnlyThePassword()
 		{
-			const string password = "password";
-			const string logFormat = "Cannot connect to https://someone:{0}@hg-public.languageforge.org/flex-proj; check your {1} and try again.";
-			ServerSettingsModel.PasswordForSession = password;
-			// SUT
-			var scrubbed = ServerSettingsModel.RemovePasswordForLog(string.Format(logFormat, password, password));
-			Assert.AreEqual(string.Format(logFormat, ServerSettingsModel.PasswordAsterisks, password), scrubbed);
+			try
+			{
+				const string password = "password";
+				const string logFormat = "Cannot connect to https://someone:{0}@hg-public.languageforge.org/flex-proj; check your {1} and try again.";
+				ServerSettingsModel.PasswordForSession = password;
+				// SUT
+				var scrubbed = ServerSettingsModel.RemovePasswordForLog(string.Format(logFormat, password, password));
+				Assert.AreEqual(string.Format(logFormat, ServerSettingsModel.PasswordAsterisks, password), scrubbed);
+			}
+			finally
+			{
+				ServerSettingsModel.PasswordForSession = null;
+			}
 		}
 	}
 }

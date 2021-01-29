@@ -154,11 +154,7 @@ namespace Chorus.VcsDrivers
 
 	public class HttpRepositoryPath : RepositoryAddress
 	{
-		public HttpRepositoryPath(string name, string url, bool isReadOnly, bool resumable = true)
-			: base(name, url, isReadOnly)
-		{
-			IsResumable = resumable;
-		}
+		public HttpRepositoryPath(string name, string url, bool isReadOnly) : base(name, url, isReadOnly) { }
 
 		/// <summary>
 		/// Gets what the uri of the named repository would be on this source (gets the full path).

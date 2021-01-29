@@ -197,7 +197,7 @@ namespace Chorus.Model
 
 		protected RepositoryAddress CreateRepositoryAddress(string name)
 		{
-			return new HttpRepositoryPath(name, URL, false, Bandwidth.Value == BandwidthEnum.Low);
+			return new HttpRepositoryPath(name, URL, false);
 		}
 
 		private void SaveUserSettings()
