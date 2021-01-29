@@ -109,7 +109,7 @@ namespace Chorus.UI.Settings
 			this.internetTab.Padding = new System.Windows.Forms.Padding(3);
 			this.internetTab.Size = new System.Drawing.Size(476, 268);
 			this.internetTab.TabIndex = 0;
-			this.internetTab.Text = "&Internet";
+			this.internetTab.Text = "Internet";
 			this.internetTab.UseVisualStyleBackColor = true;
 			//
 			// pictureBox1
@@ -175,7 +175,7 @@ namespace Chorus.UI.Settings
 			this.chorusHubTab.Padding = new System.Windows.Forms.Padding(3);
 			this.chorusHubTab.Size = new System.Drawing.Size(476, 268);
 			this.chorusHubTab.TabIndex = 2;
-			this.chorusHubTab.Text = "Chorus &Hub";
+			this.chorusHubTab.Text = "Chorus Hub";
 			this.chorusHubTab.UseVisualStyleBackColor = true;
 			//
 			// _showChorusHubInSendReceive

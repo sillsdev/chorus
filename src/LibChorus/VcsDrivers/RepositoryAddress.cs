@@ -154,11 +154,7 @@ namespace Chorus.VcsDrivers
 
 	public class HttpRepositoryPath : RepositoryAddress
 	{
-		public HttpRepositoryPath(string name, string url, bool isReadOnly, bool resumable = true)
-			: base(name, url, isReadOnly)
-		{
-			IsResumable = resumable;
-		}
+		public HttpRepositoryPath(string name, string url, bool isReadOnly) : base(name, url, isReadOnly) { }
 
 		/// <summary>
 		/// Gets what the uri of the named repository would be on this source (gets the full path).
@@ -169,9 +165,7 @@ namespace Chorus.VcsDrivers
 			// Our resumable API supports passing credentials in request headers; Mercurial requires them in the URL.
 			if (!IsResumable && string.IsNullOrEmpty(UrlHelper.GetUserName(uri)))
 			{
-				var user = Properties.Settings.Default.LanguageForgeUser;
-				var pass = ServerSettingsModel.DecryptPassword(Properties.Settings.Default.LanguageForgePass);
-				uri = uri.Replace("://", $"://{user}:{pass}@");
+				uri = uri.Replace("://", $"://{Properties.Settings.Default.LanguageForgeUser}:{ServerSettingsModel.PasswordForSession}@");
 			}
 			return uri;
 		}
