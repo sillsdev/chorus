@@ -274,7 +274,7 @@ namespace Chorus.Model
 			{
 				return encryptMe;
 			}
-			byte[] encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+			var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 			return Convert.ToBase64String(encryptedData);
 		}
 
@@ -284,7 +284,7 @@ namespace Chorus.Model
 			{
 				return decryptMe;
 			}
-			byte[] decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+			var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 			return Encoding.Unicode.GetString(decryptedData);
 		}
 

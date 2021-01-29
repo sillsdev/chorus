@@ -587,18 +587,17 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (0 != result.ExitCode && !failureIsOk && !(1 == result.ExitCode && noChangeIsOk))
 			{
 				var detailsBuilder = new StringBuilder().AppendLine().AppendLine("hg command was")
-					.Append(ServerSettingsModel.RemovePasswordForLog(hgCmdArgs));
-				//var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
+					.AppendLine(ServerSettingsModel.RemovePasswordForLog(hgCmdArgs));
 				try
 				{
 					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout, _progress);
 					//trim the verbose copyright stuff
-					versionInfo = versionInfo.Substring(0, versionInfo.IndexOf("Copyright"));
-					detailsBuilder.AppendLine().Append($"hg version is {versionInfo}");
+					versionInfo = versionInfo.Substring(0, versionInfo.IndexOf("Copyright", StringComparison.Ordinal));
+					detailsBuilder.Append($"hg version is {versionInfo}");
 				}
 				catch (Exception)
 				{
-					detailsBuilder.AppendLine().Append("Could not get HG VERSION");
+					detailsBuilder.Append("Could not get HG VERSION");
 				}
 
 
@@ -672,7 +671,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			try
 			{
-				return System.Environment.NewLine + "Status:" + Environment.NewLine + (GetTextFromQuery("status"));
+				return Environment.NewLine + "Status:" + Environment.NewLine + (GetTextFromQuery("status"));
 			}
 			catch (Exception e)
 			{
@@ -2162,13 +2161,13 @@ namespace Chorus.VcsDrivers.Mercurial
 				return false;
 			}
 
-			if (string.IsNullOrEmpty(Properties.Settings.Default.LanguageForgeUser))
+			if (string.IsNullOrEmpty(Settings.Default.LanguageForgeUser))
 			{
 				message = LocalizationManager.GetString("GetInternetStatus.AccountNameIsMissing", "The account name is missing.");
 				return false;
 			}
 
-			if (string.IsNullOrEmpty(Properties.Settings.Default.LanguageForgePass))
+			if (string.IsNullOrEmpty(ServerSettingsModel.PasswordForSession))
 			{
 				message = string.Format(
 					LocalizationManager.GetString("GetInternetStatus.PasswordIsMissing", "The password for {0} is missing."), uri.Host);
@@ -2177,7 +2176,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			message = string.Format(
 				LocalizationManager.GetString("GetInternetStatus.ReadyToSR", "Ready to send/receive to {0} with project '{1}' and user '{2}'"),
-				uri.Host, uri.PathAndQuery.Trim('/'), Properties.Settings.Default.LanguageForgeUser);
+				uri.Host, uri.PathAndQuery.Trim('/'), Settings.Default.LanguageForgeUser);
 
 			return true;
 		}

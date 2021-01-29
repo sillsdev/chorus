@@ -6,6 +6,8 @@ using Chorus.VcsDrivers.Mercurial;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using System.Linq;
+using Chorus.Model;
+using Chorus.Properties;
 using SIL.Progress;
 using SIL.TestUtilities;
 
@@ -25,6 +27,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void Setup()
 		{
 			_progress = new ConsoleProgress();
+		}
+
+		[TearDown]
+		public void TearDown()
+		{
+			ServerSettingsModel.PasswordForSession = null;
 		}
 
 		[Test] public void GetKnownRepositories_NoneKnown_GivesNone()
@@ -51,8 +59,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 one = c:\intentionally bogus
 two = https://foo.com");
 				var repo = new HgRepository(testRoot.Path, _progress);
-				var sources = repo.GetRepositoryPathsInHgrc();
-				Assert.AreEqual(2, sources.Count());
+				var sources = repo.GetRepositoryPathsInHgrc().ToList();
+				Assert.AreEqual(2, sources.Count);
 				Assert.AreEqual(@"c:\intentionally bogus" ,sources.First().URI);
 				Assert.AreEqual(@"https://foo.com", sources.Last().URI);
 				Assert.AreEqual(@"one" ,sources.First().Name);
@@ -113,8 +121,8 @@ two = https://foo.com");
 		{
 			using (new MercurialIniForTests())
 			{
-				Chorus.Properties.Settings.Default.LanguageForgeUser = string.Empty;
-				Chorus.Properties.Settings.Default.LanguageForgePass = "password";
+				Settings.Default.LanguageForgeUser = string.Empty;
+				ServerSettingsModel.PasswordForSession = "password";
 				Assert.IsFalse(GetIsReady(@"LanguageForge = https://hg-public.languageforge.org/xyz"));
 			}
 		}
@@ -124,19 +132,32 @@ two = https://foo.com");
 		{
 			using (new MercurialIniForTests())
 			{
-				Chorus.Properties.Settings.Default.LanguageForgeUser = "username";
-				Chorus.Properties.Settings.Default.LanguageForgePass = string.Empty;
+				Settings.Default.LanguageForgeUser = "username";
+				ServerSettingsModel.PasswordForSession = Settings.Default.LanguageForgePass = string.Empty;
 				Assert.IsFalse(GetIsReady(@"LanguageForge = https://hg-public.languageforge.org/xyz"));
 			}
 		}
 
 		[Test]
-		public void GetIsReadyForInternetSendReceive_HasFullLangForgeUrlAndCredentials_ReturnsTrue()
+		public void GetIsReadyForInternetSendReceive_HasFullLangForgeUrlAndSavedCredentials_ReturnsTrue()
 		{
 			using (new MercurialIniForTests())
 			{
-				Chorus.Properties.Settings.Default.LanguageForgeUser = "username";
-				Chorus.Properties.Settings.Default.LanguageForgePass = "password";
+				Settings.Default.LanguageForgeUser = "username";
+				Settings.Default.LanguageForgePass = ServerSettingsModel.EncryptPassword("password");
+				ServerSettingsModel.PasswordForSession = null;
+				Assert.IsTrue(GetIsReady(@"LanguageForge = https://hg-public.languageforge.org/xyz"));
+			}
+		}
+
+		[Test]
+		public void GetIsReadyForInternetSendReceive_HasFullLangForgeUrlAndCachedCredentials_ReturnsTrue()
+		{
+			using (new MercurialIniForTests())
+			{
+				Settings.Default.LanguageForgeUser = "username";
+				Settings.Default.LanguageForgePass = null;
+				ServerSettingsModel.PasswordForSession = "password";
 				Assert.IsTrue(GetIsReady(@"LanguageForge = https://hg-public.languageforge.org/xyz"));
 			}
 		}

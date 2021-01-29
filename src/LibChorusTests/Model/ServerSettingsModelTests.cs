@@ -428,11 +428,50 @@ namespace LibChorus.Tests.Model
 			}
 		}
 
+		/// <remarks>
+		/// The preference is unimportant in the real world, as the session cache will be populated only if the user initiates
+		/// a Send and Receive when there is no saved password. However, other unit tests depend on this preference to be robust.
+		/// </remarks>
+		[Test]
+		public void PasswordForSession_PrefersCached()
+		{
+			try
+			{
+				const string pass = "cachedPass";
+				ServerSettingsModel.PasswordForSession = pass;
+				Settings.Default.LanguageForgePass = "something-else";
+				Assert.AreEqual(pass, ServerSettingsModel.PasswordForSession);
+			}
+			finally
+			{
+				ServerSettingsModel.PasswordForSession = null;
+			}
+		}
+
 		[Test]
 		public void RemovePasswordForLog_NullAndEmptyDoNotCrash()
 		{
 			Assert.DoesNotThrow(() => ServerSettingsModel.RemovePasswordForLog(null));
 			Assert.DoesNotThrow(() => ServerSettingsModel.RemovePasswordForLog(string.Empty));
+		}
+
+		[Test]
+		public void RemovePasswordForLog_RemovesThePassword()
+		{
+			try
+			{
+				const string password = "patchworkQu11+";
+				const string logFormat = "Cannot connect to https://someone:{0}@hg-public.languageforge.org/flex-proj; check your password and try again.";
+				ServerSettingsModel.PasswordForSession = password;
+				// SUT
+				var scrubbed = ServerSettingsModel.RemovePasswordForLog(string.Format(logFormat, password));
+				Assert.AreEqual(string.Format(logFormat, ServerSettingsModel.PasswordAsterisks), scrubbed);
+				StringAssert.DoesNotContain(password, scrubbed);
+			}
+			finally
+			{
+				ServerSettingsModel.PasswordForSession = null;
+			}
 		}
 
 		[Test]

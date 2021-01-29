@@ -40,7 +40,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			req.UserAgent = $"HgResume v{ApiVersion}";
 			req.PreAuthenticate = true;
 			if (string.IsNullOrEmpty(Properties.Settings.Default.LanguageForgeUser) ||
-				string.IsNullOrEmpty(Properties.Settings.Default.LanguageForgePass))
+				string.IsNullOrEmpty(ServerSettingsModel.PasswordForSession))
 			{
 				throw new HgResumeException("Missing username or password");
 			}
