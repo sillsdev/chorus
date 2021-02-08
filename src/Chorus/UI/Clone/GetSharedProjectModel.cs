@@ -74,7 +74,7 @@ namespace Chorus.UI.Clone
 
 			// "existingRepositoryIdentifiers" is currently not used, but the expectation is that the various models/views could use it how they see fit.
 			// "Seeing fit' may mean to warn the user they already have some repository, or as a filter to not show ones that already exist.
-			// Waht to do with the list of extant repos is left up to a view+model pair.
+			// What to do with the list of extant repos is left up to a view+model pair.
 
 			// Select basic source type.
 			using (var getSharedProjectDlg = new GetSharedProjectDlg())

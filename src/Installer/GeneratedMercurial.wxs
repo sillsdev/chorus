@@ -119,10 +119,6 @@
                 </Directory>
             </Directory>
             <Directory Id="mercurial.default.d" Name="default.d">
-                <Component Id="mercurial.default.d.cacerts.rc" Guid="EBBE1FE8-F005-4582-A41C-24643CDA442C">
-                    <File Id="mercurial.default.d.cacerts.rc" Name="cacerts.rc" KeyPath="yes" Source="..\..\mercurial\default.d\cacerts.rc" />
-                    <RemoveFile Id="_ad48143261024ccd8a7be12adab9fc42" On="both" Name="*.*" />
-                </Component>
                 <Component Id="mercurial.default.d.editor.rc" Guid="5CE11261-3D90-447A-B240-E57394090508">
                     <File Id="mercurial.default.d.editor.rc" Name="editor.rc" Source="..\..\mercurial\default.d\editor.rc" />
                     <RemoveFile Id="_f94e9b53391f47f2beda7eccb9250163" On="both" Name="*.*" />
@@ -162,7 +158,6 @@
             <ComponentRef Id="mercurial.Contrib.Vim.hgtest.vim" />
             <ComponentRef Id="mercurial.Contrib.Vim.patchreview.txt" />
             <ComponentRef Id="mercurial.Contrib.Vim.patchreview.vim" />
-            <ComponentRef Id="mercurial.default.d.cacerts.rc" />
             <ComponentRef Id="mercurial.default.d.editor.rc" />
             <ComponentRef Id="mercurial.default.d.mergetools.rc" />
         </ComponentGroup>

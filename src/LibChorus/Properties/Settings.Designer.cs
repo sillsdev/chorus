@@ -34,5 +34,29 @@ namespace Chorus.Properties {
                 this["OtherBranchRevisions"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LanguageForgeUser {
+            get {
+                return ((string)(this["LanguageForgeUser"]));
+            }
+            set {
+                this["LanguageForgeUser"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LanguageForgePass {
+            get {
+                return ((string)(this["LanguageForgePass"]));
+            }
+            set {
+                this["LanguageForgePass"] = value;
+            }
+        }
     }
 }

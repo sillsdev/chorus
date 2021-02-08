@@ -1,9 +1,8 @@
-﻿using System.Windows.Forms;
+using Chorus.Model;
 using Chorus.UI.Misc;
 using NUnit.Framework;
-using Chorus.Model;
 
-namespace Chorus.Tests.UI.Clone
+namespace Chorus.Tests.UI.Misc
 {
 	[TestFixture]
 	public class ServerSettingsDialogTests
@@ -11,7 +10,7 @@ namespace Chorus.Tests.UI.Clone
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_FullAddress()
 		{
-			LaunchCustomUrl("http://joe:pass@hg-public.languagedepot.org/tpi");
+			LaunchCustomUrl("https://joe:pass@hg-public.languageforge.org/tpi");
 		}
 
 		[Test, Ignore("Run by hand only")]
@@ -20,14 +19,13 @@ namespace Chorus.Tests.UI.Clone
 			LaunchCustomUrl(@"\\myserver/tpi");
 		}
 
-		private void LaunchCustomUrl(string url)
+		private static void LaunchCustomUrl(string url)
 		{
 			var model = new ServerSettingsModel();
 			model.InitFromUri(url);
 			using (var dlg = new ServerSettingsDialog(model))
 			{
-				if (DialogResult.OK != dlg.ShowDialog())
-					return;
+				dlg.ShowDialog();
 			}
 		}
 	}

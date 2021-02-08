@@ -79,6 +79,10 @@ Documentation (what little exists) drips out in the form of occasional blogs
 
 Please see [Tips for Testing Palaso Software](https://docs.google.com/document/d/1dkp0edjJ8iqkrYeXdbQJcz3UicyilLR7GxMRIUAGb1E/edit)
 
+To send and receive with the test server over the Internet, set the following environment variable:
+
+	LANGUAGEFORGESERVER = -qa.languageforge.org
+
 ## Developers
 
 ### Road Map & Workflow

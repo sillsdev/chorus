@@ -111,10 +111,10 @@ namespace Chorus.Tests.UI.Sync
 		[Test]
 		[Category("SkipBehindProxy")]
 		[Category("SkipOnTeamCity")]
-		public void Sync_NonExistantLangDepotProject_ExitsGracefullyWithCorrectErrorResult()
+		public void Sync_NonExistentLangForgeProject_ExitsGracefullyWithCorrectErrorResult()
 		{
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
-			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "http://hg-public.languagedepot.org/dummy"));
+			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "https://hg-public.languageforge.org/dummy"));
 			var progress = new ConsoleProgress() {ShowVerbose = true};
 			_model.AddMessagesDisplay(progress);
 			SyncResults results = null;
@@ -132,7 +132,7 @@ namespace Chorus.Tests.UI.Sync
 		public void Sync_Cancelled_ResultsHaveCancelledEqualsTrue()
 		{
 			_model = new SyncControlModel(_project, SyncUIFeatures.Minimal, null);
-			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "http://hg-public.languagedepot.org/dummy"));
+			_model.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("languageforge", "https://hg-public.languageforge.org/dummy"));
 			var progress = new ConsoleProgress();
 			_model.AddMessagesDisplay(progress);
 			SyncResults results = null;

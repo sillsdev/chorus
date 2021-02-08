@@ -13,11 +13,6 @@ IF "%1"=="" (
 	set BUILD_CONFIG=%1
 )
 
-pushd %PALASO_DIR%
-REM Presence of a second argument indicates that the caller has already run vsvars32.bat
-call GetAndBuildThis.bat %BUILD_CONFIG% %2
-popd
-
 mkdir output\%BUILD_CONFIG%
 
 REM Uncomment these lines if you are working on L10NSharp

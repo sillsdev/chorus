@@ -212,7 +212,8 @@ namespace Chorus.merge.xml.generic
 					merger.ConflictOccurred(new RemovedVsEditedElementConflict(theirChild.Name, theirChild, null, ancestorChild,
 																			   mergeSituation, mergeStrategyForChild,
 																			   mergeSituation.BetaUserId));
-					ours.AppendChild(theirChild);
+					// ReSharper disable once PossibleNullReferenceException -- if ours.OwnerDocument is null, we have other problems
+					ours.AppendChild(ours.OwnerDocument.ImportNode(theirChild, true));
 				}
 			}
 			return ours;
@@ -227,7 +228,8 @@ namespace Chorus.merge.xml.generic
 			{
 				// they added child.
 				merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(pathToFileInRepository, theirChild));
-				ours.AppendChild(theirChild);
+				// ReSharper disable once PossibleNullReferenceException -- if ours.OwnerDocument is null, we have other problems
+				ours.AppendChild(ours.OwnerDocument.ImportNode(theirChild, true));
 				return ours;
 			}
 			if (theirChild == null)
@@ -389,7 +391,8 @@ namespace Chorus.merge.xml.generic
 					if (ourChild == null)
 					{
 						merger.EventListener.ChangeOccurred(new XmlAdditionChangeReport(pathToFileInRepository, theirChild));
-						ours.AppendChild(theirChild);
+						// ReSharper disable once PossibleNullReferenceException -- if ours.OwnerDocument is null, we have other problems
+						ours.AppendChild(ours.OwnerDocument.ImportNode(theirChild, true));
 						return ours;
 					}
 					if (theirChild == null)
