@@ -4,13 +4,13 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using Newtonsoft.Json;
 using SIL.Code;
-using SIL.Network;
 using SIL.Progress;
 
 namespace Chorus.Model

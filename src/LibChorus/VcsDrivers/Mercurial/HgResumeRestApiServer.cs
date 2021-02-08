@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Web;
 using Chorus.Model;
 using Chorus.Utilities;
 
@@ -27,10 +28,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			return Execute(method, request, new byte[0], secondsBeforeTimeout);
 		}
-
-		// TODO (Hasso) 2021.01: remove UserName and Password from this API
-		[Obsolete] public string UserName => null;
-		[Obsolete] public string Password => null;
 
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters parameters, byte[] contentToSend, int secondsBeforeTimeout)
 		{

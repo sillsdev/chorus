@@ -124,10 +124,6 @@ namespace Chorus.VcsDrivers
 		/// </summary>
 		public bool Enabled { get; set; }
 
-		// TODO (Hasso) 2021.01: remove Username and Password
-		[Obsolete] public string UserName => null;
-		[Obsolete] public string Password => null;
-
 		public abstract bool CanConnect(HgRepository localRepository, string projectName, IProgress progress);
 
 		/// <summary>
