@@ -219,39 +219,19 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void OneDeletedAndAdded_TheOtherEditedOriginal()
 		{
-			const string commonAncestor =
-@"<Lexicon>
+			const string openThruLexForm = @"<Lexicon>
 	<LexEntry guid='c1ed94c5-e382-11de-8a39-0800200c9a66'>
-		<LexemeForm>
-			<Stem
-				guid='76dbd844-915a-4cbd-886f-eebef34fa04e'>
-				<form>original</form>
+		<LexemeForm>";
+			const string openStemOriginalGuid = "<Stem guid='76dbd844-915a-4cbd-886f-eebef34fa04e'>";
+			const string closeFromStem = @"
 			</Stem>
 		</LexemeForm>
 	</LexEntry>
 </Lexicon>";
-			const string deleteAdd =
-@"<Lexicon>
-	<LexEntry guid='c1ed94c5-e382-11de-8a39-0800200c9a66'>
-		<LexemeForm>
-			<Stem
-				guid='76dbd845-915a-4cbd-886f-eebef34fa04e'>
-				<form>form of new stem</form>
-			</Stem>
-		</LexemeForm>
-	</LexEntry>
-</Lexicon>";
-			const string edit =
-@"<Lexicon>
-	<LexEntry guid='c1ed94c5-e382-11de-8a39-0800200c9a66'>
-		<LexemeForm>
-			<Stem
-				guid='76dbd844-915a-4cbd-886f-eebef34fa04e'>
-				<form>update form of original stem</form>
-			</Stem>
-		</LexemeForm>
-	</LexEntry>
-</Lexicon>";
+			const string commonAncestor = openThruLexForm + openStemOriginalGuid + "<form>original</form>" + closeFromStem;
+			const string edit = openThruLexForm + openStemOriginalGuid + "<form>update form of original stem</form>" + closeFromStem;
+			const string deleteAdd = openThruLexForm + @"<Stem guid='9cb0b2d8-8bce-411e-8de8-66a24fe9995a'>
+				<form>form of new stem</form>" + closeFromStem;
 
 			var listener = new ListenerForUnitTests();
 			var merger = new XmlMerger(new NullMergeSituation())
@@ -587,9 +567,91 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlTestHelper.DoMerge(merger.MergeStrategies, merger.MergeSituation,
 								  commonAncestor, ours, theirs,
 								  new[] { "Lexicon/LexEntry/ImportResidue/Str/Run[text()='OurAddition']" },
-				new List<string> { @"Lexicon/LexEntry/ImportResidue/Str/Run[text()='TheirAddition']" },
+								  new[] { "Lexicon/LexEntry/ImportResidue/Str/Run[text()='TheirAddition']" },
 								  1, new List<Type> { typeof(BothEditedTheSameAtomicElement) },
 								  1, new List<Type> { typeof(XmlAdditionChangeReport) });
+		}
+
+		[Test]
+		public void TheyAddedAtomicOwnedElementToExtantProperty_WeDidNothing()
+		{
+			const string commonAncestor =
+@"<Lexicon>
+	<LexEntry guid='c1ed94c5-e382-11de-8a39-0800200c9a66'>
+		<ImportResidue />
+	</LexEntry>
+</Lexicon>";
+
+			var theirs = commonAncestor.Replace("<ImportResidue />", "<ImportResidue><Str><Run ws='en'>TheirAddition</Run></Str></ImportResidue>");
+
+			var listener = new ListenerForUnitTests();
+			var merger = new XmlMerger(new NullMergeSituation())
+			{
+				EventListener = listener
+			};
+			merger.MergeStrategies.SetStrategy("Lexicon", ElementStrategy.CreateSingletonElement());
+
+			var strat = ElementStrategy.CreateForKeyedElement("guid", false);
+			strat.AttributesToIgnoreForMerging.Add("guid");
+			merger.MergeStrategies.SetStrategy("LexEntry", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			merger.MergeStrategies.SetStrategy("ImportResidue", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			strat.IsAtomic = true;
+			merger.MergeStrategies.SetStrategy("Str", strat);
+
+			XmlTestHelper.DoMerge(merger.MergeStrategies, merger.MergeSituation,
+								  commonAncestor, commonAncestor, theirs,
+								  new[] { "Lexicon/LexEntry/ImportResidue/Str/Run[text()='TheirAddition']" },
+								  new[] { "Lexicon/LexEntry/ImportResidue/Str/Run[text()='OurAddition']" },
+								  0, new List<Type>(),
+								  1, new List<Type> { typeof(XmlAdditionChangeReport) });
+		}
+
+		[Test]
+		public void TheyEditedAtomicOwnedElementOnExtantProperty_WeDeletedThatElement()
+		{
+			const string template =
+@"<Lexicon>
+	<LexEntry guid='c1ed94c5-e382-11de-8a39-0800200c9a66'>
+		<ImportResidue>{0}</ImportResidue>
+	</LexEntry>
+</Lexicon>";
+
+			var commonAncestor = string.Format(template, "<Str><Run ws='en'>OriginalContent</Run></Str>");
+			var ours = string.Format(template, string.Empty);
+			var theirs = string.Format(template, "<Str><Run ws='en'>TheirEdit</Run></Str>");
+
+			var listener = new ListenerForUnitTests();
+			var merger = new XmlMerger(new NullMergeSituation())
+			{
+				EventListener = listener
+			};
+			merger.MergeStrategies.SetStrategy("Lexicon", ElementStrategy.CreateSingletonElement());
+
+			var strat = ElementStrategy.CreateForKeyedElement("guid", false);
+			strat.AttributesToIgnoreForMerging.Add("guid");
+			merger.MergeStrategies.SetStrategy("LexEntry", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			merger.MergeStrategies.SetStrategy("ImportResidue", strat);
+
+			strat = ElementStrategy.CreateSingletonElement();
+			strat.NumberOfChildren = NumberOfChildrenAllowed.ZeroOrOne;
+			strat.IsAtomic = true;
+			merger.MergeStrategies.SetStrategy("Str", strat);
+
+			XmlTestHelper.DoMerge(merger.MergeStrategies, merger.MergeSituation,
+								  commonAncestor, ours, theirs,
+								  new[] { "Lexicon/LexEntry/ImportResidue/Str/Run[text()='TheirEdit']" },
+								  new[] { "Lexicon/LexEntry/ImportResidue/Str/Run[text()='OriginalContent']" },
+								  1, new List<Type> { typeof(RemovedVsEditedElementConflict)},
+								  0, new List<Type>());
 		}
 
 		[Test]

@@ -151,13 +151,14 @@
 	</Target>
 
 	<Target Name="MakeWixForDistFiles" DependsOnTargets="Compile" Condition="'$(OS)'=='Windows_NT'">
+		<!-- NB: The Exclude argument doesn't seem to be working so you may need to hand edit the GeneratedMercurial.wxs -->
 		<MakeWixForDirTree
 			DirectoryReferenceId="mercurial"
 			ComponentGroupId="Mercurial"
 			RootDirectory="$(RootDir)\mercurial"
 			OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurial.wxs"
 			IgnoreRegExPattern="IGNOREME|\.gitignore"
-			Exclude="$(RootDir)\mercurial\mercurial.ini"
+			Exclude="$(RootDir)\mercurial\mercurial.ini;$(RootDir)\mercurial\default.d\cacerts.rc"
 			MatchRegExPattern=".*">
 			<Output TaskParameter="OutputFilePath" ItemName="Compile" />
 		</MakeWixForDirTree>

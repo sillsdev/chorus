@@ -40,6 +40,11 @@ namespace Chorus.merge.xml.generic
 			return (ours == theirs) || AreXmlElementsEqual(CreateNode(ours), CreateNode(theirs));
 		}
 
+		public static bool AreXmlElementsEqual(XElement ours, XElement theirs)
+		{
+			return XNode.DeepEquals(ours, theirs);
+		}
+
 		private static XmlNode CreateNode(string data)
 		{
 			using (var stringReader = new StringReader(data))

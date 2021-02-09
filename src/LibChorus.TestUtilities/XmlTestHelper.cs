@@ -32,7 +32,7 @@ namespace LibChorus.TestUtilities
 				XmlWriterSettings settings = new XmlWriterSettings();
 				settings.Indent = true;
 				settings.ConformanceLevel = ConformanceLevel.Fragment;
-				XmlWriter writer = XmlTextWriter.Create(Console.Out, settings);
+				var writer = XmlWriter.Create(Console.Out, settings);
 				doc.WriteContentTo(writer);
 				writer.Flush();
 				if (nodes != null && nodes.Count > 1)
@@ -48,11 +48,10 @@ namespace LibChorus.TestUtilities
 
 		public static void CreateThreeNodes(string ourXml, string theirXml, string ancestorXml, out XmlNode ourNode, out XmlNode ourParent, out XmlNode theirNode, out XmlNode ancestorNode)
 		{
-			var doc = new XmlDocument();
-			ourParent = XmlUtilities.GetDocumentNodeFromRawXml("<ParentNode>" + ourXml + "</ParentNode>", doc);
+			ourParent = XmlUtilities.GetDocumentNodeFromRawXml("<ParentNode>" + ourXml + "</ParentNode>", new XmlDocument());
 			ourNode = ourParent.FirstChild;
-			theirNode = XmlUtilities.GetDocumentNodeFromRawXml("<ParentNode>" + theirXml + "</ParentNode>", doc).FirstChild;
-			ancestorNode = XmlUtilities.GetDocumentNodeFromRawXml("<ParentNode>" + ancestorXml + "</ParentNode>", doc).FirstChild;
+			theirNode = XmlUtilities.GetDocumentNodeFromRawXml("<ParentNode>" + theirXml + "</ParentNode>", new XmlDocument()).FirstChild;
+			ancestorNode = XmlUtilities.GetDocumentNodeFromRawXml("<ParentNode>" + ancestorXml + "</ParentNode>", new XmlDocument()).FirstChild;
 		}
 
 		public static void AssertXPathNotNull(string documentPath, string xpath)
@@ -65,7 +64,7 @@ namespace LibChorus.TestUtilities
 				XmlWriterSettings settings = new XmlWriterSettings();
 				settings.Indent = true;
 				settings.ConformanceLevel = ConformanceLevel.Fragment;
-				XmlWriter writer = XmlTextWriter.Create(Console.Out, settings);
+				var writer = XmlWriter.Create(Console.Out, settings);
 				doc.WriteContentTo(writer);
 				writer.Flush();
 			}
@@ -84,7 +83,7 @@ namespace LibChorus.TestUtilities
 													Indent = true,
 													ConformanceLevel = ConformanceLevel.Fragment
 												};
-				XmlWriter writer = XmlTextWriter.Create(Console.Out, settings);
+				var writer = XmlWriter.Create(Console.Out, settings);
 				doc.WriteContentTo(writer);
 				writer.Flush();
 			}
@@ -104,7 +103,7 @@ namespace LibChorus.TestUtilities
 				return;
 
 			var settings = new XmlWriterSettings { Indent = true, ConformanceLevel = ConformanceLevel.Fragment };
-			var writer = XmlTextWriter.Create(Console.Out, settings);
+			var writer = XmlWriter.Create(Console.Out, settings);
 			doc.WriteContentTo(writer);
 			writer.Flush();
 			if (nodes != null && nodes.Count > 1)
@@ -133,7 +132,7 @@ namespace LibChorus.TestUtilities
 					Indent = true,
 					ConformanceLevel = ConformanceLevel.Fragment
 				};
-				var writer = XmlTextWriter.Create(Console.Out, settings);
+				var writer = XmlWriter.Create(Console.Out, settings);
 				doc.WriteContentTo(writer);
 				writer.Flush();
 			}
@@ -148,10 +147,9 @@ namespace LibChorus.TestUtilities
 			int expectedConflictCount, List<Type> expectedConflictTypes,
 			int expectedChangesCount, List<Type> expectedChangeTypes)
 		{
-			var doc = new XmlDocument();
-			var ourNode = XmlUtilities.GetDocumentNodeFromRawXml(ourXml, doc);
-			var theirNode = XmlUtilities.GetDocumentNodeFromRawXml(theirXml, doc);
-			var ancestorNode = XmlUtilities.GetDocumentNodeFromRawXml(ancestorXml, doc);
+			var ourNode = XmlUtilities.GetDocumentNodeFromRawXml(ourXml, new XmlDocument());
+			var theirNode = XmlUtilities.GetDocumentNodeFromRawXml(theirXml, new XmlDocument());
+			var ancestorNode = XmlUtilities.GetDocumentNodeFromRawXml(ancestorXml, new XmlDocument());
 
 			var eventListener = new ListenerForUnitTests();
 			var merger = new XmlMerger(mergeSituation)
