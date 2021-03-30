@@ -12,6 +12,11 @@ namespace Chorus.UI.Clone
 {
 	public class GetCloneFromInternetModel : InternetCloneSettingsModel
 	{
+		public GetCloneFromInternetModel() : base()
+		{
+			ShowCloneOnlyControls = false;
+		}
+
 		public GetCloneFromInternetModel(string parentDirectoryToPutCloneIn): base(parentDirectoryToPutCloneIn)
 		{
 			ShowCloneOnlyControls = true;
