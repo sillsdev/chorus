@@ -85,7 +85,8 @@ namespace Chorus.Model
 		public ServerSettingsModel()
 		{
 			Username = Properties.Settings.Default.LanguageForgeUser;
-			Password = PasswordForSession;
+			Password = DecryptPassword(Properties.Settings.Default.LanguageForgePass);
+			RememberPassword = !string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(Username);
 		}
 
 		///<summary>
@@ -160,6 +161,7 @@ namespace Chorus.Model
 			}
 		}
 
+		public bool RememberPassword { get; set; }
 		public string Password { get; set; }
 		public string Username { get; set; }
 		public bool IsCustomUrl { get; set; }
@@ -203,7 +205,8 @@ namespace Chorus.Model
 		private void SaveUserSettings()
 		{
 			Properties.Settings.Default.LanguageForgeUser = Username;
-			Properties.Settings.Default.LanguageForgePass = EncryptPassword(Password);
+			Properties.Settings.Default.LanguageForgePass = RememberPassword ? EncryptPassword(Password) : null;
+			PasswordForSession = Password;
 			Properties.Settings.Default.Save();
 		}
 

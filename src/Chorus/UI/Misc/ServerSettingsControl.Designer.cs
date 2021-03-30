@@ -46,10 +46,13 @@ namespace Chorus.UI.Misc
 			this._tlpLogIn = new System.Windows.Forms.TableLayoutPanel();
 			this._buttonLogIn = new System.Windows.Forms.Button();
 			this._serverLabel = new System.Windows.Forms.Label();
+			this._tlpPassword = new System.Windows.Forms.TableLayoutPanel();
+			this._checkRememberPassword = new System.Windows.Forms.CheckBox();
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
 			this.tableLayoutPanel1.SuspendLayout();
 			this._tlpCustomUrl.SuspendLayout();
 			this._tlpLogIn.SuspendLayout();
+			this._tlpPassword.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -100,7 +103,7 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizingId(this._username, "ServerSettingsControl.ServerSettingsControl._username");
 			this._username.Location = new System.Drawing.Point(83, 7);
 			this._username.Name = "_username";
-			this._username.Size = new System.Drawing.Size(263, 20);
+			this._username.Size = new System.Drawing.Size(277, 20);
 			this._username.TabIndex = 2;
 			this.toolTip1.SetToolTip(this._username, "This is your account on the server, which must already be set up.");
 			this._username.TextChanged += new System.EventHandler(this._username_TextChanged);
@@ -113,9 +116,9 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._password, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._password, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._password, "ServerSettingsControl.ServerSettingsControl._password");
-			this._password.Location = new System.Drawing.Point(83, 41);
+			this._password.Location = new System.Drawing.Point(3, 7);
 			this._password.Name = "_password";
-			this._password.Size = new System.Drawing.Size(263, 20);
+			this._password.Size = new System.Drawing.Size(180, 20);
 			this._password.TabIndex = 8;
 			this.toolTip1.SetToolTip(this._password, "This is the password belonging to this account, as it was set up on the server.");
 			this._password.UseSystemPasswordChar = true;
@@ -148,10 +151,11 @@ namespace Chorus.UI.Misc
 			this.tableLayoutPanel1.Controls.Add(this._accountLabel, 0, 0);
 			this.tableLayoutPanel1.Controls.Add(this._username, 1, 0);
 			this.tableLayoutPanel1.Controls.Add(this._tlpCustomUrl, 1, 2);
-			this.tableLayoutPanel1.Controls.Add(this._password, 1, 1);
 			this.tableLayoutPanel1.Controls.Add(this._bandwidth, 1, 4);
 			this.tableLayoutPanel1.Controls.Add(this._projectId, 1, 5);
 			this.tableLayoutPanel1.Controls.Add(this._tlpLogIn, 1, 3);
+			this.tableLayoutPanel1.Controls.Add(this._tlpPassword, 1, 1);
+			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 6;
@@ -161,7 +165,7 @@ namespace Chorus.UI.Misc
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(349, 208);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(363, 208);
 			this.tableLayoutPanel1.TabIndex = 30;
 			// 
 			// _bandwidthLabel
@@ -179,19 +183,18 @@ namespace Chorus.UI.Misc
 			// 
 			// _tlpCustomUrl
 			// 
-			this._tlpCustomUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
 			this._tlpCustomUrl.ColumnCount = 2;
-			this._tlpCustomUrl.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this._tlpCustomUrl.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 244F));
+			this._tlpCustomUrl.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+			this._tlpCustomUrl.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 250F));
 			this._tlpCustomUrl.Controls.Add(this._checkCustomUrl, 0, 0);
 			this._tlpCustomUrl.Controls.Add(this._customUrl, 1, 0);
-			this._tlpCustomUrl.Location = new System.Drawing.Point(83, 71);
+			this._tlpCustomUrl.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._tlpCustomUrl.Location = new System.Drawing.Point(80, 68);
+			this._tlpCustomUrl.Margin = new System.Windows.Forms.Padding(0);
 			this._tlpCustomUrl.Name = "_tlpCustomUrl";
 			this._tlpCustomUrl.RowCount = 1;
-			this._tlpCustomUrl.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this._tlpCustomUrl.Size = new System.Drawing.Size(263, 28);
+			this._tlpCustomUrl.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this._tlpCustomUrl.Size = new System.Drawing.Size(283, 34);
 			this._tlpCustomUrl.TabIndex = 17;
 			// 
 			// _checkCustomUrl
@@ -201,9 +204,9 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._checkCustomUrl, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._checkCustomUrl, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._checkCustomUrl, "ServerSettingsControl.checkBox1");
-			this._checkCustomUrl.Location = new System.Drawing.Point(3, 7);
+			this._checkCustomUrl.Location = new System.Drawing.Point(3, 10);
 			this._checkCustomUrl.Name = "_checkCustomUrl";
-			this._checkCustomUrl.Size = new System.Drawing.Size(13, 14);
+			this._checkCustomUrl.Size = new System.Drawing.Size(15, 14);
 			this._checkCustomUrl.TabIndex = 17;
 			this._checkCustomUrl.UseVisualStyleBackColor = true;
 			this._checkCustomUrl.CheckedChanged += new System.EventHandler(this._checkCustomUrl_CheckedChanged);
@@ -214,9 +217,9 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._customUrl, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._customUrl, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._customUrl, "ServerSettingsControl.ServerSettingsControl._customUrl");
-			this._customUrl.Location = new System.Drawing.Point(22, 4);
+			this._customUrl.Location = new System.Drawing.Point(24, 7);
 			this._customUrl.Name = "_customUrl";
-			this._customUrl.Size = new System.Drawing.Size(238, 20);
+			this._customUrl.Size = new System.Drawing.Size(256, 20);
 			this._customUrl.TabIndex = 18;
 			this._customUrl.TextChanged += new System.EventHandler(this._customUrl_TextChanged);
 			// 
@@ -230,7 +233,7 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizingId(this._bandwidth, "ServerSettingsControl.comboBox1");
 			this._bandwidth.Location = new System.Drawing.Point(83, 142);
 			this._bandwidth.Name = "_bandwidth";
-			this._bandwidth.Size = new System.Drawing.Size(263, 21);
+			this._bandwidth.Size = new System.Drawing.Size(277, 21);
 			this._bandwidth.TabIndex = 25;
 			this._bandwidth.SelectedIndexChanged += new System.EventHandler(this._bandwidth_SelectedIndexChanged);
 			// 
@@ -245,25 +248,24 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizingId(this._projectId, "ServerSettingsControl.comboBox2");
 			this._projectId.Location = new System.Drawing.Point(83, 178);
 			this._projectId.Name = "_projectId";
-			this._projectId.Size = new System.Drawing.Size(263, 21);
+			this._projectId.Size = new System.Drawing.Size(277, 21);
 			this._projectId.TabIndex = 29;
 			this._projectId.TextChanged += new System.EventHandler(this._projectId_TextChanged);
 			// 
 			// _tlpLogIn
 			// 
-			this._tlpLogIn.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
 			this._tlpLogIn.ColumnCount = 2;
-			this._tlpLogIn.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this._tlpLogIn.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 184F));
+			this._tlpLogIn.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 86F));
+			this._tlpLogIn.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this._tlpLogIn.Controls.Add(this._buttonLogIn, 0, 0);
 			this._tlpLogIn.Controls.Add(this._serverLabel, 1, 0);
+			this._tlpLogIn.Dock = System.Windows.Forms.DockStyle.Fill;
 			this._tlpLogIn.Location = new System.Drawing.Point(80, 102);
 			this._tlpLogIn.Margin = new System.Windows.Forms.Padding(0);
 			this._tlpLogIn.Name = "_tlpLogIn";
 			this._tlpLogIn.RowCount = 1;
-			this._tlpLogIn.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-			this._tlpLogIn.Size = new System.Drawing.Size(269, 34);
+			this._tlpLogIn.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this._tlpLogIn.Size = new System.Drawing.Size(283, 34);
 			this._tlpLogIn.TabIndex = 25;
 			// 
 			// _buttonLogIn
@@ -286,11 +288,42 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._serverLabel, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._serverLabel, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._serverLabel, "ServerSettingsControl.label1");
-			this._serverLabel.Location = new System.Drawing.Point(88, 10);
+			this._serverLabel.Location = new System.Drawing.Point(89, 10);
 			this._serverLabel.Name = "_serverLabel";
 			this._serverLabel.Size = new System.Drawing.Size(33, 13);
 			this._serverLabel.TabIndex = 23;
 			this._serverLabel.Text = "to {0}";
+			// 
+			// _tlpPassword
+			// 
+			this._tlpPassword.ColumnCount = 2;
+			this._tlpPassword.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 66F));
+			this._tlpPassword.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 34F));
+			this._tlpPassword.Controls.Add(this._password, 0, 0);
+			this._tlpPassword.Controls.Add(this._checkRememberPassword, 1, 0);
+			this._tlpPassword.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._tlpPassword.Location = new System.Drawing.Point(80, 34);
+			this._tlpPassword.Margin = new System.Windows.Forms.Padding(0);
+			this._tlpPassword.Name = "_tlpPassword";
+			this._tlpPassword.RowCount = 1;
+			this._tlpPassword.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this._tlpPassword.Size = new System.Drawing.Size(283, 34);
+			this._tlpPassword.TabIndex = 8;
+			// 
+			// _checkRememberPassword
+			// 
+			this._checkRememberPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+			this._checkRememberPassword.AutoSize = true;
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._checkRememberPassword, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._checkRememberPassword, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._checkRememberPassword, "ServerSettingsControl.checkBox1");
+			this._checkRememberPassword.Location = new System.Drawing.Point(189, 8);
+			this._checkRememberPassword.Name = "_checkRememberPassword";
+			this._checkRememberPassword.Size = new System.Drawing.Size(91, 17);
+			this._checkRememberPassword.TabIndex = 9;
+			this._checkRememberPassword.Text = "&Remember";
+			this._checkRememberPassword.UseVisualStyleBackColor = true;
+			this._checkRememberPassword.CheckedChanged += new System.EventHandler(this._checkRememberPassword_CheckedChanged);
 			// 
 			// l10NSharpExtender1
 			// 
@@ -314,6 +347,8 @@ namespace Chorus.UI.Misc
 			this._tlpCustomUrl.PerformLayout();
 			this._tlpLogIn.ResumeLayout(false);
 			this._tlpLogIn.PerformLayout();
+			this._tlpPassword.ResumeLayout(false);
+			this._tlpPassword.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 
@@ -339,5 +374,7 @@ namespace Chorus.UI.Misc
 		private System.Windows.Forms.ComboBox _projectId;
 		private System.Windows.Forms.TableLayoutPanel _tlpLogIn;
 		private System.Windows.Forms.Label _serverLabel;
+		private System.Windows.Forms.TableLayoutPanel _tlpPassword;
+		private System.Windows.Forms.CheckBox _checkRememberPassword;
 	}
 }

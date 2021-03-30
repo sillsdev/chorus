@@ -54,7 +54,7 @@ namespace Chorus.UI.Clone
 
 			_serverSettingsControl = new ServerSettingsControl(){Model=_model};
 			_serverSettingsControl.TabIndex = 0;
-			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left);
+			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
 			Controls.Add(_serverSettingsControl);
 
 			_targetFolderControl = new TargetFolderControl(_model);

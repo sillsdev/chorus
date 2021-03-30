@@ -274,6 +274,35 @@ namespace LibChorus.Tests.Model
 			Assert.Throws<JsonReaderException>(() => m.PopulateAvailableProjects(badJson));
 		}
 
+		[TestCase(null, "rememberMe", true)]
+		[TestCase(null, null, false)]
+		[TestCase(null, "", false)]
+		[TestCase("temporary", "", false)]
+		public void RememberPassword(string cachedPassword, string savedPassword, bool expectedRememberPassword)
+		{
+			Settings.Default.LanguageForgeUser = "User";
+			Settings.Default.LanguageForgePass = ServerSettingsModel.EncryptPassword(savedPassword);
+			ServerSettingsModel.PasswordForSession = cachedPassword;
+
+			var sut = new ServerSettingsModel();
+			Assert.AreEqual(expectedRememberPassword, sut.RememberPassword);
+			if (expectedRememberPassword)
+			{
+				Assert.AreEqual(savedPassword, sut.Password);
+			}
+			else
+			{
+				Assert.IsNullOrEmpty(sut.Password);
+			}
+		}
+
+		[Test]
+		public void RememberPasswordByDefault()
+		{
+			Settings.Default.LanguageForgeUser = Settings.Default.LanguageForgePass = string.Empty;
+			Assert.True(new ServerSettingsModel().RememberPassword);
+		}
+
 		[Test]
 		public void SaveSettings_NoHgFolderExists_CreatesOneWithCorrectPath()
 		{
@@ -301,7 +330,7 @@ namespace LibChorus.Tests.Model
 		[Test]
 		public void SaveSettings_PreexistsAndWeSave_MovesCredentials([Values(true, false)] bool isResumable)
 		{
-			ServerSettingsModel.PasswordForSession = null;
+			ServerSettingsModel.PasswordForSession = Settings.Default.LanguageForgePass = Settings.Default.LanguageForgeUser = null;
 			using (var folder = new TemporaryFolder("ServerSettingsModel"))
 			{
 				const string user = "joe";
@@ -331,6 +360,26 @@ namespace LibChorus.Tests.Model
 				Assert.AreEqual(newUrl, address.URI);
 				Assert.AreEqual(isResumable ? newUrl : newUrlWithCredentials, address.GetPotentialRepoUri(null, null, null),
 					"The new 'potential' URI should contain credentials only when non-resumable");
+			}
+		}
+
+		[Test]
+		public void SaveSettings_ForgetsPassword()
+		{
+			ServerSettingsModel.PasswordForSession = null;
+			using (var folder = new TemporaryFolder("ServerSettingsModel"))
+			{
+				const string user = "joe";
+				const string pass = "passwordForShortTermMemory";
+				var m = new ServerSettingsModel {Username = user, Password = pass, RememberPassword = false};
+				m.InitFromProjectPath(folder.Path);
+				m.SaveSettings();
+				Assert.AreEqual(user, Settings.Default.LanguageForgeUser);
+				Assert.Null(Settings.Default.LanguageForgePass);
+				Assert.AreEqual(pass, ServerSettingsModel.PasswordForSession);
+				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
+				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
+				Assert.That(address.URI, Is.Not.StringContaining(pass));
 			}
 		}
 
