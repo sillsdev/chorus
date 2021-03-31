@@ -202,7 +202,7 @@ namespace Chorus.Model
 			return new HttpRepositoryPath(name, URL, false);
 		}
 
-		private void SaveUserSettings()
+		public void SaveUserSettings()
 		{
 			Properties.Settings.Default.LanguageForgeUser = Username;
 			Properties.Settings.Default.LanguageForgePass = RememberPassword ? EncryptPassword(Password) : null;
@@ -218,9 +218,9 @@ namespace Chorus.Model
 				var content = Encoding.UTF8.GetString(WebResponseHelper.ReadResponseContent(response, 300));
 				HasLoggedIn = true;
 				error = null;
-				SaveUserSettings();
+				PasswordForSession = Password;
 
-				// Do this last so the credentials are saved even if JSON parsing crashes
+				// Do this last so the user is "logged in" even if JSON parsing crashes
 				PopulateAvailableProjects(content);
 			}
 			catch (WebException e)

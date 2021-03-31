@@ -268,6 +268,7 @@ namespace Chorus.UI.Clone
 				if(_backgroundWorker.IsBusy)
 					return;
 				UpdateDisplay(State.MakingClone);
+				_model.SaveUserSettings();
 				ThreadSafeUrl = _model.URL;
 				//_backgroundWorker.RunWorkerAsync(new object[] { ThreadSafeUrl, PathToNewProject, _progress });
 				_backgroundWorker.RunWorkerAsync(new object[0]);
