@@ -35,6 +35,7 @@ namespace Chorus.UI.Misc
 		{
 			_username.Text = Model.Username;
 			_password.Text = Model.Password;
+			_checkRememberPassword.Checked = Model.RememberPassword;
 
 			_customUrl.Text = Model.URL;
 			_customUrl.Visible = _checkCustomUrl.Checked = Model.IsCustomUrl;
@@ -124,6 +125,12 @@ namespace Chorus.UI.Misc
 		private void _checkCustomUrl_CheckedChanged(object sender, EventArgs e)
 		{
 			Model.IsCustomUrl = _checkCustomUrl.Checked;
+			UpdateDisplay();
+		}
+
+		private void _checkRememberPassword_CheckedChanged(object sender, EventArgs e)
+		{
+			Model.RememberPassword = _checkRememberPassword.Checked;
 			UpdateDisplay();
 		}
 

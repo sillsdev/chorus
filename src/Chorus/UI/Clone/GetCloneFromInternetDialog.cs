@@ -54,7 +54,7 @@ namespace Chorus.UI.Clone
 
 			_serverSettingsControl = new ServerSettingsControl(){Model=_model};
 			_serverSettingsControl.TabIndex = 0;
-			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left);
+			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
 			Controls.Add(_serverSettingsControl);
 
 			_targetFolderControl = new TargetFolderControl(_model);
@@ -268,6 +268,7 @@ namespace Chorus.UI.Clone
 				if(_backgroundWorker.IsBusy)
 					return;
 				UpdateDisplay(State.MakingClone);
+				_model.SaveUserSettings();
 				ThreadSafeUrl = _model.URL;
 				//_backgroundWorker.RunWorkerAsync(new object[] { ThreadSafeUrl, PathToNewProject, _progress });
 				_backgroundWorker.RunWorkerAsync(new object[0]);
