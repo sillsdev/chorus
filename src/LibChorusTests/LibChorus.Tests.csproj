@@ -264,6 +264,7 @@
     <Compile Include="utilities\MultiMapTests.cs" />
     <Compile Include="utilities\XmlUtilitiesTests.cs" />
     <Compile Include="VcsDrivers\Mercurial\BundleStorageManagerTests.cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgRepositoryTests.cs" />
     <Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServerTests.cs" />
     <Compile Include="VcsDrivers\Mercurial\HgResumeTestUtilities.cs" />
     <Compile Include="VcsDrivers\Mercurial\HgResumeTransportTests.cs" />
@@ -314,7 +315,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="merge\text\" />
-    <Folder Include="FileHandlers\xml\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

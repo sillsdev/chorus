@@ -1,7 +1,3 @@
-//#if MONO
-//#define MERCURIAL2
-//#endif
-
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -11,7 +7,6 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using Chorus.Utilities;
 using Chorus.merge;
 using Chorus.Model;
@@ -41,7 +36,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private static bool _alreadyCheckedMercurialIni;
 		internal const string EmptyRepoIdentifier = "0000000000000000000000000000000000000000";
 		/// <summary>
-		/// Template to produce a consistant and parsable revision log entry
+		/// Template to produce a consistent and parseable revision log entry
 		/// </summary>
 		private const string DetailedRevisionTemplate = "--template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"";
 		private bool _mercurialTwoCompatible;
@@ -463,28 +458,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		internal string GetTextFromQuery(string query)
 		{
-			var result = ExecuteErrorsOk(query, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
-
-			var standardOutputText = result.StandardOutput.Trim();
-			if (!string.IsNullOrEmpty(standardOutputText))
-			{
-				_progress.WriteVerbose(standardOutputText);
-			}
-
-			var standardErrorText = result.StandardError.Trim();
-			if (!string.IsNullOrEmpty(standardErrorText))
-			{
-				_progress.WriteVerbose(standardErrorText);
-			}
-
-			if (GetHasLocks())
-			{
-				_progress.WriteWarning("Hg Command {0} left lock", query);
-			}
-			return result.StandardOutput;
+			return GetTextFromQuery(query, SecondsBeforeTimeoutOnLocalOperation);
 		}
 
-		private string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation, IProgress progress)
+		private string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation)
 		{
 			var result = ExecuteErrorsOk(query, _pathToRepository, secondsBeforeTimeoutOnLocalOperation, _progress);
 
@@ -498,6 +475,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (!string.IsNullOrEmpty(standardErrorText))
 			{
 				_progress.WriteError(standardErrorText);
+			}
+
+			if (GetHasLocks())
+			{
+				_progress.WriteWarning("Hg Command {0} left lock", query);
 			}
 
 			return result.StandardOutput;
@@ -590,7 +572,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					.AppendLine(ServerSettingsModel.RemovePasswordForLog(hgCmdArgs));
 				try
 				{
-					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout, _progress);
+					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout);
 					//trim the verbose copyright stuff
 					versionInfo = versionInfo.Substring(0, versionInfo.IndexOf("Copyright", StringComparison.Ordinal));
 					detailsBuilder.Append($"hg version is {versionInfo}");
@@ -646,7 +628,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var heads = GetHeads();
 			if(heads.Count() > 2)
 			{
-				throw new ApplicationException(String.Format("Unable to recover from failed merge: [Too many heads in the repository]"));
+				throw new ApplicationException("Unable to recover from failed merge: [Too many heads in the repository]");
 			}
 			// set the environment variables necessary for ChorusMerge to retry the merge
 			MergeSituation.PushRevisionsToEnvironmentVariables(heads[0].UserId, heads[0].Number.Hash,
@@ -658,9 +640,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				_progress.WriteMessageWithColor(@"Blue", "Attempting to recover from failed merge.");
 				var result = Execute(true, SecondsBeforeTimeoutOnMergeOperation, "resolve", "--all");
-				if(!String.IsNullOrEmpty(result.StandardError))
+				if(!string.IsNullOrEmpty(result.StandardError))
 				{
-					throw new ApplicationException(String.Format("Unable to recover from failed merge: [{0}]", result.StandardError));
+					throw new ApplicationException($"Unable to recover from failed merge: [{result.StandardError}]");
 				}
 			}
 			_progress.WriteMessageWithColor(@"Green", "Successfully recovered from failed merge.");
@@ -1013,7 +995,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					throw new RepositoryAuthorizationException();
 				}
 
-				throw error;
+				throw;
 			}
 		}
 
@@ -1031,13 +1013,49 @@ namespace Chorus.VcsDrivers.Mercurial
 											 "Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
 											 targetPath);
 			var repo = new HgRepository(targetPath, progress);
+			repo.LogBasicInfo(new List<RepositoryAddress> {source});
 
 			// Cannot pass repo.Identifier because the local repo doesn't exist yet.
 			var transport = repo.CreateTransportBetween(source, source.GetPotentialRepoUri(null, null, progress));
 			transport.Clone();
 			repo.Update();
 			progress.WriteMessage("Finished copying to this computer at {0}", targetPath);
+			progress.WriteVerbose($"Finished at {DateTime.UtcNow:u}");
 			return targetPath;
+		}
+
+		/// <summary>
+		/// Log basic diagnostic information, including the username and repository name
+		/// </summary>
+		public void LogBasicInfo(IList<RepositoryAddress> potentialAddresses)
+		{
+			_progress.WriteVerbose($"Started at {DateTime.UtcNow:u}");
+			_progress.WriteVerbose($"Local User: {GetUserIdInUse()}");
+			if (potentialAddresses.Any(a => a is HttpRepositoryPath))
+			{
+				_progress.WriteVerbose($"LanguageForge User: {Settings.Default.LanguageForgeUser}");
+			}
+
+			_progress.WriteVerbose($"Repository URI: {string.Join(Environment.NewLine, potentialAddresses.Select(RepositoryURIForLog))}");
+			_progress.WriteVerbose($"Local Directory: {_pathToRepository}{Environment.NewLine}");
+		}
+
+		internal string RepositoryURIForLog(RepositoryAddress address)
+		{
+			try
+			{
+				// Attempt to resolve the project name variable (needed for sync with ChorusHub, but not clone).
+				// USB Keys also have a low-information URI, but attempting to resolve it at this point is difficult if not impossible,
+				// and it will appear later in the log.
+				if(address.URI.Contains(RepositoryAddress.ProjectNameVariable))
+				{
+					return address.GetPotentialRepoUri(Identifier,
+						Path.GetFileNameWithoutExtension(_pathToRepository) + Path.GetExtension(_pathToRepository),
+						_progress);
+				}
+			}
+			catch { /* Don't throw trying to get extra information to log */ }
+			return address.URI;
 		}
 
 		/// <summary>
@@ -1164,47 +1182,27 @@ namespace Chorus.VcsDrivers.Mercurial
 			return GetRevisionsFromQuery("parents --template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\nparent:{p1rev}:{p1node}\"").FirstOrDefault();
 		}
 
-		[Obsolete("Use the non-static member instead... this is just here for the old partial merger")]
-		public static void SetUserId(string path, string userId)
-		{
-			var hg = new HgRepository(path, new NullProgress());
-			hg.SetUserNameInIni(userId, new NullProgress());
-			//Environment.SetEnvironmentVariable("hguser", userId);
-			//defunct Execute("config", path, "--local ui.username " + userId);
-
-		}
-
 		public string GetUserIdInUse()
 		{
+			var defaultName = Environment.UserName.Replace(" ", "");
 			if (GetIsLocalUri(_pathToRepository))
 			{
-				return GetUserNameFromIni(_progress, Environment.UserName.Replace(" ", ""));
-				//this gave the global name, we want the name associated with this repository
-				//return GetTextFromQuery(_pathToRepository, "showconfig ui.username").Trim();
+				return GetUserNameFromIni(_progress, defaultName);
 			}
-			else
-			{
-				return GetUriStrippedOfUserAccountInfo(_pathToRepository);
-			}
-		}
 
-		private string GetUriStrippedOfUserAccountInfo(string repository)
-		{
-			//enhance: make it handle ssh's
-			Regex x = new Regex("(http://)(.+@)*(.+)");
-			var s = x.Replace(repository, @"$1$3");
-			return s;
+			var username = UrlHelper.GetUserName(_pathToRepository);
+			return string.IsNullOrEmpty(username) ? defaultName : username;
 		}
 
 		public bool GetFileExistsInRepo(string subPath)
 		{
 			string result = GetTextFromQuery("locate " + subPath);
-			return !String.IsNullOrEmpty(result.Trim());
+			return !string.IsNullOrEmpty(result.Trim());
 		}
 		public bool GetIsAtLeastOneMissingFileInWorkingDir()
 		{
 			string result = GetTextFromQuery("status -d ");
-			return !String.IsNullOrEmpty(result.Trim());
+			return !string.IsNullOrEmpty(result.Trim());
 		}
 
 		/// <summary>
@@ -1222,7 +1220,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				// At least zap the temp file, since it isn't to be returned.
 				File.Delete(f.Path);
-				throw new ApplicationException(String.Format("Could not retrieve version {0} of {1}. Mercurial said: {2}", revOrHash, relativePath, result.StandardError));
+				throw new ApplicationException($"Could not retrieve version {revOrHash} of {relativePath}. Mercurial said: {result.StandardError}");
 			}
 			return f.Path;
 		}
@@ -1844,7 +1842,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void GetDiagnosticInformationForRemoteProject(IProgress progress, string url)
 		{
 			progress.WriteMessage("Gathering diagnostics data (can't actually tell you anything about the remote server)...");
-			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("version", 30));
 
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
 			progress.WriteMessage("---------------------------------------------------");
@@ -1853,7 +1851,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			try
 			{
-				progress.WriteMessage("Client = " + Assembly.GetEntryAssembly().FullName);
+				progress.WriteMessage("Client = " + Assembly.GetEntryAssembly()?.FullName);
 				progress.WriteMessage("Chorus = " + Assembly.GetExecutingAssembly().FullName);
 			}
 			catch (Exception)
@@ -1864,7 +1862,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("config:");
-			progress.WriteMessage(GetTextFromQuery("showconfig", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("showconfig", 30));
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("Done.");
@@ -1873,7 +1871,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void GetDiagnosticInformation(IProgress progress)
 		{
 			progress.WriteMessage("Gathering diagnostics data...");
-			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("version", 30));
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
 			progress.WriteMessage("---------------------------------------------------");
 
@@ -1881,7 +1879,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			try
 			{
-				progress.WriteMessage("Client = " + Assembly.GetEntryAssembly().FullName);
+				progress.WriteMessage("Client = " + Assembly.GetEntryAssembly()?.FullName);
 				progress.WriteMessage("Chorus = " + Assembly.GetExecutingAssembly().FullName);
 			}
 			catch (Exception)
@@ -1891,7 +1889,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			progress.WriteMessage("---------------------------------------------------");
 			progress.WriteMessage("heads:");
-			progress.WriteMessage(GetTextFromQuery("heads", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("heads", 30));
 
 			if (GetHeads().Count() > 1)
 			{
@@ -1901,27 +1899,27 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("status:");
-			progress.WriteMessage(GetTextFromQuery("status", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("status", 30));
 
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("Log of last 100 changesets:");
 			try
 			{   //use glog if it is installd and enabled
-				progress.WriteMessage(GetTextFromQuery("glog -l 100", 30, _progress));
+				progress.WriteMessage(GetTextFromQuery("glog -l 100", 30));
 			}
 			catch
 			{
-				progress.WriteMessage(GetTextFromQuery("log -l 100", 30, _progress));
+				progress.WriteMessage(GetTextFromQuery("log -l 100", 30));
 			}
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("config:");
-			progress.WriteMessage(GetTextFromQuery("showconfig", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("showconfig", 30));
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("manifest:");
-			progress.WriteMessage(GetTextFromQuery("manifest", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("manifest", 30));
 			progress.WriteMessage("---------------------------------------------------");
 
 
@@ -1958,7 +1956,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public IntegrityResults CheckIntegrity(IProgress progress)
 		{
 			progress.WriteMessage("Validating Repository... (this can take a long time)");
-			var result = GetTextFromQuery("verify", 60 * 60, _progress);
+			var result = GetTextFromQuery("verify", 60 * 60);
 			if (result.ToLower().Contains("error"))
 			{
 				progress.WriteError(result);
@@ -1973,14 +1971,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public string GetLog(int maxChangeSetsToShow)
 		{
-			if (maxChangeSetsToShow > 0)
-			{
-				return GetTextFromQuery(String.Format("log -G -l {0}", maxChangeSetsToShow));
-			}
-			else
-			{
-				return GetTextFromQuery("log -G");
-			}
+			return GetTextFromQuery(maxChangeSetsToShow > 0 ? $"log -G -l {maxChangeSetsToShow}" : "log -G");
 		}
 
 		public void SetupEndOfLineConversion(IEnumerable<string> extensionsOfKnownTextFileTypes)
@@ -2235,7 +2226,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			var uniqueTarget = PathHelper.GetUniqueFolderPath(targetDirectory);
 			if (targetDirectory != uniqueTarget)
-				progress.WriteWarning(String.Format(formattableMessage, targetDirectory, uniqueTarget));
+				progress.WriteWarning(string.Format(formattableMessage, targetDirectory, uniqueTarget));
 
 			return uniqueTarget; // It may be the original, if it was unique.
 		}
