@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Chorus.VcsDrivers;
@@ -140,6 +141,13 @@ namespace LibChorus.Tests.VcsDrivers
 			uri = _source.GetPotentialRepoUri(null, null, progress);
 			Assert.AreEqual(_chorusHubURL + RepositoryAddress.ProjectNameVariable, uri);
 			Assert.IsEmpty(progress.Warnings);
+		}
+
+		[TestCase("https://hg-public.languageforge.org/ngl-flex", typeof(HttpRepositoryPath))]
+		[TestCase("//DinosaurShare/OldChorus/Lom", typeof(DirectoryRepositorySource))]
+		public void Create_CorrectType(string uri, Type expected)
+		{
+			Assert.AreEqual(expected, RepositoryAddress.Create("name", uri).GetType());
 		}
 	}
 
