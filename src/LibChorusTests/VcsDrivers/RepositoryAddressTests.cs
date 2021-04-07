@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Chorus.VcsDrivers;
+using LibChorus.Tests.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using SIL.Progress;
 
@@ -13,7 +14,7 @@ namespace LibChorus.Tests.VcsDrivers
 		private IEnumerable<RepositoryInformation> _repositoryInformations;
 		private RepositoryInformation _normalRepo, _duplicateRepo, _newRepo;
 		private string _chorusHubURL = "http://chorushub@127.0.0.1:5913/";
-		private IProgress _progress = new NullProgress();
+		private readonly IProgress _progress = new NullProgress();
 
 		[SetUp]
 		public void SetUp()
@@ -133,6 +134,12 @@ namespace LibChorus.Tests.VcsDrivers
 			// Case 5: There is no matching repo
 			uri = _source.GetPotentialRepoUri("DoesNotExist", "DoesNotExist", _progress);
 			Assert.AreEqual(_chorusHubURL + "DoesNotExist", uri);
+
+			// Case 6: We are cloning a new repo and can't calculate the ID locally yet
+			var progress = new ProgressForTest();
+			uri = _source.GetPotentialRepoUri(null, null, progress);
+			Assert.AreEqual(_chorusHubURL + RepositoryAddress.ProjectNameVariable, uri);
+			Assert.IsEmpty(progress.Warnings);
 		}
 	}
 

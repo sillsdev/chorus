@@ -226,7 +226,16 @@ namespace Chorus.Model
 			catch (WebException e)
 			{
 				HasLoggedIn = false;
-				error = e.Message;
+				switch ((e.Response as HttpWebResponse)?.StatusCode)
+				{
+					case HttpStatusCode.NotFound:
+					case HttpStatusCode.Forbidden:
+						error = LocalizationManager.GetString("ServerSettings.LogIn.BadUserOrPass", "Incorrect username or password");
+						break;
+					default:
+						error = e.Message;
+						break;
+				}
 			}
 			catch (JsonReaderException)
 			{
