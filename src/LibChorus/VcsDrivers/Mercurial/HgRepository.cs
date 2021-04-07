@@ -61,7 +61,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
-		public RepositoryAddress GetDefaultNetworkAddress<T>()
+		public RepositoryAddress GetDefaultNetworkAddress<T>() where T : RepositoryAddress
 		{
 			//the first one found in the default list that is of the requisite type and is NOT a 'default'
 			// path (inserted by the Hg Clone process). See https://trello.com/card/send-receive-dialog-displays-default-as-a-configured-local-network-location-for-newly-obtained-projects/4f3a90277ae2b69b010988ac/37
@@ -1373,7 +1373,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return Path.Combine(d, "hgrc");
 		}
 
-		private IniDocument GetMercurialConfigForRepository()
+		internal IniDocument GetMercurialConfigForRepository()
 		{
 			var p = GetPathToHgrc();
 			if (!File.Exists(p))
@@ -1428,6 +1428,20 @@ namespace Chorus.VcsDrivers.Mercurial
 				section.Set(address.Name, address.URI);
 			}
 			doc.SaveAndGiveMessageIfCannot();
+		}
+
+		public void RemoveCredentialsFromIniIfNecessary()
+		{
+			Uri uri;
+			if (Uri.TryCreate(GetDefaultNetworkAddress<HttpRepositoryPath>()?.URI, UriKind.Absolute, out uri)
+				&& !string.IsNullOrEmpty(uri.UserInfo))
+			{
+				// The username and password are saved in the URL in the hgrc file. Simply loading the file into a ServerSettingsModel
+				// and saving should strip this information and save it in user settings with the password encrypted.
+				var serverSettingsModel = new ServerSettingsModel();
+				serverSettingsModel.InitFromProjectPath(_pathToRepository);
+				serverSettingsModel.SaveSettings();
+			}
 		}
 
 		// REVIEW: does this have to be public? Looks like it should be private or internal.
