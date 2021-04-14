@@ -146,3 +146,7 @@ build using `UpdateDependencies.sh`:
 	cd chorus
 	./UpdateDependencies.sh
 
+##### Python
+
+Beginning with Ubuntu 20.04 (Focal), you will need to `sudo apt install python-is-python2` so that Mercurial can run.
+

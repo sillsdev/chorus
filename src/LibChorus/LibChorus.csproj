@@ -286,7 +286,6 @@
     <Compile Include="sync\DefaultSychronizerAdjunct.cs" />
     <Compile Include="sync\ISychronizerAdjunct.cs" />
     <Compile Include="sync\LargeFileFilter.cs" />
-    <Compile Include="Utilities\code\LinuxUtils.cs" />
     <Compile Include="Utilities\Help\HelpUtils.cs" />
     <Compile Include="Utilities\MakeRecordDictionary.cs" />
     <Compile Include="FileTypeHandlers\NotePresenter.cs" />
@@ -336,7 +335,6 @@
       <DependentUpon>AnnotationImages.resx</DependentUpon>
     </Compile>
     <Compile Include="notes\AnnotationClass.cs" />
-    <Compile Include="Utilities\code\DelegateDefinitions.cs" />
     <Compile Include="Utilities\MultiMap.cs" />
     <Compile Include="Utilities\UrlHelper.cs" />
     <Compile Include="Utilities\WebResponseHelper.cs" />

@@ -19,7 +19,7 @@ namespace Chorus.Model
 	{
 		#region static and constant
 		private const string LanguageForge = "languageforge.org";
-		private const string ServerEnvVar = "LanguageForgeServer";
+		private const string ServerEnvVar = "LANGUAGEFORGESERVER";
 
 		public static string LanguageForgeServer
 		{
