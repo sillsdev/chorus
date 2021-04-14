@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>SIL.Chorus.l10ns</id>
+        <version>1.0</version>
+        <description>These are the xlif localizations of the Chorus library.
+		It includes the localizations of the strings in assemblies built from https://github.com/sillsdev/chorus</description>
+        <authors>Jason Naylor</authors>
+		<license type="expression">MIT</license>
+    </metadata>
+	<files>
+	  <file src="CommonLibsL10ns\**\Chorus.*.xlf" target="content" />
+    </files>
+</package>
