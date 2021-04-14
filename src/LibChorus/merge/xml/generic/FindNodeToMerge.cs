@@ -1,12 +1,10 @@
 #define USEOPTIMIZEDVERSION
 using System;
 using System.Collections.Generic;
-using SIL.Extensions;
 #if USEOPTIMIZEDVERSION
 using System.Linq;
 #endif
 using System.Text;
-using System.Web;
 using System.Xml;
 using Chorus.merge.xml.generic.xmldiff;
 using SIL.Code;

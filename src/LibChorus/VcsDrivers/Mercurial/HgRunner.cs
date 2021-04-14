@@ -4,8 +4,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Mime;
-using System.Threading;
 using Chorus.Utilities;
 using SIL.Progress;
 using SIL.Reporting;
