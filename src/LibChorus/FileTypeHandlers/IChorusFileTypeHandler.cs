@@ -1,10 +1,4 @@
-﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using Chorus.FileTypeHandlers.test;
-using Chorus.Utilities.code;
 using Chorus.merge;
 using Chorus.VcsDrivers.Mercurial;
 using SIL.IO;

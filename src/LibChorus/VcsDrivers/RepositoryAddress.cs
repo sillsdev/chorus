@@ -277,6 +277,12 @@ namespace Chorus.VcsDrivers
 		/// </summary>
 		public override string GetPotentialRepoUri(string repoIdentifier, string projectName, IProgress progress)
 		{
+			if (repoIdentifier == null && projectName == null)
+			{
+				// This is the case if we are cloning a repo. At this point, the URI will already contain the project name.
+				// Avoid a warning message by skipping the search for the best repo match.
+				return URI;
+			}
 			string matchName;
 			string warningMessage;
 			TryGetBestRepoMatch(repoIdentifier, projectName, out matchName, out warningMessage);
