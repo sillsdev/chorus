@@ -212,7 +212,7 @@ namespace Chorus.notes
 				_writingFileOurselves = true;
 				using (var writer = XmlWriter.Create(AnnotationFilePath,
 					CanonicalXmlSettings.CreateXmlWriterSettings())
-				)
+					)
 				{
 					_doc.Save(writer);
 				}

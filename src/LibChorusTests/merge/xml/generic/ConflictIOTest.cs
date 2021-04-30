@@ -82,7 +82,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			var annotationXml = XmlTestHelper.WriteConflictAnnotation(conflict);
 			Conflict.RegisterContextClass(typeof(DemoConflict));
 			var regurgitated = Conflict.CreateFromChorusNotesAnnotation(annotationXml);
-			Assert.That(regurgitated.HtmlDetails, Is.StringContaining("Badegg"));// the /uDB80 should have dropped
+			Assert.That(regurgitated.HtmlDetails, Does.Contain("Badegg"));// the /uDB80 should have dropped
 		}
 
 		[Test]
@@ -140,7 +140,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			var conflict2 = Conflict.CreateFromConflictElement(node2);
 
 			//verify
-			Assert.IsFalse(ReferenceEquals(conflict1, conflict2), "Two different conflicts of the same type but different istances.");
+			Assert.That(ReferenceEquals(conflict1, conflict2), Is.False, "Two different conflicts of the same type but different istances.");
 			Assert.AreNotEqual(conflict1.Guid, conflict2.Guid);
 		}
 	}

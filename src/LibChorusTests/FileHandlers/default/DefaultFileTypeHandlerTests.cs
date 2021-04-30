@@ -13,13 +13,13 @@ namespace LibChorus.Tests.FileHandlers.Default
 	{
 		private IChorusFileTypeHandler _defaultFileHandler;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_defaultFileHandler = new DefaultFileTypeHandler();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_defaultFileHandler = null;
@@ -35,7 +35,7 @@ namespace LibChorus.Tests.FileHandlers.Default
 		public void HandlerSupportsCorrectExtensions()
 		{
 			var extensions = _defaultFileHandler.GetExtensionsOfKnownTextFileTypes().ToList();
-			Assert.IsTrue(extensions.Count == 0);
+			Assert.That(extensions.Count, Is.EqualTo(0));
 		}
 
 		[Test]

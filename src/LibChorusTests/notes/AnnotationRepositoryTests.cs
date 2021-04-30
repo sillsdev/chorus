@@ -35,7 +35,7 @@ namespace LibChorus.Tests.notes
 				File.Delete(f.Path);
 				var repo = AnnotationRepository.FromFile("id", f.Path, new ConsoleProgress());
 				repo.Save(new ConsoleProgress());
-				Assert.IsTrue(File.Exists(f.Path));
+				Assert.That(f.Path, Does.Exist);
 			}
 		}
 
@@ -347,9 +347,9 @@ namespace LibChorus.Tests.notes
 			{
 				Console.WriteLine("Building File...");
 				var r = AnnotationRepository.FromFile("id", f.Path, new NullProgress());
-				for (int i = 0; i < 10000; i++)
+				for (var i = 0; i < 10000; i++)
 				{
-					var annotation = new Annotation("question", string.Format("nowhere://blah?id={0}", Guid.NewGuid().ToString()), f.Path);
+					var annotation = new Annotation("question", $"nowhere://blah?id={Guid.NewGuid().ToString()}", f.Path);
 					r.AddAnnotation(annotation);
 					annotation.AddMessage("test", "open", "blah blah");
 				}
@@ -358,16 +358,16 @@ namespace LibChorus.Tests.notes
 				w.Start();
 				r.Save(new NullProgress());
 				w.Stop();
-				Console.WriteLine("Elapsed Time:"+w.ElapsedMilliseconds.ToString()+" milliseconds");
-				Assert.IsTrue(w.ElapsedMilliseconds < 250); //it's around 70 on my laptop, and around 225 on mono desktop
+				Console.WriteLine($"Elapsed Time:{w.ElapsedMilliseconds} milliseconds");
+				Assert.That(w.ElapsedMilliseconds, Is.LessThan(250)); //it's around 70 on my laptop, and around 225 on mono desktop
 
 				w.Reset();
 				Console.WriteLine("Reading Large File...");
 				w.Start();
 				var rToRead = AnnotationRepository.FromFile("id", f.Path, new NullProgress());
 				w.Stop();
-				Console.WriteLine("Elapsed Time:"+w.ElapsedMilliseconds.ToString()+" milliseconds");
-				Assert.IsTrue(w.ElapsedMilliseconds < 1000); //it's around 240 on my laptop, and around 800 on mono desktop
+				Console.WriteLine($"Elapsed Time:{w.ElapsedMilliseconds} milliseconds");
+				Assert.That(w.ElapsedMilliseconds, Is.LessThan(1000)); //it's around 240 on my laptop, and around 800 on mono desktop
 			}
 		}
 

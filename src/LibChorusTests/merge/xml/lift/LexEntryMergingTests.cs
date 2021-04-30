@@ -137,7 +137,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				var conflict = listener.Conflicts[0];
 				Assert.That(conflict, Is.InstanceOf<EditedVsRemovedElementConflict>());
-				Assert.That(conflict.HtmlDetails, Is.StringContaining("my silly context"), "merger should have used the context generator to make the html details");
+				Assert.That(conflict.HtmlDetails, Does.Contain("my silly context"), "merger should have used the context generator to make the html details");
 				Assert.That(conflict.HtmlDetails.IndexOf("my silly context"),
 					Is.EqualTo(conflict.HtmlDetails.LastIndexOf("my silly context")),
 					"since one change is a delete, the details should only be present once");
@@ -194,7 +194,7 @@ namespace LibChorus.Tests.merge.xml.lift
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
 				var conflict = listener.Conflicts[0];
 				Assert.That(conflict, Is.InstanceOf<RemovedVsEditedElementConflict>());
-				Assert.That(conflict.HtmlDetails, Is.StringContaining("my silly context"), "merger should have used the context generator to make the html details");
+				Assert.That(conflict.HtmlDetails, Does.Contain("my silly context"), "merger should have used the context generator to make the html details");
 				Assert.That(conflict.HtmlDetails.IndexOf("my silly context"),
 					Is.EqualTo(conflict.HtmlDetails.LastIndexOf("my silly context")),
 					"since one change is a delete, the details should only be present once");

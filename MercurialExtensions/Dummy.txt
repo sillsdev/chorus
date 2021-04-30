@@ -1,1 +1,0 @@
-This is just here to make team city deliver this whole folder as an artifact, instead of just fixutf8.

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -111,13 +112,13 @@ namespace Chorus.Model
 
 		public virtual void InitFromUri(string url)
 		{
-			var urlUsername = HttpUtilityFromMono.UrlDecode(UrlHelper.GetUserName(url));
+			var urlUsername = HttpUtility.UrlDecode(UrlHelper.GetUserName(url));
 			if (!string.IsNullOrEmpty(urlUsername))
 			{
 				Username = urlUsername;
-				Password = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPassword(url));
+				Password = HttpUtility.UrlDecode(UrlHelper.GetPassword(url));
 			}
-			ProjectId = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPathAfterHost(url));
+			ProjectId = HttpUtility.UrlDecode(UrlHelper.GetPathAfterHost(url));
 			HasLoggedIn = !string.IsNullOrEmpty(ProjectId);
 			Bandwidth = new BandwidthItem(RepositoryAddress.IsKnownResumableRepository(url) ? BandwidthEnum.Low : BandwidthEnum.High);
 
@@ -139,7 +140,7 @@ namespace Chorus.Model
 					return CustomUrl;
 				}
 
-				return $"https://{Host}/{HttpUtilityFromMono.UrlEncode(ProjectId)}";
+				return $"https://{Host}/{HttpUtility.UrlEncode(ProjectId)}";
 			}
 		}
 

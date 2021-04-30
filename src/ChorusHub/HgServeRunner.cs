@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Web;
 using Chorus.VcsDrivers.Mercurial;
 using SIL.CommandLineProcessing;
 using SIL.Progress;
@@ -146,33 +147,33 @@ namespace ChorusHub
 				{
 					while (true)
 					{
-						var line = reader.ReadLine();
-						if (line == null)
-							return;
+							var line = reader.ReadLine();
+							if (line == null)
+								return;
 
-						var start = line.IndexOf("GET /") + 5;
-						var end = line.IndexOf("?");
-						if (line.Contains("404") && start > 9 & end > 0)
-						{
-							var name = line.Substring(start, end - start);
-							string directory = Path.Combine(_rootFolder, name);
+							var start = line.IndexOf("GET /") + 5;
+							var end = line.IndexOf("?");
+							if (line.Contains("404") && start > 9 & end > 0)
+							{
+								var name = line.Substring(start, end - start);
+								string directory = Path.Combine(_rootFolder, name);
 
-							directory = SIL.Network.HttpUtilityFromMono.UrlDecode(directory); // convert %20 --> space
-							if (!Directory.Exists(directory))
-							{
-								//Progress.WriteMessage("Creating new folder '" + name + "'");
-								Directory.CreateDirectory(directory);
-							}
-							if (!Directory.Exists(Path.Combine(directory, ".hg")))
-							{
-								//Progress.WriteMessage("Initializing blank repository: " + name +
-								//				  ". Try Sending again in a few minutes, when hg notices the new directory.");
-								HgRepository.CreateRepositoryInExistingDir(directory, new ConsoleProgress());
+							directory = HttpUtility.UrlDecode(directory); // convert %20 --> space
+								if (!Directory.Exists(directory))
+								{
+									//Progress.WriteMessage("Creating new folder '" + name + "'");
+									Directory.CreateDirectory(directory);
+								}
+								if (!Directory.Exists(Path.Combine(directory, ".hg")))
+								{
+									//Progress.WriteMessage("Initializing blank repository: " + name +
+									//				  ". Try Sending again in a few minutes, when hg notices the new directory.");
+									HgRepository.CreateRepositoryInExistingDir(directory, new ConsoleProgress());
+								}
 							}
 						}
+						}
 					}
-				}
-			}
 			catch
 			{
 				//EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);

@@ -10,12 +10,12 @@ namespace LibChorus.Tests.merge.xml.generic
 		public void EnsureConflictClassHasContext()
 		{
 			var randomConflict = new MergeWarning(string.Empty);
-			Assert.IsNotNull(randomConflict.Context);
+			Assert.That(randomConflict.Context, Is.Not.Null);
 			Assert.IsInstanceOf<NullContextDescriptor>(randomConflict.Context);
 
 			// Try to set it to null.
 			randomConflict.Context = null;
-			Assert.IsNotNull(randomConflict.Context);
+			Assert.That(randomConflict.Context, Is.Not.Null);
 			Assert.IsInstanceOf<NullContextDescriptor>(randomConflict.Context);
 		}
 	}

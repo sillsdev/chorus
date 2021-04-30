@@ -77,7 +77,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 </ProjectLexiconSettings>".Replace("'", "\""), element);
 		}
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_projectLexiconSettingsFileHandler =
@@ -86,7 +86,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 					select handler).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_projectLexiconSettingsFileHandler = null;
@@ -96,7 +96,7 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		[Test]
 		public void CannotMergeNonexistantFile()
 		{
-			Assert.IsFalse(_projectLexiconSettingsFileHandler.CanMergeFile("bogusPathname"));
+			Assert.That(_projectLexiconSettingsFileHandler.CanMergeFile("bogusPathname"), Is.False);
 		}
 
 		[Test]
@@ -105,20 +105,20 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			using (var tempFile = TempFile.WithExtension(".plsx"))
 			{
 				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ProjectLexiconSettings />");
-				Assert.IsTrue(_projectLexiconSettingsFileHandler.CanMergeFile(tempFile.Path));
+				Assert.That(_projectLexiconSettingsFileHandler.CanMergeFile(tempFile.Path), Is.True);
 			}
 		}
 
 		[Test]
 		public void CannotMergeEmptyStringFile()
 		{
-			Assert.IsFalse(_projectLexiconSettingsFileHandler.CanMergeFile(String.Empty));
+			Assert.That(_projectLexiconSettingsFileHandler.CanMergeFile(String.Empty), Is.False);
 		}
 
 		[Test]
 		public void CannotMergeNullFile()
 		{
-			Assert.IsFalse(_projectLexiconSettingsFileHandler.CanMergeFile(null));
+			Assert.That(_projectLexiconSettingsFileHandler.CanMergeFile(null), Is.False);
 		}
 
 		[Test]
@@ -145,9 +145,9 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 			XmlMergeService.RemoveAmbiguousChildren(merger.EventListener, merger.MergeStrategies, badRootNode);
 			XmlMergeService.RemoveAmbiguousChildNodes = oldValue;
 			var childNodes = badRootNode.SelectNodes("WritingSystems");
-			Assert.IsNotNull(childNodes);
-			Assert.IsTrue(childNodes.Count == 1);
-			Assert.IsNull(childNodes[0].Attributes["goner"]);
+			Assert.That(childNodes, Is.Not.Null);
+			Assert.That(childNodes.Count, Is.EqualTo(1));
+			Assert.That(childNodes[0].Attributes["goner"], Is.Null);
 		}
 
 		[Test]

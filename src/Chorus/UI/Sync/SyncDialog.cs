@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Chorus.sync;
 using Chorus.VcsDrivers.Mercurial;
+using SIL.PlatformUtilities;
 using SIL.Progress;
 using SIL.Windows.Forms.Progress;
 
@@ -135,9 +136,9 @@ namespace Chorus.UI.Sync
 			_syncControl.Visible = true;
 			Height = _syncControl.DesiredHeight;
 			ResumeLayout(true);
-#if MONO
-			_syncControl.Refresh();
-#endif
+			if (Platform.IsMono)
+				_syncControl.Refresh();
+
 			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Clear();
 			_syncControl.Model.SyncOptions.RepositorySourcesToTry.Add(args.Address);
 			if(!string.IsNullOrEmpty(args.CommitMessage))

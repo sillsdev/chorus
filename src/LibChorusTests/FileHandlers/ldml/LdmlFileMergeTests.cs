@@ -28,7 +28,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		private ListenerForUnitTests _eventListener;
 		private DateTime _expectedUtcDateTime;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_ldmlFileHandler = (from handler in ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
@@ -39,7 +39,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_ldmlFileHandler = null;
@@ -49,13 +49,13 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		[Test]
 		public void CannotMergeNonexistantFile()
 		{
-			Assert.IsFalse(_ldmlFileHandler.CanMergeFile("bogusPathname"));
+			Assert.That(_ldmlFileHandler.CanMergeFile("bogusPathname"), Is.False);
 		}
 
 		[Test]
 		public void CannotMergeEmptyStringFile()
 		{
-			Assert.IsFalse(_ldmlFileHandler.CanMergeFile(String.Empty));
+			Assert.That(_ldmlFileHandler.CanMergeFile(String.Empty), Is.False);
 		}
 
 		[Test]
@@ -64,14 +64,14 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			using (var tempFile = TempFile.WithExtension(".ldml"))
 			{
 				File.WriteAllText(tempFile.Path, "<?xml version='1.0' encoding='utf-8'?>" + Environment.NewLine + "<ldml />");
-				Assert.IsTrue(_ldmlFileHandler.CanMergeFile(tempFile.Path));
+				Assert.That(_ldmlFileHandler.CanMergeFile(tempFile.Path), Is.True);
 			}
 		}
 
 		[Test]
 		public void CannotMergeNullFile()
 		{
-			Assert.IsFalse(_ldmlFileHandler.CanMergeFile(null));
+			Assert.That(_ldmlFileHandler.CanMergeFile(null), Is.False);
 		}
 
 		[Test]
@@ -104,26 +104,26 @@ namespace LibChorus.Tests.FileHandlers.ldml
 			XmlMergeService.RemoveAmbiguousChildren(merger.EventListener, merger.MergeStrategies, badRootNode);
 			XmlMergeService.RemoveAmbiguousChildNodes = oldValue;
 			var childNodes = badRootNode.SelectNodes("special");
-			Assert.IsTrue(childNodes.Count == 4);
+			Assert.That(childNodes.Count, Is.EqualTo(4));
 			for (var idx = 0; idx < 4; ++idx)
 			{
 				XmlNode currentNode = childNodes[idx];
 				switch (idx)
 				{
 					case 0:
-						Assert.IsNotNull(currentNode.Attributes["xmlns:palaso"]);
+						Assert.That(currentNode.Attributes["xmlns:palaso"], Is.Not.Null);
 						break;
 					case 1:
-						Assert.IsNotNull(currentNode.Attributes["xmlns:palaso2"]);
+						Assert.That(currentNode.Attributes["xmlns:palaso2"], Is.Not.Null);
 						break;
 					case 2:
-						Assert.IsNotNull(currentNode.Attributes["xmlns:fw"]);
+						Assert.That(currentNode.Attributes["xmlns:fw"], Is.Not.Null);
 						break;
 					case 3:
-						Assert.IsNotNull(currentNode.Attributes["xmlns:sil"]);
+						Assert.That(currentNode.Attributes["xmlns:sil"], Is.Not.Null);
 						break;
 				}
-				Assert.IsNull(currentNode.Attributes["goner"]);
+				Assert.That(currentNode.Attributes["goner"], Is.Null);
 			}
 		}
 
@@ -438,7 +438,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	</identity>
 	<characters>
 		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
-		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters>
 		<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
 		<ellipsis type='initial'>…{ 0}</ellipsis>
 	</characters>
@@ -457,7 +457,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	</identity>
 	<characters>
 		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
-			<exemplarCharacters type='index'>[A B C D E F G H I J K L N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+			<exemplarCharacters type='index'>[A B C D E F G H I J K L N O P Q R S T U V W X Y Z]</exemplarCharacters>
 			<exemplarCharacters>[a b c d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
 			<ellipsis type='final'>{0}…</ellipsis>
 			<ellipsis type='initial'>…{ 0}</ellipsis>
@@ -477,7 +477,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	</identity>
 	<characters>
 		<exemplarCharacters type='auxiliary'>[á à ă â å ä ã ā æ ç é è ĕ ê ë ē í ì ĭ î ï ī ñ ó ò ŏ ô ö ø ō œ ú ù ŭ û ü ū ÿ]</exemplarCharacters>
-		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters> 
+		<exemplarCharacters type='index'>[A B C D E F G H I J K L M N O P Q R S T U V W X Y Z]</exemplarCharacters>
 		<exemplarCharacters>[a b c [ch] d e f g h i j k l m n o p q r s t u v w x y z]</exemplarCharacters>
 		<ellipsis type='final'>{0}…</ellipsis>
 		<ellipsis type='initial'>…{ 0}</ellipsis>
@@ -582,7 +582,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 					@"ldml/characters/exemplarCharacters[text()='[a b c d e f g h i j k l m n o p q r s t u v w x y z]']", // original is gone
 					@"ldml/characters/exemplarCharacters[text()='[a b c d e f g h i j k l n o p q r s t u v w x y z]']" // theirs loses and is gone
 				},
-				1, new List<Type> { typeof(BothEditedTheSameAtomicElement) }, 
+				1, new List<Type> { typeof(BothEditedTheSameAtomicElement) },
 				1, new List<Type> { typeof(XmlAttributeBothMadeSameChangeReport) });
 		}
 
@@ -668,7 +668,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		[Test]
 		public void LayoutIsMerged()
 		{
-			string commonAncestor = 
+			string commonAncestor =
 @"<?xml version='1.0' encoding='utf-8'?>
 <ldml>
 	<identity>
@@ -892,9 +892,9 @@ namespace LibChorus.Tests.FileHandlers.ldml
 					typeof(AmbiguousInsertConflict),
 					typeof(BothEditedTheSameAtomicElement)
 				},
-				6, new List<Type> 
-				{ 
-					typeof(XmlAttributeBothMadeSameChangeReport), 
+				6, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport),
 					typeof(XmlBothDeletionChangeReport),
 					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport),
@@ -983,12 +983,12 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				{
 					typeof(BothEditedTheSameAtomicElement),
 				},
-				4, new List<Type> 
-				{ 
-					typeof(XmlAttributeBothMadeSameChangeReport), 
+				4, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport),
 					typeof(XmlBothDeletionChangeReport),
 					typeof(XmlAdditionChangeReport),
-					typeof(XmlAdditionChangeReport) 
+					typeof(XmlAdditionChangeReport)
 				});
 		}
 
@@ -1080,9 +1080,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 					@"/ldml/collations/collation/cr[contains(text(), 'c<ch')]"
 				},
 				new List<string>(0),
-				0, new List<Type>
-				{
-				},
+				0, new List<Type>(),
 				3, new List<Type>
 				{
 
@@ -1172,12 +1170,12 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				{
 					typeof(BothEditedTheSameAtomicElement),
 				},
-				4, new List<Type> 
-				{ 
-					typeof(XmlAttributeBothMadeSameChangeReport), 
+				4, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport),
 					typeof(XmlBothDeletionChangeReport),
 					typeof(XmlAdditionChangeReport),
-					typeof(XmlAdditionChangeReport) 
+					typeof(XmlAdditionChangeReport)
 				});
 		}
 
@@ -1245,15 +1243,15 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				},
 				new List<string>(0),
 				0, new List<Type>(0),
-				7, new List<Type> 
-				{ 
-					typeof(XmlAttributeBothMadeSameChangeReport), 
+				7, new List<Type>
+				{
+					typeof(XmlAttributeBothMadeSameChangeReport),
 					typeof(XmlBothDeletionChangeReport),
 					typeof(XmlBothAddedSameChangeReport),
 					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport),
 					typeof(XmlAdditionChangeReport),
-					typeof(XmlAdditionChangeReport) 
+					typeof(XmlAdditionChangeReport)
 				});
 		}
 
@@ -1573,7 +1571,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				namespaces,
 				new List<string>(),
 				new List<string>(),
-				0, null, 
+				0, null,
 				3, new List<Type> { typeof(XmlBothDeletionChangeReport), typeof(XmlAttributeBothMadeSameChangeReport) , typeof(XmlBothAddedSameChangeReport) }));
 
 		}

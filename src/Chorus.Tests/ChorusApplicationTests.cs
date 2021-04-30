@@ -6,7 +6,8 @@ using SIL.TestUtilities;
 
 namespace Chorus.Tests
 {
-	[TestFixture, RequiresSTA]
+	[TestFixture]
+	[Apartment(ApartmentState.STA)]
 	public class ChorusApplicationTests
 	{
 		[Test]

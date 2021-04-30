@@ -95,7 +95,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				Assert.IsTrue(result.ToLower().Contains("utf-8"));
+				Assert.That(result, Does.Contain("utf-8").IgnoreCase);
 			}
 		}
 
@@ -499,7 +499,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				Assert.IsTrue(result.ToLower().Contains("utf-8"));
+				Assert.That(result, Does.Contain("utf-8").IgnoreCase);
 			}
 			listener.AssertExpectedChangesCount(0);
 			listener.AssertExpectedConflictCount(1);
@@ -570,7 +570,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				Assert.IsTrue(result.ToLower().Contains("utf-8"));
+				Assert.That(result, Does.Contain("utf-8").IgnoreCase);
 			}
 			listener.AssertExpectedChangesCount(0);
 			listener.AssertExpectedConflictCount(1);
@@ -640,7 +640,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				Assert.IsTrue(result.ToLower().Contains("utf-8"));
+				Assert.That(result, Does.Contain("utf-8").IgnoreCase);
 			}
 			listener.AssertExpectedChangesCount(0);
 			listener.AssertExpectedConflictCount(1);
@@ -709,7 +709,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				Assert.IsTrue(result.ToLower().Contains("utf-8"));
+				Assert.That(result, Does.Contain("utf-8").IgnoreCase);
 			}
 			listener.AssertExpectedChangesCount(0);
 			listener.AssertExpectedConflictCount(1);
@@ -772,7 +772,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				Assert.IsTrue(result.ToLower().Contains("utf-8"));
+				Assert.That(result, Does.Contain("utf-8").IgnoreCase);
 			}
 			listener.AssertExpectedConflictCount(0);
 			listener.AssertExpectedChangesCount(0);
@@ -834,7 +834,7 @@ namespace LibChorus.Tests.merge.xml.lift
 					"header",
 					"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				Assert.IsTrue(result.ToLower().Contains("utf-8"));
+				Assert.That(result, Does.Contain("utf-8").IgnoreCase);
 			}
 			listener.AssertExpectedConflictCount(0);
 			listener.AssertExpectedChangesCount(0);
@@ -894,9 +894,9 @@ namespace LibChorus.Tests.merge.xml.lift
 					"entry",
 					"guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				Assert.IsTrue(result.Contains("<header>"));
-				Assert.IsTrue(result.Contains("<description>"));
-				Assert.IsTrue(result.Contains("<ranges>"));
+				Assert.That(result, Does.Contain("<header>"));
+				Assert.That(result, Does.Contain("<description>"));
+				Assert.That(result, Does.Contain("<ranges>"));
 				listener.AssertExpectedChangesCount(2);
 			}
 		}
@@ -929,7 +929,7 @@ namespace LibChorus.Tests.merge.xml.lift
 											"header",
 											"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				Assert.IsTrue(result.Contains("form alpha"));
+				Assert.That(result, Does.Contain("form alpha"));
 				listener.AssertExpectedChangesCount(0);
 			}
 		}
@@ -962,7 +962,7 @@ namespace LibChorus.Tests.merge.xml.lift
 											"header",
 											"entry", "guid");
 				var result = File.ReadAllText(mergeOrder.pathToOurs);
-				Assert.IsTrue(result.Contains("form beta"));
+				Assert.That(result, Does.Contain("form beta"));
 				listener.AssertExpectedChangesCount(0);
 			}
 		}

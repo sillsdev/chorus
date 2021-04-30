@@ -52,16 +52,16 @@ namespace LibChorus.Tests.VcsDrivers
 					null, null, new object[] { repoInfo, projectName });
 		}
 
-		[Test]
-		public void TestIsMatchingName()
+		[TestCase("1", ExpectedResult = true)]
+		[TestCase("2", ExpectedResult = true)]
+		[TestCase("3", ExpectedResult = true)]
+		[TestCase("54", ExpectedResult = true)]
+		[TestCase("NaN", ExpectedResult = false)]
+		public bool TestIsMatchingName(string num)
 		{
-			string name = "RepoName";
-			string id = "RepoID";
-			foreach (string num in new List<string> {"1", "2", "3", "54"})
-			{
-				Assert.IsTrue(InvokeIsMatchingName(new RepositoryInformation(name + num, id), name));
-			}
-			Assert.IsFalse(InvokeIsMatchingName(new RepositoryInformation(name + "NaN", id), name));
+			const string name = "RepoName";
+			const string id = "RepoID";
+			return InvokeIsMatchingName(new RepositoryInformation(name + num, id), name);
 		}
 
 		// Allows us to access and test the private method
@@ -84,33 +84,28 @@ namespace LibChorus.Tests.VcsDrivers
 			string matchName, warningMessage;
 
 			// Case 1: Repo name and ID both match
-			Assert.IsTrue(InvokeTryGetBestRepoMatch(
-				_normalRepo.RepoID, _normalRepo.RepoName, out matchName, out warningMessage));
+			Assert.That(InvokeTryGetBestRepoMatch(_normalRepo.RepoID, _normalRepo.RepoName, out matchName, out warningMessage), Is.True);
 			Assert.AreEqual(_normalRepo.RepoName, matchName);
-			Assert.IsNull(warningMessage);
+			Assert.That(warningMessage, Is.Null);
 
 			// Case 2: Repo ID matches, but name does not
-			Assert.IsTrue(InvokeTryGetBestRepoMatch(
-				_normalRepo.RepoID, "DifferentProjectName", out matchName, out warningMessage));
+			Assert.That(InvokeTryGetBestRepoMatch(_normalRepo.RepoID, "DifferentProjectName", out matchName, out warningMessage), Is.True);
 			Assert.AreEqual(_normalRepo.RepoName, matchName);
-			Assert.IsNull(warningMessage);
+			Assert.That(warningMessage, Is.Null);
 
 			// Case 3: There is a new repo with the correct name
-			Assert.IsTrue(InvokeTryGetBestRepoMatch(
-				"AnyIDWillDo", _newRepo.RepoName, out matchName, out warningMessage));
+			Assert.That(InvokeTryGetBestRepoMatch("AnyIDWillDo", _newRepo.RepoName, out matchName, out warningMessage), Is.True);
 			Assert.AreEqual(_newRepo.RepoName, matchName);
-			Assert.IsNull(warningMessage);
+			Assert.That(warningMessage, Is.Null);
 
 			// Case 4: There is a new repo with a properly-derived name
-			Assert.IsTrue(InvokeTryGetBestRepoMatch(
-				"AnyIDWillDo", _duplicateRepo.RepoName, out matchName, out warningMessage));
+			Assert.That(InvokeTryGetBestRepoMatch("AnyIDWillDo", _duplicateRepo.RepoName, out matchName, out warningMessage), Is.True);
 			Assert.AreEqual(_newRepo.RepoName, matchName);
-			Assert.IsNotNullOrEmpty(warningMessage);
+			Assert.That(warningMessage, Is.Not.Null.Or.Empty);
 
 			// Case 5: There is no matching repo
-			Assert.IsFalse(InvokeTryGetBestRepoMatch(
-				"DoesNotExist", "DoesNotExist", out matchName, out warningMessage));
-			Assert.IsNotNullOrEmpty(warningMessage);
+			Assert.That(InvokeTryGetBestRepoMatch("DoesNotExist", "DoesNotExist", out matchName, out warningMessage), Is.False);
+			Assert.That(warningMessage, Is.Not.Null.Or.Empty);
 		}
 
 		[Test]

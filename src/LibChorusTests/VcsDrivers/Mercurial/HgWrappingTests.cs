@@ -32,7 +32,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void GetEnvironmentReadinessMessageIsNull()
 		{
 			var s = HgRepository.GetEnvironmentReadinessMessage("en");
-			Assert.IsNullOrEmpty(s);
+			Assert.That(s, Is.Null.Or.Empty);
 		}
 
 		[Test, Ignore("By Hand only")]
@@ -49,7 +49,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var setup = new HgTestSetup())
 			{
-				Assert.IsTrue(setup.Repository.RemoveOldLocks());
+				Assert.That(setup.Repository.RemoveOldLocks(), Is.True);
 			}
 		}
 
@@ -59,8 +59,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var setup = new HgTestSetup())
 			{
 				var file = TempFileFromFolder.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
-				Assert.IsTrue(setup.Repository.RemoveOldLocks());
-				Assert.IsFalse(File.Exists(file.Path));
+				Assert.That(setup.Repository.RemoveOldLocks(), Is.True);
+				Assert.That(File.Exists(file.Path), Is.False);
 			}
 		}
 
@@ -71,9 +71,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			{
 				var file1 = TempFileFromFolder.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah");
 				var file2 = TempFileFromFolder.CreateAt(setup.Root.Combine(".hg", "store", "lock"), "blah");
-				Assert.IsTrue(setup.Repository.RemoveOldLocks());
-				Assert.IsFalse(File.Exists(file1.Path));
-				Assert.IsFalse(File.Exists(file2.Path));
+				Assert.That(setup.Repository.RemoveOldLocks(), Is.True);
+				Assert.That(File.Exists(file1.Path), Is.False);
+				Assert.That(File.Exists(file2.Path), Is.False);
 			}
 		}
 
@@ -87,7 +87,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				using(var file = TempFileFromFolder.CreateAt(setup.Root.Combine(".hg", "wlock"), "blah"))
 				{
-					Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName, true));
+					Assert.That(setup.Repository.RemoveOldLocks(ourName, true), Is.False);
 				}
 			}
 		}
@@ -102,7 +102,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				using(var file = TempFileFromFolder.CreateAt(setup.Root.Combine(".hg", "store", "lock"), "blah"))
 				{
-					Assert.IsFalse(setup.Repository.RemoveOldLocks(ourName, true));
+					Assert.That(setup.Repository.RemoveOldLocks(ourName, true), Is.False);
 				}
 			}
 		}
@@ -141,7 +141,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
 				var repo = new HgRepository(testRoot.Path, new NullProgress());
 				var rev = repo.GetRevisionWorkingSetIsBasedOn();
-				Assert.IsNull(rev);
+				Assert.That(rev, Is.Null);
 			}
 		}
 
@@ -228,7 +228,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var setup = new RepositorySetup("Dan"))
 			{
-				Assert.IsNull(setup.Repository.GetRevision("1"));
+				Assert.That(setup.Repository.GetRevision("1"), Is.Null);
 			}
 		}
 
@@ -238,7 +238,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				var id = setup.Repository.Identifier;
-				Assert.IsTrue(String.IsNullOrEmpty(id));
+				Assert.That(id, Is.Null.Or.Empty);
 
 				var path = setup.ProjectFolder.Combine("test.1w1");
 				File.WriteAllText(path, "hello");
@@ -248,7 +248,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				setup.AddAndCheckIn(); // Need to have one commit.
 
 				id = setup.Repository.Identifier;
-				Assert.IsFalse(String.IsNullOrEmpty(id));
+				Assert.That(id, Is.Not.Null.And.Not.Empty);
 
 				var results = HgRunner.Run("log -r0 --template " + "\"{node}\"", setup.Repository.PathToRepo, 10, setup.Progress);
 				// This will probably fail, if some other version of Hg is used,
@@ -264,7 +264,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			using (var setup = new RepositorySetup("Dan"))
 			{
 				setup.AddAndCheckinFile("test.txt", "hello");
-				Assert.IsNotNull(setup.Repository.GetRevision("0"));
+				Assert.That(setup.Repository.GetRevision("0"), Is.Not.Null);
 			}
 		}
 
@@ -457,7 +457,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 //            var progress = new StringBuilderProgress();
 //            var hg = new HgRepository(Path.GetTempPath(), progress);
 //            hg.GetTip();
-//            Assert.IsTrue(progress.Text.Contains("Error"));
+//            Assert.That(progress.Text, Does.Contain("Error"));
 //        }
 
 

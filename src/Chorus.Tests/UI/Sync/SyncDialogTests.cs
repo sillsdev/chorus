@@ -12,7 +12,7 @@ namespace Chorus.Tests.UI.Sync
 	public class SyncDialogTests
 	{
 		[Test, Ignore("Run by hand only")]
-		[NUnit.Framework.RequiresSTA]
+		[Apartment(ApartmentState.STA)]
 		public void ShowSyncStartControl_NoPaths()
 		{
 			using(var setup = new RepositorySetup("pedro"))
@@ -26,7 +26,7 @@ namespace Chorus.Tests.UI.Sync
 		}
 
 		[Test, Ignore("Run by hand only")]
-		[NUnit.Framework.RequiresSTA]
+		[Apartment(ApartmentState.STA)]
 		public void ShowSyncDialog_InternetAndNetworkPaths_WindowsStyle()
 		{
 			Application.EnableVisualStyles();
@@ -49,7 +49,7 @@ namespace Chorus.Tests.UI.Sync
 		}
 
 		[Test, Ignore("Run by hand only")]
-		[NUnit.Framework.RequiresSTA]
+		[Apartment(ApartmentState.STA)]
 		public void ShowSyncDialog_InternetAndNetworkPaths()
 		{
 			Application.EnableVisualStyles();
@@ -205,7 +205,7 @@ namespace Chorus.Tests.UI.Sync
 				{
 					dlg.SyncOptions.RepositorySourcesToTry.Add(RepositoryAddress.Create("bogus", @"z:/"));
 					dlg.ShowDialog();
-					Assert.IsTrue(dlg.FinalStatus.WarningEncountered);
+					Assert.That(dlg.FinalStatus.WarningEncountered, Is.True);
 				}
 			}
 		}
@@ -219,7 +219,7 @@ namespace Chorus.Tests.UI.Sync
 			var syncStartModel = new SyncStartModel(null);
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
-			Assert.IsFalse(result, "Should fail!");
+			Assert.That(result, Is.False, "Should fail!");
 			Assert.AreEqual("First insert a USB flash drive.", message);
 		}
 
@@ -232,7 +232,7 @@ namespace Chorus.Tests.UI.Sync
 			var syncStartModel = new SyncStartModel(null);
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
-			Assert.IsFalse(result, "Should fail!");
+			Assert.That(result, Is.False, "Should fail!");
 			Assert.AreEqual("More than one USB drive detected. Please remove one.", message);
 		}
 
@@ -245,8 +245,8 @@ namespace Chorus.Tests.UI.Sync
 			var syncStartModel = new SyncStartModel(null);
 			var result = syncStartModel.GetUsbStatusLink(usbLocator, out message);
 
-			Assert.IsTrue(result, "Should pass!");
-			Assert.IsTrue(message.StartsWith("C:"));
+			Assert.That(result, Is.True, "Should pass!");
+			Assert.That(message.StartsWith("C:"), Is.True);
 		}
 	}
 }

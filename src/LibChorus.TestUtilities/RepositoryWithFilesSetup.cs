@@ -111,7 +111,7 @@ namespace LibChorus.TestUtilities
 		{
 			if (Repository != null)
 			{
-				Assert.IsFalse(Repository.GetHasLocks(), "A lock was left over, after the test.");
+				Assert.That(Repository.GetHasLocks(), Is.False, "A lock was left over, after the test.");
 			}
 
 			if (DoNotDispose)
@@ -214,8 +214,8 @@ namespace LibChorus.TestUtilities
 		public void AssertSingleConflictType<TConflict>()
 		{
 			string cmlFile = ChorusNotesMergeEventListener.GetChorusNotesFilePath(UserFile.Path);
-			Assert.IsTrue(File.Exists(cmlFile), "ChorusNotes file should have been in working set");
-			Assert.IsTrue(Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(cmlFile), "ChorusNotes file should have been in repository");
+			Assert.That(cmlFile, Does.Exist, "ChorusNotes file should have been in working set");
+			Assert.That(Synchronizer.Repository.GetFileIsInRepositoryFromFullPath(cmlFile), Is.True, "ChorusNotes file should have been in repository");
 
 			XmlDocument doc = new XmlDocument();
 			doc.Load(cmlFile);
@@ -230,12 +230,12 @@ namespace LibChorus.TestUtilities
 
 		public void AssertNoErrorsReported()
 		{
-			Assert.IsFalse(ProgressString.ToLower().Contains("error"));
+			Assert.That(ProgressString, Does.Not.Contain("error").IgnoreCase);
 		}
 
 		public void AssertFileExists(string relativePath)
 		{
-			Assert.IsTrue(File.Exists(ProjectFolder.Combine(relativePath)));
+			Assert.That(ProjectFolder.Combine(relativePath), Does.Exist);
 		}
 
 		public void AssertFileContents(string relativePath, string expectedContents)

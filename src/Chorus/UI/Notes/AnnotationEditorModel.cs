@@ -25,7 +25,9 @@ namespace Chorus.UI.Notes
 		public MessageSelectedEvent EventToRaiseForChangedMessage { get; }
 
 		internal event EventHandler UpdateContent;
+#pragma warning disable 67
 		internal event EventHandler UpdateStates;
+#pragma warning restore 67
 
 
 

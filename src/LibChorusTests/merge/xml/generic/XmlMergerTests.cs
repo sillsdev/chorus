@@ -446,13 +446,13 @@ namespace LibChorus.Tests.merge.xml.generic
 
 		private static void CheckEditVsDeleteDetails(string html)
 		{
-			Assert.That(html, Is.StringContaining("changes:"));
-			Assert.That(html, Is.Not.StringContaining("version"),
+			Assert.That(html, Does.Contain("changes:"));
+			Assert.That(html, Does.Not.Contain("version"),
 				"This appears if we try to do HTML diffs on the representation of <a></a>");
 			Assert.That(html.IndexOf("changes", StringComparison.InvariantCulture),
 				Is.EqualTo(html.LastIndexOf("changes", StringComparison.InvariantCulture)),
 				"On EditVsDelete, we should display only one set of changes in details");
-			Assert.That(html, Is.StringContaining("my html"), "Should have used the custom HTML generator we configured for B");
+			Assert.That(html, Does.Contain("my html"), "Should have used the custom HTML generator we configured for B");
 		}
 
 		[Test]
@@ -591,7 +591,7 @@ namespace LibChorus.Tests.merge.xml.generic
 								</b>
 							</a>";
 
-			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(red, blue));
+			Assert.That(XmlUtilities.AreXmlElementsEqual(red, blue), Is.False);
 
 			CheckBothWaysNoConflicts(red, blue, ancestor,
 									 "a/b[@key='one']/c[text()='first']");
@@ -1369,7 +1369,7 @@ namespace LibChorus.Tests.merge.xml.generic
 						EventListener = listener
 					};
 				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 				listener.AssertExpectedChangesCount(1);
 				listener.AssertFirstChangeType<XmlBothAddedSameChangeReport>();
 				listener.AssertExpectedConflictCount(0);
@@ -1395,7 +1395,7 @@ namespace LibChorus.Tests.merge.xml.generic
 					EventListener = listener
 				};
 				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 				listener.AssertExpectedChangesCount(1);
 				listener.AssertFirstChangeType<XmlAdditionChangeReport>();
 				listener.AssertExpectedConflictCount(0);
@@ -1421,7 +1421,7 @@ namespace LibChorus.Tests.merge.xml.generic
 					EventListener = listener
 				};
 				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 				listener.AssertExpectedChangesCount(1);
 				listener.AssertFirstChangeType<XmlAdditionChangeReport>();
 				listener.AssertExpectedConflictCount(0);
@@ -1447,11 +1447,11 @@ namespace LibChorus.Tests.merge.xml.generic
 					EventListener = listener
 				};
 				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 				listener.AssertExpectedChangesCount(0);
 				listener.AssertExpectedConflictCount(1);
 				listener.AssertFirstConflictType<BothAddedMainElementButWithDifferentContentConflict>();
-				Assert.IsTrue(result.MergedNode.OuterXml.Contains("our addition"));
+				Assert.That(result.MergedNode.OuterXml, Does.Contain("our addition"));
 			}
 		}
 
@@ -1474,11 +1474,11 @@ namespace LibChorus.Tests.merge.xml.generic
 					EventListener = listener
 				};
 				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 				listener.AssertExpectedChangesCount(0);
 				listener.AssertExpectedConflictCount(1);
 				listener.AssertFirstConflictType<BothAddedMainElementButWithDifferentContentConflict>();
-				Assert.IsTrue(result.MergedNode.OuterXml.Contains("their addition"));
+				Assert.That(result.MergedNode.OuterXml, Does.Contain("their addition"));
 			}
 		}
 
@@ -1501,11 +1501,11 @@ namespace LibChorus.Tests.merge.xml.generic
 					EventListener = listener
 				};
 				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 				listener.AssertExpectedChangesCount(1);
 				listener.AssertFirstChangeType<XmlBothDeletionChangeReport>();
 				listener.AssertExpectedConflictCount(0);
-				Assert.IsNull(result.MergedNode);
+				Assert.That(result.MergedNode, Is.Null);
 			}
 		}
 
@@ -1528,11 +1528,11 @@ namespace LibChorus.Tests.merge.xml.generic
 					EventListener = listener
 				};
 				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 				listener.AssertExpectedChangesCount(1);
 				listener.AssertFirstChangeType<XmlDeletionChangeReport>();
 				listener.AssertExpectedConflictCount(0);
-				Assert.IsNull(result.MergedNode);
+				Assert.That(result.MergedNode, Is.Null);
 			}
 		}
 
@@ -1555,11 +1555,11 @@ namespace LibChorus.Tests.merge.xml.generic
 					EventListener = listener
 				};
 				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 				listener.AssertExpectedChangesCount(0);
 				listener.AssertExpectedConflictCount(1);
 				listener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
-				Assert.IsTrue(result.MergedNode.OuterXml.Contains("their change"));
+				Assert.That(result.MergedNode.OuterXml, Does.Contain("their change"));
 			}
 		}
 
@@ -1582,11 +1582,11 @@ namespace LibChorus.Tests.merge.xml.generic
 					EventListener = listener
 				};
 				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 				listener.AssertExpectedChangesCount(1);
 				listener.AssertFirstChangeType<XmlDeletionChangeReport>();
 				listener.AssertExpectedConflictCount(0);
-				Assert.IsNull(result.MergedNode);
+				Assert.That(result.MergedNode, Is.Null);
 			}
 		}
 
@@ -1609,11 +1609,11 @@ namespace LibChorus.Tests.merge.xml.generic
 					EventListener = listener
 				};
 				var result = merger.MergeFiles(ours.Path, theirs.Path, ancestor.Path);
-				Assert.IsNotNull(result);
+				Assert.That(result, Is.Not.Null);
 				listener.AssertExpectedChangesCount(0);
 				listener.AssertExpectedConflictCount(1);
 				listener.AssertFirstConflictType<EditedVsRemovedElementConflict>();
-				Assert.IsTrue(result.MergedNode.OuterXml.Contains("our change"));
+				Assert.That(result.MergedNode.OuterXml, Does.Contain("our change"));
 			}
 		}
 	}

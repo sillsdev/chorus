@@ -1,0 +1,21 @@
+extraction:
+  # We don't use python in Chorus, so we ignore all files to prevent failing LGTM builds
+  python:
+    index:
+      exclude:
+        - "**/*.*"
+
+  # GitVersion doesn't natively support LGTM and fails when it finds a detached head,
+  # so we create and checkout a branch.
+  csharp:
+    after_prepare:
+      - git branch -f PR && git checkout PR
+
+queries:
+  # Exclude python queries
+  - exclude: py/*
+
+  # The following queries are irrelevant for desktop apps
+  - exclude: cs/path-injection         # Uncontrolled data used in path expression
+  - exclude: cs/command-line-injection # Uncontrolled command line
+  - exclude: cs/log-forging            # Log entries created from user input

@@ -26,15 +26,15 @@ namespace Chorus.Tests.notes
 			var messageSelected = new MessageSelectedEvent();
 			AnnotationEditorModel annotationModel = CreateAnnotationModel(messageSelected);
 			messageSelected.Raise(annotation, annotation.Messages.First());
-			Assert.IsFalse(annotationModel.IsResolved);
-			Assert.IsFalse(annotation.IsClosed);
+			Assert.That(annotationModel.IsResolved, Is.False);
+			Assert.That(annotation.IsClosed, Is.False);
 			Assert.AreEqual(1, annotation.Messages.Count());
 			annotationModel.AddMessage("hello");
-			Assert.IsFalse(annotationModel.IsResolved,"should not have changed status");
+			Assert.That(annotationModel.IsResolved, Is.False,"should not have changed status");
 			Assert.AreEqual(2, annotation.Messages.Count());
 			Assert.AreEqual("bob", annotation.Messages.Last().GetAuthor(""));
 			Assert.AreEqual("hello", annotation.Messages.Last().Text);
-			Assert.IsTrue(DateTime.Now.Subtract(annotation.Messages.Last().Date).Seconds < 2);
+			Assert.That(DateTime.Now.Subtract(annotation.Messages.Last().Date).Seconds, Is.LessThan(2));
 		}
 
 		[Test]
@@ -44,11 +44,11 @@ namespace Chorus.Tests.notes
 			var messageSelected = new MessageSelectedEvent();
 			AnnotationEditorModel annotationModel = CreateAnnotationModel(messageSelected);
 			messageSelected.Raise(annotation, annotation.Messages.First());
-			Assert.IsFalse(annotationModel.IsResolved);
-			Assert.IsFalse(annotation.IsClosed);
+			Assert.That(annotationModel.IsResolved, Is.False);
+			Assert.That(annotation.IsClosed, Is.False);
 			annotationModel.IsResolved = true;
-			Assert.IsTrue(annotationModel.IsResolved);
-			Assert.IsTrue(annotation.IsClosed);
+			Assert.That(annotationModel.IsResolved, Is.True);
+			Assert.That(annotation.IsClosed, Is.True);
 		}
 
 		[Test]
@@ -58,15 +58,15 @@ namespace Chorus.Tests.notes
 			var messageSelected = new MessageSelectedEvent();
 			AnnotationEditorModel annotationModel = CreateAnnotationModel(messageSelected);
 			messageSelected.Raise(annotation, annotation.Messages.First());
-			Assert.IsFalse(annotationModel.IsResolved);
-			Assert.IsFalse(annotation.IsClosed);
+			Assert.That(annotationModel.IsResolved, Is.False);
+			Assert.That(annotation.IsClosed, Is.False);
 			Assert.AreEqual(1, annotation.Messages.Count());
 			annotationModel.UnResolveAndAddMessage("hello");
-			Assert.IsTrue(annotationModel.IsResolved, "should have changed status");
+			Assert.That(annotationModel.IsResolved, Is.True, "should have changed status");
 			Assert.AreEqual(2, annotation.Messages.Count());
 			Assert.AreEqual("bob", annotation.Messages.Last().GetAuthor(""));
 			Assert.AreEqual("hello", annotation.Messages.Last().Text);
-			Assert.IsTrue(DateTime.Now.Subtract(annotation.Messages.Last().Date).Seconds < 2);
+			Assert.That(DateTime.Now.Subtract(annotation.Messages.Last().Date).Seconds, Is.LessThan(2));
 		}
 
 		private AnnotationEditorModel CreateAnnotationModel(MessageSelectedEvent messageSelected)

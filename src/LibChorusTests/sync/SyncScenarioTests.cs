@@ -17,7 +17,7 @@ namespace LibChorus.Tests.sync
 		private string _pathToTestRootBase;
 		private string _pathToTestRoot;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_pathToTestRootBase = Path.Combine(Path.GetTempPath(), "ChorusSyncScenarioTests");
@@ -26,7 +26,7 @@ namespace LibChorus.Tests.sync
 			Directory.CreateDirectory(_pathToTestRootBase);
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			Directory.Delete(_pathToTestRootBase, true);
@@ -156,7 +156,7 @@ namespace LibChorus.Tests.sync
 			public string SetupClone(string targetPath)
 			{
 				//return GetSynchronizer().MakeClone(Path.Combine(targetPath, BobSetup.ProjectFolderName), true);
-				return HgHighLevel.MakeCloneFromUsbToLocal(_languageProjectPath, 
+				return HgHighLevel.MakeCloneFromUsbToLocal(_languageProjectPath,
 					Path.Combine(targetPath, BobSetup.ProjectFolderName), _progress);
 			}
 
@@ -198,7 +198,7 @@ namespace LibChorus.Tests.sync
 			options.DoSendToOthers = false;
 			options.RepositorySourcesToTry.Add(otherDirPath);
 			bob.SyncNow(options);
-			Assert.IsTrue(File.Exists(Path.Combine(bobSetup._languageProjectPath, "incoming.abc")));
+			Assert.That(Path.Combine(bobSetup._languageProjectPath, "incoming.abc"), Does.Exist);
 		}
 
 		[Test]
@@ -248,21 +248,21 @@ namespace LibChorus.Tests.sync
 
 			// Verification
 			var bobContents = File.ReadAllText(bobSetup._pathToLift);
-			Assert.IsFalse(bobContents.Contains("cat"), "'cat' should only be on Sally's branch.");
-			Assert.IsTrue(bobContents.Contains("dog"));
+			Assert.That(bobContents, Does.Not.Contain("cat"), "'cat' should only be on Sally's branch.");
+			Assert.That(bobContents, Does.Contain("dog"));
 			var sallyContents = File.ReadAllText(sallyPathToLift);
 			//Debug.WriteLine("sally's: " + sallyContents);
-			Assert.IsTrue(sallyContents.Contains("cat"));
-			Assert.IsFalse(sallyContents.Contains("dog"), "'dog' should only be in Bob's repo.");
+			Assert.That(sallyContents, Does.Contain("cat"));
+			Assert.That(sallyContents, Does.Not.Contain("dog"), "'dog' should only be in Bob's repo.");
 
 			// Verify Bob is still on the default branch (empty string)
 			string dummy;
 			var result = bobSyncer.Repository.BranchingHelper.IsLatestBranchDifferent("", out dummy);
-			Assert.IsFalse(result, "Bob should be on default branch.");
+			Assert.That(result, Is.False, "Bob should be on default branch.");
 
 			// Verify Sally is on the right branch
 			result = synchronizer.Repository.BranchingHelper.IsLatestBranchDifferent(sallyNewVersion, out dummy);
-			Assert.IsFalse(result, "Sally should be on LIFT0.13 branch.");
+			Assert.That(result, Is.False, "Sally should be on LIFT0.13 branch.");
 		}
 
 		[Test]
@@ -319,12 +319,12 @@ namespace LibChorus.Tests.sync
 
 			// Verification stage 1
 			var bobContents = File.ReadAllText(bobSetup._pathToLift);
-			Assert.IsFalse(bobContents.Contains("cat"), "'cat' should only be on Sally's branch.");
-			Assert.IsTrue(bobContents.Contains("dog"));
+			Assert.That(bobContents, Does.Not.Contain("cat"), "'cat' should only be on Sally's branch.");
+			Assert.That(bobContents, Does.Contain("dog"));
 			var sallyContents = File.ReadAllText(sallyPathToLift);
-			Assert.IsTrue(sallyContents.Contains("cat"));
-			Assert.IsTrue(sallyContents.Contains("dog"), "Sally should have merged in older branch to hers.");
-			Assert.IsFalse(sallyContents.Contains("herring"), "The red herring is only in Bob's repo; 2nd branch.");
+			Assert.That(sallyContents, Does.Contain("cat"));
+			Assert.That(sallyContents, Does.Contain("dog"), "Sally should have merged in older branch to hers.");
+			Assert.That(sallyContents, Does.Not.Contain("herring"), "The red herring is only in Bob's repo; 2nd branch.");
 
 			// Now Sally upgrades her LIFT-capable program to Bob's version!
 			File.WriteAllText(sallyPathToLift, LiftFileStrings.lift13PigDogCat);
@@ -344,24 +344,24 @@ namespace LibChorus.Tests.sync
 			// Verification stage 2
 			bobContents = File.ReadAllText(bobSetup._pathToLift);
 			//Debug.Print("Bob's: " + bobContents);
-			Assert.IsTrue(bobContents.Contains("cat"), "'cat' survived the upgrade to Bob's repo.");
-			Assert.IsTrue(bobContents.Contains("dog"));
-			Assert.IsTrue(bobContents.Contains("pig"), "'pig' survived the upgrade to Bob's repo.");
+			Assert.That(bobContents, Does.Contain("cat"), "'cat' survived the upgrade to Bob's repo.");
+			Assert.That(bobContents, Does.Contain("dog"));
+			Assert.That(bobContents, Does.Contain("pig"), "'pig' survived the upgrade to Bob's repo.");
 			sallyContents = File.ReadAllText(sallyPathToLift);
 			//Debug.Print("Sally's: " + sallyContents);
-			Assert.IsTrue(sallyContents.Contains("cat"));
-			Assert.IsTrue(sallyContents.Contains("dog"), "'dog' should be from Bob's older repo.");
-			Assert.IsTrue(sallyContents.Contains("herring"), "Now we should have everything from Bob's repo.");
-			Assert.IsTrue(sallyContents.Contains("pig"), "'pig' should have survived the upgrade.");
+			Assert.That(sallyContents, Does.Contain("cat"));
+			Assert.That(sallyContents, Does.Contain("dog"), "'dog' should be from Bob's older repo.");
+			Assert.That(sallyContents, Does.Contain("herring"), "Now we should have everything from Bob's repo.");
+			Assert.That(sallyContents, Does.Contain("pig"), "'pig' should have survived the upgrade.");
 
 			// Verify Bob is on the latest branch
 			string dummy;
 			var result = bobsyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsFalse(result, "Bob should be on the latest LIFT0.13 branch.");
+			Assert.That(result, Is.False, "Bob should be on the latest LIFT0.13 branch.");
 
 			// Verify Sally is on the right branch
 			result = synchronizer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsFalse(result, "Sally should be on the latest LIFT0.13 branch.");
+			Assert.That(result, Is.False, "Sally should be on the latest LIFT0.13 branch.");
 		}
 
 		[Test]
@@ -408,9 +408,9 @@ namespace LibChorus.Tests.sync
 			var sallyPathToLift = Path.Combine(sallyProject.FolderPath, "lexicon/foo.lift");
 			var fredPathToLift = Path.Combine(fredProject.FolderPath, "lexicon/foo.lift");
 			var sallyContents = File.ReadAllText(sallyPathToLift);
-			Assert.IsTrue(sallyContents.Contains("dog"), "'dog' should be in Sally repo.");
+			Assert.That(sallyContents, Does.Contain("dog"), "'dog' should be in Sally repo.");
 			var fredContents = File.ReadAllText(fredPathToLift);
-			Assert.IsTrue(fredContents.Contains("dog"), "'dog' should be in Fred repo.");
+			Assert.That(fredContents, Does.Contain("dog"), "'dog' should be in Fred repo.");
 
 			// bob makes another change and syncs to new version
 			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift13DogCat);
@@ -433,20 +433,20 @@ namespace LibChorus.Tests.sync
 
 			// Verification Step 2
 			fredContents = File.ReadAllText(fredPathToLift);
-			Assert.IsFalse(fredContents.Contains("cat"), "'cat' should only be on Bob's branch.");
-			Assert.IsTrue(fredContents.Contains("ant"));
+			Assert.That(fredContents, Does.Not.Contain("cat"), "'cat' should only be on Bob's branch.");
+			Assert.That(fredContents, Does.Contain("ant"));
 			sallyContents = File.ReadAllText(sallyPathToLift);
-			Assert.IsTrue(sallyContents.Contains("ant"), "'ant' was propogated to Sally's branch.");
-			Assert.IsFalse(sallyContents.Contains("cat"), "'cat' should only be on Bob's branch.");
+			Assert.That(sallyContents, Does.Contain("ant"), "'ant' was propogated to Sally's branch.");
+			Assert.That(sallyContents, Does.Not.Contain("cat"), "'cat' should only be on Bob's branch.");
 			var bobContents = File.ReadAllText(bobSetup._pathToLift);
-			Assert.IsFalse(bobContents.Contains("ant"), "'ant' is only on 'default' branch.");
+			Assert.That(bobContents, Does.Not.Contain("ant"), "'ant' is only on 'default' branch.");
 			// Verify Bob is on the latest branch
 			string dummy;
 			var result = bobSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsFalse(result, "Bob should be on the new LIFT0.13 branch.");
+			Assert.That(result, Is.False, "Bob should be on the new LIFT0.13 branch.");
 			// And Fred isn't
 			result = fredSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsTrue(result, "Fred should still be on the 'default' branch.");
+			Assert.That(result, Is.True, "Fred should still be on the 'default' branch.");
 
 			// Now Sally modifies the file, not having seen Bob's changes yet, but having seen Fred's changes.
 			// She adds 'herring' and has upgraded to Bob's version of LIFT
@@ -464,20 +464,20 @@ namespace LibChorus.Tests.sync
 
 			// Verification Step 3
 			bobContents = File.ReadAllText(bobSetup._pathToLift);
-			Assert.IsTrue(bobContents.Contains("herring"), "'herring' should be pulled in from Sally's branch.");
-			Assert.IsTrue(bobContents.Contains("ant"), "'ant' should be pulled in from Sally's branch.");
+			Assert.That(bobContents, Does.Contain("herring"), "'herring' should be pulled in from Sally's branch.");
+			Assert.That(bobContents, Does.Contain("ant"), "'ant' should be pulled in from Sally's branch.");
 			sallyContents = File.ReadAllText(sallyPathToLift);
-			Assert.IsTrue(sallyContents.Contains("cat"), "'cat' should be pulled in from Bob's branch.");
-			Assert.IsTrue(sallyContents.Contains("dog"), "Everybody should have 'dog' from before.");
+			Assert.That(sallyContents, Does.Contain("cat"), "'cat' should be pulled in from Bob's branch.");
+			Assert.That(sallyContents, Does.Contain("dog"), "Everybody should have 'dog' from before.");
 			fredContents = File.ReadAllText(fredPathToLift);
-			Assert.IsFalse(fredContents.Contains("herring"), "The red herring is only in the new version for now.");
-			Assert.IsFalse(fredContents.Contains("cat"), "'cat' is only in the new version for now.");
+			Assert.That(fredContents, Does.Not.Contain("herring"), "The red herring is only in the new version for now.");
+			Assert.That(fredContents, Does.Not.Contain("cat"), "'cat' is only in the new version for now.");
 			// Verify Sally is now on the latest branch
 			result = sallySyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsFalse(result, "Sally should be on the new LIFT0.13 branch.");
+			Assert.That(result, Is.False, "Sally should be on the new LIFT0.13 branch.");
 			// And Fred still shouldn't be
 			result = fredSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsTrue(result, "Fred should still be on the 'default' branch.");
+			Assert.That(result, Is.True, "Fred should still be on the 'default' branch.");
 
 			// Now Fred checks in 'pig' to the 'default' branch
 			File.WriteAllText(fredPathToLift, LiftFileStrings.lift12DogAntPig);
@@ -488,14 +488,14 @@ namespace LibChorus.Tests.sync
 
 			// Verification Step 4
 			bobContents = File.ReadAllText(bobSetup._pathToLift);
-			Assert.IsFalse(bobContents.Contains("pig"), "'pig' should only be on 'default' branch.");
+			Assert.That(bobContents, Does.Not.Contain("pig"), "'pig' should only be on 'default' branch.");
 			sallyContents = File.ReadAllText(sallyPathToLift);
-			Assert.IsFalse(sallyContents.Contains("pig"), "'pig' should only be on 'default' branch.");
+			Assert.That(sallyContents, Does.Not.Contain("pig"), "'pig' should only be on 'default' branch.");
 			fredContents = File.ReadAllText(fredPathToLift);
-			Assert.IsFalse(fredContents.Contains("herring"), "'herring' should still only be in the new version.");
+			Assert.That(fredContents, Does.Not.Contain("herring"), "'herring' should still only be in the new version.");
 			// Just check Fred hasn't changed branches
 			result = fredSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsTrue(result, "Fred should still be on the 'default' branch.");
+			Assert.That(result, Is.True, "Fred should still be on the 'default' branch.");
 
 			// Now Bob checks in 'deer' in the new version
 			File.WriteAllText(bobSetup._pathToLift, LiftFileStrings.lift13DogCatHerringAntDeer);
@@ -505,14 +505,14 @@ namespace LibChorus.Tests.sync
 			// Verification Step 5
 			// Check that Fred hasn't changed
 			fredContents = File.ReadAllText(fredPathToLift);
-			Assert.IsFalse(fredContents.Contains("deer"), "'deer' should only be on new version.");
+			Assert.That(fredContents, Does.Not.Contain("deer"), "'deer' should only be on new version.");
 			result = fredSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsTrue(result, "Fred should still be on the 'default' branch.");
+			Assert.That(result, Is.True, "Fred should still be on the 'default' branch.");
 			// Check that Sally got her 'deer'
 			sallyContents = File.ReadAllText(sallyPathToLift);
-			Assert.IsTrue(sallyContents.Contains("deer"), "'deer' should have propagated to Sally.");
+			Assert.That(sallyContents, Does.Contain("deer"), "'deer' should have propagated to Sally.");
 			// Make sure that 'pig' hasn't migrated to the new version
-			Assert.IsFalse(sallyContents.Contains("pig"), "'pig' should still only be on 'default' branch.");
+			Assert.That(sallyContents, Does.Not.Contain("pig"), "'pig' should still only be on 'default' branch.");
 
 			// Now Fred has finally upgraded and will check in 'fox' -- LAST CHECK-IN FOR THIS TEST!
 			File.WriteAllText(fredPathToLift, LiftFileStrings.lift13DogAntPigFox);
@@ -522,41 +522,41 @@ namespace LibChorus.Tests.sync
 
 			// Verification Step 6 (Last)
 			bobContents = File.ReadAllText(bobSetup._pathToLift);
-			Assert.IsTrue(bobContents.Contains("cat"), "'cat' should survive the big hairy test in Bob's repo.");
-			Assert.IsTrue(bobContents.Contains("dog"), "'dog' should survive the big hairy test in Bob's repo.");
-			Assert.IsTrue(bobContents.Contains("pig"), "'pig' should survive the big hairy test in Bob's repo.");
-			Assert.IsTrue(bobContents.Contains("herring"), "'herring' should survive the big hairy test in Bob's repo.");
-			Assert.IsTrue(bobContents.Contains("deer"), "'deer' should survive the big hairy test in Bob's repo.");
-			Assert.IsTrue(bobContents.Contains("ant"), "'ant' should survive the big hairy test in Bob's repo.");
-			Assert.IsTrue(bobContents.Contains("fox"), "'fox' should survive the big hairy test in Bob's repo.");
+			Assert.That(bobContents, Does.Contain("cat"), "'cat' should survive the big hairy test in Bob's repo.");
+			Assert.That(bobContents, Does.Contain("dog"), "'dog' should survive the big hairy test in Bob's repo.");
+			Assert.That(bobContents, Does.Contain("pig"), "'pig' should survive the big hairy test in Bob's repo.");
+			Assert.That(bobContents, Does.Contain("herring"), "'herring' should survive the big hairy test in Bob's repo.");
+			Assert.That(bobContents, Does.Contain("deer"), "'deer' should survive the big hairy test in Bob's repo.");
+			Assert.That(bobContents, Does.Contain("ant"), "'ant' should survive the big hairy test in Bob's repo.");
+			Assert.That(bobContents, Does.Contain("fox"), "'fox' should survive the big hairy test in Bob's repo.");
 			sallyContents = File.ReadAllText(sallyPathToLift);
-			Assert.IsTrue(sallyContents.Contains("cat"), "'cat' should survive the big hairy test in Sally's repo.");
-			Assert.IsTrue(sallyContents.Contains("dog"), "'dog' should survive the big hairy test in Sally's repo.");
-			Assert.IsTrue(sallyContents.Contains("herring"), "'herring' should survive the big hairy test in Sally's repo.");
-			Assert.IsTrue(sallyContents.Contains("pig"), "'pig' should survive the big hairy test in Sally's repo.");
-			Assert.IsTrue(sallyContents.Contains("deer"), "'deer' should survive the big hairy test in Sally's repo.");
-			Assert.IsTrue(sallyContents.Contains("ant"), "'ant' should survive the big hairy test in Sally's repo.");
-			Assert.IsTrue(sallyContents.Contains("fox"), "'fox' should survive the big hairy test in Sally's repo.");
+			Assert.That(sallyContents, Does.Contain("cat"), "'cat' should survive the big hairy test in Sally's repo.");
+			Assert.That(sallyContents, Does.Contain("dog"), "'dog' should survive the big hairy test in Sally's repo.");
+			Assert.That(sallyContents, Does.Contain("herring"), "'herring' should survive the big hairy test in Sally's repo.");
+			Assert.That(sallyContents, Does.Contain("pig"), "'pig' should survive the big hairy test in Sally's repo.");
+			Assert.That(sallyContents, Does.Contain("deer"), "'deer' should survive the big hairy test in Sally's repo.");
+			Assert.That(sallyContents, Does.Contain("ant"), "'ant' should survive the big hairy test in Sally's repo.");
+			Assert.That(sallyContents, Does.Contain("fox"), "'fox' should survive the big hairy test in Sally's repo.");
 			fredContents = File.ReadAllText(fredPathToLift);
-			Assert.IsTrue(fredContents.Contains("cat"), "'cat' should survive the big hairy test in Fred's repo.");
-			Assert.IsTrue(fredContents.Contains("dog"), "'dog' should survive the big hairy test in Fred's repo.");
-			Assert.IsTrue(fredContents.Contains("herring"), "'herring' should survive the big hairy test in Fred's repo.");
-			Assert.IsTrue(fredContents.Contains("pig"), "'pig' should survive the big hairy test in Fred's repo.");
-			Assert.IsTrue(fredContents.Contains("deer"), "'deer' should survive the big hairy test in Fred's repo.");
-			Assert.IsTrue(fredContents.Contains("ant"), "'ant' should survive the big hairy test in Fred's repo.");
-			Assert.IsTrue(fredContents.Contains("fox"), "'fox' should survive the big hairy test in Fred's repo.");
+			Assert.That(fredContents, Does.Contain("cat"), "'cat' should survive the big hairy test in Fred's repo.");
+			Assert.That(fredContents, Does.Contain("dog"), "'dog' should survive the big hairy test in Fred's repo.");
+			Assert.That(fredContents, Does.Contain("herring"), "'herring' should survive the big hairy test in Fred's repo.");
+			Assert.That(fredContents, Does.Contain("pig"), "'pig' should survive the big hairy test in Fred's repo.");
+			Assert.That(fredContents, Does.Contain("deer"), "'deer' should survive the big hairy test in Fred's repo.");
+			Assert.That(fredContents, Does.Contain("ant"), "'ant' should survive the big hairy test in Fred's repo.");
+			Assert.That(fredContents, Does.Contain("fox"), "'fox' should survive the big hairy test in Fred's repo.");
 
 			// Verify Bob is on the latest branch
 			result = bobSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsFalse(result, "Bob should be on the new LIFT0.13 branch.");
+			Assert.That(result, Is.False, "Bob should be on the new LIFT0.13 branch.");
 
 			// Verify Sally is on the right branch
 			result = sallySyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsFalse(result, "Sally should be on the new LIFT0.13 branch.");
+			Assert.That(result, Is.False, "Sally should be on the new LIFT0.13 branch.");
 
 			// Verify Fred is finally on the new branch
 			result = fredSyncer.Repository.BranchingHelper.IsLatestBranchDifferent(lift13version, out dummy);
-			Assert.IsFalse(result, "Fred should finally be on the new LIFT0.13 branch.");
+			Assert.That(result, Is.False, "Fred should finally be on the new LIFT0.13 branch.");
 		}
 
 #if forscreenshot
@@ -717,8 +717,8 @@ namespace LibChorus.Tests.sync
 			//Debug.WriteLine("bob's: " + File.ReadAllText(bobSetup._pathToLift));
 			var contents = File.ReadAllText(sallyPathToLift);
 			//Debug.WriteLine("sally's: " + contents);
-			Assert.IsTrue(contents.Contains("cat"));
-			Assert.IsTrue(contents.Contains("dog"));
+			Assert.That(contents, Does.Contain("cat"));
+			Assert.That(contents, Does.Contain("dog"));
 		}
 
 		/// <summary>
@@ -785,8 +785,8 @@ namespace LibChorus.Tests.sync
 			//Debug.WriteLine("bob's: " + File.ReadAllText(bobSetup._pathToLift));
 			var contents = File.ReadAllText(sallyPathToLift);
 			//Debug.WriteLine("sally's: " + contents);
-			Assert.IsTrue(contents.Contains("ant"));
-			Assert.IsTrue(contents.Contains("dog"));
+			Assert.That(contents, Does.Contain("ant"));
+			Assert.That(contents, Does.Contain("dog"));
 		}
 
 		public void AssertLineOfFile(string filePath, int lineNumber1Based, string shouldEqual)

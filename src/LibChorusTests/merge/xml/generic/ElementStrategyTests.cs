@@ -15,13 +15,13 @@ namespace LibChorus.Tests.merge.xml.generic
 		[Test]
 		public void DefaultIsImmutable_Is_False()
 		{
-			Assert.IsFalse(new ElementStrategy(false).IsImmutable);
+			Assert.That(new ElementStrategy(false).IsImmutable, Is.False);
 		}
 
 		[Test]
 		public void DefaultIsAtomic_Is_False()
 		{
-			Assert.IsFalse(new ElementStrategy(false).IsAtomic);
+			Assert.That(new ElementStrategy(false).IsAtomic, Is.False);
 		}
 
 		[Test]

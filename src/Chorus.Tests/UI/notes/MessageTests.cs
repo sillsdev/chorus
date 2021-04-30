@@ -21,7 +21,7 @@ namespace Chorus.Tests.notes
 
 			var m = new Message(element);
 			string text = m.GetHtmlText(new EmbeddedMessageContentHandlerRepository());
-			Assert.IsTrue(text.Contains("<a"));
+			Assert.That(text, Does.Contain("<a"));
 		}
 
 		[Test]
@@ -33,7 +33,7 @@ namespace Chorus.Tests.notes
 </message>");
 
 			var m = new Message(element);
-			Assert.IsFalse(m.GetHtmlText(new EmbeddedMessageContentHandlerRepository()).Contains("<a"));
+			Assert.That(m.GetHtmlText(new EmbeddedMessageContentHandlerRepository()), Does.Not.Contain("<a"));
 		}
 	}
 }

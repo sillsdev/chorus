@@ -14,14 +14,14 @@ namespace LibChorus.Tests.FileHandlers.ldml
 	{
 		private IChorusFileTypeHandler _ldmlFileHandler;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_ldmlFileHandler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
 				handler => handler.GetType().Name == "LdmlFileHandler")).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_ldmlFileHandler = null;
@@ -37,7 +37,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 		public void HandlerOnlySupportsldmlExtension()
 		{
 			var extensions = _ldmlFileHandler.GetExtensionsOfKnownTextFileTypes();
-			Assert.IsTrue(extensions.Count() == 1);
+			Assert.That(extensions.Count(), Is.EqualTo(1));
 			Assert.AreEqual("ldml", extensions.First());
 		}
 
