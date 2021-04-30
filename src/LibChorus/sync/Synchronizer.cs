@@ -105,16 +105,14 @@ namespace Chorus.sync
 		{
 			SyncResults results = new SyncResults();
 			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
-			//this just saves us from trying to connect twice to the same repo that is, for example, no there.
-			Dictionary<RepositoryAddress, bool> connectionAttempts = new Dictionary<RepositoryAddress, bool>();
+			// this saves us from trying to connect twice to the same repo that is, for example, not there.
+			var connectionAttempts = new Dictionary<RepositoryAddress, bool>();
 
 			try
 			{
-				if (_progress.ProgressIndicator != null)
-				{
-					_progress.ProgressIndicator.IndicateUnknownProgress();
-				}
+				_progress.ProgressIndicator?.IndicateUnknownProgress();
 				var repo = new HgRepository(_localRepositoryPath, _progress);
+				repo.LogBasicInfo(sourcesToTry);
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
@@ -150,7 +148,7 @@ namespace Chorus.sync
 				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
 
 				results.Succeeded = true;
-			   _progress.WriteMessage("Done");
+				_progress.WriteMessage("Done");
 			}
 			catch (SynchronizationException error)
 			{
@@ -179,6 +177,10 @@ namespace Chorus.sync
 
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
+			}
+			finally
+			{
+				_progress.WriteVerbose($"Finished at {DateTime.UtcNow:u}");
 			}
 			return results;
 		}

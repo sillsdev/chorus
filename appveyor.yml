@@ -4,10 +4,16 @@ branches:
   - feature/nuget
 image: Visual Studio 2019
 init:
-- cmd: set GITVERSION_BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%
+  - cmd: >-
+      set GITVERSION_BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%
+
+      if defined APPVEYOR_PULL_REQUEST_NUMBER set GitVersion_NoNormalizeEnabled=true
 nuget:
   disable_publish_on_pr: true
   disable_publish_octopus: true
+before_build:
+  - cmd: >-
+      if defined APPVEYOR_PULL_REQUEST_NUMBER git checkout -b PR-%APPVEYOR_PULL_REQUEST_NUMBER%
 build:
   project: build/Chorus.proj
   publish_nuget: true

@@ -1080,9 +1080,7 @@ namespace LibChorus.Tests.FileHandlers.ldml
 					@"/ldml/collations/collation/cr[contains(text(), 'c<ch')]"
 				},
 				new List<string>(0),
-				0, new List<Type>
-				{
-				},
+				0, new List<Type>(),
 				3, new List<Type>
 				{
 

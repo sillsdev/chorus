@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Windows.Forms;
-using Chorus.UI.Misc;
 using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;

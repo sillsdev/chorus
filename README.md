@@ -110,3 +110,7 @@ On Linux you can open and build the solution in MonoDevelop, or run the `build/T
   * `build /t:pack` will pack nuget packages and publish them to `LOCAL_NUGET_REPO`
 
 Further instructions at https://github.com/sillsdev/libpalaso/wiki/Developing-with-locally-modified-nuget-packages
+
+### Python
+
+Beginning with Ubuntu 20.04 (Focal), you will need to `sudo apt install python-is-python2` so that Mercurial can run.

@@ -1,12 +1,12 @@
 using System;
 using System.IO;
-using Chorus.Utilities.code;
+using SIL.PlatformUtilities;
 
 namespace Chorus.ChorusHub
 {
 	public static class ChorusHubOptions
 	{
-		private static string _rootDirectory = LinuxUtils.IsUnix ? Path.Combine(Environment.GetEnvironmentVariable("HOME"), "ChorusHub") : @"C:\ChorusHub";
+		private static string _rootDirectory = Platform.IsUnix ? Path.Combine(Environment.GetEnvironmentVariable("HOME"), "ChorusHub") : @"C:\ChorusHub";
 
 		//these numbers were selected by looking at the IANA registry and intentionally *not* picking,
 		//"undefined" ones (which could become defined in the future), but rather ones already assigned to stuff

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -374,7 +374,9 @@ namespace Chorus.UI.Sync
 		{
 			if (RepositoryChosen != null)
 			{
+				_repository.RemoveCredentialsFromIniIfNecessary();
 				var address = _repository.GetDefaultNetworkAddress<HttpRepositoryPath>();
+				// ENHANCE (Hasso) 2021.04: prompt here for the password if the user has opted not to save it (https://jira.sil.org/browse/LT-20549)
 				RepositoryChosen.Invoke(this, new SyncStartArgs(address, _commitMessageText.Text));
 			}
 		}

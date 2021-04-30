@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
-using Chorus.merge.xml.generic;
 
 namespace Chorus.merge.xml.generic
 {
