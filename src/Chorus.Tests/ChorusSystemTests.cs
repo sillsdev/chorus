@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -12,7 +13,7 @@ using SIL.TestUtilities;
 
 namespace Chorus.Tests
 {
-	[TestFixture, RequiresSTA]
+	[TestFixture, Apartment(ApartmentState.STA)]
 	public class ChorusSystemTests
 	{
 		private TemporaryFolder _folder;
@@ -24,7 +25,7 @@ namespace Chorus.Tests
 		[SetUp]
 		public void Setup()
 		{
-			_folder = new TemporaryFolder("ChorusSystemTests");
+			_folder = new TemporaryFolder("ChorusSystemTests_" + Path.GetRandomFileName());
 			_targetFile1 = new TempFileFromFolder(_folder,  "one.txt", "just a pretend file");
 			_existingNotesFile = new TempFileFromFolder(_folder, "one.txt." + AnnotationRepository.FileExtension,
 						@"<notes version='0'>

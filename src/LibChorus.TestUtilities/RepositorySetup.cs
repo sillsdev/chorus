@@ -5,6 +5,7 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
+using SIL.PlatformUtilities;
 using SIL.Progress;
 using SIL.TestUtilities;
 
@@ -97,7 +98,7 @@ namespace LibChorus.TestUtilities
 		{
 			if (Repository != null)
 			{
-				Assert.IsFalse(Repository.GetHasLocks(), "A lock was left over, after the test.");
+				Assert.That(Repository.GetHasLocks(), Is.False, "A lock was left over, after the test.");
 			}
 			if (ProjectFolder != null)
 			{
@@ -198,17 +199,17 @@ namespace LibChorus.TestUtilities
 
 		public void AssertFileExistsRelativeToRoot(string relativePath)
 		{
-			Assert.IsTrue(File.Exists(RootFolder.Combine(relativePath)));
+			Assert.That(RootFolder.Combine(relativePath), Does.Exist);
 		}
 
 		public void AssertFileExistsInRepository(string pathRelativeToRepositoryRoot)
 		{
-			Assert.IsTrue(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot));
+			Assert.That(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot), Is.True);
 		}
 
 		public void AssertFileDoesNotExistInRepository(string pathRelativeToRepositoryRoot)
 		{
-			Assert.IsFalse(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot));
+			Assert.That(Repository.GetFileExistsInRepo(pathRelativeToRepositoryRoot), Is.False);
 		}
 
 		public static void MakeRepositoryForTest(string newRepositoryPath, string userId, IProgress progress)
@@ -232,18 +233,18 @@ namespace LibChorus.TestUtilities
 		}
 		public IDisposable GetFileLockForWriting(string localPath)
 		{
-#if MONO
+			if (!Platform.IsMono)
+				return new StreamReader(ProjectFolder.Combine(localPath));
+
 			// This doesn't work.  A mono bug perhaps? (CP)
-			FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+			FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Open,
+				FileAccess.ReadWrite, FileShare.Read);
 			// This didn't work either
 			//f.Lock(0, f.Length - 1);
 			//FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Open, FileAccess.Write, FileShare.None);
 			// This locked the file, but also deleted it (as expected) which isn't what the test expects
 			//FileStream f = new FileStream(ProjectFolder.Combine(localPath), FileMode.Create, FileAccess.Write, FileShare.None);
 			return f;
-#else
-			return new StreamReader(ProjectFolder.Combine(localPath));
-#endif
 		}
 
 
@@ -261,7 +262,7 @@ namespace LibChorus.TestUtilities
 
 		public void AssertFileExists(string relativePath)
 		{
-			Assert.IsTrue(File.Exists(ProjectFolder.Combine(relativePath)));
+			Assert.That(ProjectFolder.Combine(relativePath), Does.Exist);
 		}
 
 		public void AssertFileContents(string relativePath, string expectedContents)

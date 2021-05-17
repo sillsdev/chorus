@@ -80,7 +80,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var setup = new RepositorySetup("Dan"))
 			{
-				Assert.IsNull(setup.Repository.GetTip());
+				Assert.That(setup.Repository.GetTip(), Is.Null);
 			}
 		}
 

@@ -142,12 +142,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.AreEqual("shibboleth", ServerSettingsModel.PasswordForSession, "should have read password from file");
 				if (string.IsNullOrEmpty(newSavedPass))
 				{
-					Assert.IsNullOrEmpty(Chorus.Properties.Settings.Default.LanguageForgePass);
+					Assert.That(Chorus.Properties.Settings.Default.LanguageForgePass, Is.Null.Or.Empty);
 				}
 				else
 				{
-					Assert.AreEqual(newSavedPass, ServerSettingsModel.DecryptPassword(Chorus.Properties.Settings.Default.LanguageForgePass),
-						"should have saved the password to user settings");
+					Assert.That(ServerSettingsModel.DecryptPassword(Chorus.Properties.Settings.Default.LanguageForgePass),
+						Is.EqualTo(newSavedPass), "should have saved the password to user settings");
 				}
 			}
 		}

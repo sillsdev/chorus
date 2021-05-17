@@ -156,7 +156,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				HgHighLevel.MakeCloneFromLocalToUsb(repo.ProjectFolder.Path, f.Path, new NullProgress());
 				var cloneRepo = new HgRepository(f.Path, new NullProgress());
 				var hgFolderPath = Path.Combine(f.Path, ".hg");
-				Assert.IsTrue(Directory.Exists(hgFolderPath));
+				Assert.That(hgFolderPath, Does.Exist);
 				var hgrcLines = File.ReadAllLines(Path.Combine(hgFolderPath, "hgrc"));
 				//SUT
 				CollectionAssert.DoesNotContain(hgrcLines, "[extensions]", "extensions section created in bare clone");

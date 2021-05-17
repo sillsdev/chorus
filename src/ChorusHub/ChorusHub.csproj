@@ -1,162 +1,59 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{4D3ECD8D-431D-4B53-B635-017B36B002C9}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFrameworks>net461</TargetFrameworks>
     <RootNamespace>ChorusHub</RootNamespace>
-    <AssemblyName>ChorusHub</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <FileAlignment>512</FileAlignment>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\output\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
+    <AssemblyTitle>ChorusHub</AssemblyTitle>
+    <Configurations>Debug;Release</Configurations>
+    <Description>End-user collaboration library via 3-way xml merging and hg dvcs under the hood.</Description>
+    <Company>SIL International</Company>
+    <Authors>SIL International</Authors>
+    <Product>chorus</Product>
+    <Copyright>Copyright © 2010-2020 SIL International</Copyright>
+    <PackageId>SIL.Chorus.ChorusHub</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/sillsdev/chorus</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <OutputPath>../../output/$(Configuration)</OutputPath>
+    <PackageOutputPath>../../output</PackageOutputPath>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../FieldWorks.snk</AssemblyOriginatorKeyFile>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <OutputType>WinExe</OutputType>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <AppendToReleaseNotesProperty><![CDATA[
+See full changelog at https://github.com/sillsdev/chorus/blob/master/CHANGELOG.md]]>
+    </AppendToReleaseNotesProperty>
+    <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
     <NoWarn>1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
+    <!-- We have to explicitly set PlatformTarget because we depend on LibChorus which depends on
+    icu4c which has platform dependent binaries, so msbuild decides that this executable will
+    be platform specific. For the same reason we have to set RuntimeIdentifiers when building
+    with .NET 5 on AppVeyor. -->
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\output\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>true</Prefer32Bit>
-    <LangVersion>6</LangVersion>
+    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
-    <OutputPath>..\..\output\DebugMono</OutputPath>
-    <DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-    <WarningLevel>4</WarningLevel>
-    <Optimize>False</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
-    <OutputPath>..\..\output\ReleaseMono</OutputPath>
-    <DefineConstants>TRACE;MONO</DefineConstants>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <Optimize>True</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\output\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>6</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>..\..\output\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>6</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
+    <PackageReference Include="GitVersion.MsBuild" Version="5.6.8" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="SIL.ReleaseTasks" Version="2.5.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LibChorus\LibChorus.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Advertiser.cs" />
-    <Compile Include="ChorusHub.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ChorusHub.Designer.cs">
-      <DependentUpon>ChorusHub.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ChorusHubServer.cs" />
-    <Compile Include="ChorusHubService.cs" />
-    <Compile Include="HgServeRunner.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="ProjectInstaller.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ProjectInstaller.Designer.cs">
-      <DependentUpon>ProjectInstaller.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="ProjectInstaller.resx">
-      <DependentUpon>ProjectInstaller.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LibChorus\LibChorus.csproj">
-      <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
-      <Name>LibChorus</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
+  <PropertyGroup>
+    <!-- See https://github.com/dotnet/sdk/issues/987#issuecomment-286307697 why that is needed -->
+    <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+  </PropertyGroup>
+
 </Project>

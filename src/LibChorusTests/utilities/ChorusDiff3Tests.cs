@@ -17,7 +17,7 @@ namespace LibChorus.Tests.utilities
 		[Test]
 		public void Diff3IsAccessible()
 		{
-			Assert.IsTrue(TextMerger.GetVersion().Contains("Copyright"));
+			Assert.That(TextMerger.GetVersion(), Does.Contain("Copyright"));
 		}
 
 		[Test]
@@ -30,21 +30,21 @@ namespace LibChorus.Tests.utilities
 			m.Go();
 			AssertLeftNoMergeArtifacts(m);
 			Assert.AreEqual(string.Empty, m.LeastCommonDenominator.Trim());
-			Assert.IsTrue(m.OurPartial.Contains("bob"));
-			Assert.IsTrue(m.TheirPartial.Contains("sally"));
+			Assert.That(m.OurPartial, Does.Contain("bob"));
+			Assert.That(m.TheirPartial, Does.Contain("sally"));
 		}
 
 		private void AssertLeftNoMergeArtifacts(Merge m)
 		{
-			Assert.IsFalse(m.LeastCommonDenominator.Contains("<<<<"));
-			Assert.IsFalse(m.LeastCommonDenominator.Contains(">>>>"));
-			Assert.IsFalse(m.LeastCommonDenominator.Contains("===="));
-			Assert.IsFalse(m.OurPartial.Contains("<<<<"));
-			Assert.IsFalse(m.OurPartial.Contains("===="));
-			Assert.IsFalse(m.OurPartial.Contains(">>>>"));
-			Assert.IsFalse(m.TheirPartial.Contains("<<<<"));
-			Assert.IsFalse(m.TheirPartial.Contains("===="));
-			Assert.IsFalse(m.TheirPartial.Contains(">>>>"));
+			Assert.That(m.LeastCommonDenominator, Does.Not.Contain("<<<<"));
+			Assert.That(m.LeastCommonDenominator, Does.Not.Contain(">>>>"));
+			Assert.That(m.LeastCommonDenominator, Does.Not.Contain("===="));
+			Assert.That(m.OurPartial, Does.Not.Contain("<<<<"));
+			Assert.That(m.OurPartial, Does.Not.Contain("===="));
+			Assert.That(m.OurPartial, Does.Not.Contain(">>>>"));
+			Assert.That(m.TheirPartial, Does.Not.Contain("<<<<"));
+			Assert.That(m.TheirPartial, Does.Not.Contain("===="));
+			Assert.That(m.TheirPartial, Does.Not.Contain(">>>>"));
 		}
 
 		[Test]
@@ -57,18 +57,18 @@ namespace LibChorus.Tests.utilities
 			m.Go();
 			AssertLeftNoMergeArtifacts(m);
 
-			Assert.IsTrue(m.LeastCommonDenominator.Contains("two"));
-			Assert.IsTrue(m.LeastCommonDenominator.Contains("bob4"));
-			Assert.IsTrue(m.LeastCommonDenominator.Contains("sally6"));
+			Assert.That(m.LeastCommonDenominator, Does.Contain("two"));
+			Assert.That(m.LeastCommonDenominator, Does.Contain("bob4"));
+			Assert.That(m.LeastCommonDenominator, Does.Contain("sally6"));
 
 
-			Assert.IsTrue(m.OurPartial.Contains("bob2"));
-			Assert.IsTrue(m.OurPartial.Contains("bob4"));
-			Assert.IsTrue(m.OurPartial.Contains("sally6"));
+			Assert.That(m.OurPartial, Does.Contain("bob2"));
+			Assert.That(m.OurPartial, Does.Contain("bob4"));
+			Assert.That(m.OurPartial, Does.Contain("sally6"));
 
-			Assert.IsTrue(m.TheirPartial.Contains("sally2"));
-			Assert.IsTrue(m.TheirPartial.Contains("bob4"));
-			Assert.IsTrue(m.TheirPartial.Contains("sally6"));
+			Assert.That(m.TheirPartial, Does.Contain("sally2"));
+			Assert.That(m.TheirPartial, Does.Contain("bob4"));
+			Assert.That(m.TheirPartial, Does.Contain("sally6"));
 		}
 
 		class Merge

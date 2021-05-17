@@ -123,8 +123,8 @@ namespace Chorus.Tests.UI.Sync
 			// NOTE: we can't use AutoResetEvent with Sync() - for some reason this doesn't work
 			WaitForSyncToFinish(ref results);
 
-			Assert.IsFalse(results.Succeeded);
-			Assert.IsNotNull(results.ErrorEncountered);
+			Assert.That(results.Succeeded, Is.False);
+			Assert.That(results.ErrorEncountered, Is.Not.Null);
 		}
 
 		[Test]
@@ -143,9 +143,9 @@ namespace Chorus.Tests.UI.Sync
 			// NOTE: we can't use AutoResetEvent with Sync() - for some reason this doesn't work
 			WaitForSyncToFinish(ref results);
 
-			Assert.IsFalse(results.Succeeded);
-			Assert.IsTrue(results.Cancelled);
-			Assert.IsNull(results.ErrorEncountered);
+			Assert.That(results.Succeeded, Is.False);
+			Assert.That(results.Cancelled, Is.True);
+			Assert.That(results.ErrorEncountered, Is.Null);
 		}
 
 		[Test]
@@ -155,7 +155,7 @@ namespace Chorus.Tests.UI.Sync
 			var waitHandle = new AutoResetEvent(false);
 			_model.AsyncLocalCheckIn("testing", r => { result=r; waitHandle.Set();});
 			WaitForTasksToFinish(1, waitHandle);
-			Assert.IsTrue(result.Succeeded);
+			Assert.That(result.Succeeded, Is.True);
 		}
 
 		/// <summary>
@@ -175,9 +175,9 @@ namespace Chorus.Tests.UI.Sync
 			_model.AsyncLocalCheckIn("testing", r => { result3=r; waitHandle3.Set(); });
 			WaitForTasksToFinish(3, waitHandle1, waitHandle2, waitHandle3);
 
-			Assert.IsFalse(_model.StatusProgress.WarningEncountered, "There was a warning encountered during the sync: {0}", _model.StatusProgress.LastWarning);
-			Assert.IsFalse(_model.StatusProgress.ErrorEncountered, "There was an error encountered during the sync: {0}", _model.StatusProgress.LastError);
-			Assert.IsTrue(result1.Succeeded && result2.Succeeded && result3.Succeeded, "One of the CheckIn attempts did not succeed.");
+			Assert.That(_model.StatusProgress.WarningEncountered, Is.False, $"There was a warning encountered during the sync: {_model.StatusProgress.LastWarning}");
+			Assert.That(_model.StatusProgress.ErrorEncountered, Is.False, $"There was an error encountered during the sync: {_model.StatusProgress.LastError}");
+			Assert.That(result1.Succeeded && result2.Succeeded && result3.Succeeded, Is.True, "One of the CheckIn attempts did not succeed.");
 		}
 
 		[Test]

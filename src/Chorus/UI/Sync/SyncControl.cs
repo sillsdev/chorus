@@ -4,6 +4,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
+using SIL.PlatformUtilities;
 using SIL.Progress;
 
 namespace Chorus.UI.Sync
@@ -126,12 +127,16 @@ namespace Chorus.UI.Sync
 				if (_model.HasFeature(SyncUIFeatures.SimpleRepositoryChooserInsteadOfAdvanced)
 					|| _model.Features == SyncUIFeatures.Minimal)
 				{
-#if MONO // in mono 2.0, the log tab is forever empty if we remove this tab
-					_chooseTargetsTab.Enabled = false;
-					_chooseTargetsTab.Visible = false;
-#else
-					_tabControl.TabPages.Remove(_chooseTargetsTab);
-#endif
+					if (Platform.IsMono)
+					{
+						// in mono 2.0, the log tab is forever empty if we remove this tab
+						_chooseTargetsTab.Enabled = false;
+						_chooseTargetsTab.Visible = false;
+					}
+					else
+					{
+						_tabControl.TabPages.Remove(_chooseTargetsTab);
+					}
 				}
 				if (!_model.HasFeature(SyncUIFeatures.TaskList))
 				{
@@ -158,14 +163,15 @@ namespace Chorus.UI.Sync
 
 			LoadChoices();
 
-#if MONO
-			Invalidate(true);
-			Refresh();
-			_tabControl.Refresh();
-			_logTab.Refresh();
-			_logBox.Refresh();
-		//    MessageBox.Show("inval/refreshed");
-#endif
+			if (Platform.IsMono)
+			{
+				Invalidate(true);
+				Refresh();
+				_tabControl.Refresh();
+				_logTab.Refresh();
+				_logBox.Refresh();
+				//    MessageBox.Show("inval/refreshed");
+			}
 		}
 
 		/// <summary>

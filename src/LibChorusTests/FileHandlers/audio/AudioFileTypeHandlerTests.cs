@@ -14,14 +14,14 @@ namespace LibChorus.Tests.FileHandlers.audio
 	{
 		private IChorusFileTypeHandler _audioFileHandler;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_audioFileHandler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
 				handler => handler.GetType().Name == "AudioFileTypeHandler")).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_audioFileHandler = null;
@@ -37,7 +37,7 @@ namespace LibChorus.Tests.FileHandlers.audio
 		public void HandlerSupportsCorrectExtensions()
 		{
 			var extensions = _audioFileHandler.GetExtensionsOfKnownTextFileTypes().ToList();
-			Assert.IsTrue(extensions.Count() == 8);
+			Assert.That(extensions.Count(), Is.EqualTo(8));
 			var expectedExtensions = new HashSet<string> {"wav", "snd", "au", "aif", "aifc", "aiff", "wma", "mp3"};
 			foreach (var expectedExtension in expectedExtensions)
 				Assert.Contains(expectedExtension, extensions);

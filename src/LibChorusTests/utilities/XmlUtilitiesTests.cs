@@ -30,8 +30,8 @@ namespace LibChorus.Tests.utilities
 @"<foo />";
 			const string theirs =
 @"<foo>New foo text.</foo>";
-			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(ours, theirs));
-			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+			Assert.That(XmlUtilities.AreXmlElementsEqual(ours, theirs), Is.False);
+			Assert.That(XmlUtilities.AreXmlElementsEqual(theirs, ours), Is.False);
 		}
 
 		[Test]
@@ -52,8 +52,8 @@ namespace LibChorus.Tests.utilities
 @"<foo attr='val' />";
 			const string theirs =
 @"<foo attr='val' >New foo text.</foo>";
-			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(ours, theirs));
-			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+			Assert.That(XmlUtilities.AreXmlElementsEqual(ours, theirs), Is.False);
+			Assert.That(XmlUtilities.AreXmlElementsEqual(theirs, ours), Is.False);
 		}
 
 		[Test]
@@ -82,8 +82,8 @@ namespace LibChorus.Tests.utilities
 @"<foo attr='val'>
 <bar attr='val'>new stuff.</bar>
 </foo>";
-			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(ours, theirs));
-			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(theirs, ours));
+			Assert.That(XmlUtilities.AreXmlElementsEqual(ours, theirs), Is.False);
+			Assert.That(XmlUtilities.AreXmlElementsEqual(theirs, ours), Is.False);
 		}
 
 		[Test]
@@ -168,8 +168,8 @@ namespace LibChorus.Tests.utilities
 <ParseIsCurrent val='False' />
 </rt>");
 
-			Assert.IsTrue(XmlUtilities.AreXmlElementsEqual(ours, theirs), "ours != theirs");
-			Assert.IsTrue(XmlUtilities.AreXmlElementsEqual(theirs, ours), "theirs != ours");
+			Assert.That(XmlUtilities.AreXmlElementsEqual(ours, theirs), Is.True, "ours != theirs");
+			Assert.That(XmlUtilities.AreXmlElementsEqual(theirs, ours), Is.True, "theirs != ours");
 		}
 
 		[Test]
@@ -178,8 +178,8 @@ namespace LibChorus.Tests.utilities
 			var ours = Encoding.UTF8.GetBytes(@"<rt class='ScrTxtPara' guid='0030a77d-63cd-4d51-b26a-27bac7d64f17' ownerguid='046d6079-2337-425f-a8bd-b0af047fb5e5' />");
 			var theirs = Encoding.UTF8.GetBytes(@"<rt class='LexEntry' guid='0030a77d-63cd-4d51-b26a-27bac7d64f18' ownerguid='046d6079-2337-425f-a8bd-b0af047fb5e5' />");
 
-			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(ours, theirs), "ours == theirs");
-			Assert.IsFalse(XmlUtilities.AreXmlElementsEqual(theirs, ours), "theirs == ours");
+			Assert.That(XmlUtilities.AreXmlElementsEqual(ours, theirs), Is.False, "ours == theirs");
+			Assert.That(XmlUtilities.AreXmlElementsEqual(theirs, ours), Is.False, "theirs == ours");
 		}
 
 		#region IsTextNodeContainer
@@ -245,13 +245,13 @@ namespace LibChorus.Tests.utilities
 			var ours = doc.CreateElement("myelement");
 			var theirs = doc.CreateElement("myelement");
 			var ancestor = doc.CreateElement("myelement");
-			Assert.IsFalse(XmlUtilities.IsTextLevel(ours, theirs, ancestor));
+			Assert.That(XmlUtilities.IsTextLevel(ours, theirs, ancestor), Is.False);
 		}
 
 		[Test]
 		public void AllNullsIsNotTextlevel()
 		{
-			Assert.IsFalse(XmlUtilities.IsTextLevel(null, null, null));
+			Assert.That(XmlUtilities.IsTextLevel(null, null, null), Is.False);
 		}
 
 		#endregion IsTextLevel
@@ -267,7 +267,7 @@ namespace LibChorus.Tests.utilities
 			XmlNode theirs = theirDoc.FirstChild;
 			XmlUtilities.ReplaceOursWithTheirs(ourDoc, ref ours, theirs);
 			Assert.AreSame(ourDoc.OwnerDocument, ours.OwnerDocument);
-			Assert.IsTrue(XmlUtilities.AreXmlElementsEqual(theirs, ours), "theirs != ours");
+			Assert.That(XmlUtilities.AreXmlElementsEqual(theirs, ours), Is.True, "theirs != ours");
 		}
 
 		[Test]
@@ -279,7 +279,7 @@ namespace LibChorus.Tests.utilities
 			XmlNode theirs = theirDoc.FirstChild;
 			XmlUtilities.ReplaceOursWithTheirs(ourDoc, ref ours, theirs);
 			Assert.AreSame(ourDoc.OwnerDocument, ours.OwnerDocument, "Returned node not in inserted into our parent document");
-			Assert.IsTrue(XmlUtilities.AreXmlElementsEqual(theirs, ours), "theirs != ours");
+			Assert.That(XmlUtilities.AreXmlElementsEqual(theirs, ours), Is.True, "theirs != ours");
 		}
 
 		[Test]

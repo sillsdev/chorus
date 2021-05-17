@@ -1,6 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!--This file is generated and then updated by an MSBuild task.  It preserves the automatically-generated guids assigned files that will be installed on user machines. So it should be held in source control.-->
-<InstallerMetadata>
-  <File Id="Dummy.txt" Guid="abf0992e-2b9f-4c55-b2f4-c5aa062a46e4" />
-  <File Id="MercurialExtensions.Dummy.txt" Guid="c6205dce-8a61-4d8b-878a-dfaba113c88c" />
-</InstallerMetadata>

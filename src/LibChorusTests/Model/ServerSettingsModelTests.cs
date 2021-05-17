@@ -292,7 +292,7 @@ namespace LibChorus.Tests.Model
 			}
 			else
 			{
-				Assert.IsNullOrEmpty(sut.Password);
+				Assert.That(sut.Password, Is.Null.Or.Empty);
 			}
 		}
 
@@ -316,8 +316,8 @@ namespace LibChorus.Tests.Model
 				m.InitFromProjectPath(folder.Path);
 				m.SetUrlToUseIfSettingsAreEmpty(url);
 				m.SaveSettings();
-				Assert.IsTrue(Directory.Exists(folder.Combine(".hg")));
-				Assert.IsTrue(File.Exists(folder.Combine(".hg","hgrc")));
+				Assert.That(folder.Combine(".hg"), Does.Exist);
+				Assert.That(folder.Combine(".hg","hgrc"), Does.Exist);
 				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 				Assert.AreEqual(new ServerSettingsModel.BandwidthItem(ServerSettingsModel.BandwidthEnum.High), m.Bandwidth);
@@ -353,8 +353,8 @@ namespace LibChorus.Tests.Model
 				m.SaveSettings();
 				Assert.AreEqual(user, Settings.Default.LanguageForgeUser);
 				Assert.AreEqual(pass, ServerSettingsModel.DecryptPassword(Settings.Default.LanguageForgePass));
-				Assert.IsTrue(Directory.Exists(folder.Combine(".hg")));
-				Assert.IsTrue(File.Exists(folder.Combine(".hg", "hgrc")));
+				Assert.That(folder.Combine(".hg"), Does.Exist);
+				Assert.That(folder.Combine(".hg", "hgrc"), Does.Exist);
 				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 				Assert.AreEqual(newUrl, address.URI);
@@ -379,7 +379,7 @@ namespace LibChorus.Tests.Model
 				Assert.AreEqual(pass, ServerSettingsModel.PasswordForSession);
 				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
-				Assert.That(address.URI, Is.Not.StringContaining(pass));
+				Assert.That(address.URI, Does.Not.Contain(pass));
 			}
 		}
 
@@ -396,7 +396,7 @@ namespace LibChorus.Tests.Model
 				var url = "https://joe:pass@hg-public.languageforge.org/tpi";
 				m.InitFromProjectPath(folder.Path);
 				m.SetUrlToUseIfSettingsAreEmpty(url);
-				Assert.AreEqual(existing, m.URL);
+				Assert.AreEqual(existing,m.URL);
 			}
 		}
 

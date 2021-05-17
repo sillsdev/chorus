@@ -18,7 +18,7 @@ namespace LibChorus.Tests.merge.xml.generic
 		{
 			XmlNode ours;
 			XmlNode theirs;
-			Assert.IsNull(DoMerge(null, null, null, new NullMergeSituation(), new ListenerForUnitTests(), out ours, out theirs));
+			Assert.That(DoMerge(null, null, null, new NullMergeSituation(), new ListenerForUnitTests(), out ours, out theirs), Is.Null);
 		}
 
 		[Test]
@@ -28,7 +28,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlNode ours;
 			XmlNode theirs;
 			var resultNode = DoMerge(null, null, "<NewImmutableElemment />", new NullMergeSituation(), listener, out ours, out theirs);
-			Assert.IsNotNull(resultNode);
+			Assert.That(resultNode, Is.Not.Null);
 			Assert.AreEqual("<NewImmutableElemment />", resultNode.OuterXml);
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlAdditionChangeReport>();
@@ -45,7 +45,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlNode ours;
 			XmlNode theirs;
 			var resultNode = DoMerge(null, "<NewImmutableElemment />", null, new NullMergeSituation(), listener, out ours, out theirs);
-			Assert.IsNotNull(resultNode);
+			Assert.That(resultNode, Is.Not.Null);
 			Assert.AreEqual("<NewImmutableElemment />", resultNode.OuterXml);
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlAdditionChangeReport>();
@@ -61,7 +61,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlNode ours;
 			XmlNode theirs;
 			var resultNode = DoMerge(null, "<NewImmutableElemment />", "<NewImmutableElemment />", new NullMergeSituation(), listener, out ours, out theirs);
-			Assert.IsNotNull(resultNode);
+			Assert.That(resultNode, Is.Not.Null);
 			Assert.AreEqual("<NewImmutableElemment />", resultNode.OuterXml);
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlBothAddedSameChangeReport>();
@@ -77,7 +77,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlNode ours;
 			XmlNode theirs;
 			var resultNode = DoMerge(null, "<MyNewImmutableElemment />", "<TheirNewImmutableElemment />", new NullMergeSituation(), listener, out ours, out theirs);
-			Assert.IsNotNull(resultNode);
+			Assert.That(resultNode, Is.Not.Null);
 			Assert.AreEqual("<MyNewImmutableElemment />", resultNode.OuterXml);
 			listener.AssertExpectedChangesCount(0);
 			listener.AssertExpectedConflictCount(1);
@@ -93,7 +93,7 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlNode ours;
 			XmlNode theirs;
 			var resultNode = DoMerge(null, "<MyNewImmutableElemment />", "<TheirNewImmutableElemment />", new NullMergeSituationTheyWin(), listener, out ours, out theirs);
-			Assert.IsNotNull(resultNode);
+			Assert.That(resultNode, Is.Not.Null);
 			Assert.AreEqual("<TheirNewImmutableElemment />", resultNode.OuterXml);
 			listener.AssertExpectedChangesCount(0);
 			listener.AssertExpectedConflictCount(1);
@@ -110,9 +110,9 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlNode ours;
 			XmlNode theirs;
 			var resultNode = DoMerge("<OriginalImmutableElemment />", null, null, new NullMergeSituation(), listener, out ours, out theirs);
-			Assert.IsNull(resultNode);
-			Assert.IsNull(ours);
-			Assert.IsNull(theirs);
+			Assert.That(resultNode, Is.Null);
+			Assert.That(ours, Is.Null);
+			Assert.That(theirs, Is.Null);
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlBothDeletionChangeReport>();
 			listener.AssertExpectedConflictCount(0);
@@ -125,9 +125,9 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlNode ours;
 			XmlNode theirs;
 			var resultNode = DoMerge("<OriginalImmutableElemment />", null, "<TheirImmutableElemment />", new NullMergeSituation(), listener, out ours, out theirs);
-			Assert.IsNull(resultNode);
-			Assert.IsNull(ours);
-			Assert.IsNotNull(theirs);
+			Assert.That(resultNode, Is.Null);
+			Assert.That(ours, Is.Null);
+			Assert.That(theirs, Is.Not.Null);
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
 			listener.AssertExpectedConflictCount(0);
@@ -140,9 +140,9 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlNode ours;
 			XmlNode theirs;
 			var resultNode = DoMerge("<OriginalImmutableElemment />", "<OurImmutableElemment />", null, new NullMergeSituation(), listener, out ours, out theirs);
-			Assert.IsNull(resultNode);
-			Assert.IsNull(ours);
-			Assert.IsNull(theirs);
+			Assert.That(resultNode, Is.Null);
+			Assert.That(ours, Is.Null);
+			Assert.That(theirs, Is.Null);
 			listener.AssertExpectedChangesCount(1);
 			listener.AssertFirstChangeType<XmlDeletionChangeReport>();
 			listener.AssertExpectedConflictCount(0);
@@ -155,10 +155,10 @@ namespace LibChorus.Tests.merge.xml.generic
 			XmlNode ours;
 			XmlNode theirs;
 			var resultNode = DoMerge("<OriginalImmutableElemment />", "<OurImmutableElemment />", "<TheirImmutableElemment />", new NullMergeSituation(), listener, out ours, out theirs);
-			Assert.IsNotNull(resultNode);
+			Assert.That(resultNode, Is.Not.Null);
 			Assert.AreEqual("<OriginalImmutableElemment />", resultNode.OuterXml);
-			Assert.IsNotNull(ours);
-			Assert.IsNotNull(theirs);
+			Assert.That(ours, Is.Not.Null);
+			Assert.That(theirs, Is.Not.Null);
 			Assert.AreSame(resultNode, ours);
 			listener.AssertExpectedChangesCount(0);
 			listener.AssertExpectedConflictCount(0);

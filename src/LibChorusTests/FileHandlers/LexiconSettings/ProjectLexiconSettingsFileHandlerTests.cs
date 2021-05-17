@@ -14,14 +14,14 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 	{
 		private IChorusFileTypeHandler _projectLexiconSettingsFileHandler;
 
-		[TestFixtureSetUp]
+		[OneTimeSetUp]
 		public void FixtureSetup()
 		{
 			_projectLexiconSettingsFileHandler = (ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers.Where(
 				handler => handler.GetType().Name == "ProjectLexiconSettingsFileHandler")).First();
 		}
 
-		[TestFixtureTearDown]
+		[OneTimeTearDown]
 		public void FixtureTearDown()
 		{
 			_projectLexiconSettingsFileHandler = null;
@@ -37,8 +37,8 @@ namespace LibChorus.Tests.FileHandlers.LexiconSettings
 		public void HandlerOnlySupportsProjectLexiconSettingsExtension()
 		{
 			var extensions = _projectLexiconSettingsFileHandler.GetExtensionsOfKnownTextFileTypes();
-			Assert.IsTrue(extensions.Count() == 1);
-			Assert.AreEqual("plsx", extensions.First());
+			Assert.That(extensions.Count(), Is.EqualTo(1));
+			Assert.That(extensions.First(), Is.EqualTo("plsx"));
 		}
 
 		[Test]

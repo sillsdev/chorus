@@ -153,7 +153,9 @@ namespace Chorus.UI.Misc
 			this.tableLayoutPanel1.Controls.Add(this._passwordLabel, 0, 1);
 			this.tableLayoutPanel1.Controls.Add(this._bandwidthLabel, 0, 4);
 			this.tableLayoutPanel1.Controls.Add(this._accountLabel, 0, 0);
+			this.tableLayoutPanel1.Controls.Add(this._username, 1, 0);
 			this.tableLayoutPanel1.Controls.Add(this._tlpCustomUrl, 1, 2);
+			this.tableLayoutPanel1.Controls.Add(this._password, 1, 1);
 			this.tableLayoutPanel1.Controls.Add(this._bandwidth, 1, 4);
 			this.tableLayoutPanel1.Controls.Add(this._projectId, 1, 5);
 			this.tableLayoutPanel1.Controls.Add(this._tlpLogIn, 1, 3);
@@ -173,7 +175,7 @@ namespace Chorus.UI.Misc
 			this.tableLayoutPanel1.TabIndex = 30;
 			//
 			// _bandwidthLabel
-			//
+			// 
 			this._bandwidthLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._bandwidthLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._bandwidthLabel, null);
@@ -184,9 +186,12 @@ namespace Chorus.UI.Misc
 			this._bandwidthLabel.Size = new System.Drawing.Size(57, 13);
 			this._bandwidthLabel.TabIndex = 25;
 			this._bandwidthLabel.Text = "&Bandwidth";
-			//
+			// 
 			// _tlpCustomUrl
 			//
+			this._tlpCustomUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this._tlpCustomUrl.ColumnCount = 2;
 			this._tlpCustomUrl.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this._tlpCustomUrl.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -228,7 +233,7 @@ namespace Chorus.UI.Misc
 			this._customUrl.TextChanged += new System.EventHandler(this._customUrl_TextChanged);
 			//
 			// _bandwidth
-			//
+			// 
 			this._bandwidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
 			this._bandwidth.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this._bandwidth.FormattingEnabled = true;

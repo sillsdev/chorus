@@ -112,7 +112,7 @@ two = https://foo.com");
 		{
 			using (new MercurialIniForTests())
 			{
-				Assert.IsFalse(GetIsReady(@""));
+				Assert.That(GetIsReady(@""), Is.False);
 			}
 		}
 
@@ -123,7 +123,7 @@ two = https://foo.com");
 			{
 				Settings.Default.LanguageForgeUser = string.Empty;
 				ServerSettingsModel.PasswordForSession = "password";
-				Assert.IsFalse(GetIsReady(@"LanguageForge = https://hg-public.languageforge.org/xyz"));
+				Assert.That(GetIsReady(@"LanguageForge = https://hg-public.languageforge.org/xyz"), Is.False);
 			}
 		}
 
@@ -134,7 +134,7 @@ two = https://foo.com");
 			{
 				Settings.Default.LanguageForgeUser = "username";
 				ServerSettingsModel.PasswordForSession = Settings.Default.LanguageForgePass = string.Empty;
-				Assert.IsFalse(GetIsReady(@"LanguageForge = https://hg-public.languageforge.org/xyz"));
+				Assert.That(GetIsReady(@"LanguageForge = https://hg-public.languageforge.org/xyz"), Is.False);
 			}
 		}
 
@@ -348,7 +348,7 @@ username = Joe Schmoe
 
 		private void AssertHgrcNowContainsUri(HgRepository repository, string uri)
 		{
-			Assert.IsNotNull(repository.GetRepositoryPathsInHgrc().FirstOrDefault(a=>a.URI == uri));
+			Assert.That(repository.GetRepositoryPathsInHgrc().FirstOrDefault(a=>a.URI == uri), Is.Not.Null);
 		}
 
 		[Test]
@@ -438,7 +438,8 @@ a =
 
 		// This test won't throw as expected because the HgRepository code attempts to write
 		// a good ini file, and we can't make it bad without it fixing it again.
-		[Test, Ignore]
+		[Test]
+		[Ignore("HgRepository code attempts to write a good ini file, and we can't make it bad without it fixing it again")]
 		public void BadMercurialIni_Throws()
 		{
 			using (new MercurialIniHider())

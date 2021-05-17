@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using Chorus.notes;
 using NUnit.Framework;
@@ -14,7 +15,7 @@ namespace Chorus.Tests
 	/// These are not really tests!  They are documented, compilable, runable set of samples to
 	/// help you get started incorporating Chorus into your application.
 	/// </summary>
-	[TestFixture, RequiresSTA]
+	[TestFixture, Apartment(ApartmentState.STA)]
 	public class ChorusSystemUsage
 	{
 		private ChorusSystem _chorusSystem;

@@ -27,7 +27,7 @@ namespace Chorus.Tests.notes
 			model.SetTargetObject("foo3");
 			model.AddAnnotation(model.CreateAnnotation());
 			Assert.AreEqual(1, repo.GetAllAnnotations().Count());
-			Assert.IsTrue(repo.GetAllAnnotations().First().RefStillEscaped.Contains("id="+"foo3"));
+			Assert.That(repo.GetAllAnnotations().First().RefStillEscaped, Does.Contain("id="+"foo3"));
 		}
 
 		[Test]
@@ -56,7 +56,7 @@ namespace Chorus.Tests.notes
 			 var model = new NotesBarModel(repo, mapping);
 			model.SetTargetObject("two'<three&four");
 			model.AddAnnotation(model.CreateAnnotation());
-			Assert.IsTrue(repo.GetAllAnnotations().First().RefUnEscaped.Contains("two'<three&four"));
+			Assert.That(repo.GetAllAnnotations().First().RefUnEscaped, Does.Contain("two'<three&four"));
 		}
 
 		[Test]

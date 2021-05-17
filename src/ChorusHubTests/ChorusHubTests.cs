@@ -37,7 +37,7 @@ namespace ChorusHubTests
 		[Test, Ignore("Run by hand.")]
 		public void FindServer_NoServerFound_Null()
 		{
-			Assert.IsNull(ChorusHubServerInfo.FindServerInformation());
+			Assert.That(ChorusHubServerInfo.FindServerInformation(), Is.Null);
 		}
 
 		[Test]
@@ -75,7 +75,7 @@ namespace ChorusHubTests
 				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
 				using (var service = new ChorusHubServer())
 				{
-					Assert.IsTrue(service.Start(true));
+					Assert.That(service.Start(true), Is.True);
 
 					var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
 					Assert.NotNull(chorusHubServerInfo);
@@ -83,7 +83,7 @@ namespace ChorusHubTests
 					var client1 = new ChorusHubClient(chorusHubServerInfo);
 					var allRepoInfo = client1.GetRepositoryInformation(string.Empty);
 					Assert.AreEqual(2, allRepoInfo.Count());
-					Assert.IsTrue(allRepoInfo.Select(ri => ri.RepoName.Contains("repo2")).Any());
+					Assert.That(allRepoInfo.Select(ri => ri.RepoName.Contains("repo2")).Any(), Is.True);
 
 					// Make sure filter works
 					// In order to have a hope of getting a different result to GetRepositoryInformation
@@ -94,7 +94,7 @@ namespace ChorusHubTests
 					var repoInfo = client2.GetRepositoryInformation(queryString);
 					Assert.AreEqual(1, repoInfo.Count());
 					var info = repoInfo.First();
-					Assert.IsTrue(info.RepoName == "repo1");
+					Assert.That(info.RepoName, Is.EqualTo("repo1"));
 				}
 			}
 		}
@@ -123,7 +123,7 @@ namespace ChorusHubTests
 				using (var service = new ChorusHubServer())
 				{
 					// hg server side is now involved in deciding what repos are available
-					Assert.IsTrue(service.Start(true));
+					Assert.That(service.Start(true), Is.True);
 					var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
 					Assert.NotNull(chorusHubServerInfo);
 					var client = new ChorusHubClient(chorusHubServerInfo);
@@ -131,8 +131,8 @@ namespace ChorusHubTests
 					Assert.AreEqual(2, repoInfo.Count());
 					var info1 = repoInfo.First();
 					var info2 = repoInfo.Last();
-					Assert.IsTrue(info1.RepoName == "repo1");
-					Assert.IsTrue(info2.RepoName == "repo2");
+					Assert.That(info1.RepoName, Is.EqualTo("repo1"));
+					Assert.That(info2.RepoName, Is.EqualTo("repo2"));
 				}
 			}
 		}
@@ -172,7 +172,7 @@ namespace ChorusHubTests
 				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
 				using (var service = new ChorusHubServer())
 				{
-					Assert.IsTrue(service.Start(true));
+					Assert.That(service.Start(true), Is.True);
 
 					// Make sure filter works
 					var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();
@@ -182,8 +182,8 @@ namespace ChorusHubTests
 					Assert.AreEqual(2, repoInfo.Count());
 					var info1 = repoInfo.First();
 					var info2 = repoInfo.Last();
-					Assert.IsTrue(info1.RepoName == "repo1");
-					Assert.IsTrue(info2.RepoName == "repo3");
+					Assert.That(info1.RepoName, Is.EqualTo("repo1"));
+					Assert.That(info2.RepoName, Is.EqualTo("repo3"));
 				}
 			}
 		}
@@ -216,7 +216,7 @@ namespace ChorusHubTests
 				ChorusHubOptions.RootDirectory = chorusHubSourceFolder.Path;
 				using (var service = new ChorusHubServer())
 				{
-					Assert.IsTrue(service.Start(true));
+					Assert.That(service.Start(true), Is.True);
 
 					// Make sure filter works
 					var chorusHubServerInfo = ChorusHubServerInfo.FindServerInformation();

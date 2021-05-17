@@ -1,233 +1,47 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{887A58D6-E5C5-4BA1-9C9B-41C6E8F0B915}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFrameworks>net461</TargetFrameworks>
     <RootNamespace>Chorus.Tests</RootNamespace>
-    <AssemblyName>Chorus.Tests</AssemblyName>
-    <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>False</Optimize>
-    <OutputPath>..\..\output\Debug</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
+    <AssemblyTitle>Chorus.Tests</AssemblyTitle>
+    <Configurations>Debug;Release</Configurations>
+    <Description>Unit tests for Chorus.exe</Description>
+    <Company>SIL International</Company>
+    <Authors>SIL International</Authors>
+    <Product>chorus</Product>
+    <Copyright>Copyright © 2010-2020 SIL International</Copyright>
+    <OutputPath>../../output/$(Configuration)</OutputPath>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../FieldWorks.snk</AssemblyOriginatorKeyFile>
+    <IsTestProject>true</IsTestProject>
     <NoWarn>1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>True</Optimize>
-    <OutputPath>..\..\output\Release</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DebugSymbols>True</DebugSymbols>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
+    <IsPackable>false</IsPackable>
+    <!-- We have to explicitly set PlatformTarget because we indirectly depend on LibChorus which
+    depends on icu4c which has platform dependent binaries, so msbuild decides that Chorus
+    is platform specific, regardless of the actual platform target. For the same reason we
+    have to set RuntimeIdentifiers when building with .NET 5 on AppVeyor. Otherwise the build
+    fails with an error that there is no target for'net461/win7-x86'. -->
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
+    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DebugMono|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
-    <OutputPath>..\..\output\DebugMono</OutputPath>
-    <DefineConstants>DEBUG;TRACE;MONO</DefineConstants>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Optimize>False</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'ReleaseMono|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
-    <OutputPath>..\..\output\ReleaseMono</OutputPath>
-    <DefineConstants>TRACE;MONO</DefineConstants>
-    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <Optimize>True</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <LangVersion>6</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\output\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>6</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\output\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>6</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>  
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\SIL.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.Core.Desktop">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\SIL.Core.Desktop.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.Windows.Forms">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\SIL.Windows.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.TestUtilities">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Debug\SIL.TestUtilities.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\SIL.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.Core.Desktop">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\SIL.Core.Desktop.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.Windows.Forms">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\SIL.Windows.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.TestUtilities">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Release\SIL.TestUtilities.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'DebugMono'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\SIL.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.Core.Desktop">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\SIL.Core.Desktop.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.Windows.Forms">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\SIL.Windows.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.TestUtilities">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\DebugMono\SIL.TestUtilities.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'ReleaseMono'">
-    <Reference Include="SIL.Core">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\SIL.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.Core.Desktop">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\SIL.Core.Desktop.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.Windows.Forms">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\SIL.Windows.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="SIL.TestUtilities">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\ReleaseMono\SIL.TestUtilities.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+
   <ItemGroup>
-    <Reference Include="Autofac">
-      <HintPath>..\..\packages\Autofac.2.6.3.862\lib\NET40\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="GitVersion.MsBuild" Version="5.6.8" PrivateAssets="All" />
+    <PackageReference Include="L10NSharp" Version="4.1.0-*" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="NUnit" Version="3.13.0" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="ChorusApplicationTests.cs" />
-    <Compile Include="ChorusSystemTests.cs" />
-    <Compile Include="ChorusSystemUsage.cs" />
-    <Compile Include="clone\ClonerTests.cs" />
-    <Compile Include="UI\Clone\GetSharedProjectModelTests.cs" />
-    <Compile Include="UI\Clone\TargetFolderControlTests.cs" />
-    <Compile Include="UI\Misc\ServerSettingsDialogTests.cs" />
-    <Compile Include="UI\Misc\ReadinessPanelTests.cs" />
-    <Compile Include="UI\notes\AnnotationModelTests.cs" />
-    <Compile Include="UI\notes\NotesBarModelTests.cs" />
-    <Compile Include="UI\notes\IEmbeddedMessageContentHandler.cs" />
-    <Compile Include="UI\notes\MessageTests.cs" />
-    <Compile Include="UI\notes\NotesInProjectModelTests.cs" />
-    <Compile Include="UI\Clone\GetCloneFromInternetDialogTests.cs" />
-    <Compile Include="UI\Clone\GetCloneFromUsbDialogTests.cs" />
-    <Compile Include="UI\Review\LiftChangePresenterTests.cs" />
-    <Compile Include="UI\notes\NotesUITests.cs" />
-    <Compile Include="UI\Settings\SettingsModelTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UI\Review\HistoryPanelModelTests.cs" />
-    <Compile Include="UI\Sync\MockUsbDriveLocator.cs" />
-    <Compile Include="UI\Sync\SyncDialogTests.cs" />
-    <Compile Include="UI\Sync\SyncControlModelTests.cs" />
+    <ProjectReference Include="..\Chorus\Chorus.csproj" />
+    <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj" />
+    <ProjectReference Include="..\LibChorus\LibChorus.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Chorus\Chorus.csproj">
-      <Project>{9DA5A655-1881-4BE1-81BA-256E47CF7537}</Project>
-      <Name>Chorus</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj">
-      <Project>{0681E722-1856-44A1-B585-220E6AEC85CB}</Project>
-      <Name>LibChorus.TestUtilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\LibChorus\LibChorus.csproj">
-      <Project>{94245366-8F1E-475C-810D-FE89BB3948E0}</Project>
-      <Name>LibChorus</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-	   Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
+
+  <PropertyGroup>
+    <!-- See https://github.com/dotnet/sdk/issues/987#issuecomment-286307697 why that is needed -->
+    <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+  </PropertyGroup>
+
 </Project>

@@ -94,7 +94,7 @@ namespace LibChorus.Tests.merge
 			using (ChorusNotesMergeEventListener log = new ChorusNotesMergeEventListener(tempFile))
 			{
 			}
-			Assert.IsFalse(File.Exists(tempFile));
+			Assert.That(tempFile, Does.Not.Exist);
 		}
 
 	}

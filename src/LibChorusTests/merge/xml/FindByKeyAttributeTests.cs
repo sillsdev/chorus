@@ -59,7 +59,7 @@ namespace LibChorus.Tests.merge.xml
 
 			var finder = new FindByKeyAttribute("id");
 			var node = doc1.SelectSingleNode("//b");
-			Assert.IsNull(finder.GetNodeToMerge(node, doc1.DocumentElement, SetFromChildren.Get(doc1.DocumentElement)));
+			Assert.That(finder.GetNodeToMerge(node, doc1.DocumentElement, SetFromChildren.Get(doc1.DocumentElement)), Is.Null);
 		}
 
 		[Test]
