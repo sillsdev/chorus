@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Chorus.VcsDrivers;
-using Chorus.VcsDrivers.Mercurial;
+using LibChorus.Tests.VcsDrivers.Mercurial;
 using NUnit.Framework;
 using SIL.Progress;
 
@@ -14,7 +15,7 @@ namespace LibChorus.Tests.VcsDrivers
 		private IEnumerable<RepositoryInformation> _repositoryInformations;
 		private RepositoryInformation _normalRepo, _duplicateRepo, _newRepo;
 		private string _chorusHubURL = "http://chorushub@127.0.0.1:5913/";
-		private IProgress _progress = new NullProgress();
+		private readonly IProgress _progress = new NullProgress();
 
 		[SetUp]
 		public void SetUp()
@@ -134,6 +135,50 @@ namespace LibChorus.Tests.VcsDrivers
 			// Case 5: There is no matching repo
 			uri = _source.GetPotentialRepoUri("DoesNotExist", "DoesNotExist", _progress);
 			Assert.AreEqual(_chorusHubURL + "DoesNotExist", uri);
+
+			// Case 6: We are cloning a new repo and can't calculate the ID locally yet
+			var progress = new ProgressForTest();
+			uri = _source.GetPotentialRepoUri(null, null, progress);
+			Assert.AreEqual(_chorusHubURL + RepositoryAddress.ProjectNameVariable, uri);
+			Assert.IsEmpty(progress.Warnings);
+		}
+
+		[TestCase("https://hg-public.languageforge.org/ngl-flex", typeof(HttpRepositoryPath))]
+		[TestCase("//DinosaurShare/OldChorus/Lom", typeof(DirectoryRepositorySource))]
+		public void Create_CorrectType(string uri, Type expected)
+		{
+			Assert.AreEqual(expected, RepositoryAddress.Create("name", uri).GetType());
+		}
+	}
+
+	[TestFixture]
+	class HttpRepositoryPathTests
+	{
+		private const string DomainPlus = "resumable.languageforge.org/project/";
+		private const string ProjectName = "tpi-flex";
+		private const string UrlTemplate = "https://" + DomainPlus + RepositoryAddress.ProjectNameVariable;
+		private const string UrlSansCredentials = "https://" + DomainPlus + ProjectName;
+		private const string UrlWithCredentials = "https://usern%40me:pa5%24word@" + DomainPlus + ProjectName;
+
+		[Test]
+		public void GetPotentialRepoUri_ReplacesProjectNameVariable()
+		{
+			var source = new HttpRepositoryPath("test", UrlTemplate, true);
+			Assert.AreEqual(UrlSansCredentials, source.GetPotentialRepoUri("testing", ProjectName, null));
+		}
+
+		[Test]
+		public void GetPotentialRepoUri_ToleratesNullProjectName()
+		{
+			var source = new HttpRepositoryPath("test", UrlSansCredentials, true);
+			Assert.AreEqual(UrlSansCredentials, source.GetPotentialRepoUri("testing", null, null));
+		}
+
+		[Test]
+		public void GetPotentialRepoUri_LeavesExistingUserInfo()
+		{
+			var source = new HttpRepositoryPath("test", UrlWithCredentials, false);
+			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", null, null));
 		}
 	}
 }

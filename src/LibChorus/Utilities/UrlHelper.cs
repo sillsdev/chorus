@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using SIL.Reporting;
 
@@ -94,26 +91,25 @@ namespace Chorus.Utilities
 				startOfQuery = url.Length;
 			string host = url.Substring(0, startOfQuery);
 			string rest = url.Substring(startOfQuery, url.Length - startOfQuery);
-			return host.Replace("%20", "").Replace(" ",String.Empty) + rest;
+			return host.Replace("%20", string.Empty).Replace(" ", string.Empty) + rest;
 		}
 
+		/// <summary>Removes the query portion of the URL (the question mark and following)</summary>
+		[Obsolete]
 		public static string GetPathOnly(string url)
 		{
-// DIDN"T WORK
-//			Uri uri;
-//				if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
-//				{
-//					throw new ApplicationException("Could not parse the url " + url);
-//				}
-//
-//			return uri.AbsolutePath;
+			var locationOfQuestionMark = url.IndexOf('?');
+			return locationOfQuestionMark > 0
+				? url.Substring(0, locationOfQuestionMark)
+				: url;
+		}
 
-			int locationOfQuestionMark = url.IndexOf('?');
-			if(locationOfQuestionMark > 0)
-			{
-				return url.Substring(0, locationOfQuestionMark);
-			}
-			return url;
+		public static string StripCredentialsAndQuery(string url)
+		{
+			Uri uri;
+			return Uri.TryCreate(url, UriKind.Absolute, out uri)
+				? $"{uri.Scheme}://{uri.Host}{uri.AbsolutePath.TrimEnd('/')}"
+				: url;
 		}
 
 		public static string GetUserName(string url)

@@ -1,4 +1,3 @@
-﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -6,7 +5,7 @@ using NUnit.Framework;
 using Chorus.FileTypeHandlers;
 using Chorus.FileTypeHandlers.audio;
 using Chorus.FileTypeHandlers.test;
-using Chorus.Utilities.code;
+using SIL.PlatformUtilities;
 
 namespace LibChorus.Tests.FileHandlers
 {
@@ -18,7 +17,7 @@ namespace LibChorus.Tests.FileHandlers
 			get
 		{
 				var assem = Assembly.GetExecutingAssembly();
-				return Path.GetDirectoryName(assem.CodeBase.Substring(LinuxUtils.IsUnix ? 7 : 8));
+				return Path.GetDirectoryName(assem.CodeBase.Substring(Platform.IsUnix ? 7 : 8));
 			}
 		}
 

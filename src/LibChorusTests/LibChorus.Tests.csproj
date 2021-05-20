@@ -170,6 +170,9 @@
     <Reference Include="Autofac">
       <HintPath>..\..\packages\Autofac.2.6.3.862\lib\NET40\Autofac.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -261,6 +264,7 @@
     <Compile Include="utilities\MultiMapTests.cs" />
     <Compile Include="utilities\XmlUtilitiesTests.cs" />
     <Compile Include="VcsDrivers\Mercurial\BundleStorageManagerTests.cs" />
+    <Compile Include="VcsDrivers\Mercurial\HgRepositoryTests.cs" />
     <Compile Include="VcsDrivers\Mercurial\HgResumeRestApiServerTests.cs" />
     <Compile Include="VcsDrivers\Mercurial\HgResumeTestUtilities.cs" />
     <Compile Include="VcsDrivers\Mercurial\HgResumeTransportTests.cs" />
@@ -311,7 +315,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="merge\text\" />
-    <Folder Include="FileHandlers\xml\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

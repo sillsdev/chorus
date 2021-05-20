@@ -10,6 +10,7 @@ using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
+using Chorus.Model;
 using SIL.Progress;
 using SIL.Reporting;
 using SIL.Xml;
@@ -39,12 +40,11 @@ namespace Chorus.sync
 
 		public HgRepository Repository
 		{
+			// REVIEW (Hasso) 2020.10: should this be cached?
 			get { return new HgRepository(_localRepositoryPath, _progress); }
 		}
-		public string RepoProjectName
-		{
-			get { return Path.GetFileNameWithoutExtension(_localRepositoryPath)+Path.GetExtension(_localRepositoryPath); }
-		}
+
+		public string RepoProjectName => Path.GetFileNameWithoutExtension(_localRepositoryPath) + Path.GetExtension(_localRepositoryPath);
 
 		public RepositoryAddress UsbPath
 		{
@@ -105,16 +105,14 @@ namespace Chorus.sync
 		{
 			SyncResults results = new SyncResults();
 			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
-			//this just saves us from trying to connect twice to the same repo that is, for example, no there.
-			Dictionary<RepositoryAddress, bool> connectionAttempts = new Dictionary<RepositoryAddress, bool>();
+			// this saves us from trying to connect twice to the same repo that is, for example, not there.
+			var connectionAttempts = new Dictionary<RepositoryAddress, bool>();
 
 			try
 			{
-				if (_progress.ProgressIndicator != null)
-				{
-					_progress.ProgressIndicator.IndicateUnknownProgress();
-				}
+				_progress.ProgressIndicator?.IndicateUnknownProgress();
 				var repo = new HgRepository(_localRepositoryPath, _progress);
+				repo.LogBasicInfo(sourcesToTry);
 
 				RemoveLocks(repo);
 				repo.RecoverFromInterruptedTransactionIfNeeded();
@@ -150,7 +148,7 @@ namespace Chorus.sync
 				_sychronizerAdjunct.CheckRepositoryBranches(repo.BranchingHelper.GetBranches(), _progress);
 
 				results.Succeeded = true;
-			   _progress.WriteMessage("Done");
+				_progress.WriteMessage("Done");
 			}
 			catch (SynchronizationException error)
 			{
@@ -179,6 +177,10 @@ namespace Chorus.sync
 
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
+			}
+			finally
+			{
+				_progress.WriteVerbose($"Finished at {DateTime.UtcNow:u}");
 			}
 			return results;
 		}
@@ -246,7 +248,7 @@ namespace Chorus.sync
 			{
 				ThrowIfCancelPending();
 
-				if (!address.ReadOnly)
+				if (!address.IsReadOnly)
 				{
 					SendToOneOther(address, connectionAttempt, repo);
 				}
@@ -268,7 +270,7 @@ namespace Chorus.sync
 		{
 			try
 			{
-				string resolvedUri = address.GetPotentialRepoUri(Repository.Identifier, RepoProjectName, _progress);
+				var resolvedUri = address.GetPotentialRepoUri(Repository.Identifier, RepoProjectName, _progress);
 
 				bool canConnect;
 				if (connectionAttempt.ContainsKey(address))
@@ -382,7 +384,7 @@ namespace Chorus.sync
 		/// <returns>true if there was a successful pull</returns>
 		private bool PullFromOneSource(HgRepository repo, RepositoryAddress source, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
-			string resolvedUri = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
+			var resolvedUri = source.GetPotentialRepoUri(repo.Identifier, RepoProjectName, _progress);
 
 			if (source is UsbKeyRepositorySource)
 			{
@@ -414,7 +416,8 @@ namespace Chorus.sync
 				}
 				catch(Exception error)
 				{
-					throw new SynchronizationException(error, WhatToDo.CheckSettings, "Error while pulling {0} at {1}", source.Name, resolvedUri);
+					throw new SynchronizationException(error, WhatToDo.CheckSettings,
+						"Error while pulling {0} at {1}", source.Name, ServerSettingsModel.RemovePasswordForLog(resolvedUri));
 				}
 				//NB: this returns false if there was nothing to get.
 				try
@@ -431,19 +434,15 @@ namespace Chorus.sync
 				}
 				// Any other kind of exception will be caught and logged at a higher level.
 			}
-			else
+
+			if (source is UsbKeyRepositorySource)
 			{
-				if (source is UsbKeyRepositorySource)
-				{
-					//already informed them, above
-					 return false;
-				}
-				else
-				{
-					_progress.WriteError("Could not connect to {0} at {1}", source.Name, resolvedUri);
-					return false;
-				}
+				//already informed them, above
+				return false;
 			}
+
+			_progress.WriteError("Could not connect to {0} at {1}", source.Name, ServerSettingsModel.RemovePasswordForLog(resolvedUri));
+			return false;
 		}
 
 
@@ -590,41 +589,38 @@ namespace Chorus.sync
 		/// <summary>
 		/// used for local sources (usb, sd media, etc)
 		/// </summary>
-		/// <returns>the uri of a successful clone</returns>
-		private string TryToMakeCloneForSource(RepositoryAddress repoDescriptor)
+		private void TryToMakeCloneForSource(RepositoryAddress repoDescriptor)
 		{
-			List<string> possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(Repository.Identifier, RepoProjectName, _progress);
+			var possibleRepoCloneUris = repoDescriptor.GetPossibleCloneUris(Repository.Identifier, RepoProjectName, _progress);
 			if (possibleRepoCloneUris == null)
 			{
 				_progress.WriteMessage("No Uris available for cloning to {0}",
 									  repoDescriptor.Name);
-				return null;
+				return;
 			}
-			else
+
+			foreach (var uri in possibleRepoCloneUris)
 			{
-				foreach (string uri in possibleRepoCloneUris)
+				// target may be uri, or some other folder.
+				var target = HgRepository.GetUniqueFolderPath(
+					_progress,
+					//"Folder at {0} already exists, so it can't be used. Creating clone in {1}, instead.",
+					RepositoryAddress.DuplicateWarningMessage.Replace(RepositoryAddress.MediumVariable, "USB flash drive"),
+					uri);
+				try
 				{
-					// target may be uri, or some other folder.
-					var target = HgRepository.GetUniqueFolderPath(
-						_progress,
-						//"Folder at {0} already exists, so it can't be used. Creating clone in {1}, instead.",
-						RepositoryAddress.DuplicateWarningMessage.Replace(RepositoryAddress.MediumVariable, "USB flash drive"),
-						uri);
-					try
-					{
-						_progress.WriteMessage("Copying repository to {0}...", repoDescriptor.GetFullName(target));
-						_progress.WriteVerbose("({0})", target);
-						return HgHighLevel.MakeCloneFromLocalToUsb(_localRepositoryPath, target, _progress);
-					}
-					catch (Exception error)
-					{
-						_progress.WriteError("Could not create repository on {0}. Error follow:", target);
-						_progress.WriteException(error);
-						// keep looping
-					}
+					_progress.WriteMessage("Copying repository to {0}...", repoDescriptor.GetFullName(target));
+					_progress.WriteVerbose("({0})", target);
+					HgHighLevel.MakeCloneFromLocalToUsb(_localRepositoryPath, target, _progress);
+					return;
+				}
+				catch (Exception error)
+				{
+					_progress.WriteError("Could not create repository on {0}. Error follow:", target);
+					_progress.WriteException(error);
+					// keep looping
 				}
 			}
-			return null;
 		}
 
 

@@ -1,56 +1,98 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
+using Newtonsoft.Json;
 using SIL.Code;
 using SIL.Network;
 using SIL.Progress;
 
 namespace Chorus.Model
 {
-	public class ServerModel
-	{
-		public string DomainName { get; set; }
-		public string Protocol { get; set; }
-
-		public ServerModel(string domainName, bool isSecureProtocol = true)
-		{
-			DomainName = domainName;
-			Protocol = isSecureProtocol ? "https" : "http";
-		}
-	}
-
 	public class ServerSettingsModel
 	{
-		public readonly Dictionary<string, ServerModel> Servers = new Dictionary<string, ServerModel>();
-		private string _pathToRepo;
+		#region static and constant
+		private const string LanguageForge = "languageforge.org";
+		private const string ServerEnvVar = "LANGUAGEFORGESERVER";
 
+		public static string LanguageForgeServer
+		{
+			get
+			{
+				var lfServer = Environment.GetEnvironmentVariable(ServerEnvVar);
+				return string.IsNullOrEmpty(lfServer) ? $".{LanguageForge}" : lfServer;
+			}
+		}
+
+		public static bool IsQaServer => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(ServerEnvVar));
+
+		private const string EntropyValue = "LAMED videte si est dolor sicut dolor meus";
+
+		internal class Project
+		{
+			public string Identifier { get; set; }
+			public string Name { get; set; }
+			public string Repository { get; set; }
+			public string Role { get; set; }
+		}
+
+		internal enum BandwidthEnum
+		{
+			Low, High
+		}
+
+		public class BandwidthItem
+		{
+			internal BandwidthEnum Value { get; }
+
+			internal BandwidthItem(BandwidthEnum value)
+			{
+				Value = value;
+			}
+
+			public override string ToString()
+			{
+				return $"{Value} bandwidth";
+			}
+
+			public override bool Equals(object other)
+			{
+				return (other as BandwidthItem)?.Value == Value;
+			}
+
+			public override int GetHashCode()
+			{
+				return (int) Value;
+			}
+		}
+
+		public static readonly BandwidthItem[] Bandwidths;
+
+		static ServerSettingsModel()
+		{
+			Bandwidths = new[] {new BandwidthItem(BandwidthEnum.Low), new BandwidthItem(BandwidthEnum.High)};
+		}
+		#endregion static and constant
+
+		private string _pathToRepo;
 
 		public ServerSettingsModel()
 		{
-			const string languageDepotLabel = "LanguageDepot.org";
-			Servers.Add(languageDepotLabel, new ServerModel("resumable.languagedepot.org", false));
-			Servers.Add(languageDepotLabel + " [Secure]", new ServerModel("resumable.languagedepot.org"));
-			Servers.Add("LanguageDepot.org [Safe Mode]", new ServerModel("hg-public.languagedepot.org", false));
-			Servers.Add("LanguageDepot.org [Secure + Safe Mode]", new ServerModel("hg-public.languagedepot.org"));
-			Servers.Add("LanguageDepot.org [Private Safe Mode]", new ServerModel("hg-private.languagedepot.org", false));
-			Servers.Add("LanguageDepot.org [Private Secure + Safe Mode]", new ServerModel("hg-private.languagedepot.org"));
-			Servers.Add("LanguageDepot.org [test server]", new ServerModel("hg.languageforge.org"));
-
-			Servers.Add(LocalizationManager.GetString("Messages.CustomLocation", "Custom Location..."), new ServerModel(""));
-			SelectedServerLabel = languageDepotLabel;
+			Username = Properties.Settings.Default.LanguageForgeUser;
+			Password = DecryptPassword(Properties.Settings.Default.LanguageForgePass);
+			RememberPassword = !string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(Username);
 		}
-
 
 		///<summary>
 		/// Show settings for an existing project. The project doesn't need to have any
 		/// previous chorus activity (e.g. no .hg folder is needed).
 		///</summary>
-		///<param name="path"></param>
 		public virtual void InitFromProjectPath(string path)
 		{
 			RequireThat.Directory(path).Exists();
@@ -69,121 +111,71 @@ namespace Chorus.Model
 
 		public virtual void InitFromUri(string url)
 		{
-			SetServerLabelFromUrl(url);
-			Password = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPassword(url));
-			AccountName = HttpUtilityFromMono.UrlDecode(UrlHelper.GetUserName(url));
+			var urlUsername = HttpUtilityFromMono.UrlDecode(UrlHelper.GetUserName(url));
+			if (!string.IsNullOrEmpty(urlUsername))
+			{
+				Username = urlUsername;
+				Password = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPassword(url));
+			}
 			ProjectId = HttpUtilityFromMono.UrlDecode(UrlHelper.GetPathAfterHost(url));
-			CustomUrl = UrlHelper.GetPathOnly(url);
-			//CustomUrlSelected = true;
-		}
+			HasLoggedIn = !string.IsNullOrEmpty(ProjectId);
+			Bandwidth = new BandwidthItem(RepositoryAddress.IsKnownResumableRepository(url) ? BandwidthEnum.Low : BandwidthEnum.High);
 
-		private void SetServerLabelFromUrl(string url)
-		{
-			var host = UrlHelper.GetHost(url).ToLower();
-			var pair = Servers.FirstOrDefault((p) => p.Value.DomainName.ToLower() == host);
-			if (pair.Key == null)
+			const string languageDepot = "languagedepot.org";
+			if (url.Contains(languageDepot))
 			{
-				SelectedServerLabel = Servers.Last().Key;
+				url = url.Replace(languageDepot, LanguageForge).Replace("http://", "https://");
 			}
-			else
-			{
-				SelectedServerLabel = pair.Key;
-			}
+			CustomUrl = UrlHelper.StripCredentialsAndQuery(url);
+			IsCustomUrl = !UrlHelper.GetHost(url).Equals(Host);
 		}
-
-		public string NameOfProjectOnRepository
-		{
-			get
-			{
-				if (!HaveNeededAccountInfo)
-					return string.Empty;
-				return ProjectId;
-			}
-		}
-
-		public string ProjectId { get; set; }
 
 		public string URL
 		{
 			get
 			{
-				if (CustomUrlSelected)
+				if (IsCustomUrl)
 				{
 					return CustomUrl;
 				}
 
-				return SelectedServerModel.Protocol + "://" +
-					HttpUtilityFromMono.UrlEncode((string)AccountName) + ":" +
-					HttpUtilityFromMono.UrlEncode((string)Password) + "@" + SelectedServerModel.DomainName + "/" +
-					HttpUtilityFromMono.UrlEncode(ProjectId);
-				}
+				return $"https://{Host}/{HttpUtilityFromMono.UrlEncode(ProjectId)}";
 			}
+		}
 
-		public string CustomUrl { get; set; }
+		protected internal string Host => IsCustomUrl
+			? UrlHelper.GetHost(CustomUrl)
+			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : "hg-public")}{LanguageForgeServer}";
 
-		public bool HaveNeededAccountInfo
-		{
-			get
-			{
-				if (!NeedProjectDetails)
-					return true;
-
-					try
-					{
-						return !string.IsNullOrEmpty(ProjectId) &&
-							   !string.IsNullOrEmpty(AccountName) &&
-							   !string.IsNullOrEmpty(Password);
-					}
-					catch (Exception)
-					{
-						return false;
-					}
-				}
-			}
-
-		public string Password { get; set; }
-		public string AccountName { get; set; }
 
 		public bool HaveGoodUrl
 		{
-			get { return HaveNeededAccountInfo; }
-		}
-
-		public ServerModel SelectedServerModel
-		{
 			get
 			{
-				ServerModel serverModel;
-				if (Servers.TryGetValue(SelectedServerLabel, out serverModel))
-				{
-					return serverModel;
-				}
-				throw new ApplicationException("Somehow SelectedServerLabel was empty, when called from SelectedServerModel.");
+				if (IsCustomUrl)
+					return true;
+
+				return !string.IsNullOrEmpty(ProjectId) &&
+					   !string.IsNullOrEmpty(Username) &&
+					   !string.IsNullOrEmpty(Password);
 			}
 		}
 
-		public string SelectedServerLabel
-		{
-			get; set;
-		}
+		public bool RememberPassword { get; set; }
+		public string Password { get; set; }
+		public string Username { get; set; }
+		public bool IsCustomUrl { get; set; }
+		public string CustomUrl { get; set; }
+		public BandwidthItem Bandwidth { get; set; } = Bandwidths[0];
+		public string ProjectId { get; set; }
+		public List<string> AvailableProjects { get; private set; } = new List<string>();
 
-		public bool NeedProjectDetails
-		{
-			get { return !CustomUrlSelected; }
-		}
+		/// <summary>
+		/// True if the user has logged in since this ServerSettingsModel was created, or has already connected this project to an internet server.
+		/// </summary>
+		public bool HasLoggedIn { get; set; }
 
-		public bool CustomUrlSelected
-		{
-			get
-			{
-				ServerModel server;
-				if (!Servers.TryGetValue(SelectedServerLabel, out server))
-				{
-					SelectedServerLabel = Servers.Keys.First();
-				}
-				return Servers[SelectedServerLabel].DomainName == string.Empty;
-			}
-		}
+		public bool CanLogIn => !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
 
 		/// <summary>
 		/// Save the settings in the folder's .hg, creating the folder and settings if necessary.
@@ -194,30 +186,147 @@ namespace Chorus.Model
 		{
 			if(string.IsNullOrEmpty(_pathToRepo))
 			{
-				throw new ArgumentException("SaveSettings() only works if you InitFromProjectPath()");
+				throw new ArgumentException("SaveSettings() works only if you InitFromProjectPath()");
 			}
 
 			var repo = HgRepository.CreateOrUseExisting(_pathToRepo, new NullProgress());
 
 			// Use safer SetTheOnlyAddressOfThisType method, as it won't clobber a shared network setting, if that was the clone source.
-			repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(AliasName, URL, false));
+			repo.SetTheOnlyAddressOfThisType(CreateRepositoryAddress(AliasName));
+
+			SaveUserSettings();
+		}
+
+		protected RepositoryAddress CreateRepositoryAddress(string name)
+		{
+			return new HttpRepositoryPath(name, URL, false);
+		}
+
+		public void SaveUserSettings()
+		{
+			Properties.Settings.Default.LanguageForgeUser = Username;
+			Properties.Settings.Default.LanguageForgePass = RememberPassword ? EncryptPassword(Password) : null;
+			PasswordForSession = Password;
+			Properties.Settings.Default.Save();
+		}
+
+		public void LogIn(out string error)
+		{
+			try
+			{
+				var response = LogIn();
+				var content = Encoding.UTF8.GetString(WebResponseHelper.ReadResponseContent(response, 300));
+				HasLoggedIn = true;
+				error = null;
+				PasswordForSession = Password;
+
+				// Do this last so the user is "logged in" even if JSON parsing crashes
+				PopulateAvailableProjects(content);
+			}
+			catch (WebException e)
+			{
+				HasLoggedIn = false;
+				switch ((e.Response as HttpWebResponse)?.StatusCode)
+				{
+					case HttpStatusCode.NotFound:
+					case HttpStatusCode.Forbidden:
+						error = LocalizationManager.GetString("ServerSettings.LogIn.BadUserOrPass", "Incorrect username or password");
+						break;
+					default:
+						error = e.Message;
+						break;
+				}
+			}
+			catch (JsonReaderException)
+			{
+				error = LocalizationManager.GetString("ServerSettings.ErrorListingProjects",
+					"Your username and password are correct, but there was an error listing your projects. You can still try to download your project.");
+			}
+		}
+
+		private WebResponse LogIn()
+		{
+			var request = WebRequest.Create($"https://admin{LanguageForgeServer}/api/user/{Username}/projects");
+			request.Method = "POST";
+			var passwordBytes = Encoding.UTF8.GetBytes($"password={Password}");
+			request.ContentType = "application/x-www-form-urlencoded";
+			request.ContentLength = passwordBytes.Length;
+			var passwordStream = request.GetRequestStream();
+			passwordStream.Write(passwordBytes, 0, passwordBytes.Length);
+			passwordStream.Close();
+			return request.GetResponse();
+		}
+
+		internal void PopulateAvailableProjects(string projectsJSON)
+		{
+			var projects = JsonConvert.DeserializeObject<List<Project>>(projectsJSON) ?? new List<Project>();
+			AvailableProjects = projects.Select(p => p.Identifier).ToList();
+			AvailableProjects.Sort();
 		}
 
 		public string AliasName
 		{
 			get
 			{
-				if (CustomUrlSelected)
+				if (IsCustomUrl)
 				{
 					Uri uri;
-					if (Uri.TryCreate(URL, UriKind.Absolute, out uri) && !String.IsNullOrEmpty(uri.Host))
+					if (Uri.TryCreate(URL, UriKind.Absolute, out uri) && !string.IsNullOrEmpty(uri.Host))
 						return uri.Host;
-						return "custom";
-					}
-
-					return SelectedServerLabel.Replace(" ","");
+					return "custom";
 				}
+
+				return $"languageForge.org [{Bandwidth}]";
 			}
+		}
+
+		internal static string EncryptPassword(string encryptMe)
+		{
+			if (string.IsNullOrEmpty(encryptMe))
+			{
+				return encryptMe;
+			}
+			var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+			return Convert.ToBase64String(encryptedData);
+		}
+
+		internal static string DecryptPassword(string decryptMe)
+		{
+			if (string.IsNullOrEmpty(decryptMe))
+			{
+				return decryptMe;
+			}
+			var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+			return Encoding.Unicode.GetString(decryptedData);
+		}
+
+		private static string _passwordForSession;
+
+		/// <summary>
+		/// The password to use for the current Send and Receive session. Default is the saved password, but it
+		/// can be overridden for the current session by setting this property. For example, if the user chooses
+		/// not to save the password, it should cached here so the user has to enter the correct password only once.
+		/// See https://jira.sil.org/browse/LT-20549
+		/// </summary>
+		public static string PasswordForSession
+		{
+			internal get { return _passwordForSession ?? DecryptPassword(Properties.Settings.Default.LanguageForgePass); }
+			set { _passwordForSession = value; }
+		}
+
+		/// <remarks>
+		/// DO NOT USE. Internal for unit tests.
+		/// </remarks>>
+		internal const string PasswordAsterisks = "********";
+
+		/// <summary>
+		/// Removes the password from any URLs to be logged or otherwise displayed to the user, replacing it with asterisks.
+		/// </summary>
+		/// <param name="clearString">Any string containing a URL with the <see cref="PasswordForSession"/> in clear text.</param>
+		internal static string RemovePasswordForLog(string clearString)
+		{
+			return clearString?.Replace($":{PasswordForSession}@", $":{PasswordAsterisks}@");
+		}
 
 		/// <summary>
 		/// Use this to make use of, say, the contents of the clipboard (if it looks like a url)

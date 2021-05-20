@@ -160,7 +160,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				using (var other = new RepositorySetup("Bob", false))
 				{
 					//var uri = new Uri(String.Format("file:///{0}", setup.ProjectFolder.Path));
-					HgRepository.Clone(new HttpRepositoryPath("utf test repo", setup.ProjectFolder.Path, false), other.ProjectFolder.Path, other.Progress);
+					HgRepository.Clone(new DirectoryRepositorySource("utf test repo", setup.ProjectFolder.Path, false), other.ProjectFolder.Path, other.Progress);
 					other.Repository.Update();
 
 					other.AssertFileExists(utf8FilePath);

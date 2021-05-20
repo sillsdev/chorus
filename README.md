@@ -79,6 +79,10 @@ Documentation (what little exists) drips out in the form of occasional blogs
 
 Please see [Tips for Testing Palaso Software](https://docs.google.com/document/d/1dkp0edjJ8iqkrYeXdbQJcz3UicyilLR7GxMRIUAGb1E/edit)
 
+To send and receive with the test server over the Internet, set the following environment variable:
+
+	LANGUAGEFORGESERVER = -qa.languageforge.org
+
 ## Developers
 
 ### Mailing List
@@ -123,7 +127,7 @@ build using `UpdateDependencies.bat`, which is run automatically when you run `G
 
 ##### Mercurial
 
-If developing on windows, unzip the file `lib/common/mercurial.zip` into `output/Debug` (or `output/Release`), so that you'll end up with a subdirectory `output/Debug/Mercurial`. That way, you know the tests are running against the approved version of Mercurial, not whatever you happen to have on your machine.
+If developing on windows, unzip the file `lib/common/mercurial.zip` into `output/Debug` (or `output/Release`), so that you'll end up with a subdirectory `output/Debug/Mercurial`. That way, you know the tests are running against the approved version of Mercurial, not whatever you happen to have on your machine. Then, open C:\dev\chorus\Mercurial\default.d\cacerts.rc and change the path to C:\dev\chorus\Mercurial\cacert.pem (required to send and receive to the Internet using the High bandwidth option).
 
 #### Linux
 
@@ -141,4 +145,8 @@ build using `UpdateDependencies.sh`:
 
 	cd chorus
 	./UpdateDependencies.sh
+
+##### Python
+
+Beginning with Ubuntu 20.04 (Focal), you will need to `sudo apt install python-is-python2` so that Mercurial can run.
 

@@ -1,7 +1,3 @@
-//#if MONO
-//#define MERCURIAL2
-//#endif
-
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -11,9 +7,10 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
-using System.Text.RegularExpressions;
 using Chorus.Utilities;
 using Chorus.merge;
+using Chorus.Model;
+using Chorus.Properties;
 using L10NSharp;
 using Nini.Ini;
 using SIL.Code;
@@ -39,7 +36,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private static bool _alreadyCheckedMercurialIni;
 		internal const string EmptyRepoIdentifier = "0000000000000000000000000000000000000000";
 		/// <summary>
-		/// Template to produce a consistant and parsable revision log entry
+		/// Template to produce a consistent and parseable revision log entry
 		/// </summary>
 		private const string DetailedRevisionTemplate = "--template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"";
 		private bool _mercurialTwoCompatible;
@@ -64,17 +61,17 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <exception cref="Exception">This will throw when the hgrc is locked</exception>
-		public RepositoryAddress GetDefaultNetworkAddress<T>()
+		public RepositoryAddress GetDefaultNetworkAddress<T>() where T : RepositoryAddress
 		{
 			//the first one found in the default list that is of the requisite type and is NOT a 'default'
 			// path (inserted by the Hg Clone process). See https://trello.com/card/send-receive-dialog-displays-default-as-a-configured-local-network-location-for-newly-obtained-projects/4f3a90277ae2b69b010988ac/37
 			// This could be a problem if there was some way for the user to create a 'default' path, but the paths we want
 			// to find here are currently always named with an adaptation of the path. I don't think that process can produce 'default'.
 			var paths = GetRepositoryPathsInHgrc();
-			var networkPaths = paths.Where(p => p is T && p.Name != "default");
+			var networkPaths = paths.Where(p => p is T && p.Name != "default").ToArray();
 
 			//none found in the hgrc
-			if (networkPaths.Count() == 0) //nb: because of lazy eval, the hgrc lock exception can happen here
+			if (!networkPaths.Any()) //nb: because of lazy eval, the hgrc lock exception can happen here
 				return null;
 
 
@@ -82,8 +79,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			foreach (var path in networkPaths)
 			{
-				RepositoryAddress path1 = path;//avoid "acces to modified closure"
-				if (defaultAliases.Any(a => a == path1.Name))
+				//avoid "access to modified closure"
+				var pathName = path.Name;
+				if (defaultAliases.Any(a => a == pathName))
 					return path;
 			}
 			return networkPaths.First();
@@ -282,7 +280,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public bool Pull(RepositoryAddress source, string targetUri)
 		{
 			_progress.WriteMessage("Receiving any changes from {0}", source.Name);
-			_progress.WriteVerbose("({0} is {1})", source.Name, targetUri);
+			_progress.WriteVerbose("({0} is {1})", source.Name, ServerSettingsModel.RemovePasswordForLog(targetUri));
 				CheckAndUpdateHgrc();
 
 			bool result;
@@ -300,7 +298,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception err)
 			{
-				_progress.WriteMessageWithColor("OrangeRed", "Could not send to " + targetUri + Environment.NewLine + err.Message);
+				_progress.WriteMessageWithColor("OrangeRed",
+					$"Could not send to {ServerSettingsModel.RemovePasswordForLog(targetUri)}{Environment.NewLine}{err.Message}");
 			}
 
 			if (GetIsLocalUri(targetUri))
@@ -312,7 +311,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				catch (Exception err)
 				{
 					_progress.WriteMessageWithColor("OrangeRed",
-						$"Could not update the actual files after a pushing to {targetUri}{Environment.NewLine}{err.Message}");
+						$"Could not update the actual files after a pushing to {ServerSettingsModel.RemovePasswordForLog(targetUri)}{Environment.NewLine}{err.Message}");
 				}
 			}
 		}
@@ -333,19 +332,20 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception error)
 			{
+				var targetUriForLog = ServerSettingsModel.RemovePasswordForLog(targetUri);
 				_progress.WriteWarning("Could not receive from " + targetLabel);
-				Exception specificError = error;
+				var specificError = error;
 				if (UriProblemException.ErrorMatches(error))
 				{
-					specificError = new UriProblemException(targetUri);
+					specificError = new UriProblemException(targetUriForLog);
 				}
 				else if (ProjectLabelErrorException.ErrorMatches(error))
 				{
-					specificError = new ProjectLabelErrorException(targetUri);
+					specificError = new ProjectLabelErrorException(targetUriForLog);
 				}
 				else if(UnrelatedRepositoryErrorException.ErrorMatches(error))
 				{
-					specificError = new UnrelatedRepositoryErrorException(targetUri);
+					specificError = new UnrelatedRepositoryErrorException(targetUriForLog);
 				}
 				else if (FirewallProblemSuspectedException.ErrorMatches(error))
 				{
@@ -357,7 +357,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				else if (PortProblemException.ErrorMatches(error))
 				{
-					specificError = new PortProblemException(targetUri);
+					specificError = new PortProblemException(targetUriForLog);
 				}
 				else if (RepositoryAuthorizationException.ErrorMatches(error))
 				{
@@ -403,14 +403,14 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void Push(RepositoryAddress source, string targetUri)
 		{
 			_progress.WriteMessage("Sending changes to {0}", source.Name);
-			_progress.WriteVerbose("({0} is {1})", source.Name, targetUri);
+			_progress.WriteVerbose("({0} is {1})", source.Name, ServerSettingsModel.RemovePasswordForLog(targetUri));
 			CheckAndUpdateHgrc();
 
 			var transport = CreateTransportBetween(source, targetUri);
 			transport.Push();
 		}
 
-		private bool GetIsLocalUri(string uri)
+		private static bool GetIsLocalUri(string uri)
 		{
 			return !(uri.StartsWith("http") || uri.StartsWith("ssh"));
 		}
@@ -458,28 +458,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		internal string GetTextFromQuery(string query)
 		{
-			var result = ExecuteErrorsOk(query, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress);
-
-			var standardOutputText = result.StandardOutput.Trim();
-			if (!string.IsNullOrEmpty(standardOutputText))
-			{
-				_progress.WriteVerbose(standardOutputText);
-			}
-
-			var standardErrorText = result.StandardError.Trim();
-			if (!string.IsNullOrEmpty(standardErrorText))
-			{
-				_progress.WriteVerbose(standardErrorText);
-			}
-
-			if (GetHasLocks())
-			{
-				_progress.WriteWarning("Hg Command {0} left lock", query);
-			}
-			return result.StandardOutput;
+			return GetTextFromQuery(query, SecondsBeforeTimeoutOnLocalOperation);
 		}
 
-		private string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation, IProgress progress)
+		private string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation)
 		{
 			var result = ExecuteErrorsOk(query, _pathToRepository, secondsBeforeTimeoutOnLocalOperation, _progress);
 
@@ -493,6 +475,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (!string.IsNullOrEmpty(standardErrorText))
 			{
 				_progress.WriteError(standardErrorText);
+			}
+
+			if (GetHasLocks())
+			{
+				_progress.WriteWarning("Hg Command {0} left lock", query);
 			}
 
 			return result.StandardOutput;
@@ -567,12 +554,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			var b = new StringBuilder();
 			b.Append(cmd + " ");
-			foreach (string s in rest)
+			foreach (var s in rest)
 			{
 				b.Append(s + " ");
 			}
+			var hgCmdArgs = b.ToString();
 
-			ExecutionResult result = ExecuteErrorsOk(b.ToString(), _pathToRepository, secondsBeforeTimeout, _progress);
+			ExecutionResult result = ExecuteErrorsOk(hgCmdArgs, _pathToRepository, secondsBeforeTimeout, _progress);
 			if (HgProcessOutputReader.kCancelled == result.ExitCode)
 			{
 				_progress.WriteWarning("User Cancelled");
@@ -580,47 +568,45 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			if (0 != result.ExitCode && !failureIsOk && !(1 == result.ExitCode && noChangeIsOk))
 			{
-				var details = Environment.NewLine + "hg Command was " + Environment.NewLine + b.ToString();
+				var detailsBuilder = new StringBuilder().AppendLine().AppendLine("hg command was")
+					.AppendLine(ServerSettingsModel.RemovePasswordForLog(hgCmdArgs));
 				try
 				{
-					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout, _progress);
+					var versionInfo = GetTextFromQuery("version", secondsBeforeTimeout);
 					//trim the verbose copyright stuff
-					versionInfo = versionInfo.Substring(0, versionInfo.IndexOf("Copyright"));
-					details += Environment.NewLine + "hg version is: " + versionInfo;
+					versionInfo = versionInfo.Substring(0, versionInfo.IndexOf("Copyright", StringComparison.Ordinal));
+					detailsBuilder.Append($"hg version is {versionInfo}");
 				}
 				catch (Exception)
 				{
-					details += Environment.NewLine + "Could not get HG VERSION";
-
+					detailsBuilder.Append("Could not get HG VERSION");
 				}
 
 
-				if (!string.IsNullOrEmpty(result.StandardError))
+				if (string.IsNullOrEmpty(result.StandardError))
 				{
-					if (result.StandardError.Contains(@"unresolved merge conflicts"))
-					{
-						return RecoverFromFailedMerge(failureIsOk, secondsBeforeTimeout, cmd, rest);
-					}
-					if(result.StandardError.Contains(@"interrupted"))
-					{
-						return RecoverFromInterruptedUpdate(failureIsOk, secondsBeforeTimeout, cmd, rest);
-					}
-					if (result.StandardError.Contains("No such file or directory"))// trying to track down http://jira.palaso.org/issues/browse/BL-284
-					{
-						details += SafeGetStatus();
-					}
-					throw new ApplicationException(result.StandardError + details);
+					throw new ApplicationException(detailsBuilder.Insert(0, result.ExitCode).Insert(0, "Got return value ").ToString());
 				}
-				else
+				if (result.StandardError.Contains(@"unresolved merge conflicts"))
 				{
-					throw new ApplicationException("Got return value " + result.ExitCode + details);
+					return RecoverFromFailedMerge(failureIsOk, secondsBeforeTimeout, cmd, rest);
 				}
+				if(result.StandardError.Contains(@"interrupted"))
+				{
+					return RecoverFromInterruptedUpdate(failureIsOk, secondsBeforeTimeout, cmd, rest);
+				}
+				if (result.StandardError.Contains("No such file or directory"))// trying to track down http://jira.palaso.org/issues/browse/BL-284
+				{
+					detailsBuilder.Append(SafeGetStatus());
+				}
+				throw new ApplicationException(detailsBuilder.Insert(0, result.StandardError).ToString());
+
 			}
 			return result;
 		}
 
 		/// <summary>
-		/// The procedure for recoverring from an interrupted update, is to update again.
+		/// The procedure for recovering from an interrupted update is to update again.
 		/// </summary>
 		private ExecutionResult RecoverFromInterruptedUpdate(bool failureIsOk, int secondsBeforeTimeout, string cmd, string[] rest)
 		{
@@ -642,7 +628,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var heads = GetHeads();
 			if(heads.Count() > 2)
 			{
-				throw new ApplicationException(String.Format("Unable to recover from failed merge: [Too many heads in the repository]"));
+				throw new ApplicationException("Unable to recover from failed merge: [Too many heads in the repository]");
 			}
 			// set the environment variables necessary for ChorusMerge to retry the merge
 			MergeSituation.PushRevisionsToEnvironmentVariables(heads[0].UserId, heads[0].Number.Hash,
@@ -654,9 +640,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				_progress.WriteMessageWithColor(@"Blue", "Attempting to recover from failed merge.");
 				var result = Execute(true, SecondsBeforeTimeoutOnMergeOperation, "resolve", "--all");
-				if(!String.IsNullOrEmpty(result.StandardError))
+				if(!string.IsNullOrEmpty(result.StandardError))
 				{
-					throw new ApplicationException(String.Format("Unable to recover from failed merge: [{0}]", result.StandardError));
+					throw new ApplicationException($"Unable to recover from failed merge: [{result.StandardError}]");
 				}
 			}
 			_progress.WriteMessageWithColor(@"Green", "Successfully recovered from failed merge.");
@@ -667,7 +653,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			try
 			{
-				return System.Environment.NewLine + "Status:" + Environment.NewLine + (GetTextFromQuery("status"));
+				return Environment.NewLine + "Status:" + Environment.NewLine + (GetTextFromQuery("status"));
 			}
 			catch (Exception e)
 			{
@@ -688,14 +674,16 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new UserCancelledException();
 			}
 
+			var commandToLog = ServerSettingsModel.RemovePasswordForLog(command);
+
 #if DEBUG
 			if (GetHasLocks(fromDirectory, progress))
 			{
-				progress.WriteWarning("Found a lock before executing: {0}.", command);
+				progress.WriteWarning("Found a lock before executing: {0}.", commandToLog);
 			}
 #endif
 
-			progress.WriteVerbose("Executing: " + command);
+			progress.WriteVerbose("Executing: " + commandToLog);
 			var result = HgRunner.Run("hg " + command, fromDirectory, secondsBeforeTimeout, progress);
 			if (result.DidTimeOut)
 			{
@@ -707,18 +695,18 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			if (!string.IsNullOrEmpty(result.StandardError))
 			{
-				progress.WriteVerbose("standerr: " + result.StandardError);//not necessarily and *error*, down this deep
+				progress.WriteVerbose("standerr: " + result.StandardError);//not necessarily an *error* down this deep
 			}
 			if (!string.IsNullOrEmpty(result.StandardOutput))
 			{
-				progress.WriteVerbose("standout: " + result.StandardOutput);//not necessarily and *error*, down this deep
+				progress.WriteVerbose("standout: " + result.StandardOutput);//not necessarily an *error* down this deep
 			}
 
 #if DEBUG
 			//nb: store/lock is so common with recover (in hg 1.3) that we don't even want to mention it
-			if (!command.Contains("recover") && GetHasLocks(fromDirectory, progress))
+			if (!commandToLog.Contains("recover") && GetHasLocks(fromDirectory, progress))
 			{
-				progress.WriteWarning("{0} left a lock.", command);
+				progress.WriteWarning("{0} left a lock.", commandToLog);
 			}
 #endif
 			return result;
@@ -735,17 +723,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		public string PathToRepo
 		{
 			get { return _pathToRepository; }
-		}
-
-//        public string UserName
-//        {
-//            get { return _userName; }
-//            set { _userName = value; }
-//        }
-
-		private string Name
-		{
-			get { return _userName; } //enhance... location is important, too
 		}
 
 		public string GetFilePath(string name)
@@ -1018,7 +995,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					throw new RepositoryAuthorizationException();
 				}
 
-				throw error;
+				throw;
 			}
 		}
 
@@ -1036,12 +1013,49 @@ namespace Chorus.VcsDrivers.Mercurial
 											 "Folder at {0} already exists, so can't be used. Creating clone in {1}, instead.",
 											 targetPath);
 			var repo = new HgRepository(targetPath, progress);
+			repo.LogBasicInfo(new List<RepositoryAddress> {source});
 
-			var transport = repo.CreateTransportBetween(source, source.URI);
+			// Cannot pass repo.Identifier because the local repo doesn't exist yet.
+			var transport = repo.CreateTransportBetween(source, source.GetPotentialRepoUri(null, null, progress));
 			transport.Clone();
 			repo.Update();
 			progress.WriteMessage("Finished copying to this computer at {0}", targetPath);
+			progress.WriteVerbose($"Finished at {DateTime.UtcNow:u}");
 			return targetPath;
+		}
+
+		/// <summary>
+		/// Log basic diagnostic information, including the username and repository name
+		/// </summary>
+		public void LogBasicInfo(IList<RepositoryAddress> potentialAddresses)
+		{
+			_progress.WriteVerbose($"Started at {DateTime.UtcNow:u}");
+			_progress.WriteVerbose($"Local User: {GetUserIdInUse()}");
+			if (potentialAddresses.Any(a => a is HttpRepositoryPath))
+			{
+				_progress.WriteVerbose($"LanguageForge User: {Settings.Default.LanguageForgeUser}");
+			}
+
+			_progress.WriteVerbose($"Repository URI: {string.Join(Environment.NewLine, potentialAddresses.Select(RepositoryURIForLog))}");
+			_progress.WriteVerbose($"Local Directory: {_pathToRepository}{Environment.NewLine}");
+		}
+
+		internal string RepositoryURIForLog(RepositoryAddress address)
+		{
+			try
+			{
+				// Attempt to resolve the project name variable (needed for sync with ChorusHub, but not clone).
+				// USB Keys also have a low-information URI, but attempting to resolve it at this point is difficult if not impossible,
+				// and it will appear later in the log.
+				if(address.URI.Contains(RepositoryAddress.ProjectNameVariable))
+				{
+					return address.GetPotentialRepoUri(Identifier,
+						Path.GetFileNameWithoutExtension(_pathToRepository) + Path.GetExtension(_pathToRepository),
+						_progress);
+				}
+			}
+			catch { /* Don't throw trying to get extra information to log */ }
+			return address.URI;
 		}
 
 		/// <summary>
@@ -1168,47 +1182,27 @@ namespace Chorus.VcsDrivers.Mercurial
 			return GetRevisionsFromQuery("parents --template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\nparent:{p1rev}:{p1node}\"").FirstOrDefault();
 		}
 
-		[Obsolete("Use the non-static member instead... this is just here for the old partial merger")]
-		public static void SetUserId(string path, string userId)
-		{
-			var hg = new HgRepository(path, new NullProgress());
-			hg.SetUserNameInIni(userId, new NullProgress());
-			//Environment.SetEnvironmentVariable("hguser", userId);
-			//defunct Execute("config", path, "--local ui.username " + userId);
-
-		}
-
 		public string GetUserIdInUse()
 		{
+			var defaultName = Environment.UserName.Replace(" ", "");
 			if (GetIsLocalUri(_pathToRepository))
 			{
-				return GetUserNameFromIni(_progress, Environment.UserName.Replace(" ", ""));
-				//this gave the global name, we want the name associated with this repository
-				//return GetTextFromQuery(_pathToRepository, "showconfig ui.username").Trim();
+				return GetUserNameFromIni(_progress, defaultName);
 			}
-			else
-			{
-				return GetUriStrippedOfUserAccountInfo(_pathToRepository);
-			}
-		}
 
-		private string GetUriStrippedOfUserAccountInfo(string repository)
-		{
-			//enhance: make it handle ssh's
-			Regex x = new Regex("(http://)(.+@)*(.+)");
-			var s = x.Replace(repository, @"$1$3");
-			return s;
+			var username = UrlHelper.GetUserName(_pathToRepository);
+			return string.IsNullOrEmpty(username) ? defaultName : username;
 		}
 
 		public bool GetFileExistsInRepo(string subPath)
 		{
 			string result = GetTextFromQuery("locate " + subPath);
-			return !String.IsNullOrEmpty(result.Trim());
+			return !string.IsNullOrEmpty(result.Trim());
 		}
 		public bool GetIsAtLeastOneMissingFileInWorkingDir()
 		{
 			string result = GetTextFromQuery("status -d ");
-			return !String.IsNullOrEmpty(result.Trim());
+			return !string.IsNullOrEmpty(result.Trim());
 		}
 
 		/// <summary>
@@ -1226,7 +1220,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				// At least zap the temp file, since it isn't to be returned.
 				File.Delete(f.Path);
-				throw new ApplicationException(String.Format("Could not retrieve version {0} of {1}. Mercurial said: {2}", revOrHash, relativePath, result.StandardError));
+				throw new ApplicationException($"Could not retrieve version {revOrHash} of {relativePath}. Mercurial said: {result.StandardError}");
 			}
 			return f.Path;
 		}
@@ -1339,16 +1333,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		public IEnumerable<RepositoryAddress> GetRepositoryPathsInHgrc()
 		{
 			var section = GetMercurialConfigForRepository().Sections.GetOrCreate("paths");
-			//I repent            if (section.GetKeys().Count() == 0)
-			//            {
-			//                yield return
-			//                    RepositoryAddress.Create("LanguageDepot",
-			//                                             "http://hg-public.languagedepot.org/REPLACE_WITH_ETHNOLOGUE_CODE");
-			//            }
 			foreach (var name in section.GetKeys())
 			{
 				var uri = section.GetValue(name);
-				yield return RepositoryAddress.Create(name, uri, false);
+				yield return RepositoryAddress.Create(name, uri);
 			}
 		}
 
@@ -1385,7 +1373,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return Path.Combine(d, "hgrc");
 		}
 
-		private IniDocument GetMercurialConfigForRepository()
+		internal IniDocument GetMercurialConfigForRepository()
 		{
 			var p = GetPathToHgrc();
 			if (!File.Exists(p))
@@ -1440,6 +1428,20 @@ namespace Chorus.VcsDrivers.Mercurial
 				section.Set(address.Name, address.URI);
 			}
 			doc.SaveAndGiveMessageIfCannot();
+		}
+
+		public void RemoveCredentialsFromIniIfNecessary()
+		{
+			Uri uri;
+			if (Uri.TryCreate(GetDefaultNetworkAddress<HttpRepositoryPath>()?.URI, UriKind.Absolute, out uri)
+				&& !string.IsNullOrEmpty(uri.UserInfo))
+			{
+				// The username and password are saved in the URL in the hgrc file. Simply loading the file into a ServerSettingsModel
+				// and saving should strip this information and save it in user settings with the password encrypted.
+				var serverSettingsModel = new ServerSettingsModel();
+				serverSettingsModel.InitFromProjectPath(_pathToRepository);
+				serverSettingsModel.SaveSettings();
+			}
 		}
 
 		// REVIEW: does this have to be public? Looks like it should be private or internal.
@@ -1854,7 +1856,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void GetDiagnosticInformationForRemoteProject(IProgress progress, string url)
 		{
 			progress.WriteMessage("Gathering diagnostics data (can't actually tell you anything about the remote server)...");
-			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("version", 30));
 
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
 			progress.WriteMessage("---------------------------------------------------");
@@ -1863,7 +1865,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			try
 			{
-				progress.WriteMessage("Client = " + Assembly.GetEntryAssembly().FullName);
+				progress.WriteMessage("Client = " + Assembly.GetEntryAssembly()?.FullName);
 				progress.WriteMessage("Chorus = " + Assembly.GetExecutingAssembly().FullName);
 			}
 			catch (Exception)
@@ -1874,7 +1876,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("config:");
-			progress.WriteMessage(GetTextFromQuery("showconfig", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("showconfig", 30));
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("Done.");
@@ -1883,7 +1885,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void GetDiagnosticInformation(IProgress progress)
 		{
 			progress.WriteMessage("Gathering diagnostics data...");
-			progress.WriteMessage(GetTextFromQuery("version", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("version", 30));
 			progress.WriteMessage("Using Mercurial at: "+MercurialLocation.PathToHgExecutable);
 			progress.WriteMessage("---------------------------------------------------");
 
@@ -1891,7 +1893,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			try
 			{
-				progress.WriteMessage("Client = " + Assembly.GetEntryAssembly().FullName);
+				progress.WriteMessage("Client = " + Assembly.GetEntryAssembly()?.FullName);
 				progress.WriteMessage("Chorus = " + Assembly.GetExecutingAssembly().FullName);
 			}
 			catch (Exception)
@@ -1901,7 +1903,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			progress.WriteMessage("---------------------------------------------------");
 			progress.WriteMessage("heads:");
-			progress.WriteMessage(GetTextFromQuery("heads", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("heads", 30));
 
 			if (GetHeads().Count() > 1)
 			{
@@ -1911,27 +1913,27 @@ namespace Chorus.VcsDrivers.Mercurial
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("status:");
-			progress.WriteMessage(GetTextFromQuery("status", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("status", 30));
 
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("Log of last 100 changesets:");
 			try
 			{   //use glog if it is installd and enabled
-				progress.WriteMessage(GetTextFromQuery("glog -l 100", 30, _progress));
+				progress.WriteMessage(GetTextFromQuery("glog -l 100", 30));
 			}
 			catch
 			{
-				progress.WriteMessage(GetTextFromQuery("log -l 100", 30, _progress));
+				progress.WriteMessage(GetTextFromQuery("log -l 100", 30));
 			}
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("config:");
-			progress.WriteMessage(GetTextFromQuery("showconfig", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("showconfig", 30));
 			progress.WriteMessage("---------------------------------------------------");
 
 			progress.WriteMessage("manifest:");
-			progress.WriteMessage(GetTextFromQuery("manifest", 30, _progress));
+			progress.WriteMessage(GetTextFromQuery("manifest", 30));
 			progress.WriteMessage("---------------------------------------------------");
 
 
@@ -1968,7 +1970,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public IntegrityResults CheckIntegrity(IProgress progress)
 		{
 			progress.WriteMessage("Validating Repository... (this can take a long time)");
-			var result = GetTextFromQuery("verify", 60 * 60, _progress);
+			var result = GetTextFromQuery("verify", 60 * 60);
 			if (result.ToLower().Contains("error"))
 			{
 				progress.WriteError(result);
@@ -1983,14 +1985,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public string GetLog(int maxChangeSetsToShow)
 		{
-			if (maxChangeSetsToShow > 0)
-			{
-				return GetTextFromQuery(String.Format("log -G -l {0}", maxChangeSetsToShow));
-			}
-			else
-			{
-				return GetTextFromQuery("log -G");
-			}
+			return GetTextFromQuery(maxChangeSetsToShow > 0 ? $"log -G -l {maxChangeSetsToShow}" : "log -G");
 		}
 
 		public void SetupEndOfLineConversion(IEnumerable<string> extensionsOfKnownTextFileTypes)
@@ -2171,13 +2166,13 @@ namespace Chorus.VcsDrivers.Mercurial
 				return false;
 			}
 
-			if (string.IsNullOrEmpty(address.UserName))
+			if (string.IsNullOrEmpty(Settings.Default.LanguageForgeUser))
 			{
 				message = LocalizationManager.GetString("GetInternetStatus.AccountNameIsMissing", "The account name is missing.");
 				return false;
 			}
 
-			if (string.IsNullOrEmpty(address.Password))
+			if (string.IsNullOrEmpty(ServerSettingsModel.PasswordForSession))
 			{
 				message = string.Format(
 					LocalizationManager.GetString("GetInternetStatus.PasswordIsMissing", "The password for {0} is missing."), uri.Host);
@@ -2186,7 +2181,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			message = string.Format(
 				LocalizationManager.GetString("GetInternetStatus.ReadyToSR", "Ready to send/receive to {0} with project '{1}' and user '{2}'"),
-				uri.Host, uri.PathAndQuery.Trim(new char[]{'/'}), address.UserName);
+				uri.Host, uri.PathAndQuery.Trim('/'), Settings.Default.LanguageForgeUser);
 
 			return true;
 		}
@@ -2245,7 +2240,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			var uniqueTarget = PathHelper.GetUniqueFolderPath(targetDirectory);
 			if (targetDirectory != uniqueTarget)
-				progress.WriteWarning(String.Format(formattableMessage, targetDirectory, uniqueTarget));
+				progress.WriteWarning(string.Format(formattableMessage, targetDirectory, uniqueTarget));
 
 			return uniqueTarget; // It may be the original, if it was unique.
 		}

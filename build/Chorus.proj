@@ -3,8 +3,8 @@
 		<RootDir Condition="'$(teamcity_build_checkoutDir)' == '' And '$(RootDir)'==''">$(MSBuildProjectDirectory)/..</RootDir>
 		<RootDir Condition="'$(teamcity_build_checkoutDir)' != ''">$(teamcity_build_checkoutDir)</RootDir>
 		<BUILD_NUMBER Condition="'$(BUILD_NUMBER)'==''">1.2.3.4</BUILD_NUMBER>
-		<!-- Note, after some thought, we've decided this is the best place to keep the version number (not on TeamCity, not in the assemblies).     -->
-		<Version>2.6</Version>
+		<!-- Note, after some thought, we've decided this is the best place to keep the version number (not on TeamCity (except the 3rd place), not in the assemblies). -->
+		<Version>3.0</Version>
 	</PropertyGroup>
 
 	<Import Project="NuGet.targets"/>

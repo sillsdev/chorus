@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Media;
 using System.Threading;
 using L10NSharp;
@@ -12,22 +12,17 @@ namespace Chorus.UI.Clone
 {
 	public class GetCloneFromInternetModel : InternetCloneSettingsModel
 	{
-		private bool _showCloneSpecificSettings;
-
-		public GetCloneFromInternetModel(): base()
+		public GetCloneFromInternetModel() : base()
 		{
-			_showCloneSpecificSettings = false;
+			ShowCloneOnlyControls = false;
 		}
 
 		public GetCloneFromInternetModel(string parentDirectoryToPutCloneIn): base(parentDirectoryToPutCloneIn)
 		{
-			_showCloneSpecificSettings = true;
+			ShowCloneOnlyControls = true;
 		}
 
-		public bool ShowCloneOnlyControls
-		{
-			get { return _showCloneSpecificSettings; }
-		}
+		public bool ShowCloneOnlyControls { get; }
 
 		public bool CancelRequested
 		{
@@ -47,9 +42,7 @@ namespace Chorus.UI.Clone
 			set { _progress.SyncContext = value; }
 		}
 
-		///<summary>
-		///</summary>
-		///<returns>true of successful; false if failed</returns>
+		///<returns>true if successful; false if failed</returns>
 		public override bool SetRepositoryAddress()
 		{
 			try
@@ -68,22 +61,22 @@ namespace Chorus.UI.Clone
 			try
 			{
 				base.DoClone();
-				using (SoundPlayer player = new SoundPlayer(Properties.Resources.finishedSound))
+				using (var player = new SoundPlayer(Properties.Resources.finishedSound))
 				{
 					player.PlaySync();
 				}
 			}
 			catch (Exception error)
 			{
-				using (SoundPlayer player = new SoundPlayer(Properties.Resources.errorSound))
+				using (var player = new SoundPlayer(Properties.Resources.errorSound))
 				{
 					player.PlaySync();
 				}
 				if (error is RepositoryAuthorizationException)
 				{
-					_progress.WriteError(LocalizationManager.GetString("Messages.ServerRejectedLogon", "The server {0} did not accept the reqest of {1} to clone from {2} using password {3}."), SelectedServerModel.DomainName, AccountName, ProjectId, Password);
-					ErrorReport.NotifyUserOfProblem(LocalizationManager.GetString("Messages.RejectedLogonDetails", "The server ({0}) rejected the project name ({1}), user name ({2}), or password ({3}) (sorry, it didn't tell us which one). Make sure that each of these is correct, and that '{2}' is a member of the '{1}' project, with permission to read data."),
-						SelectedServerModel.DomainName, ProjectId, AccountName, Password);
+					_progress.WriteError(LocalizationManager.GetString("Messages.ServerRejectedLogon", "The server {0} did not accept the request of {1} to clone {2}."), Host, Username, ProjectId);
+					ErrorReport.NotifyUserOfProblem(LocalizationManager.GetString("Messages.RejectedLogonDetails", "The server ({0}) rejected the project name ({1}), username ({2}), or password (sorry, it didn't tell us which one). Make sure that each of these is correct, and that '{2}' is a member of the '{1}' project, with permission to read data."),
+						Host, ProjectId, Username);
 				}
 
 				else if (error is HgCommonException)

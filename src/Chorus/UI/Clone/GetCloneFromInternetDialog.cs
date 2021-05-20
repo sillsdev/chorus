@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
@@ -54,14 +54,19 @@ namespace Chorus.UI.Clone
 
 			_serverSettingsControl = new ServerSettingsControl(){Model=_model};
 			_serverSettingsControl.TabIndex = 0;
-			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left);
+			_serverSettingsControl.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
 			Controls.Add(_serverSettingsControl);
 
 			_targetFolderControl = new TargetFolderControl(_model);
 			_targetFolderControl.Anchor = (AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
 			_targetFolderControl._downloadButton.Click+=OnDownloadClick;
 			_targetFolderControl.Location = new Point(0, _serverSettingsControl.Height +10);
-			MinimumSize = new Size(_targetFolderControl.MinimumSize.Width+20, _targetFolderControl.Bottom +20);
+			var minimumWidth = Math.Max(_serverSettingsControl.MinimumSize.Width, _targetFolderControl.MinimumSize.Width) + 20;
+			MinimumSize = new Size(minimumWidth, _targetFolderControl.Bottom + 20);
+			// On Linux, we have to set the dialog width, then set the control width back to what it had been. TODO: different order
+			var sscWidth =  _serverSettingsControl.Width;
+			Width = sscWidth + 30;
+			_serverSettingsControl.Width = sscWidth;
 			if (_targetFolderControl.Bottom +30> Bottom)
 			{
 				this.Size = new Size(this.Width,_targetFolderControl.Bottom + 30);
@@ -81,8 +86,8 @@ namespace Chorus.UI.Clone
 				if (diff < _cancelButton.Left)
 					_fixSettingsButton.Left = _cancelButton.Left - diff;
 			}
-			 _targetFolderControl._downloadButton.Top = _okButton.Top-_targetFolderControl.Top	;
-			 _targetFolderControl._downloadButton.Left = _okButton.Left - 15;
+			_targetFolderControl._downloadButton.Top = _okButton.Top-_targetFolderControl.Top	;
+			_targetFolderControl._downloadButton.Left = _okButton.Left - 15;
 
 			_logBox.GetDiagnosticsMethod = (progress) =>
 											{
@@ -268,6 +273,7 @@ namespace Chorus.UI.Clone
 				if(_backgroundWorker.IsBusy)
 					return;
 				UpdateDisplay(State.MakingClone);
+				_model.SaveUserSettings();
 				ThreadSafeUrl = _model.URL;
 				//_backgroundWorker.RunWorkerAsync(new object[] { ThreadSafeUrl, PathToNewProject, _progress });
 				_backgroundWorker.RunWorkerAsync(new object[0]);
