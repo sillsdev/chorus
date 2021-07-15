@@ -1,39 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
     <RootNamespace>ChorusHub</RootNamespace>
     <AssemblyTitle>ChorusHub</AssemblyTitle>
-    <Configurations>Debug;Release</Configurations>
-    <Description>End-user collaboration library via 3-way xml merging and hg dvcs under the hood.</Description>
-    <Company>SIL International</Company>
-    <Authors>SIL International</Authors>
-    <Product>chorus</Product>
-    <Copyright>Copyright © 2010-2020 SIL International</Copyright>
     <PackageId>SIL.Chorus.ChorusHub</PackageId>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/sillsdev/chorus</PackageProjectUrl>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <OutputPath>../../output/$(Configuration)</OutputPath>
-    <PackageOutputPath>../../output</PackageOutputPath>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../FieldWorks.snk</AssemblyOriginatorKeyFile>
-    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
     <OutputType>WinExe</OutputType>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <AppendToReleaseNotesProperty><![CDATA[
-See full changelog at https://github.com/sillsdev/chorus/blob/master/CHANGELOG.md]]>
-    </AppendToReleaseNotesProperty>
-    <ChangelogFile>../../CHANGELOG.md</ChangelogFile>
-    <NoWarn>1591</NoWarn>
-    <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
-    <!-- We have to explicitly set PlatformTarget because we depend on LibChorus which depends on
-    icu4c which has platform dependent binaries, so msbuild decides that this executable will
-    be platform specific. For the same reason we have to set RuntimeIdentifiers when building
-    with .NET 5 on AppVeyor. -->
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>

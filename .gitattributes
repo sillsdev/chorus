@@ -16,7 +16,9 @@
 *.vcxproj -whitespace
 *.vcxproj.filters -whitespace
 *.patch -whitespace
+*.props -whitespace
 *.svg -whitespace
+*.targets -whitespace
 *.xml -whitespace
 *.yml -whitespace
 CHANGELOG.md -whitespace
