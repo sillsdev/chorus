@@ -687,7 +687,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			ExecutionResult result;
 			// The only commands safe to cache are `hg log -rREVNUM --template "{node}"`, as their output never changes for a given repo.
-			if (command.StartsWith("log -r") && command.EndsWith("--template \"{node}\"")) {
+			if (command.StartsWith("log -r") && command.Trim().EndsWith("--template \"{node}\"")) {
 				if (_hgLogCache.TryGetValue(command, out result)) {
 					_progress.WriteVerbose("Using cached result: " + commandToLog);
 				} else {
