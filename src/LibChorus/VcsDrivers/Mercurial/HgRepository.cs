@@ -674,7 +674,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 
 #if DEBUG
-			if (GetHasLocks(fromDirectory, progress))
+			if (GetHasLocks(_pathToRepository, _progress))
 			{
 				progress.WriteWarning("Found a lock before executing: {0}.", command);
 			}
@@ -713,7 +713,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 #if DEBUG
 			//nb: store/lock is so common with recover (in hg 1.3) that we don't even want to mention it
-			if (!command.Contains("recover") && GetHasLocks(fromDirectory, progress))
+			if (!command.Contains("recover") && GetHasLocks(_pathToRepository, _progress))
 			{
 				progress.WriteWarning("{0} left a lock.", command);
 			}
