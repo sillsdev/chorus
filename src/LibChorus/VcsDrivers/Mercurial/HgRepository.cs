@@ -688,8 +688,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				} else {
 					_progress.WriteVerbose("Executing and caching: " + command);
 					result = HgRunner.Run("hg " + command, _pathToRepository, secondsBeforeTimeout, _progress);
-					if (!string.IsNullOrEmpty(result.StandardOutput) && result.StandardOutput.StartsWith("000000000000")) {
-						_progress.WriteVerbose("Not caching an all-zero result");
+					if (string.IsNullOrEmpty(result.StandardOutput) || result.StandardOutput.StartsWith(EmptyRepoIdentifier)) {
+						_progress.WriteVerbose("Not caching an empty or all-zero result");
 					} else {
 						_hgLogCache[command] = result;
 					}
