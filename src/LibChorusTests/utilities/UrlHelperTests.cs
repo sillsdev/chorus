@@ -29,7 +29,9 @@ namespace LibChorus.Tests.utilities
 		[Test]
 		public void GetPathOnly_HasPathAndQuery_ReturnsPathOnly()
 		{
+#pragma warning disable 618
 			var x = UrlHelper.GetPathOnly("lift://somefile.lift?label=it's");
+#pragma warning restore 618
 			Assert.AreEqual("lift://somefile.lift", x);
 		}
 

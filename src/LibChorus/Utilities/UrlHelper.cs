@@ -54,9 +54,8 @@ namespace Chorus.Utilities
 			string originalUrl = url;
 			try
 			{
-				Uri uri;
 				url = StripSpaceOutOfHostName(url);
-				if (!Uri.TryCreate(url, UriKind.Absolute, out uri) || uri == null)
+				if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri == null)
 				{
 					throw new ApplicationException("Could not parse the url " + url);
 				}
@@ -98,7 +97,7 @@ namespace Chorus.Utilities
 		}
 
 		/// <summary>Removes the query portion of the URL (the question mark and following)</summary>
-		[Obsolete]
+		[Obsolete("Use StripCredentialsAndQuery() instead")]
 		public static string GetPathOnly(string url)
 		{
 			var locationOfQuestionMark = url.IndexOf('?');
@@ -109,16 +108,14 @@ namespace Chorus.Utilities
 
 		public static string StripCredentialsAndQuery(string url)
 		{
-			Uri uri;
-			return Uri.TryCreate(url, UriKind.Absolute, out uri)
+			return Uri.TryCreate(url, UriKind.Absolute, out var uri)
 				? $"{uri.Scheme}://{uri.Host}{uri.AbsolutePath.TrimEnd('/')}"
 				: url;
 		}
 
 		public static string GetUserName(string url)
 		{
-			Uri uri;
-			if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+			if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
 			{
 				return string.Empty;
 			}
@@ -128,8 +125,7 @@ namespace Chorus.Utilities
 
 		public static string GetPassword(string url)
 		{
-			Uri uri;
-			if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+			if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
 			{
 				return string.Empty;
 			}
@@ -142,8 +138,7 @@ namespace Chorus.Utilities
 		/// </summary>
 		public static string GetPathAfterHost(string url)
 		{
-			Uri uri;
-			if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
+			if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
 			{
 				return string.Empty;
 			}
@@ -158,12 +153,7 @@ namespace Chorus.Utilities
 
 		public static string GetHost(string url)
 		{
-			Uri uri;
-			if (!Uri.TryCreate(url, UriKind.Absolute, out uri))
-			{
-				return string.Empty;
-			}
-			return uri.Host;
+			return Uri.TryCreate(url, UriKind.Absolute, out var uri) ? uri.Host : string.Empty;
 		}
 	}
 }

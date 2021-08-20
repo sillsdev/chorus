@@ -1,29 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
     <RootNamespace>Chorus.Tests</RootNamespace>
     <AssemblyTitle>Chorus.Tests</AssemblyTitle>
-    <Configurations>Debug;Release</Configurations>
     <Description>Unit tests for Chorus.exe</Description>
-    <Company>SIL International</Company>
-    <Authors>SIL International</Authors>
-    <Product>chorus</Product>
-    <Copyright>Copyright © 2010-2020 SIL International</Copyright>
-    <OutputPath>../../output/$(Configuration)</OutputPath>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../FieldWorks.snk</AssemblyOriginatorKeyFile>
     <IsTestProject>true</IsTestProject>
-    <NoWarn>1591</NoWarn>
-    <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
     <IsPackable>false</IsPackable>
-    <!-- We have to explicitly set PlatformTarget because we indirectly depend on LibChorus which
-    depends on icu4c which has platform dependent binaries, so msbuild decides that Chorus
-    is platform specific, regardless of the actual platform target. For the same reason we
-    have to set RuntimeIdentifiers when building with .NET 5 on AppVeyor. Otherwise the build
-    fails with an error that there is no target for'net461/win7-x86'. -->
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>

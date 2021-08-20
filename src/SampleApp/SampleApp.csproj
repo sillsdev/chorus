@@ -1,23 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
     <RootNamespace>SampleApp</RootNamespace>
     <AssemblyTitle>SampleApp</AssemblyTitle>
-    <Configurations>Debug;Release</Configurations>
     <Description>Sample app for chorus.</Description>
-    <Company>SIL International</Company>
-    <Authors>SIL International</Authors>
-    <Product>chorus</Product>
-    <Copyright>Copyright © 2010-2020 SIL International</Copyright>
-    <OutputPath>../../output/$(Configuration)</OutputPath>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>../FieldWorks.snk</AssemblyOriginatorKeyFile>
-    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
     <OutputType>WinExe</OutputType>
     <IsPackable>false</IsPackable>
-    <NoWarn>1591</NoWarn>
-    <UseFullSemVerForNuGet>false</UseFullSemVerForNuGet>
   </PropertyGroup>
 
   <ItemGroup>
