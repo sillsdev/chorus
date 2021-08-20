@@ -460,7 +460,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		internal string GetTextFromQuery(string query)
 		{
-			ExecutionResult result = ExecuteErrorsOk(query, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress, _hgLogCache);
+			ExecutionResult result = ExecuteErrorsOk(query, SecondsBeforeTimeoutOnLocalOperation);
 			// Debug.Assert(string.IsNullOrEmpty(result.StandardError), result.StandardError);
 
 			if (!string.IsNullOrEmpty(result.StandardOutput))
@@ -476,7 +476,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private string GetTextFromQuery(string query, int secondsBeforeTimeoutOnLocalOperation, IProgress progress)
 		{
-			ExecutionResult result = ExecuteErrorsOk(query, _pathToRepository, secondsBeforeTimeoutOnLocalOperation, _progress, _hgLogCache);
+			ExecutionResult result = ExecuteErrorsOk(query, secondsBeforeTimeoutOnLocalOperation);
 			progress.WriteVerbose(result.StandardOutput);
 			if(!string.IsNullOrEmpty(result.StandardError))
 				progress.WriteError(result.StandardError);
@@ -558,7 +558,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				b.Append(s + " ");
 			}
 
-			ExecutionResult result = ExecuteErrorsOk(b.ToString(), _pathToRepository, secondsBeforeTimeout, _progress, _hgLogCache);
+			ExecutionResult result = ExecuteErrorsOk(b.ToString(), secondsBeforeTimeout);
 			if (HgProcessOutputReader.kCancelled == result.ExitCode)
 			{
 				_progress.WriteWarning("User Cancelled");
@@ -666,9 +666,9 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <exception cref="System.TimeoutException"/>
-		private static ExecutionResult ExecuteErrorsOk(string command, string fromDirectory, int secondsBeforeTimeout, IProgress progress, IDictionary<string, ExecutionResult> hgLogCache)
+		private ExecutionResult ExecuteErrorsOk(string command, int secondsBeforeTimeout)
 		{
-			if (progress.CancelRequested)
+			if (_progress.CancelRequested)
 			{
 				throw new UserCancelledException();
 			}
@@ -683,16 +683,16 @@ namespace Chorus.VcsDrivers.Mercurial
 			ExecutionResult result;
 			// The only commands safe to cache are `hg log -rREVNUM --template "{node}"`, as their output never changes for a given repo.
 			if (command != null && command.StartsWith("log -r") && command.EndsWith("--template \"{node}\"")) {
-				if (hgLogCache.TryGetValue(command, out result)) {
-					progress.WriteVerbose("Using cached result: " + command);
+				if (_hgLogCache.TryGetValue(command, out result)) {
+					_progress.WriteVerbose("Using cached result: " + command);
 				} else {
-					progress.WriteVerbose("Executing and caching: " + command);
-					result = HgRunner.Run("hg " + command, fromDirectory, secondsBeforeTimeout, progress);
-					hgLogCache[command] = result;
+					_progress.WriteVerbose("Executing and caching: " + command);
+					result = HgRunner.Run("hg " + command, _pathToRepository, secondsBeforeTimeout, _progress);
+					_hgLogCache[command] = result;
 				}
 			} else {
-				progress.WriteVerbose("Executing: " + command);
-				result = HgRunner.Run("hg " + command, fromDirectory, secondsBeforeTimeout, progress);
+				_progress.WriteVerbose("Executing: " + command);
+				result = HgRunner.Run("hg " + command, _pathToRepository, secondsBeforeTimeout, _progress);
 			}
 			if (result.DidTimeOut)
 			{
@@ -704,11 +704,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			if (!string.IsNullOrEmpty(result.StandardError))
 			{
-				progress.WriteVerbose("standerr: " + result.StandardError);//not necessarily and *error*, down this deep
+				_progress.WriteVerbose("standerr: " + result.StandardError);//not necessarily and *error*, down this deep
 			}
 			if (!string.IsNullOrEmpty(result.StandardOutput))
 			{
-				progress.WriteVerbose("standout: " + result.StandardOutput);//not necessarily and *error*, down this deep
+				_progress.WriteVerbose("standout: " + result.StandardOutput);//not necessarily and *error*, down this deep
 			}
 
 #if DEBUG
@@ -1219,7 +1219,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var f = TempFile.WithExtension(Path.GetExtension(relativePath));
 
 			var cmd = string.Format("cat -o \"{0}\" -r {1} \"{2}\"", f.Path, revOrHash, relativePath);
-			ExecutionResult result = ExecuteErrorsOk(cmd, _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress, _hgLogCache);
+			ExecutionResult result = ExecuteErrorsOk(cmd, SecondsBeforeTimeoutOnLocalOperation);
 			if (!string.IsNullOrEmpty(result.StandardError.Trim()))
 			{
 				// At least zap the temp file, since it isn't to be returned.
@@ -1604,7 +1604,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 
 			// No longer uses "hg incoming", since that takes just as long as a pull, according to the hg mailing list
-			//    ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress, _hgLogCache);
+			//    ExecutionResult result = ExecuteErrorsOk(string.Format("incoming -l 1 {0}", SurroundWithQuotes(uri)), SecondsBeforeTimeoutOnLocalOperation);
 			//so we're going to just ping
 
 			try
@@ -2213,7 +2213,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public void FixUnicodeAudio()
 		{
 			CheckAndUpdateHgrc();
-			ExecuteErrorsOk("addremove -s 100 -I **.wav", _pathToRepository, SecondsBeforeTimeoutOnLocalOperation, _progress, _hgLogCache);
+			ExecuteErrorsOk("addremove -s 100 -I **.wav", SecondsBeforeTimeoutOnLocalOperation);
 		}
 
 		private static string GetUniqueFolderPath(IProgress progress, string proposedTargetDirectory)
