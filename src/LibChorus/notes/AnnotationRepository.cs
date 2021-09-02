@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Linq;
+using System.Threading;
 using System.Xml.Linq;
 using Chorus.Utilities;
 using SIL.Code;
@@ -63,29 +64,69 @@ namespace Chorus.notes
 			_lastAnnotationFileWriteTime = new FileInfo(AnnotationFilePath).LastWriteTime;
 		}
 
+		/// <summary>
+		/// This function is called by the FileSystemWatcher every time that a Notes file is changed.
+		/// It is necessary to watch for changes so that two programs interacting with the same notes file can
+		/// avoid data loss.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void UnderlyingFileChanged(object sender, FileSystemEventArgs e)
 		{
-			// We check both these things because there seems to be some async behavior involved in exactly
-			// when the change notification fires. If it fires before we note the new modify time,
-			// _writingFileOurselves will still be true. If it fires after we noted the new write time
-			// when we wrote it ourselves and cleared _writingFileOurselves, we will see that the write
-			// time has not changed.
-			if (!_writingFileOurselves  && new FileInfo(AnnotationFilePath).LastWriteTime > _lastAnnotationFileWriteTime)
+			if (_writingFileOurselves)
 			{
-				var writeTimeBeforeLoad = _lastAnnotationFileWriteTime;
-				UpateAnnotationFileWriteTime();
+				// Sometimes a file changed event fires after we wrote the file but before we noted the new modify time.
+				// In that case there is nothing we need to do here.
+				return;
+			}
+			var fileOnDiskWriteTime = _lastAnnotationFileWriteTime;
+			var fileAccessible = false;
+			try
+			{
+				fileOnDiskWriteTime = new FileInfo(AnnotationFilePath).LastWriteTime;
+				fileAccessible = true;
+			}
+			catch (UnauthorizedAccessException)
+			{
+				// There is a race condition between the change notification and the closing of the file
+				// occasionally this exception is thrown (we've seen it in tests and in the wild)
+				// So sleep briefly and try one more time
+				Thread.Sleep(200);
+			}
+
+			if (!fileAccessible)
+			{
 				try
 				{
-					_doc = XDocument.Load(AnnotationFilePath);
-					SetupDocument();
-					_observers.ForEach(observer => observer.NotifyOfStaleList());
+					fileOnDiskWriteTime = new FileInfo(AnnotationFilePath).LastWriteTime;
 				}
-				catch (IOException)
+				catch (UnauthorizedAccessException)
 				{
-					// If someone is writing to the file and blocking access, hopefully we will get an new notification.
-					// Roll back the write time so that we will try again.
-					_lastAnnotationFileWriteTime = writeTimeBeforeLoad;
+					// if the retry failed then give up, we can't rule out that something actually wrote a file to the
+					// annotations folder that the running program can not read
+					return;
 				}
+			}
+
+			if (fileOnDiskWriteTime <= _lastAnnotationFileWriteTime)
+			{
+				// If our recorded write time is greater or equal to the one on disk we can assume this file changed
+				// event is for the write we just did and there is nothing more to do.
+				return;
+			}
+			var writeTimeBeforeLoad = _lastAnnotationFileWriteTime;
+			try
+			{
+				UpateAnnotationFileWriteTime();
+				_doc = XDocument.Load(AnnotationFilePath);
+				SetupDocument();
+				_observers.ForEach(observer => observer.NotifyOfStaleList());
+			}
+			catch (IOException)
+			{
+				// If someone is writing to the file and blocking access, hopefully we will get an new notification.
+				// Roll back the write time so that we will try again.
+				_lastAnnotationFileWriteTime = writeTimeBeforeLoad;
 			}
 		}
 
