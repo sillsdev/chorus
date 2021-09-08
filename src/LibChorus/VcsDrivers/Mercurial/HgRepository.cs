@@ -520,7 +520,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		///<summary>
-		/// Tell Hg to forget the specififed file, so it won't track it anymore.
+		/// Tell Hg to forget the specified file, so it won't track it anymore.
 		///</summary>
 		/// <remarks>
 		/// 'forget' will mark it as deleted in the repo (keeping its history, of course),
@@ -676,12 +676,12 @@ namespace Chorus.VcsDrivers.Mercurial
 				throw new UserCancelledException();
 			}
 
-			var commandToLog = ServerSettingsModel.RemovePasswordForLog(command);
+			var commandWithoutPasswordForLog = ServerSettingsModel.RemovePasswordForLog(command);
 
 #if DEBUG
 			if (GetHasLocks(_pathToRepository, _progress))
 			{
-				_progress.WriteWarning("Found a lock before executing: {0}.", commandToLog);
+				_progress.WriteWarning("Found a lock before executing: {0}.", commandWithoutPasswordForLog);
 			}
 #endif
 
@@ -691,10 +691,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			// and cases where the result is an all-zero identifier, which usually means the repo is empty and that will change soon.
 			if (command.StartsWith("log -r") && !command.StartsWith("log -r-") && command.Trim().EndsWith("--template \"{node}\"")) {
 				if (_hgLogCache.TryGetValue(command, out result)) {
-					_progress.WriteVerbose("Using cached result: " + commandToLog);
+					_progress.WriteVerbose("Using cached result: " + commandWithoutPasswordForLog);
 				} else {
-					_progress.WriteVerbose("Executing and caching: " + commandToLog);
-					result = HgRunner.Run("hg " + commandToLog, _pathToRepository, secondsBeforeTimeout, _progress);
+					_progress.WriteVerbose("Executing and caching: " + commandWithoutPasswordForLog);
+					result = HgRunner.Run("hg " + command, _pathToRepository, secondsBeforeTimeout, _progress);
 					if (!string.IsNullOrEmpty(result.StandardOutput) && result.StandardOutput.StartsWith(EmptyRepoIdentifier)) {
 						_progress.WriteVerbose("Not caching an all-zero result");
 					} else {
@@ -702,8 +702,8 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 				}
 			} else {
-				_progress.WriteVerbose("Executing: " + commandToLog);
-				result = HgRunner.Run("hg " + commandToLog, _pathToRepository, secondsBeforeTimeout, _progress);
+				_progress.WriteVerbose("Executing: " + commandWithoutPasswordForLog);
+				result = HgRunner.Run("hg " + command, _pathToRepository, secondsBeforeTimeout, _progress);
 			}
 			if (result.DidTimeOut)
 			{
@@ -724,9 +724,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 #if DEBUG
 			//nb: store/lock is so common with recover (in hg 1.3) that we don't even want to mention it
-			if (!commandToLog.Contains("recover") && GetHasLocks(_pathToRepository, _progress))
+			// enhance: what are the odds the username or password contain "recover"?
+			if (!commandWithoutPasswordForLog.Contains("recover") && GetHasLocks(_pathToRepository, _progress))
 			{
-				_progress.WriteWarning("{0} left a lock.", commandToLog);
+				_progress.WriteWarning("{0} left a lock.", commandWithoutPasswordForLog);
 			}
 #endif
 			return result;
