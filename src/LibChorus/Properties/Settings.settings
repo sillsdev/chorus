@@ -2,13 +2,13 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Chorus.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="OtherBranchRevisions" Type="System.String" Scope="User">
+    <Setting Name="OtherBranchRevisions" Provider="SIL.Settings.CrossPlatformSettingsProvider" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="LanguageForgeUser" Type="System.String" Scope="User">
+    <Setting Name="LanguageForgeUser" Provider="SIL.Settings.CrossPlatformSettingsProvider" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="LanguageForgePass" Type="System.String" Scope="User">
+    <Setting Name="LanguageForgePass" Provider="SIL.Settings.CrossPlatformSettingsProvider" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

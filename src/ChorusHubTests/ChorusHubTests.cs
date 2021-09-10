@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using Chorus;
@@ -46,8 +46,20 @@ namespace ChorusHubTests
 			Assert.Throws<ArgumentNullException>(() => new ChorusHubClient(null));
 		}
 
+		[Test]
+		public void AllSettingsUseCrossPlatformProvider()
+		{
+			using (var listener = new SystemAssertListener())
+			{
+				System.Diagnostics.Debug.Listeners.Add(listener);
+				// ReSharper disable once ObjectCreationAsStatement because the constructor asserts the conditions we're testing.
+				new ChorusHubApp.Properties.Settings();
+				Assert.That(listener.Messages, Is.Empty);
+			}
+		}
+
 		[Test, Ignore("Run by hand.")]
-		public void GetRepostoryNames_TwoItemsInHubFolder_GetOneItemWithProjectFilter()
+		public void GetRepositoryNames_TwoItemsInHubFolder_GetOneItemWithProjectFilter()
 		{
 			// only accept folders containing a file with the name "randomName.someExt"
 			const string queryString = "filePattern=*.someExt";
