@@ -24,7 +24,7 @@ namespace Chorus.merge.xml.generic
 		private const int FormatVersionNumber = 0;
 
 		/// <summary>
-		/// used for finding the context in the orginal file of any conflicts which may occur inside the element
+		/// used for finding the context in the original file of any conflicts which may occur inside the element
 		/// </summary>
 		private ContextDescriptor _context = new NullContextDescriptor();
 
