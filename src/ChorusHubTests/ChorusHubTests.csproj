@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ChorusHubApp\ChorusHubApp.csproj" />
     <ProjectReference Include="..\ChorusHub\ChorusHub.csproj" />
     <ProjectReference Include="..\Chorus\Chorus.csproj" />
     <ProjectReference Include="..\LibChorus.TestUtilities\LibChorus.TestUtilities.csproj" />

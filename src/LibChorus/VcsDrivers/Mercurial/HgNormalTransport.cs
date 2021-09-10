@@ -1,4 +1,3 @@
-﻿using System;
 using SIL.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial

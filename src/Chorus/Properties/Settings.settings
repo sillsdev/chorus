@@ -2,16 +2,16 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Chorus.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-	<Setting Name="PathToRepository" Type="System.String" Scope="User">
+	<Setting Name="PathToRepository" Provider="SIL.Settings.CrossPlatformSettingsProvider" Type="System.String" Scope="User">
 	  <Value Profile="(Default)" />
 	</Setting>
-	<Setting Name="InternetEnabled" Type="System.Boolean" Scope="User">
+	<Setting Name="InternetEnabled" Provider="SIL.Settings.CrossPlatformSettingsProvider" Type="System.Boolean" Scope="User">
 	  <Value Profile="(Default)">True</Value>
 	</Setting>
-	<Setting Name="SharedFolderEnabled" Type="System.Boolean" Scope="User">
+	<Setting Name="SharedFolderEnabled" Provider="SIL.Settings.CrossPlatformSettingsProvider" Type="System.Boolean" Scope="User">
 	  <Value Profile="(Default)">False</Value>
 	</Setting>
-	<Setting Name="ShowChorusHubInSendReceive" Type="System.Boolean" Scope="User">
+	<Setting Name="ShowChorusHubInSendReceive" Provider="SIL.Settings.CrossPlatformSettingsProvider" Type="System.Boolean" Scope="User">
 	  <Value Profile="(Default)">True</Value>
 	</Setting>
   </Settings>
