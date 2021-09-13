@@ -11,6 +11,7 @@ using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
 using System.Linq;
 using Chorus.Model;
+using Chorus.notes;
 using SIL.Progress;
 using SIL.Reporting;
 using SIL.Xml;
@@ -746,11 +747,25 @@ namespace Chorus.sync
 						var newOldNode = oldDoc.ImportNode(node, true);
 						oldNotesNode.AppendChild(newOldNode);
 					}
-					using (var fileWriter = XmlWriter.Create(oldNotesFile, CanonicalXmlSettings.CreateXmlWriterSettings()))
+
+					var mutex = AnnotationMutexFactory.Create(oldNotesFile);
+					try
 					{
-						oldDoc.Save(fileWriter);
+						mutex.WaitOne();
+						using (var fileStream = new FileStream(oldNotesFile, FileMode.Open,
+							FileAccess.ReadWrite, FileShare.Read))
+						using (var fileWriter = XmlWriter.Create(fileStream,
+							CanonicalXmlSettings.CreateXmlWriterSettings()))
+						{
+							oldDoc.Save(fileWriter);
+						}
+
+						File.Delete(newNote);
 					}
-					File.Delete(newNote);
+					finally
+					{
+						mutex.ReleaseMutex();
+					}
 				}
 				else
 				{
@@ -762,15 +777,13 @@ namespace Chorus.sync
 
 		private bool CheckAndWarnIfNoCommonAncestor(Revision a, Revision b )
 		{
-			if (null ==Repository.GetCommonAncestorOfRevisions(a.Number.Hash,b.Number.Hash))
-			{
-				_progress.WriteWarning(
-					"This repository has an anomaly:  the two heads we want to merge have no common ancestor.  You should get help from the developers of this application.");
-				_progress.WriteWarning("1) \"{0}\" on {1} by {2} ({3}). ", a.GetHashCode(), a.Summary, a.DateString, a.UserId);
-				_progress.WriteWarning("2) \"{0}\" on {1} by {2} ({3}). ", b.GetHashCode(), b.Summary, b.DateString, b.UserId);
-				return true;
-			}
-			return false;
+			if (Repository.GetCommonAncestorOfRevisions(a.Number.Hash, b.Number.Hash) != null)
+				return false;
+			_progress.WriteWarning(
+				"This repository has an anomaly:  the two heads we want to merge have no common ancestor.  You should get help from the developers of this application.");
+			_progress.WriteWarning("1) \"{0}\" on {1} by {2} ({3}). ", a.GetHashCode(), a.Summary, a.DateString, a.UserId);
+			_progress.WriteWarning("2) \"{0}\" on {1} by {2} ({3}). ", b.GetHashCode(), b.Summary, b.DateString, b.UserId);
+			return true;
 		}
 
 		/// <returns>false if nothing needed to be merged, true if the merge was done. Throws exception if there is an error.</returns>
