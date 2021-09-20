@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tmx version="1.4">
+  <header srclang="en" adminlang="en" creationtool="Palaso Localization Manager" creationtoolversion="2.0.6.0" segtype="block" datatype="unknown" o-tmf="PalasoTMXUtils">
+    <prop type="x-appversion">2.5.1068</prop>
+    <prop type="x-hardlinebreakreplacement">\n</prop>
+  </header>
+  <body>
+    <tu tuid="Common.Cancel">
+      <tuv xml:lang="en">
+        <seg>Cancel</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>取消(&amp;C)</seg>
+      </tuv>
+    </tu>
+    <tu tuid="Common.Close">
+      <tuv xml:lang="en">
+        <seg>&amp;Close</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>关闭 (&amp;C)</seg>
+      </tuv>
+    </tu>
+    <tu tuid="Common.Error">
+      <tuv xml:lang="en">
+        <seg>Error</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>错误</seg>
+      </tuv>
+    </tu>
+    <tu tuid="Common.Help">
+      <tuv xml:lang="en">
+        <seg>Help</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>帮助</seg>
+      </tuv>
+    </tu>
+    <tu tuid="Common.OK">
+      <tuv xml:lang="en">
+        <seg>OK</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>确定(&amp;O)</seg>
+      </tuv>
+    </tu>
+    <tu tuid="Common.PleaseConfirm">
+      <tuv xml:lang="en">
+        <seg>Please confirm</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>确定</seg>
+      </tuv>
+    </tu>
+    <tu tuid="Common.Problem">
+      <tuv xml:lang="en">
+        <seg>Problem</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>问题</seg>
+      </tuv>
+    </tu>
+    <tu tuid="GetCloneFromChorusHubDialog.projectHeader">
+      <tuv xml:lang="en">
+        <seg>Project</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>项目</seg>
+      </tuv>
+    </tu>
+    <tu tuid="NotesInProjectView.Label">
+      <tuv xml:lang="en">
+        <seg>Label</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>标签</seg>
+      </tuv>
+    </tu>
+    <tu tuid="NotesInProjectView.Questions">
+      <note>Combined in list to show filter status (keep short!)</note>
+      <tuv xml:lang="en">
+        <seg>Questions</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>问题</seg>
+      </tuv>
+    </tu>
+    <tu tuid="SendReceiveSettings.Internet">
+      <tuv xml:lang="en">
+        <seg>Internet</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>互联网</seg>
+      </tuv>
+    </tu>
+    <tu tuid="SendReceiveSettings.NameToShow">
+      <tuv xml:lang="en">
+        <seg>Name to show in change history:</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>要在更改历史记录中显示的名称：</seg>
+      </tuv>
+    </tu>
+    <tu tuid="SendReceiveSettings.ShowChorusHub">
+      <tuv xml:lang="en">
+        <seg>Show Chorus Hub as a Send/Receive option</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>显示ChorusHub作为一个发送/接收选项</seg>
+      </tuv>
+    </tu>
+    <tu tuid="SendReceiveSettings.ShowInternetOption">
+      <tuv xml:lang="en">
+        <seg>Show Internet as Send/Receive option</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>显示互联网作为发送/接收选项</seg>
+      </tuv>
+    </tu>
+    <tu tuid="SendReceiveSettings.WindowTitle">
+      <tuv xml:lang="en">
+        <seg>Send/Receive Settings</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>发送/接收设置</seg>
+      </tuv>
+    </tu>
+    <tu tuid="ServerSettingsControl.Login">
+      <tuv xml:lang="en">
+        <seg>Login</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>登入</seg>
+      </tuv>
+    </tu>
+    <tu tuid="ServerSettingsControl.Password">
+      <tuv xml:lang="en">
+        <seg>Password</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>密码</seg>
+      </tuv>
+    </tu>
+    <tu tuid="ServerSettingsControl.ProjectId">
+      <tuv xml:lang="en">
+        <seg>Project ID</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>项目 ID</seg>
+      </tuv>
+    </tu>
+    <tu tuid="ServerSettingsControl.ShowCharacters">
+      <tuv xml:lang="en">
+        <seg>Show characters</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>显示字符</seg>
+      </tuv>
+    </tu>
+    <tu tuid="SyncControl.SendReceiveButton">
+      <tuv xml:lang="en">
+        <seg>Send/Receive</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>发送/接受</seg>
+      </tuv>
+    </tu>
+    <tu tuid="SyncDialog.WindowTitle">
+      <tuv xml:lang="en">
+        <seg>Send/Receive</seg>
+      </tuv>
+      <tuv xml:lang="zh-CN">
+        <seg>发送/接受</seg>
+      </tuv>
+    </tu>
+  </body>
+</tmx>
