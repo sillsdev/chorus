@@ -1,3 +1,5 @@
+using System.Configuration;
+using System.Diagnostics;
 using SIL.Settings;
 
 namespace SampleApp.Properties {
@@ -5,7 +7,11 @@ namespace SampleApp.Properties {
 	{
 		public Settings()
 		{
-			CrossPlatformSettingsProvider.ValidateProperties(Properties);
+			foreach (SettingsProperty property in Properties)
+			{
+				Trace.Assert(property.Provider is CrossPlatformSettingsProvider,
+					$"Property '{property.Name}' needs the Provider string set to {typeof(CrossPlatformSettingsProvider)}");
+			}
 		}
 	}
 }
