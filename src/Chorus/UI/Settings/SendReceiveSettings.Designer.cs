@@ -95,7 +95,7 @@ namespace Chorus.UI.Settings
 			this.settingsTabs.Location = new System.Drawing.Point(13, 77);
 			this.settingsTabs.Name = "settingsTabs";
 			this.settingsTabs.SelectedIndex = 0;
-			this.settingsTabs.Size = new System.Drawing.Size(484, 294);
+			this.settingsTabs.Size = new System.Drawing.Size(532, 294);
 			this.settingsTabs.TabIndex = 2;
 			//
 			// internetTab
@@ -108,7 +108,7 @@ namespace Chorus.UI.Settings
 			this.internetTab.Location = new System.Drawing.Point(4, 22);
 			this.internetTab.Name = "internetTab";
 			this.internetTab.Padding = new System.Windows.Forms.Padding(3);
-			this.internetTab.Size = new System.Drawing.Size(476, 268);
+			this.internetTab.Size = new System.Drawing.Size(524, 268);
 			this.internetTab.TabIndex = 0;
 			this.internetTab.Text = "Internet";
 			this.internetTab.UseVisualStyleBackColor = true;
@@ -139,7 +139,7 @@ namespace Chorus.UI.Settings
 			this._internetSettingsLayout.RowCount = 2;
 			this._internetSettingsLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
 			this._internetSettingsLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this._internetSettingsLayout.Size = new System.Drawing.Size(369, 229);
+			this._internetSettingsLayout.Size = new System.Drawing.Size(445, 229);
 			this._internetSettingsLayout.TabIndex = 0;
 			//
 			// _internetButtonEnabledCheckBox
@@ -169,7 +169,7 @@ namespace Chorus.UI.Settings
 			this._serverSettingsControl.MinimumSize = new System.Drawing.Size(363, 200);
 			this._serverSettingsControl.Model = null;
 			this._serverSettingsControl.Name = "_serverSettingsControl";
-			this._serverSettingsControl.Size = new System.Drawing.Size(363, 201);
+			this._serverSettingsControl.Size = new System.Drawing.Size(439, 201);
 			this._serverSettingsControl.TabIndex = 1;
 			//
 			// chorusHubTab
@@ -242,7 +242,7 @@ namespace Chorus.UI.Settings
 			this.l10NSharpExtender1.SetLocalizationComment(this._helpButton, null);
 			this.l10NSharpExtender1.SetLocalizationPriority(this._helpButton, L10NSharp.LocalizationPriority.High);
 			this.l10NSharpExtender1.SetLocalizingId(this._helpButton, "Common.Help");
-			this._helpButton.Location = new System.Drawing.Point(422, 399);
+			this._helpButton.Location = new System.Drawing.Point(470, 399);
 			this._helpButton.Name = "_helpButton";
 			this._helpButton.Size = new System.Drawing.Size(75, 23);
 			this._helpButton.TabIndex = 5;
@@ -257,7 +257,7 @@ namespace Chorus.UI.Settings
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._cancelButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._cancelButton, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._cancelButton, "Common.Cancel");
-			this._cancelButton.Location = new System.Drawing.Point(341, 399);
+			this._cancelButton.Location = new System.Drawing.Point(389, 399);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(75, 23);
 			this._cancelButton.TabIndex = 4;
@@ -271,7 +271,7 @@ namespace Chorus.UI.Settings
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._okButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._okButton, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._okButton, "Common.OK");
-			this._okButton.Location = new System.Drawing.Point(260, 399);
+			this._okButton.Location = new System.Drawing.Point(308, 399);
 			this._okButton.Name = "_okButton";
 			this._okButton.Size = new System.Drawing.Size(75, 23);
 			this._okButton.TabIndex = 3;
@@ -316,7 +316,7 @@ namespace Chorus.UI.Settings
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.CancelButton = this._cancelButton;
-			this.ClientSize = new System.Drawing.Size(508, 439);
+			this.ClientSize = new System.Drawing.Size(556, 439);
 			this.Controls.Add(this.pictureBox3);
 			this.Controls.Add(this._okButton);
 			this.Controls.Add(this._cancelButton);

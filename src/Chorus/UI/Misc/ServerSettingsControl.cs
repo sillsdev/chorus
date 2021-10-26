@@ -61,6 +61,9 @@ namespace Chorus.UI.Misc
 			{
 				_projectId.SelectedItem = currentVal;
 			}
+			else if (Model.AvailableProjects.Count == 1)
+				_projectId.SelectedItem = Model.AvailableProjects[0];
+
 		}
 
 		private void _customUrl_TextChanged(object sender, EventArgs e)
