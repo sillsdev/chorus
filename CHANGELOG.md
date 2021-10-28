@@ -16,6 +16,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [5.0.0] - 2021-10-28
+
+### Fixed
+
+- On Unauthorized Access of ChorusNotes, retry, then ignore; don't crash
+- Use the correct password in request URL's
+- Send/Receive settings dialog is now big enough to display its widgets without cutting them off
+
+### Changed
+
+- Speed up Send/Receive operations by caching hashes
+- Update to the latest version of Palaso libraries (9.0.0)
+- Use CrossPlatformSettingsProvider for settings (Requires migration to retain old settings; client's responsibility)
+- When there is only one available Project, populate the Project ID combobox
+
 ## [4.0.0] - 2021-04-30
 
 ### Changed
