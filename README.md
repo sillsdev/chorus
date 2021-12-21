@@ -83,6 +83,8 @@ To send and receive with the test server over the Internet, set the following en
 
 	LANGUAGEFORGESERVER = -qa.languageforge.org
 
+To register to use the test server, visit https://public-qa.languageforge.org
+
 ## Developers
 
 ### Road Map & Workflow
