@@ -20,10 +20,10 @@ namespace Chorus.UI.Misc
 		{
 			InitializeComponent();
 
-			_serverLabel.Visible = ServerSettingsModel.IsQaServer;
+			_serverLabel.Visible = ServerSettingsModel.IsQaServer || ServerSettingsModel.IsPrivateServer;
 			if (_serverLabel.Visible)
 			{
-				_serverLabel.Text = string.Format(_serverLabel.Text, ServerSettingsModel.LanguageForgeServer);
+				_serverLabel.Text = string.Format(_serverLabel.Text, $"{(ServerSettingsModel.IsPrivateServer ? "private" : null)}{ServerSettingsModel.LanguageForgeServer}");
 			}
 
 			_bandwidth.Items.AddRange(ServerSettingsModel.Bandwidths);
