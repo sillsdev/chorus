@@ -12,7 +12,8 @@ namespace Chorus.UI.Clone
 {
 	public class GetCloneFromInternetModel : InternetCloneSettingsModel
 	{
-		public GetCloneFromInternetModel() : base()
+		// ReSharper disable once UnusedMember.Global (used by clients)
+		public GetCloneFromInternetModel()
 		{
 			ShowCloneOnlyControls = false;
 		}
@@ -26,20 +27,20 @@ namespace Chorus.UI.Clone
 
 		public bool CancelRequested
 		{
-			get { return _progress.CancelRequested; }
-			set { _progress.CancelRequested = value; }
+			get => _progress.CancelRequested;
+			set => _progress.CancelRequested = value;
 		}
 
 		public IProgressIndicator ProgressIndicator
 		{
-			get { return _progress.ProgressIndicator; }
-			set { _progress.ProgressIndicator = value; }
+			get => _progress.ProgressIndicator;
+			set => _progress.ProgressIndicator = value;
 		}
 
 		public SynchronizationContext UIContext
 		{
-			get { return _progress.SyncContext; }
-			set { _progress.SyncContext = value; }
+			get => _progress.SyncContext;
+			set => _progress.SyncContext = value;
 		}
 
 		///<returns>true if successful; false if failed</returns>

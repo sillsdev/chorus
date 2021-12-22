@@ -11,7 +11,6 @@ using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using Newtonsoft.Json;
 using SIL.Code;
-using SIL.Network;
 using SIL.Progress;
 
 namespace Chorus.Model
@@ -20,7 +19,7 @@ namespace Chorus.Model
 	{
 		#region static and constant
 		private const string LanguageForge = "languageforge.org";
-		private const string ServerEnvVar = "LANGUAGEFORGESERVER";
+		internal const string ServerEnvVar = "LANGUAGEFORGESERVER";
 
 		public static string LanguageForgeServer
 		{
@@ -32,6 +31,8 @@ namespace Chorus.Model
 		}
 
 		public static bool IsQaServer => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(ServerEnvVar));
+
+		public static bool IsPrivateServer { get; set; }
 
 		private const string EntropyValue = "LAMED videte si est dolor sicut dolor meus";
 
@@ -146,7 +147,7 @@ namespace Chorus.Model
 
 		protected internal string Host => IsCustomUrl
 			? UrlHelper.GetHost(CustomUrl)
-			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : "hg-public")}{LanguageForgeServer}";
+			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : IsPrivateServer ? "hg-private" : "hg-public")}{LanguageForgeServer}";
 
 
 		public bool HaveGoodUrl
@@ -220,6 +221,10 @@ namespace Chorus.Model
 				HasLoggedIn = true;
 				error = null;
 				PasswordForSession = Password;
+				// NB: I (Hasso) am tempted here to SaveUserSettings(); however,
+				//  - if a user edits the settings for an already-received project, then clicks cancel,
+				//		the user would expect all changes to be undone, and
+				//  - if a user logs in to get a project from a colleague, the user is likely to click Download, which will save credentials.
 
 				// Do this last so the user is "logged in" even if JSON parsing crashes
 				PopulateAvailableProjects(content);
@@ -232,6 +237,12 @@ namespace Chorus.Model
 					case HttpStatusCode.NotFound:
 					case HttpStatusCode.Forbidden:
 						error = LocalizationManager.GetString("ServerSettings.LogIn.BadUserOrPass", "Incorrect username or password");
+						if (IsPrivateServer)
+						{
+							HasLoggedIn = true;
+							error = LocalizationManager.GetString("ServerSettings.PossibleErrorPrivateServer",
+								"Your projects on the private server could not be listed, but you may still be able to download them.");
+						}
 						break;
 					default:
 						error = e.Message;
@@ -247,7 +258,8 @@ namespace Chorus.Model
 
 		private WebResponse LogIn()
 		{
-			var request = WebRequest.Create($"https://admin{LanguageForgeServer}/api/user/{Username}/projects");
+			var privateQuery = IsPrivateServer ? "?private=true" : string.Empty;
+			var request = WebRequest.Create($"https://admin{LanguageForgeServer}/api/user/{Username}/projects{privateQuery}");
 			request.Method = "POST";
 			var passwordBytes = Encoding.UTF8.GetBytes($"password={Password}");
 			request.ContentType = "application/x-www-form-urlencoded";

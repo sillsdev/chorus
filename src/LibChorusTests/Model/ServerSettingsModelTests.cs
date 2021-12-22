@@ -1,4 +1,4 @@
-using System.IO;
+using System;
 using NUnit.Framework;
 using SIL.Progress;
 using SIL.TestUtilities;
@@ -13,6 +13,13 @@ namespace LibChorus.Tests.Model
 	[TestFixture]
 	public class ServerSettingsModelTests
 	{
+		[OneTimeSetUp]
+		public void OneTimeSetup()
+		{
+			// Removing this variable from the process's environment so that tests use the default server
+			Environment.SetEnvironmentVariable(ServerSettingsModel.ServerEnvVar, null, EnvironmentVariableTarget.Process);
+		}
+
 		[Test]
 		public void InitFromUri_FullTypicalLangForge_AccountNameCorrect()
 		{
@@ -48,29 +55,49 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		public void InitFromUri_FullTypicalLangForge_DomainAndBandwidthCorrect()
+		public void InitFromUri_FullTypicalLangForge_DomainAndBandwidthCorrectAndNotCustom()
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("https://joe:pass@hg-public.languageforge.org/tpi");
 			Assert.AreEqual("hg-public.languageforge.org", m.Host);
 			Assert.AreEqual(ServerSettingsModel.BandwidthEnum.High, m.Bandwidth.Value);
+			Assert.False(m.IsCustomUrl);
 		}
 
 		[Test]
-		public void InitFromUri_ResumableLangForge_DomainAndBandwidthCorrect()
+		public void InitFromUri_ResumableLangForge_DomainAndBandwidthCorrectAndNotCustom()
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("https://resumable.languageforge.org/tpi");
 			Assert.AreEqual("resumable.languageforge.org", m.Host);
 			Assert.AreEqual(ServerSettingsModel.BandwidthEnum.Low, m.Bandwidth.Value);
+			Assert.False(m.IsCustomUrl);
 		}
 
 		[Test]
-		public void InitFromUri_FullTypicalLangForge_CustomUrlFalse()
+		public void InitFromUri_PrivateLangForge_DomainAndBandwidthCorrectAndNotCustom()
 		{
-			var m = new ServerSettingsModel();
-			m.InitFromUri("https://joe:pass@hg-public.languageforge.org/tpi");
-			Assert.IsFalse(m.IsCustomUrl);
+			using (new PrivateServer())
+			{
+				var m = new ServerSettingsModel();
+				m.InitFromUri("https://joe:pass@hg-private.languageforge.org/tpi");
+				Assert.AreEqual("hg-private.languageforge.org", m.Host);
+				Assert.AreEqual(ServerSettingsModel.BandwidthEnum.High, m.Bandwidth.Value);
+				Assert.False(m.IsCustomUrl);
+			}
+		}
+
+		[Test]
+		public void InitFromUri_PrivateResumableLangForge_DomainAndBandwidthCorrectAndNotCustom()
+		{
+			using (new PrivateServer())
+			{
+				var m = new ServerSettingsModel();
+				m.InitFromUri("https://resumable.languageforge.org/tpi");
+				Assert.AreEqual("resumable.languageforge.org", m.Host);
+				Assert.AreEqual(ServerSettingsModel.BandwidthEnum.Low, m.Bandwidth.Value);
+				Assert.False(m.IsCustomUrl);
+			}
 		}
 
 		[TestCase("resumable", true)]
@@ -78,29 +105,38 @@ namespace LibChorus.Tests.Model
 		[TestCase("hg-private", false)]
 		public void InitFromUri_LanguageDepot_ConvertedToLanguageForge(string subdomain, bool isResumable)
 		{
-			var expectedNewHost = $"{subdomain}.languageforge.org";
-			var expectedBandwidth = isResumable
-				? ServerSettingsModel.BandwidthEnum.Low
-				: ServerSettingsModel.BandwidthEnum.High;
-			var m = new ServerSettingsModel();
-			// SUT
-			// ReSharper disable once StringLiteralTypo - the old server used to be called Language Depot
-			m.InitFromUri($"http://joe:cool@{subdomain}.languagedepot.org/mcx");
+			try
+			{
+				if (subdomain.Equals("hg-private"))
+				{
+					// Setting IsPrivateServer is necessary to prevent hg-private.languageforge.org being marked as custom.
+					// If IsPrivateServer is set incorrectly (either way), the URL will be imported and scrubbed correctly,
+					// but marked as custom (tested in other tests)
+					ServerSettingsModel.IsPrivateServer = true;
+				}
 
-			if (subdomain.Equals("hg-private"))
-			{
-				Assert.True(m.IsCustomUrl, "not really custom, but no longer stores nicely in our memory model");
-			}
-			else
-			{
+				var expectedNewHost = $"{subdomain}.languageforge.org";
+				var expectedBandwidth = isResumable
+					? ServerSettingsModel.BandwidthEnum.Low
+					: ServerSettingsModel.BandwidthEnum.High;
+				var m = new ServerSettingsModel();
+				// SUT
+				// ReSharper disable once StringLiteralTypo - the old server used to be called Language Depot
+				m.InitFromUri($"http://joe:cool@{subdomain}.languagedepot.org/mcx");
+
 				Assert.False(m.IsCustomUrl);
+
+				Assert.AreEqual(expectedNewHost, m.Host);
+				Assert.AreEqual("joe", m.Username);
+				Assert.AreEqual("cool", m.Password);
+				Assert.AreEqual(expectedBandwidth, m.Bandwidth.Value);
+				Assert.AreEqual("mcx", m.ProjectId);
+				Assert.AreEqual($"https://{expectedNewHost}/mcx", m.URL);
 			}
-			Assert.AreEqual(expectedNewHost, m.Host);
-			Assert.AreEqual("joe", m.Username);
-			Assert.AreEqual("cool", m.Password);
-			Assert.AreEqual(expectedBandwidth, m.Bandwidth.Value);
-			Assert.AreEqual("mcx", m.ProjectId);
-			Assert.AreEqual($"https://{expectedNewHost}/mcx", m.URL);
+			finally
+			{
+				ServerSettingsModel.IsPrivateServer = false;
+			}
 		}
 
 		[Test]
@@ -538,6 +574,19 @@ namespace LibChorus.Tests.Model
 			finally
 			{
 				ServerSettingsModel.PasswordForSession = null;
+			}
+		}
+
+		private class PrivateServer : IDisposable
+		{
+			public PrivateServer()
+			{
+				ServerSettingsModel.IsPrivateServer = true;
+			}
+
+			public void Dispose()
+			{
+				ServerSettingsModel.IsPrivateServer = false;
 			}
 		}
 	}
