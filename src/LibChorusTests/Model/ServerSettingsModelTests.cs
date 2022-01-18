@@ -456,13 +456,13 @@ namespace LibChorus.Tests.Model
 		}
 
 		/// <summary>
-		/// The new default (as of 8 Nov 2012) is resumable.
+		/// The new default (as of 18 Jan 2022) is simple clone.
 		/// </summary>
 		[Test]
-		public void DefaultIsResumable()
+		public void DefaultIsSimple()
 		{
 			var m = new ServerSettingsModel();
-			Assert.AreEqual("resumable.languageforge.org", m.Host);
+			Assert.AreEqual("hg-public.languageforge.org", m.Host);
 		}
 
 		[Test]
