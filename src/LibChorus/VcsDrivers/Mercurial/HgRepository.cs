@@ -1631,9 +1631,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			try
 			{
 				//strip everything but the host name
-				Uri uriObject;
-				if (!Uri.TryCreate(uri, UriKind.Absolute, out uriObject))
+				if (!Uri.TryCreate(uri, UriKind.Absolute, out var uriObject))
+				{
+					var uri4Log = ServerSettingsModel.RemovePasswordForLog(uri);
+					progress.WriteError($"Please check that the address is formatted correctly and that your password has no special characters: {uri4Log}");
 					return false;
+				}
+				var host = uriObject.Host;
 
 				if (!NetworkInterface.GetIsNetworkAvailable())
 				{
@@ -1641,50 +1645,51 @@ namespace Chorus.VcsDrivers.Mercurial
 					return false;
 				}
 
-			   progress.WriteVerbose("Pinging {0}...", uriObject.Host);
+				progress.WriteVerbose("Pinging {0}...", host);
 				using (var ping = new Ping())
 				{
-					var result = ping.Send(uriObject.Host, 3000);//arbitrary... what's a reasonable wait?
-					if (result.Status == IPStatus.Success)
+					var result = ping.Send(host, 3000);//arbitrary... what's a reasonable wait?
+					if (result?.Status == IPStatus.Success)
 					{
-						_progress.WriteVerbose("Ping took {0} milliseconds", result.RoundtripTime);
+						progress.WriteVerbose("Ping took {0} milliseconds", result.RoundtripTime);
 						return true;
 					}
-					_progress.WriteVerbose("Ping failed. Trying google.com...");
+					progress.WriteVerbose("Ping failed. Trying google.com...");
 
 					//ok, at least in Ukarumpa, sometimes pings just are impossible.  Determine if that's what's going on by pinging google
 					result = ping.Send("google.com", 3000);
-					if (result.Status != IPStatus.Success)
+					if (result?.Status != IPStatus.Success)
 					{
 						progress.WriteVerbose("Ping to google failed, too.");
-						if (Dns.GetHostAddresses(uriObject.Host).Count() > 0)
+						if (Dns.GetHostAddresses(host).Any())
 						{
 							progress.WriteVerbose(
 								"Did resolve the host name, so it's worth trying to use hg to connect... some places block ping.");
 							return true;
 						}
-						progress.WriteVerbose("Could not resolve the host name '{0}'.", uriObject.Host);
+						progress.WriteVerbose("Could not resolve the host name '{0}'.", host);
 						return false;
 					}
 
-					if (Dns.GetHostAddresses(uriObject.Host).Count() > 0)
+					if (Dns.GetHostAddresses(host).Any())
 					{
 						// cjh 2012-03 : excluded languageforge.org from this check since it doesn't respond to ping requests
 						// TODO: what we should really do is build in a server check to see if we can retrieve a small file from the server instead of trying to ping it
-						if (!uriObject.Host.Contains("languageforge.org"))
+						if (!host.Contains("languageforge.org"))
 						{
 							progress.WriteMessage(
-							"Chorus could ping google, and did get IP address for {0}, but could not ping it, so it could be that the server is temporarily unavailable.", uriObject.Host);
+							"Chorus could ping google, and did get IP address for {0}, but could not ping it, so it could be that the server is temporarily unavailable.", host);
 						}
 						return true;
 					}
 
-					progress.WriteError("Please check the spelling of address {0}.  Chorus could not resolve it to an IP address.", uriObject.Host);
+					progress.WriteError("Please check the spelling of address {0}.  Chorus could not resolve it to an IP address.", host);
 					return false; // assume the network is ok, but the hg server is inaccessible
 				}
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
+				progress.WriteException(e);
 				return false;
 			}
 		}
