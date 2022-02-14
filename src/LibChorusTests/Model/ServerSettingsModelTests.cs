@@ -545,7 +545,7 @@ namespace LibChorus.Tests.Model
 		{
 			try
 			{
-				const string password = "patchworkQu11+";
+				const string password = "p@tchwork:Qu11+";
 				const string logFormat = "Cannot connect to https://someone:{0}@hg-public.languageforge.org/flex-proj; check your password and try again.";
 				ServerSettingsModel.PasswordForSession = password;
 				// SUT
