@@ -11,7 +11,7 @@
     <PackageReference Include="GitVersion.MsBuild" Version="5.6.8" PrivateAssets="All" />
     <PackageReference Include="icu.net" Version="2.7.1" />
     <PackageReference Include="Icu4c.Win.Min" Version="59.1.7" IncludeAssets="build" />
-    <PackageReference Include="L10NSharp" Version="4.2.0-*" />
+    <PackageReference Include="L10NSharp" Version="5.0.0-*" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="NDesk.DBus" Version="0.15.0" />
     <PackageReference Include="SIL.Chorus.Mercurial" Version="3.0.1-*" IncludeAssets="build" />
