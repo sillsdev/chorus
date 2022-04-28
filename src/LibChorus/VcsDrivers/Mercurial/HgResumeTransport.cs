@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -908,17 +908,16 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		///<summary>
-		/// returns something like %AppData%\Chorus\ChorusStorage\uniqueRepoId
+		/// returns something like:
+		/// FLEX:	C:\ProgramData\SIL\FieldWorks\Projects\<ProjectName>\OtherRepositories\<ProjectName>_LIFT\Chorus\ChorusStorage
+		/// WeSay:	%USERPROFILE%\Documents\WeSay\<ProjectName>\Chorus\ChorusStorage
 		///</summary>
 		public string PathToLocalStorage
 		{
 			get
 			{
-				string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Chorus");
-				return Path.Combine(appDataPath,
-									Path.Combine("ChorusStorage",
-												 RepoIdentifier)
-					);
+				string chorusPath = Path.Combine(_repo.PathToRepo, "Chorus");
+				return Path.Combine(chorusPath, "ChorusStorage");
 			}
 		}
 
