@@ -916,8 +916,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			get
 			{
-				string chorusPath = Path.Combine(_repo.PathToRepo, "Chorus");
-				return Path.Combine(chorusPath, "ChorusStorage");
+				return Path.Combine(_repo.PathToRepo, "Chorus", "ChorusStorage");
 			}
 		}
 
