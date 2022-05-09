@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3.0.2 #delete?
     - name: Git Fetch?
       run: git fetch --unshallow
     - name: Setup .NET
