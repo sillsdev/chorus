@@ -6,7 +6,9 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using Chorus.Model;
 using Chorus.Utilities;
+#if !NETSTANDARD
 using SIL.UsbDrive;
+#endif
 using Chorus.VcsDrivers.Mercurial;
 using SIL.IO;
 using SIL.Progress;
@@ -419,6 +421,10 @@ namespace Chorus.VcsDrivers
 				return Path.Combine(RootDirForUsbSourceDuringUnitTest, projectName);
 			}
 
+			#if NETSTANDARD
+			return null;
+			#else
+
 			var drives = UsbDriveInfo.GetDrives();
 			if (drives.Count == 0)
 				return null;
@@ -473,6 +479,8 @@ namespace Chorus.VcsDrivers
 				}
 			}
 			return string.Empty;
+
+			#endif
 		}
 
 		private static List<string> CollectPathsWithRepositories(string path)
@@ -496,6 +504,10 @@ namespace Chorus.VcsDrivers
 				return urisToTryCreationAt;
 			}
 
+			#if NETSTANDARD
+			return null;
+			#else
+
 			var drives = UsbDriveInfo.GetDrives();
 
 			if (drives.Count == 0)
@@ -507,6 +519,8 @@ namespace Chorus.VcsDrivers
 				urisToTryCreationAt.Add(Path.Combine(drive.RootDirectory.FullName, projectName));
 			}
 			return urisToTryCreationAt;
+
+			#endif
 		}
 
 		public override bool CanConnect(HgRepository localRepository, string projectName, IProgress progress)
