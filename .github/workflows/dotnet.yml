@@ -13,16 +13,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3.0.2
+    - uses: actions/checkout@v3.0.2 #delete?
     - name: Git Fetch?
       run: git fetch --unshallow
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
-    - name: Restore dependencies
+    - name: Restore dependencies #delete?
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release
+      run: dotnet build
     - name: Test
       run: dotnet test --no-build --verbosity normal
