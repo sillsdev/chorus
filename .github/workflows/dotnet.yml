@@ -18,8 +18,12 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
-    - name: Build
-      run: dotnet build src/Chorus/Chorus.csproj
+    - name: Restore
+      run: dotnet restore
+    - name: Build LibChorus
+      run: dotnet build --no-restore src/LibChorus/LibChorus.csproj
+    - name: Build Chorus
+      run: dotnet build --no-restore src/Chorus/Chorus.csproj
     - name: Chorus.Tests
       run: dotnet test src/Chorus.Tests/Chorus.Tests.csproj
       
