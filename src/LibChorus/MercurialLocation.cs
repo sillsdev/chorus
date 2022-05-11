@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Chorus.Utilities;
 using SIL.Code;
 using SIL.PlatformUtilities;
@@ -66,25 +65,18 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			// We now try to use the same (antique) version of Mercurial on
 			// both Windows and Linux, to maintain bug-for-bug compatibility.
 			var executingAssemblyPath = ExecutionEnvironment.DirectoryOfExecutingAssembly;
-			Console.WriteLine($@"CHECKING {executingAssemblyPath}");
-			Array.ForEach(Directory.GetDirectories(executingAssemblyPath), Console.WriteLine);
 			var guess = CheckForMercurialSubdirectory(executingAssemblyPath);
 			if (guess == null)
 			{
 				var grandparentPath = Directory.GetParent(executingAssemblyPath).Parent.FullName;
-				Console.WriteLine($@"CHECKING {grandparentPath}");
-				Array.ForEach(Directory.GetDirectories(grandparentPath), Console.WriteLine);
 				guess = CheckForMercurialSubdirectory(grandparentPath);
 				if (guess == null)
 				{
 					var greatGrandParentPath = Directory.GetParent(grandparentPath).FullName;
-					Console.WriteLine($@"CHECKING {greatGrandParentPath}");
-					Array.ForEach(Directory.GetDirectories(greatGrandParentPath), Console.WriteLine);
 					guess = CheckForMercurialSubdirectory(greatGrandParentPath);
 				}
 			}
 
-			Console.WriteLine($@"Setting Mercurial folder path to {guess}");
 			PathToMercurialFolder = guess;
 		}
 
