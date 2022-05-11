@@ -22,8 +22,6 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Chorus.Tests
-      run: dotnet test src/Chorus.Tests/Chorus.Tests.csproj
-    - name: LibChorus.Tests
-      run: dotnet test src/LibChorusTests/LibChorus.Tests.csproj
+    - name: Chorus Tests
+      run: dotnet test
       
