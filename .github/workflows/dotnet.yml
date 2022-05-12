@@ -25,5 +25,5 @@ jobs:
         dotnet pack src/LibChorus/LibChorus.csproj
         dotnet pack src/ChorusMerge/ChorusMerge.csproj
     - name: Deploy
-      run: dotnet nuget push output/*.nupkg --skip-duplicate --source "github"
+      run: dotnet nuget push output/*.nupkg --source https://nuget.pkg.github.com/sillsdev --api-key ${{github.token}} --skip-duplicate --no-symbols true
         
