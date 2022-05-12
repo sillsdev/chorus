@@ -8,8 +8,8 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0 # fetch full history for GitVersion
+      #with:
+       # fetch-depth: 0 # fetch full history for GitVersion
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
