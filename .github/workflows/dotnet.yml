@@ -1,10 +1,10 @@
-name: build_test_deploy
+name: Chorus .NET6
 
 on:
   [push, pull_request, workflow_dispatch]
 
 jobs:
-  build_and_test:
+  build_test_deploy:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
@@ -18,8 +18,8 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test
+    #- name: Test
+     # run: dotnet test
     - name: Pack
       run: |
         dotnet pack src/LibChorus/LibChorus.csproj
