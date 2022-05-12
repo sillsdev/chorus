@@ -5,11 +5,11 @@ on:
 
 jobs:
   build_test_deploy:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-      #with:
-       # fetch-depth: 0 # fetch full history for GitVersion
+      with:
+        fetch-depth: 0 # fetch full history for GitVersion
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
