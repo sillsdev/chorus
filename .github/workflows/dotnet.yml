@@ -1,4 +1,4 @@
-name: .NET
+name: build_test_deploy
 
 on:
   [push, pull_request, workflow_dispatch]
@@ -20,4 +20,10 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test
-      
+    - name: Pack
+      run: |
+        dotnet pack src/LibChorus/LibChorus.csproj
+        dotnet pack src/ChorusMerge/ChorusMerge.csproj
+    - name: Deploy
+      run: dotnet nuget push output/*.nupkg --skip-duplicate
+        
