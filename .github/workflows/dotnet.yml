@@ -1,11 +1,11 @@
-name: .NET
+name: Chorus .NET6
 
 on:
   [push, pull_request, workflow_dispatch]
 
 jobs:
-  build_and_test:
-    runs-on: windows-latest
+  build_test_deploy:
+    runs-on: ubuntu-latest # go back to windows if anything breaks
     steps:
     - uses: actions/checkout@v3
       with:
@@ -14,10 +14,19 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
+        source-url: https://nuget.pkg.github.com/sillsdev/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - name: Restore
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test
-      
+    #- name: Test
+     # run: dotnet test
+    - name: Pack
+      run: |
+        dotnet pack src/LibChorus/LibChorus.csproj
+        dotnet pack src/ChorusMerge/ChorusMerge.csproj
+    - name: Deploy
+      run: dotnet nuget push output/*.nupkg --source https://nuget.pkg.github.com/sillsdev --api-key ${{github.token}} --skip-duplicate --no-symbols true
+        

@@ -5,6 +5,7 @@
     <AssemblyTitle>LibChorus</AssemblyTitle>
     <PackageId>SIL.Chorus.LibChorus</PackageId>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
+    <RepositoryUrl>https://github.com/sillsdev/chorus.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
