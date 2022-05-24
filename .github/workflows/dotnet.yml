@@ -22,8 +22,8 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    #- name: Test
-     # run: dotnet test
+    - name: Test
+      run: dotnet test
     - name: Pack
       run: |
         dotnet pack src/LibChorus/LibChorus.csproj
