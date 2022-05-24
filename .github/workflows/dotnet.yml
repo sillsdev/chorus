@@ -30,7 +30,7 @@ jobs:
         dotnet pack src/ChorusMerge/ChorusMerge.csproj
   deploy:
     needs: build_test
-    if: ${{ env.GitVersion_BranchName }} == "master"
+    if: env.GitVersion_BranchName == "master"
     runs-on: ubuntu-latest
     steps:
     - name: Deploy
