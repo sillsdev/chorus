@@ -5,8 +5,8 @@ on:
 
 jobs:
   build_test_deploy:
-    #env:
-     # NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    env:
+      NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     runs-on: ubuntu-latest # go back to windows if anything breaks
     permissions: write-all
     steps:
