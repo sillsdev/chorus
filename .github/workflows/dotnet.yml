@@ -4,10 +4,10 @@ on:
   [push, pull_request, workflow_dispatch]
 
 jobs:
-  build_test_deploy:
+  build_test:
     env:
       NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    runs-on: ubuntu-latest # go back to windows if anything breaks
+    runs-on: ubuntu-latest
     permissions: write-all
     steps:
     - uses: actions/checkout@v3
@@ -28,8 +28,12 @@ jobs:
       run: |
         dotnet pack src/LibChorus/LibChorus.csproj
         dotnet pack src/ChorusMerge/ChorusMerge.csproj
-    #- name: Deploy to Github
-     # run: dotnet nuget push "output/*.nupkg" -k ${NUGET_AUTH_TOKEN}
-    - name: Deploy
-      run: dotnet nuget push output/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
-        
+    - name: echo
+      run: echo ${{ github.head_ref }}
+#  deploy:
+ #   if: ${{ github.head_ref }} == "master"
+  #  runs-on: ubuntu-latest
+   # steps:
+    #- name: Deploy
+     # run: dotnet nuget push output/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
+    
