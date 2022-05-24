@@ -7,7 +7,7 @@ jobs:
   build_test:
     env:
       NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions: write-all
     steps:
     - uses: actions/checkout@v3
