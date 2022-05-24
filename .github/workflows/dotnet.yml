@@ -28,13 +28,11 @@ jobs:
       run: |
         dotnet pack src/LibChorus/LibChorus.csproj
         dotnet pack src/ChorusMerge/ChorusMerge.csproj
-    - name: echo
-      run: echo ${{ env.GitVersion_BranchName }}
-#  deploy:
- #   needs: build_test
- #   if: ${{ github.head_ref }} == "master"
-  #  runs-on: ubuntu-latest
-   # steps:
-    #- name: Deploy
-     # run: dotnet nuget push output/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
+  deploy:
+    needs: build_test
+    if: ${{ env.GitVersion_BranchName }} == "master"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy
+      run: dotnet nuget push output/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
     
