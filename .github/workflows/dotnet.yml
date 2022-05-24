@@ -29,7 +29,7 @@ jobs:
         dotnet pack src/LibChorus/LibChorus.csproj
         dotnet pack src/ChorusMerge/ChorusMerge.csproj
     - name: echo
-      run: echo ${{ GitVersion_BranchName }}
+      run: echo ${{ env.GitVersion_BranchName }}
 #  deploy:
  #   needs: build_test
  #   if: ${{ github.head_ref }} == "master"
