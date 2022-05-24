@@ -31,5 +31,5 @@ jobs:
     #- name: Deploy to Github
      # run: dotnet nuget push "output/*.nupkg" -k ${NUGET_AUTH_TOKEN}
     - name: Deploy
-      run: dotnet nuget push output/*.nupkg --source https://nuget.pkg.github.com/sillsdev --api-key ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate --no-symbols true
+      run: dotnet nuget push output/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
         
