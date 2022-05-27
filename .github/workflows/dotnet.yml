@@ -22,8 +22,10 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test
+    #- name: Test
+     # run: dotnet test
+    - name: echo
+      run: echo ${{github.ref}}
     - name: Pack
       if: github.ref == 'refs/heads/migrationToDotNet6'
       run: dotnet pack -c Release
