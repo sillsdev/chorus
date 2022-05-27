@@ -26,10 +26,11 @@ jobs:
       run: dotnet test
     - name: Pack
       if: github.ref == 'refs/heads/migrationToDotNet6'
-      run: |
-        dotnet pack -c Release src/LibChorus/LibChorus.csproj
-        dotnet pack -c Release src/ChorusMerge/ChorusMerge.csproj
-    - name: Deploy
+      run: dotnet pack -c Release
+    - name: Deploy 1
       if: github.ref == 'refs/heads/migrationToDotNet6'
-      run: dotnet nuget push output/*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
+      run: dotnet nuget push output/SIL.Chorus.ChorusMerge*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
+    - name: Deploy 2
+      if: github.ref == 'refs/heads/migrationToDotNet6'
+      run: dotnet nuget push output/SIL.Chorus.LibChorus.5*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
     
