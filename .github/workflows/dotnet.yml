@@ -18,8 +18,6 @@ jobs:
       with:
         dotnet-version: 6.0.x
         source-url: https://nuget.pkg.github.com/sillsdev/index.json
-    - name: echo
-      run: echo ${{github.ref}}
     - name: Restore
       run: dotnet restore
     - name: Build
