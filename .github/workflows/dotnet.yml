@@ -7,7 +7,7 @@ jobs:
   build_test_deploy:
     env:
       NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions: write-all
     steps:
     - uses: actions/checkout@v3
@@ -25,12 +25,12 @@ jobs:
     - name: Test
       run: dotnet test
     - name: Pack
-      if: github.ref == 'refs/heads/migrationToDotNet6'
+      if: github.ref == 'refs/heads/netcore'
       run: dotnet pack --no-restore -c Release
     - name: Deploy 1
-      if: github.ref == 'refs/heads/migrationToDotNet6'
-      run: dotnet nuget push "output/SIL.Chorus.ChorusMerge*.nupkg" -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
+      if: github.ref == 'refs/heads/netcore'
+      run: dotnet nuget push output\**SIL.Chorus.ChorusMerge\*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
     - name: Deploy 2
-      if: github.ref == 'refs/heads/migrationToDotNet6'
-      run: dotnet nuget push "output/SIL.Chorus.LibChorus.5*.nupkg" -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
+      if: github.ref == 'refs/heads/netcore'
+      run: dotnet nuget push output\**SIL.Chorus.LibChorus.5\*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
     
