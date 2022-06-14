@@ -164,8 +164,29 @@ namespace Chorus.Model
 		}
 
 		public bool RememberPassword { get; set; }
-		public string Password { get; set; }
-		public string Username { get; set; }
+
+		private string _password;
+		public string Password
+		{
+			get { return _password; }
+			set
+			{
+				_password = value;
+				UsernameOrPasswordEdited = true;
+			}
+		}
+
+		private string _username;
+		public string Username
+		{
+			get { return _username; }
+			set
+			{
+				_username = value;
+				UsernameOrPasswordEdited = true;
+			}
+		}
+
 		public bool IsCustomUrl { get; set; }
 		public string CustomUrl { get; set; }
 		public BandwidthItem Bandwidth { get; set; } = Bandwidths[0];
@@ -175,9 +196,41 @@ namespace Chorus.Model
 		/// <summary>
 		/// True if the user has logged in since this ServerSettingsModel was created, or has already connected this project to an internet server.
 		/// </summary>
-		public bool HasLoggedIn { get; set; }
+		private bool _hasLoggedIn = false;
+		public bool HasLoggedIn
+		{
+			get { return _hasLoggedIn; }
+			set
+			{
+				_hasLoggedIn = value;
 
-		public bool CanLogIn => !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
+				if (_hasLoggedIn)
+					UsernameOrPasswordEdited = false;
+			}
+		}
+
+		/// <summary>
+		/// User can log in if:
+		/// Username and Password are not empty
+		/// AND
+		/// User has not logged in OR they have logged in but have made addition
+		/// edits to either the username or password.
+		/// </summary>
+		public bool CanLogIn
+		{
+			get
+			{
+				return !string.IsNullOrEmpty(Username) &&
+					   !string.IsNullOrEmpty(Password) &&
+						HasLoggedIn ? UsernameOrPasswordEdited : true;
+			}
+		}
+
+		/// <summary>
+		/// True if the username or password value has been edited since the
+		/// last log in.
+		/// </summary>
+		private bool UsernameOrPasswordEdited { get; set; }
 
 		/// <summary>
 		/// Save the settings in the folder's .hg, creating the folder and settings if necessary.
