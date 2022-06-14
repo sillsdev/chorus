@@ -164,8 +164,29 @@ namespace Chorus.Model
 		}
 
 		public bool RememberPassword { get; set; }
-		public string Password { get; set; }
-		public string Username { get; set; }
+
+		private string _password;
+		public string Password
+		{
+			get { return _password; }
+			set
+			{
+				_password = value;
+				UsernameOrPasswordEdited = true;
+			}
+		}
+
+		private string _username;
+		public string Username
+		{
+			get { return _username; }
+			set
+			{
+				_username = value;
+				UsernameOrPasswordEdited = true;
+			}
+		}
+
 		public bool IsCustomUrl { get; set; }
 		public string CustomUrl { get; set; }
 		public BandwidthItem Bandwidth { get; set; } = Bandwidths[0];
@@ -209,7 +230,7 @@ namespace Chorus.Model
 		/// True if the username or password value has been edited since the
 		/// last log in.
 		/// </summary>
-		public bool UsernameOrPasswordEdited { get; set; }
+		private bool UsernameOrPasswordEdited { get; set; }
 
 		/// <summary>
 		/// Save the settings in the folder's .hg, creating the folder and settings if necessary.

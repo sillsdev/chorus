@@ -81,7 +81,6 @@ namespace Chorus.UI.Misc
 		private void _username_TextChanged(object sender, EventArgs e)
 		{
 			Model.Username = _username.Text;
-			Model.UsernameOrPasswordEdited = true;
 			UpdateDisplay();
 		}
 
@@ -115,7 +114,6 @@ namespace Chorus.UI.Misc
 		private void _password_TextChanged(object sender, EventArgs e)
 		{
 			Model.Password = _password.Text.Trim();
-			Model.UsernameOrPasswordEdited = true;
 			UpdateDisplay();
 		}
 
