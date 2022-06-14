@@ -19,6 +19,7 @@ namespace Chorus.UI.Clone
 		private TargetFolderControl _targetFolderControl;
 		private State _state;
 		private ServerSettingsControl _serverSettingsControl;
+		private bool _resizing = false;
 
 		public GetCloneFromInternetDialog(string parentDirectoryToPutCloneIn)
 			:this(new GetCloneFromInternetModel(parentDirectoryToPutCloneIn))
@@ -312,6 +313,25 @@ namespace Chorus.UI.Clone
 		private void GetCloneFromInternetDialog_BackColorChanged(object sender, EventArgs e)
 		{
 			_logBox.BackColor  =this.BackColor;
+		}
+
+		private void GetCloneFromInternetDialog_ResizeBegin(object sender, EventArgs e)
+		{
+			_resizing = true;
+		}
+
+		private void GetCloneFromInternetDialog_ResizeEnd(object sender, EventArgs e)
+		{
+			_resizing = false;
+		}
+
+		private void GetCloneFromInternetDialog_Paint(object sender, PaintEventArgs e)
+		{
+			if (_resizing)
+			{
+				_targetFolderControl._downloadButton.Top = _okButton.Top - _targetFolderControl.Top;
+				_targetFolderControl._downloadButton.Left = _okButton.Left - 15;
+			}
 		}
 	}
 }

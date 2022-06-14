@@ -243,7 +243,10 @@ namespace Chorus.UI.Clone
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
 			this.Text = "Get Project From Internet";
 			this.Load += new System.EventHandler(this.OnLoad);
+			this.ResizeBegin += new System.EventHandler(this.GetCloneFromInternetDialog_ResizeBegin);
+			this.ResizeEnd += new System.EventHandler(this.GetCloneFromInternetDialog_ResizeEnd);
 			this.BackColorChanged += new System.EventHandler(this.GetCloneFromInternetDialog_BackColorChanged);
+			this.Paint += new System.Windows.Forms.PaintEventHandler(this.GetCloneFromInternetDialog_Paint);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();

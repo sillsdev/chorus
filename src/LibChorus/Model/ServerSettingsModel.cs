@@ -175,9 +175,41 @@ namespace Chorus.Model
 		/// <summary>
 		/// True if the user has logged in since this ServerSettingsModel was created, or has already connected this project to an internet server.
 		/// </summary>
-		public bool HasLoggedIn { get; set; }
+		private bool _hasLoggedIn = false;
+		public bool HasLoggedIn
+		{
+			get { return _hasLoggedIn; }
+			set
+			{
+				_hasLoggedIn = value;
 
-		public bool CanLogIn => !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
+				if (_hasLoggedIn)
+					UsernameOrPasswordEdited = false;
+			}
+		}
+
+		/// <summary>
+		/// User can log in if:
+		/// Username and Password are not empty
+		/// AND
+		/// User has not logged in OR they have logged in but have made addition
+		/// edits to either the username or password.
+		/// </summary>
+		public bool CanLogIn
+		{
+			get
+			{
+				return !string.IsNullOrEmpty(Username) &&
+					   !string.IsNullOrEmpty(Password) &&
+						HasLoggedIn ? UsernameOrPasswordEdited : true;
+			}
+		}
+
+		/// <summary>
+		/// True if the username or password value has been edited since the
+		/// last log in.
+		/// </summary>
+		public bool UsernameOrPasswordEdited { get; set; }
 
 		/// <summary>
 		/// Save the settings in the folder's .hg, creating the folder and settings if necessary.
