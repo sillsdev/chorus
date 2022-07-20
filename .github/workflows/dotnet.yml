@@ -25,12 +25,12 @@ jobs:
     - name: Test
       run: dotnet test
     - name: Pack
-      if: github.ref == 'refs/heads/netcore'
+      if: github.ref == 'refs/heads/develop'
       run: dotnet pack --no-restore -c Release
     - name: Deploy 1
-      if: github.ref == 'refs/heads/netcore'
+      if: github.ref == 'refs/heads/develop'
       run: dotnet nuget push output\SIL.Chorus.ChorusMerge**\*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
     - name: Deploy 2
-      if: github.ref == 'refs/heads/netcore'
+      if: github.ref == 'refs/heads/develop'
       run: dotnet nuget push output\SIL.Chorus.LibChorus.5**\*.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.SILLSDEV_PUBLISH_NUGET_ORG}} --skip-duplicate
     
