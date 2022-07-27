@@ -171,7 +171,7 @@ namespace Chorus.FileTypeHandlers.ldml
 			get { return UInt32.MaxValue; }
 		}
 
-		#endregion
+	  #endregion
 
 		internal static void SetupElementStrategies(XmlMerger merger)
 		{
@@ -181,7 +181,16 @@ namespace Chorus.FileTypeHandlers.ldml
 			strategy.ContextDescriptorGenerator = new LdmlContextGenerator();
 			merger.MergeStrategies.SetStrategy("ldml", strategy);
 			// Child elements of ldml root.
-
+			merger.MergeStrategies.SetStrategy("languages", new ElementStrategy(false)
+			{
+				IsAtomic = true,
+				MergePartnerFinder = new FindFirstElementWithSameName()
+			});
+			merger.MergeStrategies.SetStrategy("listPatterns", new ElementStrategy(false)
+			{
+				IsAtomic = true,
+				MergePartnerFinder = new FindFirstElementWithSameName()
+			});
 			merger.MergeStrategies.SetStrategy("identity", ElementStrategy.CreateSingletonElement());
 			// Child elements of "identity".
 			merger.MergeStrategies.SetStrategy("version", ElementStrategy.CreateSingletonElement());
@@ -215,6 +224,7 @@ namespace Chorus.FileTypeHandlers.ldml
 				ChildOrderPolicy = new NotSignificantOrderPolicy(),
 				MergePartnerFinder = new FindFirstElementWithSameName()
 			});
+
 			// handle one child element of characters - exemplarCharacters
 			strategy = new ElementStrategy(false)
 			{
@@ -238,8 +248,6 @@ namespace Chorus.FileTypeHandlers.ldml
 			});
 
 			merger.MergeStrategies.SetStrategy("units", ElementStrategy.CreateSingletonElement());
-
-			merger.MergeStrategies.SetStrategy("listPatterns", ElementStrategy.CreateSingletonElement());
 
 			merger.MergeStrategies.SetStrategy("collations", ElementStrategy.CreateSingletonElement());
 			// Child element of collations

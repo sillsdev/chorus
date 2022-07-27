@@ -13,7 +13,6 @@ using NUnit.Framework;
 using SIL.Extensions;
 using SIL.IO;
 using SIL.Providers;
-using SIL.TestUtilities;
 using SIL.TestUtilities.Providers;
 
 namespace LibChorus.Tests.FileHandlers.ldml
@@ -250,9 +249,10 @@ namespace LibChorus.Tests.FileHandlers.ldml
 					@"ldml/metadata[text()='Our metadata']"
 				},
 				new List<string>(0),
-				3, new List<Type>
+				4, new List<Type>
 				{
 					typeof (XmlTextBothEditedTextConflict),
+					typeof (BothEditedTheSameAtomicElement),
 					typeof (BothEditedTheSameAtomicElement),
 					typeof (BothEditedTheSameAtomicElement)
 				},
@@ -800,11 +800,146 @@ namespace LibChorus.Tests.FileHandlers.ldml
 				});
 		}
 
-		#endregion
+		[Test]
+		public void LanguagesAreMerged()
+		{
+			string commonAncestor =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+	<languages />
+</ldml>".Replace("'", "\"");
+			string ourContent =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+    <languages>
+       <language type='aa'>Afar</language>
+       <language type='en'>English</language>
+    </languages>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+    <languages>
+       <language type='aa'>Afar</language>
+       <language type='fr'>French</language>
+    </languages>
+</ldml>".Replace("'", "\"");
 
-		#region Top level SIL:Special Elements
+			var namespaces = new Dictionary<string, string>
+			{
+				{"sil", "urn://www.sil.org/ldml/0.1"},
+			};
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/languages/language[@type='aa']",
+					@"ldml/identity/language[@type='en']",
+				},
+				new List<string>{
+					@"ldml/identity/language[@type='fr']"
+				},
+				0, null,
+				2, new List<Type> {
+					typeof(XmlAttributeBothMadeSameChangeReport), typeof(BothChangedAtomicElementReport)});
+		}
 
 		[Test]
+		public void ListPatternsAreAtomic()
+		{
+			string commonAncestor =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+    <listPatterns>
+		<listPattern type='standard-short'>
+			<listPatternPart type='2'>{0} و{1}</listPatternPart>
+			<listPatternPart type='end'>{0}، و{1}</listPatternPart>
+			<listPatternPart type='middle'>{0}، و{1}</listPatternPart>
+			<listPatternPart type='start'>{0}، و{1}</listPatternPart>
+		</listPattern>
+	</listPatterns>
+</ldml>".Replace("'", "\"");
+			string ourContent =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+    <listPatterns>
+		<listPattern type='standard-short'>
+			<listPatternPart type='2'>{0} و{1}</listPatternPart>
+			<listPatternPart type='end'>{0}، و{1}</listPatternPart>
+			<listPatternPart type='middle'>{0}، و{1}</listPatternPart>
+			<listPatternPart type='start'>{0}، و{1}</listPatternPart>
+			<listPatternPart type='mine'>{0}، و{1}</listPatternPart>
+		</listPattern>
+	</listPatterns>
+</ldml>".Replace("'", "\"");
+			string theirContent =
+				@"<?xml version='1.0' encoding='utf-8'?>
+<ldml>
+	<identity>
+		<version number='$Revision: 11161 $' />
+		<generation date='2012-06-06T09:36:30Z' />
+		<language type='en' />
+	</identity>
+    <listPatterns>
+		<listPattern type='standard-short'>
+			<listPatternPart type='2'>{0} و{1}</listPatternPart>
+			<listPatternPart type='end'>{0}، و{1}</listPatternPart>
+			<listPatternPart type='middle'>{0}، و{1}</listPatternPart>
+			<listPatternPart type='start'>{0}، و{1}</listPatternPart>
+			<listPatternPart type='their'>{0}، و{1}</listPatternPart>
+		</listPattern>
+	</listPatterns>
+</ldml>".Replace("'", "\"");
+
+			var namespaces = new Dictionary<string, string>
+			{
+				{"sil", "urn://www.sil.org/ldml/0.1"},
+			};
+			DoMerge(commonAncestor, ourContent, theirContent,
+				namespaces,
+				new List<string>
+				{
+					@"ldml/listPatterns/listPattern[@type='standard-short']",
+					@"ldml/listPatterns/listPattern/listPatternPart[@type='end']",
+					@"ldml/listPatterns/listPattern/listPatternPart[@type='mine']"
+				},
+				new List<string> {
+					@"ldml/listPatterns/listPattern/listPatternPart[@type='their']"
+				},
+				1, new List<Type> {typeof(BothEditedTheSameAtomicElement) },
+				1, new List<Type> {typeof(XmlAttributeBothMadeSameChangeReport) });
+		}
+
+	  #endregion
+
+	  #region Top level SIL:Special Elements
+
+	  [Test]
 		public void KnownKeyboards_AreMergedV3()
 		{
 			string commonAncestor =
