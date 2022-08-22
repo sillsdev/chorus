@@ -35,17 +35,11 @@ namespace ChorusMerge
 		{
 			try
 			{
-				string ourFilePath;
-				string commonFilePath;
-				string theirFilePath;
+				string ourFilePath = args[0];
+				string commonFilePath = args[1];
+				string theirFilePath = args[2];
 
-				if (Platform.IsMono)
-				{
-					ourFilePath = args[0];
-					commonFilePath = args[1];
-					theirFilePath = args[2];
-				}
-				else
+				if (Platform.IsWindows)
 				{
 					// Convert the input arguments from cp1252 -> utf8 -> ucs2
 					// It always seems to be 1252, even when the input code page is actually something else. CP 2012-03
