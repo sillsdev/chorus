@@ -15,22 +15,18 @@ namespace Chorus.notes
 	public class AnnotationRepository : IDisposable, IAnnotationRepository
 	{
 		private XDocument _doc;
-		private readonly string _annotationFilePath;
 		private DateTime _lastAnnotationFileWriteTime;
 		private static int kCurrentVersion=0;
 		public static string FileExtension = "ChorusNotes";
 		private List<IAnnotationRepositoryObserver> _observers = new List<IAnnotationRepositoryObserver>();
 		private AnnotationIndex _indexOfAllAnnotationsByKey;
 		private bool _isDirty;
-		private FileSystemWatcher _watcher = null;
-		private bool _writingFileOurselves = false;
+		private FileSystemWatcher _watcher;
 
-		public string AnnotationFilePath
-		{
-			get { return _annotationFilePath; }
-		}
+		public string AnnotationFilePath { get; }
+		public IAnnotationMutex SavingMutex { get; set; }
 
-		public static AnnotationRepository FromFile(string primaryRefParameter, string path, IProgress progress)
+	  public static AnnotationRepository FromFile(string primaryRefParameter, string path, IProgress progress)
 		{
 			try
 			{
@@ -39,19 +35,24 @@ namespace Chorus.notes
 					RequireThat.Directory(Path.GetDirectoryName(path)).Exists();
 					File.WriteAllText(path, string.Format("<notes version='{0}'/>", kCurrentVersion.ToString()));
 				}
-				var doc = XDocument.Load(path);
-				ThrowIfVersionTooHigh(doc, path);
-				var result = new AnnotationRepository(primaryRefParameter, doc, path, progress);
-				// Set up a watcher so that if something else...typically FLEx...modifies our file, we update our display.
-				// This is useful in its own right for keeping things consistent, but more importantly, if we don't do
-				// this and then the user does something in FlexBridge that changes the file, we could overwrite the
-				// changes made elsewhere (LT-20074).
-				result.UpateAnnotationFileWriteTime();
-				result._watcher = new FileSystemWatcher(Path.GetDirectoryName(path), Path.GetFileName(path));
-				result._watcher.NotifyFilter = NotifyFilters.LastWrite;
-				result._watcher.Changed += result.UnderlyingFileChanged;
-				result._watcher.EnableRaisingEvents = true;
-				return result;
+
+				using (var reader = new FileStream(path, FileMode.Open, FileAccess.Read,
+					FileShare.ReadWrite))
+				{
+					var doc = XDocument.Load(reader);
+					ThrowIfVersionTooHigh(doc, path);
+					var result = new AnnotationRepository(primaryRefParameter, doc, path, progress);
+					// Set up a watcher so that if something else...typically FLEx...modifies our file, we update our display.
+					// This is useful in its own right for keeping things consistent, but more importantly, if we don't do
+					// this and then the user does something in FlexBridge that changes the file, we could overwrite the
+					// changes made elsewhere (LT-20074).
+					result.UpateAnnotationFileWriteTime();
+					result._watcher = new FileSystemWatcher(Path.GetDirectoryName(path), Path.GetFileName(path));
+					result._watcher.NotifyFilter = NotifyFilters.LastWrite;
+					result._watcher.Changed += result.UnderlyingFileChanged;
+					result._watcher.EnableRaisingEvents = true;
+					return result;
+				}
 			}
 			catch (XmlException error)
 			{
@@ -73,12 +74,6 @@ namespace Chorus.notes
 		/// <param name="e"></param>
 		private void UnderlyingFileChanged(object sender, FileSystemEventArgs e)
 		{
-			if (_writingFileOurselves)
-			{
-				// Sometimes a file changed event fires after we wrote the file but before we noted the new modify time.
-				// In that case there is nothing we need to do here.
-				return;
-			}
 			var fileOnDiskWriteTime = _lastAnnotationFileWriteTime;
 			var fileAccessible = false;
 			try
@@ -118,9 +113,20 @@ namespace Chorus.notes
 			try
 			{
 				UpateAnnotationFileWriteTime();
-				_doc = XDocument.Load(AnnotationFilePath);
+				using (var reader = new FileStream(AnnotationFilePath, FileMode.Open,
+					FileAccess.Read, FileShare.ReadWrite))
+				{
+					_doc = XDocument.Load(reader);
+				}
+
 				SetupDocument();
 				_observers.ForEach(observer => observer.NotifyOfStaleList());
+			}
+			catch (XmlException)
+			{
+				// If someone is writing to the file and it is incomplete we expect to get a new notification.
+				// Roll back the write time so that we will try again.
+				_lastAnnotationFileWriteTime = writeTimeBeforeLoad;
 			}
 			catch (IOException)
 			{
@@ -147,7 +153,8 @@ namespace Chorus.notes
 		public AnnotationRepository(string primaryRefParameter, XDocument doc, string path, IProgress progress)
 		{
 			_doc = doc;
-			_annotationFilePath = path;
+			AnnotationFilePath = path;
+			SavingMutex = AnnotationMutexFactory.Create(AnnotationFilePath);
 
 			SetupDocument();
 			SetPrimaryRefParameter(primaryRefParameter, progress);
@@ -193,10 +200,7 @@ namespace Chorus.notes
 				}
 			}
 
-			if (_watcher != null)
-			{
-				_watcher.Dispose();
-			}
+			_watcher?.Dispose();
 			SaveNowIfNeeded(new NullProgress());
 			_doc = null;
 		}
@@ -234,15 +238,18 @@ namespace Chorus.notes
 				   select new Annotation(a);
 		}
 
-//        public void SaveAs(string path)
-//        {
-//            _doc.Save(path);
-//        }
-
 		public void Save(IProgress progress)
 		{
+			SavingMutex.WaitOne();
 			try
 			{
+				// _watcher can be null in unit tests
+				if (_watcher != null)
+				{
+					// We have a lock on the file so only we can be changing it
+					_watcher.Changed -= UnderlyingFileChanged;
+				}
+
 				if (string.IsNullOrEmpty(AnnotationFilePath))
 				{
 					throw new InvalidOperationException(
@@ -250,10 +257,11 @@ namespace Chorus.notes
 				}
 
 				progress.WriteStatus("Saving Chorus Notes...");
-				_writingFileOurselves = true;
-				using (var writer = XmlWriter.Create(AnnotationFilePath,
+
+				using (var writeStream = new FileStream(AnnotationFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+				using (var writer = XmlWriter.Create(writeStream,
 					CanonicalXmlSettings.CreateXmlWriterSettings())
-					)
+				)
 				{
 					_doc.Save(writer);
 				}
@@ -262,14 +270,21 @@ namespace Chorus.notes
 				_isDirty = false;
 				UpateAnnotationFileWriteTime();
 			}
-			catch(Exception e)
+			catch (Exception e)
 			{
-				SIL.Reporting.ErrorReport.NotifyUserOfProblem(e, "Chorus has a problem saving notes for {0}.",
-																 _annotationFilePath);
+				SIL.Reporting.ErrorReport.NotifyUserOfProblem(e,
+					"Chorus has a problem saving notes for {0}.",
+					AnnotationFilePath);
 			}
 			finally
 			{
-				_writingFileOurselves = false;
+				SavingMutex.ReleaseMutex();
+				// _watcher can be null in unit tests
+				if (_watcher != null)
+				{
+					// Now that the notifications for the file change have fired we will listen again
+					_watcher.Changed += UnderlyingFileChanged;
+				}
 			}
 		}
 
@@ -374,7 +389,7 @@ namespace Chorus.notes
 
 		public bool ContainsAnnotation(Annotation annotation)
 		{
-			return null!= _doc.Root.Elements().FirstOrDefault(e => e.GetAttributeValue("guid") == annotation.Guid);
+			return null != _doc.Root.Elements().FirstOrDefault(e => e.GetAttributeValue("guid") == annotation.Guid);
 		}
 	}
 

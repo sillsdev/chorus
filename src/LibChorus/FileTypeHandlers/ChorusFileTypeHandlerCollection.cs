@@ -1,4 +1,4 @@
-// Copyright (c) 2015 SIL International
+// Copyright (c) 2015-2022 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
@@ -44,17 +44,18 @@ namespace Chorus.FileTypeHandlers
 
 				using (var container = new CompositionContainer(catalog))
 				{
-                    try
-                    {
-                        container.ComposeParts(this);
-                    }
-                    catch (ReflectionTypeLoadException ex)
-                    {
-                        var loaderExceptions = ex.LoaderExceptions;
-                        System.Diagnostics.Debug.Fail("Loading exception!");
-                        throw new AggregateException(ex.Message, loaderExceptions);
-                    }
-                }
+					try
+					{
+						container.ComposeParts(this);
+					}
+					catch (ReflectionTypeLoadException ex)
+					{
+						var loaderExceptions = ex.LoaderExceptions;
+						System.Diagnostics.Debug.Fail(
+							$"Loading exception: {ex.Message}\r\n{string.Join("\r\n", ex.LoaderExceptions.Select(e => e.Message))}");
+						throw new AggregateException(ex.Message, loaderExceptions);
+					}
+				}
 			}
 		}
 
