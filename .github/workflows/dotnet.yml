@@ -5,6 +5,8 @@ on:
 
 jobs:
   build_test_deploy:
+    env:
+      NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
