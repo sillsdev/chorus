@@ -13,11 +13,11 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
       with:
         fetch-depth: 0 # fetch full history for GitVersion
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@c0d4ad69d8bd405d234f1c9166d383b7a4f69ed8 # v2.1.0
       with:
         dotnet-version: 6.0.x
         source-url: https://nuget.pkg.github.com/sillsdev/index.json
@@ -29,7 +29,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore -c Release
     - name: Test
-      run: dotnet test
+      run: dotnet test --no-build -c Release
     - name: Pack
       run: dotnet pack --no-restore --no-build -c Release
     - name: Upload Artifacts
