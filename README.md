@@ -1,5 +1,7 @@
-Overview
-========
+# Overview
+
+[![NuGet version (chorus)](https://img.shields.io/nuget/v/SIL.Chorus.LibChorus.svg?style=flat-square)](https://www.nuget.org/packages/SIL.Chorus.LibChorus)
+[![Build, Test and Pack](https://github.com/sillsdev/chorus/actions/workflows/dotnet.yml/badge.svg)](https://github.com/sillsdev/chorus/actions/workflows/dotnet.yml)
 
 Chorus is a version control system designed to enable workflows appropriate for typical language
 development teams who are geographically distributed. These teams need to edit a set of common
@@ -101,9 +103,20 @@ Chorus is written in C#. The UI widgets use Windows Forms, but you could make yo
 different platform and just use the engine.
 
 After cloning the project you should now have a solution that you can build using any edition
-of Visual Studio 2019, including the free Express version, or Visual Studio Code.
+of Visual Studio 2022, including the free Express version, JetBrains Rider or
+Visual Studio Code. This works on both Windows and Linux.
 
-On Linux you can open and build the solution in MonoDevelop, or run the `build/TestBuild.sh` script.
+From the command line you can build with:
+
+```bash
+dotnet build
+```
+
+and run the unit tests with:
+
+```bash
+dotnet test
+```
 
 ### Building client projects against locally-built artifacts
 

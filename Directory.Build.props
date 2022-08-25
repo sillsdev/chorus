@@ -6,7 +6,7 @@
     <Company>SIL International</Company>
     <Authors>SIL International</Authors>
     <Product>chorus</Product>
-    <Copyright>Copyright © 2010-2021 SIL International</Copyright>
+    <Copyright>Copyright © 2010-2022 SIL International</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/sillsdev/chorus</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
