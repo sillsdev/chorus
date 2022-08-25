@@ -22,12 +22,6 @@ jobs:
       uses: actions/setup-dotnet@c0d4ad69d8bd405d234f1c9166d383b7a4f69ed8 # v2.1.0
       with:
         dotnet-version: 6.0.x
-    - name: Fix Python on Linux (for mercurial)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        dpkg -l python
-        dpkg -l python2
-        sudo apt install python2
     - name: Restore
       run: dotnet restore
     - name: Build
