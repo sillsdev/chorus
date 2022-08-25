@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Add static bool ServerSettingsModel.IsPrivateServer to allow clients to select the private LanguageForge
 
+### Deprecated
+
+- Chorus.FileTypeHandlers.lift.LiftUtils.LiftTimeFormatWithTimeZone (Use SIL.Extensions.DateTimeExtensions.ToLiftDateTimeFormat)
+
 ## [5.0.0] - 2021-10-28
 
 ### Fixed

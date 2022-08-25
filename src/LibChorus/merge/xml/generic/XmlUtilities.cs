@@ -364,7 +364,7 @@ namespace Chorus.merge.xml.generic
 
 		internal static void AddDateCreatedAttribute(XmlNode elementNode)
 		{
-			AddAttribute(elementNode, "dateCreated", DateTimeProvider.Current.Now.ToString(LiftUtils.LiftTimeFormatWithTimeZone));
+			AddAttribute(elementNode, "dateCreated", DateTimeProvider.Current.Now.ToLiftDateTimeFormat());
 		}
 
 		internal static void AddAttribute(XmlNode element, string name, string value)

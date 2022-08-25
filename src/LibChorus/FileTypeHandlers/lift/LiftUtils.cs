@@ -6,11 +6,10 @@ namespace Chorus.FileTypeHandlers.lift
 {
 	public static class LiftUtils
 	{
-		// REVIEW (Hasso) 2022.08: wouldn't it be better to use the Z (UTC) format, with DateTime.UtcNow? Then we could use
-		// SIL.Extensions.DateTimeExtensions.ToLiftDateTimeFormat (which is not "obsolete").
-		[Obsolete("Use LiftTimeFormatWithTimeZone instead, as LiftTimeFormatNoTimeZone produces incorrect results when used with DateTime.Now")]
+		[Obsolete("Use SIL.Extensions.DateTimeExtensions.ToLiftDateTimeFormat")]
 		public static string LiftTimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 
+		[Obsolete("Use SIL.Extensions.DateTimeExtensions.ToLiftDateTimeFormat")]
 		public static string LiftTimeFormatWithTimeZone = "yyyy-MM-ddTHH:mm:ssK";
 
 		public static string GetId(XmlNode e)
