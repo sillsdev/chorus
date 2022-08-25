@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="2.6.3.862" />
     <PackageReference Include="GitVersion.MsBuild" Version="5.10.3" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SIL.ReleaseTasks" Version="2.5.0" PrivateAssets="All" />
@@ -51,6 +50,10 @@
   <PropertyGroup>
     <!-- See https://github.com/dotnet/sdk/issues/987#issuecomment-286307697 why that is needed -->
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
 
 </Project>

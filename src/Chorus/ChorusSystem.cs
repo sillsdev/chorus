@@ -87,10 +87,6 @@ namespace Chorus
 			// builder.Register(new NullProgress());//TODO
 			_container = builder.Build();
 
-			//add the container itself
-			var builder2 = new Autofac.ContainerBuilder();
-			builder2.RegisterInstance(_container).As<IContainer>();
-			builder2.Update(_container);
 			DidLoadUpCorrectly = true;
 		}
 

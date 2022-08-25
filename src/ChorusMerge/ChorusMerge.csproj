@@ -5,6 +5,8 @@
     <AssemblyTitle>ChorusMerge</AssemblyTitle>
     <PackageId>SIL.Chorus.ChorusMerge</PackageId>
     <OutputType>Exe</OutputType>
+    <TargetFrameworks>net461;net6.0</TargetFrameworks>
+    <RepositoryUrl>https://github.com/sillsdev/chorus.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
