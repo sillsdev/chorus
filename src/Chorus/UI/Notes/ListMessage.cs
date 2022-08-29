@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Chorus.merge.xml.generic;
 using Chorus.notes;
 using Message=Chorus.notes.Message;
 

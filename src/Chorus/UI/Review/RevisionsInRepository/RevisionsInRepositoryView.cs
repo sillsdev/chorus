@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -72,7 +72,7 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		}
 
 		/// <summary>
-		/// called when the firt batch of revisions are ready
+		/// called when the first batch of revisions are ready
 		/// </summary>
 		private void ChooseInitialRevisions()
 		{
@@ -114,14 +114,14 @@ namespace Chorus.UI.Review.RevisionsInRepository
 		private void AddRow(Revision rev)
 		{
 			var dateString = rev.DateString;
-			DateTime when;
 
 			//TODO: this is all a guess and a mess
 			//I haven't figured out how/why hg uses this strange date format,
-			//nor if it is going to do it on all machines, or will someday
-			//change.
+			//nor if it is going to do it on all machines, or will someday change.
+			// Hasso (2022.08): I guess the single-quoted colons are to prevent the system from changing them to dots in some locales
+			// (which could be problematic; see for example https://jira.sil.org/browse/LT-20698).
 			if (DateTime.TryParseExact(dateString, "ddd MMM dd HH':'mm':'ss yyyy zzz",
-									   null, DateTimeStyles.AssumeUniversal, out when))
+									   null, DateTimeStyles.AssumeUniversal, out var when))
 			{
 				when = when.ToLocalTime();
 				dateString = when.ToShortDateString()+" "+when.ToShortTimeString();

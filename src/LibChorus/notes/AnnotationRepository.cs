@@ -16,9 +16,9 @@ namespace Chorus.notes
 	{
 		private XDocument _doc;
 		private DateTime _lastAnnotationFileWriteTime;
-		private static int kCurrentVersion=0;
+		private const int kCurrentVersion = 0;
 		public static string FileExtension = "ChorusNotes";
-		private List<IAnnotationRepositoryObserver> _observers = new List<IAnnotationRepositoryObserver>();
+		private readonly List<IAnnotationRepositoryObserver> _observers = new List<IAnnotationRepositoryObserver>();
 		private AnnotationIndex _indexOfAllAnnotationsByKey;
 		private bool _isDirty;
 		private FileSystemWatcher _watcher;
@@ -26,7 +26,7 @@ namespace Chorus.notes
 		public string AnnotationFilePath { get; }
 		public IAnnotationMutex SavingMutex { get; set; }
 
-	  public static AnnotationRepository FromFile(string primaryRefParameter, string path, IProgress progress)
+		public static AnnotationRepository FromFile(string primaryRefParameter, string path, IProgress progress)
 		{
 			try
 			{
@@ -46,7 +46,7 @@ namespace Chorus.notes
 					// This is useful in its own right for keeping things consistent, but more importantly, if we don't do
 					// this and then the user does something in FlexBridge that changes the file, we could overwrite the
 					// changes made elsewhere (LT-20074).
-					result.UpateAnnotationFileWriteTime();
+					result.UpdateAnnotationFileWriteTime();
 					result._watcher = new FileSystemWatcher(Path.GetDirectoryName(path), Path.GetFileName(path));
 					result._watcher.NotifyFilter = NotifyFilters.LastWrite;
 					result._watcher.Changed += result.UnderlyingFileChanged;
@@ -60,7 +60,7 @@ namespace Chorus.notes
 			}
 		}
 
-		private void UpateAnnotationFileWriteTime()
+		private void UpdateAnnotationFileWriteTime()
 		{
 			_lastAnnotationFileWriteTime = new FileInfo(AnnotationFilePath).LastWriteTime;
 		}
@@ -112,7 +112,7 @@ namespace Chorus.notes
 			var writeTimeBeforeLoad = _lastAnnotationFileWriteTime;
 			try
 			{
-				UpateAnnotationFileWriteTime();
+				UpdateAnnotationFileWriteTime();
 				using (var reader = new FileStream(AnnotationFilePath, FileMode.Open,
 					FileAccess.Read, FileShare.ReadWrite))
 				{
@@ -268,7 +268,7 @@ namespace Chorus.notes
 
 				progress.WriteStatus("");
 				_isDirty = false;
-				UpateAnnotationFileWriteTime();
+				UpdateAnnotationFileWriteTime();
 			}
 			catch (Exception e)
 			{

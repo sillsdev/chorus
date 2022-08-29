@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [SIL.Chorus.ChorusMerge] Additionally build with .net 6
 - [SIL.Chorus.LibChorus] Add netstandard 2.0
 
+### Deprecated
+
+- Chorus.FileTypeHandlers.lift.LiftUtils.LiftTimeFormatWithTimeZone (Use SIL.Extensions.DateTimeExtensions.ToLiftDateTimeFormat)
+
 ## [5.0.0] - 2022-09-13
 
 ### Added

@@ -6,9 +6,10 @@ namespace Chorus.FileTypeHandlers.lift
 {
 	public static class LiftUtils
 	{
-		[Obsolete("Use LiftTimeFormatWithTimeZone instead, as LiftTimeFormatNoTimeZone produces incorrect results when used with DateTime.Now")]
+		[Obsolete("Use SIL.Extensions.DateTimeExtensions.ToLiftDateTimeFormat")]
 		public static string LiftTimeFormatNoTimeZone = "yyyy-MM-ddTHH:mm:ssZ";
 
+		[Obsolete("Use SIL.Extensions.DateTimeExtensions.ToLiftDateTimeFormat")]
 		public static string LiftTimeFormatWithTimeZone = "yyyy-MM-ddTHH:mm:ssK";
 
 		public static string GetId(XmlNode e)
