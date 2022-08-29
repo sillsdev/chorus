@@ -16,15 +16,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-### Added
+### Changed
 
-- Add static bool ServerSettingsModel.IsPrivateServer to allow clients to select the private LanguageForge
+- [SIL.Chorus.ChorusMerge] Additionally build with .net 6
+- [SIL.Chorus.LibChorus] Add netstandard 2.0
 
 ### Deprecated
 
 - Chorus.FileTypeHandlers.lift.LiftUtils.LiftTimeFormatWithTimeZone (Use SIL.Extensions.DateTimeExtensions.ToLiftDateTimeFormat)
 
-## [5.0.0] - 2021-10-28
+## [5.0.0] - 2022-09-13
+
+### Added
+
+- Add static bool ServerSettingsModel.IsPrivateServer to allow clients to select the private LanguageForge
 
 ### Fixed
 
@@ -35,9 +40,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Speed up Send/Receive operations by caching hashes
-- Update to the latest version of Palaso libraries (9.0.0)
+- Update to the latest version of Palaso libraries (10.0.0)
 - Use CrossPlatformSettingsProvider for settings (Requires migration to retain old settings; client's responsibility)
 - When there is only one available Project, populate the Project ID combobox
+- Update SIL.Chorus.Mercurial dependency to the latest version which looks for python2
 
 ## [4.0.0] - 2021-04-30
 
@@ -47,6 +53,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [3.0.0] - non-nuget version
 
-[Unreleased]: https://github.com/sillsdev/libpalaso/compare/v4.0.0...master
+[Unreleased]: https://github.com/sillsdev/libpalaso/compare/v5.0.0...master
 
+[5.0.0]: https://github.com/sillsdev/libpalaso/compare/v4.0.0...v5.0.0
 [4.0.0]: https://github.com/sillsdev/libpalaso/compare/v3.0.0...v4.0.0
