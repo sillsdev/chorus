@@ -3,6 +3,7 @@ name: "Build, Test and Pack"
 on:
   push:
     branches: [ master ]
+    tags: [ v* ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
