@@ -25,6 +25,7 @@ namespace Chorus.Tests
 
 		[Test]
 		[Category("SkipOnBuildServer")]
+		[Category("RequiresUI")]
 		public void Launch_CloseAfterAFewSeconds_DoesntCrash()
 		{
 			using (var folder = new TemporaryFolder("ChorusApplicationTests"))

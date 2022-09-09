@@ -119,6 +119,7 @@ namespace Chorus.Tests
 		/// get group annotation ability with just a few lines of code.
 		/// </summary>
 		[Test]
+		[Category("RequiresUI")]
 		public void CreateNotesBar()
 		{
 			//Tell Chorus how to map between our records and the url system we want to use in notes
@@ -162,8 +163,8 @@ namespace Chorus.Tests
 		/// tools to search and filter them.
 		/// </summary>
 		[Test]
-	[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
-	[Platform(Exclude="Mono")]
+		[Category("KnownMonoIssue")] //running CreateNotesBrowser twice in a mono test session causes a crash
+		[Platform(Exclude="Mono")]
 		public void CreateNotesBrowser()
 		{
 			var browser = _chorusSystem.WinForms.CreateNotesBrowser();

@@ -70,6 +70,7 @@ namespace Chorus.Tests
 		/// found at compile time
 		/// </summary>
 		[Test]
+		[Category("RequiresUI")]
 		public void CanShowNotesBar()
 		{
 			using (var view =
@@ -80,6 +81,7 @@ namespace Chorus.Tests
 		}
 
 		[Test]
+		[Category("RequiresUI")]
 		public void CanMakeNotesBarWithOtherFiles()
 		{
 			using (var otherFile = new TempFileFromFolder(_folder, "two.txt", "just a pretend file"))
