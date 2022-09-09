@@ -25,6 +25,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
 
+    env:
+      FILTER: '--filter TestCategory!=RequiresUI'
+      if: runner.os == 'Linux'
+
     steps:
     - name: Checkout
       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
@@ -43,9 +47,7 @@ jobs:
       run: dotnet build --no-restore -c Release
 
     - name: Test
-      # it would be nice to run tests with `--no-build -c Release` but that causes test
-      # failures on Ubuntu where it suddenly can't open the display.
-      run: dotnet test -- NUnit.TestOutputXml=TestResults
+      run: dotnet test --no-build -c Release ${{env.FILTER}} -- NUnit.TestOutputXml=TestResults
 
     - name: Upload Test Results
       if: always()

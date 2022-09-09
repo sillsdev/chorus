@@ -6,6 +6,7 @@ using SIL.TestUtilities;
 namespace Chorus.Tests.UI.Clone
 {
 	[TestFixture]
+	[Category("RequiresUI")]
 	public class TargetFolderControlTests
 	{
 		///--------------------------------------------------------------------------------------
