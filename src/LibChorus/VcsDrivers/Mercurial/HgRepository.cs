@@ -194,6 +194,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 				extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption
 				string fixUtfFolder = FileLocationUtilities.GetDirectoryDistributedWithApplication(false, "MercurialExtensions", "fixutf8");
+				// var fixUtfFolder = "C:/Users/joseph/source/chorus/MercurialExtensions/fixutf8/";
 				if(!string.IsNullOrEmpty(fixUtfFolder))
 					extensions.Add("fixutf8", Path.Combine(fixUtfFolder, "fixutf8.py"));
 				return extensions;
@@ -248,6 +249,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var mergetoolname = "chorusmerge";
 			var doc = GetMercurialConfigForRepository();
+			_progress.WriteVerbose("Initializing .hgrc...");
+			_progress.WriteVerbose("Platform.IsMono: " + Platform.IsMono);
 			var chorusMergeLoc = SurroundWithQuotes(ExecutionEnvironment.ChorusMergeFilePath());
 			var uiSection = doc.Sections.GetOrCreate("ui");
 
