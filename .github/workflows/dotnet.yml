@@ -69,7 +69,6 @@ jobs:
     name: "Publish NuGet package"
     runs-on: ubuntu-latest
     needs: build-and-test
-    if: github.event_name == 'push'
     steps:
     - name: Download Artifacts
       uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741 # v3.0.0
