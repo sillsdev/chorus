@@ -25,10 +25,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
 
-    env:
-      FILTER: '--filter TestCategory!=RequiresUI'
-      if: runner.os == 'Linux'
-
     steps:
     - name: Checkout
       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
@@ -46,8 +42,16 @@ jobs:
     - name: Build
       run: dotnet build --no-restore -c Release
 
-    - name: Test
-      run: dotnet test --no-build -c Release ${{env.FILTER}} -- NUnit.TestOutputXml=TestResults
+    # Unfortunately we need two test steps because we need different filters.
+    # We could conditionally set an environment variable, but unfortunately
+    # the syntax to access that is different on Windows vs Linux.
+    - name: Test on Linux
+      run: dotnet test --no-build -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
+      if: matrix.os == 'ubuntu-latest'
+
+    - name: Test on Windows
+      run: dotnet test --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
+      if: matrix.os == 'windows-latest'
 
     - name: Upload Test Results
       if: always()
