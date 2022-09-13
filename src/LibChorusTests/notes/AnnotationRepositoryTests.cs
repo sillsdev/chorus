@@ -226,7 +226,7 @@ namespace LibChorus.Tests.notes
 		public void ExternalFileModification_NotifiesIndices_ButSaveDoesNot()
 		{
 			const int SleepTime = 10; // milliseconds
-			const int MaxTries = 1000; // max try 10ms * 1000 = 10s
+			const int MaxTries = 12000; // max try 10ms * 12000 = 120s
 			using (var t = new TempFile(@"<notes version='0'><annotation guid='123'>
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
