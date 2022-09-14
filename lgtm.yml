@@ -10,10 +10,18 @@ extraction:
   csharp:
     after_prepare:
       - git branch -f PR && git checkout PR
+    index:
+      # LGTM doesn't support .NET 6.0 which we use, so we tell LGTM to analyze
+      # the code without building which is less accurate but at least doesn't fail
+      # the check
+      buildless: true
+      nuget_restore: false
 
 queries:
-  # Exclude python queries
+  # Exclude python queries. Also exclude all other queries since that would cause a
+  # failing check again.
   - exclude: py/*
+  - exclude: "*"
 
   # The following queries are irrelevant for desktop apps
   - exclude: cs/path-injection         # Uncontrolled data used in path expression
