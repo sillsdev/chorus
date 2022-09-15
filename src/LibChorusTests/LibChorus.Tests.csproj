@@ -4,12 +4,14 @@
     <RootNamespace>LibChorus.Tests</RootNamespace>
     <AssemblyTitle>LibChorus.Tests</AssemblyTitle>
     <Description>Unit tests for LibChorus.dll</Description>
+    <TargetFrameworks>net461;net6.0</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="5.10.3" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.1" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NUnit" Version="3.13.3" />
@@ -18,6 +20,7 @@
     <PackageReference Include="SIL.Core" Version="10.0.0-*" />
     <PackageReference Include="SIL.TestUtilities" Version="10.0.0-*" />
     <PackageReference Include="SIL.WritingSystems.Tests" Version="10.0.0-*" />
+    <PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,6 +34,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="VcsDrivers\TestData\incompletemergerepo.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="VcsDrivers\TestData\simplerepo.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="VcsDrivers\TestData\simplerepo_remotechange.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
