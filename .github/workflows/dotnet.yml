@@ -44,7 +44,7 @@ jobs:
     - name: Test
       # it would be nice to run tests with `--no-build -c Release` but that causes test
       # failures on Ubuntu where it suddenly can't open the display.
-      run: dotnet test -- NUnit.TestOutputXml=TestResults
+      run: dotnet test --filter "FullyQualifiedName=LibChorus.Tests.VcsDrivers.Mercurial.HgMergeTests.HgMerge_LaunchesChorusMerge" -- NUnit.TestOutputXml=TestResults
 
     - name: Upload Test Results
       if: always()
