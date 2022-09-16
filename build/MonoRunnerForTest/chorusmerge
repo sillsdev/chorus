@@ -8,5 +8,5 @@ then
 	exec dotnet `dirname $0`/ChorusMerge.dll "$@"
 else
 	echo "DLL not found. Running ChorusMerge.exe with dotnet run..."
-	exec dotnet run `dirname $0`/ChorusMerge.exe "$@"
+	exec `dirname $0`/ChorusMerge.exe "$@"
 fi
