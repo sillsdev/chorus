@@ -14,6 +14,7 @@ using SIL.Progress;
 namespace Chorus.Tests.UI.Sync
 {
 	[TestFixture]
+	[Category("RequiresUI")]
 	public class SyncControlModelTests
 	{
 		private string _pathToTestRoot;

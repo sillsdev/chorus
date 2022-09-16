@@ -11,6 +11,7 @@ using SIL.Progress;
 namespace Chorus.Tests
 {
 	[TestFixture]
+	[Category("RequiresUI")]
 	public class HistoryPanelModelTests
 	{
 		private string _pathToTestRoot;
