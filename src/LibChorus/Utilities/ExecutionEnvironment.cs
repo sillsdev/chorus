@@ -44,7 +44,7 @@ namespace Chorus.Utilities
 
 		internal static string ChorusMergeFilePath()
 		{
-			if (Platform.IsMono)
+			if (Platform.IsLinux)
 			{
 				//todo can we use ChorusMerge.dll directly? instead of chorusmerge
 
