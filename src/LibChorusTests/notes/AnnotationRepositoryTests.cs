@@ -223,8 +223,11 @@ namespace LibChorus.Tests.notes
 		// the setup of the watcher or the code in Save that tries to prevent the notifications at all,
 		// which is more than half the code this test wants to exercise.
 		[Test]
+		[Category("SkipOnBuildServer")]
 		public void ExternalFileModification_NotifiesIndices_ButSaveDoesNot()
 		{
+			const int SleepTime = 10; // milliseconds
+			const int MaxTries = 1000; // max try 10ms * 1000 = 10s
 			using (var t = new TempFile(@"<notes version='0'><annotation guid='123'>
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
@@ -237,10 +240,9 @@ namespace LibChorus.Tests.notes
 <message guid='234'>&lt;p&gt;goodbye</message></annotation></notes>");
 
 					int tries = 0;
-					while (index.StaleNotifications == 0 && tries++ < 3)
+					while (index.StaleNotifications == 0 && tries++ < MaxTries)
 					{
-						Thread.Sleep(10);
-
+						Thread.Sleep(SleepTime);
 					}
 					Assert.AreEqual(1, index.StaleNotifications);
 
@@ -250,10 +252,9 @@ namespace LibChorus.Tests.notes
 					r.Save(new NullProgress());
 
 					tries = 0;
-					while (index.StaleNotifications == 1 && tries++ < 3)
+					while (index.StaleNotifications == 1 && tries++ < MaxTries)
 					{
-						Thread.Sleep(10);
-
+						Thread.Sleep(SleepTime);
 					}
 					// It's still 1, after waiting long enough to be fairly sure we would have
 					// seen the notification.
