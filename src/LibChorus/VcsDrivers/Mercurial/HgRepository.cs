@@ -189,6 +189,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 				//NB: this is REQUIRED because we are now, in the hgrunner, saying that we will be getting utf8 output. If we made this extension optional, we'd have to know to not say that.
 
+				//TODO write test in lfmerge to verify FileLocationUtilities.GetDirectoryDistributedWithApplication()
+                //TODO resolves to /usr/lib/lfmerge/7000072/
+                //this should fail in lfmerge 2.0.129 and lfmergebridge 3.8.0-beta0001
+
 				var extensions = new Dictionary<string, string>();
 				extensions.Add("eol", ""); //for converting line endings
 				extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
@@ -249,9 +253,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var mergetoolname = "chorusmerge";
 			var doc = GetMercurialConfigForRepository();
-			_progress.WriteVerbose("Initializing .hgrc...");
+			_progress.WriteVerbose("Platform.IsLinux: " + Platform.IsLinux);
 			_progress.WriteVerbose("Platform.IsMono: " + Platform.IsMono);
 			var chorusMergeLoc = SurroundWithQuotes(ExecutionEnvironment.ChorusMergeFilePath());
+			_progress.WriteVerbose(chorusMergeLoc);
 			var uiSection = doc.Sections.GetOrCreate("ui");
 
 			uiSection.Set("merge", mergetoolname);
