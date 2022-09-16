@@ -1,5 +1,10 @@
 #!/bin/sh
 
-echo "Running ChorusMerge.exe with mono..."
+echo "Running ChorusMerge.exe with dotnet..."
 
-exec mono `dirname $0`/ChorusMerge.exe "$@"
+if [ -e `dirname $0`/ChorusMerge.dll ]
+then
+	exec dotnet `dirname $0`/ChorusMerge.dll "$@"
+else
+	exec dotnet `dirname $0`/ChorusMerge.exe "$@"
+fi
