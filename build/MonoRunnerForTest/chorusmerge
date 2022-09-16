@@ -6,5 +6,5 @@ if [ -e `dirname $0`/ChorusMerge.dll ]
 then
 	exec dotnet `dirname $0`/ChorusMerge.dll "$@"
 else
-	exec dotnet `dirname $0`/ChorusMerge.exe "$@"
+	exec dotnet run `dirname $0`/ChorusMerge.exe "$@"
 fi
