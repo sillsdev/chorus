@@ -44,6 +44,21 @@ namespace Chorus.Utilities
 
 		internal static string ChorusMergeFilePath()
 		{
+			if (Platform.IsLinux)
+			{
+				//todo can we use ChorusMerge.dll directly? instead of chorusmerge
+
+				// We need to use a shell script wrapper on Linux to ensure the correct mono is called.
+				var chorusMergeFilePath =
+					Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
+						"chorusmerge");
+				// The replace is only useful for use with the MonoDevelop environment which doesn't
+				// honor $(Configuration) in the csproj files. When this is exported as an environment
+				// var it needs escaping to prevent the shell from replacing it with an empty string.
+				// When MonoDevelop is fixed this can be removed.
+				return chorusMergeFilePath.Replace("$(Configuration)", "\\$(Configuration)");
+			}
+
 			return Path.Combine(DirectoryOfExecutingAssembly, "ChorusMerge.exe");
 		}
 	}

@@ -1,2 +1,5 @@
 #!/bin/sh
+
+echo "Running ChorusMerge.exe with mono..."
+
 exec mono `dirname $0`/ChorusMerge.exe "$@"
