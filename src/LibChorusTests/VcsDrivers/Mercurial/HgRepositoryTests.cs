@@ -104,6 +104,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[TestCase("dan", "remembered", "shibboleth")]
 		[TestCase("naphtali", null, null)]
 		[TestCase(null, null, "shibboleth")]
+		[Platform("Net-4.0")]
 		public void RemoveCredentialsFromIniIfNecessary_PreservesOtherData(string savedUser, string savedPass, string newSavedPass)
 		{
 			const string iniUsername = "issachar";

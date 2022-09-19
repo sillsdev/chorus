@@ -139,6 +139,7 @@ two = https://foo.com");
 		}
 
 		[Test]
+		[Platform("Net-4.0")]
 		public void GetIsReadyForInternetSendReceive_HasFullLangForgeUrlAndSavedCredentials_ReturnsTrue()
 		{
 			using (new MercurialIniForTests())

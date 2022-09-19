@@ -269,6 +269,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
+		[Platform("Net-4.0")]
 		public void AddAndCheckinFile_WLockExists_GetTimeoutException()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;
@@ -282,6 +283,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 
 		[Test]
+		[Platform("Net-4.0")]
 		public void Commit_WLockExists_GetTimeoutException()
 		{
 			HgRunner.TimeoutSecondsOverrideForUnitTests = 1;

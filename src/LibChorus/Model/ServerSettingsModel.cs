@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
@@ -348,21 +349,35 @@ namespace Chorus.Model
 
 		internal static string EncryptPassword(string encryptMe)
 		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
+				!RuntimeInformation.FrameworkDescription.Contains("Framework"))
+			{
+				throw new PlatformNotSupportedException("Password encryption/decryption not supported on Linux except with Mono.");
+			}
+
 			if (string.IsNullOrEmpty(encryptMe))
 			{
 				return encryptMe;
 			}
-			var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+			var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe),
+				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 			return Convert.ToBase64String(encryptedData);
 		}
 
 		internal static string DecryptPassword(string decryptMe)
 		{
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
+				!RuntimeInformation.FrameworkDescription.Contains("Framework"))
+			{
+				throw new PlatformNotSupportedException("Password encryption/decryption not supported on Linux except with Mono.");
+			}
+
 			if (string.IsNullOrEmpty(decryptMe))
 			{
 				return decryptMe;
 			}
-			var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+			var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe),
+				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 			return Encoding.Unicode.GetString(decryptedData);
 		}
 
