@@ -224,6 +224,7 @@ namespace LibChorus.Tests.notes
 		// which is more than half the code this test wants to exercise.
 		[Test]
 		[Category("SkipOnBuildServer")]
+		[Platform("Net-4.0")]
 		public void ExternalFileModification_NotifiesIndices_ButSaveDoesNot()
 		{
 			const int SleepTime = 10; // milliseconds
