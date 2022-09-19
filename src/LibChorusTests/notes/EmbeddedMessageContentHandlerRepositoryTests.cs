@@ -18,6 +18,7 @@ namespace LibChorus.Tests.notes
 		}
 
 		[Test]
+		[Platform("Net-4.0")]
 		public void KnownHandlers_ContainsHandlersFromChorusExe()
 		{
 			Assert.That(new EmbeddedMessageContentHandlerRepository().KnownHandlers.Select(x => x.GetType().Name),
