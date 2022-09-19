@@ -6,5 +6,5 @@ then
 	exec dotnet `dirname $0`/ChorusMerge.dll "$@"
 else
 	echo "Running ChorusMerge.exe..."
-	exec `dirname $0`/ChorusMerge.exe "$@"
+	exec mono `dirname $0`/ChorusMerge.exe "$@"
 fi
