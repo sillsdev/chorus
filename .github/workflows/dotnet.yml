@@ -42,9 +42,9 @@ jobs:
     - name: Build
       run: dotnet build --no-restore -c Release
 
-      # Unfortunately we need two test steps because we need different filters.
-      # We could conditionally set an environment variable, but unfortunately
-      # the syntax to access that is different on Windows vs Linux.
+    # Unfortunately we need two test steps because we need different filters.
+    # We could conditionally set an environment variable, but unfortunately
+    # the syntax to access that is different on Windows vs Linux.
     - name: Test on Linux
       run: dotnet test --no-build -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'ubuntu-latest'
@@ -52,11 +52,6 @@ jobs:
     - name: Test on Windows
       run: dotnet test --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'windows-latest'
-
-    - name: Test
-      # it would be nice to run tests with `--no-build -c Release` but that causes test
-      # failures on Ubuntu where it suddenly can't open the display.
-      run: dotnet test --filter "FullyQualifiedName=LibChorus.Tests.VcsDrivers.Mercurial.HgMergeTests.HgMerge_LaunchesChorusMerge" -- NUnit.TestOutputXml=TestResults
 
     - name: Upload Test Results
       if: always()
