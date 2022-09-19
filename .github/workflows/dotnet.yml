@@ -42,6 +42,17 @@ jobs:
     - name: Build
       run: dotnet build --no-restore -c Release
 
+      # Unfortunately we need two test steps because we need different filters.
+      # We could conditionally set an environment variable, but unfortunately
+      # the syntax to access that is different on Windows vs Linux.
+    - name: Test on Linux
+      run: dotnet test --no-build -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
+      if: matrix.os == 'ubuntu-latest'
+
+    - name: Test on Windows
+      run: dotnet test --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
+      if: matrix.os == 'windows-latest'
+
     - name: Test
       # it would be nice to run tests with `--no-build -c Release` but that causes test
       # failures on Ubuntu where it suddenly can't open the display.
@@ -70,6 +81,7 @@ jobs:
     name: "Publish NuGet package"
     runs-on: ubuntu-latest
     needs: build-and-test
+    if: github.event_name == 'push'
     steps:
     - name: Download Artifacts
       uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741 # v3.0.0

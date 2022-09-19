@@ -14,41 +14,46 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 	[TestFixture]
 	public class HgMergeTests
 	{
+		private readonly FastZip _zip = new FastZip();
+
 		[Test]
 		public void HgMerge_LaunchesChorusMerge()
 		{
 			using (var tempFolder = new TemporaryFolder("ChorusRepos"))
 			{
-				Console.WriteLine("------------------------------------------------");
-				Console.WriteLine(Environment.Version);
-				Console.WriteLine("------------------------------------------------");
-
-				var baseDir = PathHelper.NormalizePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase));
-				baseDir = PathHelper.StripFilePrefix(baseDir);
-				FastZip zipFile = new FastZip();
-
+				// prep the two repo's
 				var localRepoPath = Path.Combine(tempFolder.Path, "localRepo");
-				string zipPath = Path.Combine(baseDir, Path.Combine("VcsDrivers", Path.Combine("TestData", "simplerepo.zip")));
-				zipFile.ExtractZip(zipPath, localRepoPath, null);
-
+				UnzipRepo(localRepoPath, "simplerepo.zip");
 				var remoteRepoPath = Path.Combine(tempFolder.Path, "remoteRepo");
-				string remoteZipPath = Path.Combine(baseDir, Path.Combine("VcsDrivers", Path.Combine("TestData", "simplerepo_remotechange.zip")));
-				zipFile.ExtractZip(remoteZipPath, remoteRepoPath, null);
+				UnzipRepo(remoteRepoPath, "simplerepo_remotechange.zip");
+				var localRepo = new HgRepository(localRepoPath, new ConsoleProgress { ShowVerbose = true });
+				localRepo.CheckAndUpdateHgrc();
 
-				var hgRepo = new HgRepository(localRepoPath, new ConsoleProgress { ShowVerbose = true });
-				hgRepo.CheckAndUpdateHgrc();
-
+				// make a local change
 				var textFilePath = Path.Combine(localRepoPath, "file.txt");
 				File.WriteAllText(textFilePath, @"local changes");
-				hgRepo.AddAndCheckinFile(textFilePath);
+				localRepo.AddAndCheckinFile(textFilePath);
 
-				hgRepo.PullFromTarget("remote", remoteRepoPath);
-				var heads = hgRepo.GetHeads();
-				var exception = Assert.Throws<ApplicationException>(() => hgRepo.Merge("unused", heads.First().Number.LocalRevisionNumber));
+				// pull remote changes
+				localRepo.PullFromTarget("remote", remoteRepoPath);
+				var heads = localRepo.GetHeads();
+
+				var exception = Assert.Throws<ApplicationException>(() =>
+					localRepo.Merge("unused", heads.First().Number.LocalRevisionNumber));
 
 				Assert.IsNotNull(exception);
 				Assert.That(exception.Message.Contains("ChorusMerge Error:"));
 			}
+		}
+
+		private void UnzipRepo(string desiredRepoPath, string repoZipFile)
+		{
+			var baseDir = PathHelper.NormalizePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+			baseDir = PathHelper.StripFilePrefix(baseDir);
+
+			var zipPath = Path.Combine(baseDir,
+				Path.Combine("VcsDrivers", Path.Combine("TestData", repoZipFile)));
+			_zip.ExtractZip(zipPath, desiredRepoPath, null);
 		}
 	}
 }

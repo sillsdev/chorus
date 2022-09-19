@@ -1,12 +1,10 @@
 #!/bin/sh
 
-echo "chorusmerge"
-
 if [ -e `dirname $0`/ChorusMerge.dll ]
 then
-	echo "Found DLL. Running ChorusMerge.dll with dotnet..."
+	echo "Running ChorusMerge.dll..."
 	exec dotnet `dirname $0`/ChorusMerge.dll "$@"
 else
-	echo "DLL not found. Running ChorusMerge.exe with dotnet run..."
+	echo "Running ChorusMerge.exe..."
 	exec `dirname $0`/ChorusMerge.exe "$@"
 fi
