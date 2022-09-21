@@ -50,7 +50,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
 
     - name: Test on Windows
-      run: dotnet test --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
+      run: dotnet test -verbosity:diagnostic --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'windows-latest'
 
     - name: Upload Test Results
