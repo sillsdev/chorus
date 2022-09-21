@@ -354,6 +354,12 @@ namespace Chorus.Model
 				return encryptMe;
 			}
 
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
+				!RuntimeInformation.FrameworkDescription.Contains("Framework"))
+			{
+				throw new PlatformNotSupportedException("Password encryption/decryption not supported on Linux except with Mono.");
+			}
+
 			var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe),
 				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 			return Convert.ToBase64String(encryptedData);
@@ -364,6 +370,12 @@ namespace Chorus.Model
 			if (string.IsNullOrEmpty(decryptMe))
 			{
 				return decryptMe;
+			}
+
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
+				!RuntimeInformation.FrameworkDescription.Contains("Framework"))
+			{
+				throw new PlatformNotSupportedException("Password encryption/decryption not supported on Linux except with Mono.");
 			}
 
 			var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe),
