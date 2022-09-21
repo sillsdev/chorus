@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Chorus.FileTypeHandlers;
 using Chorus.merge;
@@ -41,6 +42,11 @@ namespace ChorusMerge
 
 				if (Platform.IsWindows)
 				{
+					if (!RuntimeInformation.FrameworkDescription.Contains("Framework"))
+					{
+						Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // required for .NET6
+					}
+
 					// Convert the input arguments from cp1252 -> utf8 -> ucs2
 					// It always seems to be 1252, even when the input code page is actually something else. CP 2012-03
 					// var inputEncoding = Console.InputEncoding;
