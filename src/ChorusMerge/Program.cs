@@ -44,7 +44,6 @@ namespace ChorusMerge
 					// Convert the input arguments from cp1252 -> utf8 -> ucs2
 					// It always seems to be 1252, even when the input code page is actually something else. CP 2012-03
 					// var inputEncoding = Console.InputEncoding;
-					Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // required for .NET6
 					var inputEncoding = Encoding.GetEncoding(1252);
 					ourFilePath = Encoding.UTF8.GetString(inputEncoding.GetBytes(args[0]));
 					commonFilePath = Encoding.UTF8.GetString(inputEncoding.GetBytes(args[1]));
