@@ -38,11 +38,8 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				localRepo.PullFromTarget("remote", remoteRepoPath);
 				var heads = localRepo.GetHeads();
 
-				var exception = Assert.Throws<ApplicationException>(() =>
-					localRepo.Merge("unused", heads.First().Number.LocalRevisionNumber));
-
-				Assert.IsNotNull(exception);
-				Assert.That(exception.Message.Contains("ChorusMerge Error:"));
+				Assert.That(() => localRepo.Merge("unused", heads.First().Number.LocalRevisionNumber),
+					Throws.Exception.TypeOf<ApplicationException>().With.Property("Message").Contains("ChorusMerge Error:"));
 			}
 		}
 
