@@ -354,12 +354,7 @@ namespace Chorus.Model
 				return encryptMe;
 			}
 
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
-				!RuntimeInformation.FrameworkDescription.Contains("Framework"))
-			{
-				throw new PlatformNotSupportedException("Password encryption/decryption not supported on Linux except with Mono.");
-			}
-
+			// Password encryption/decryption not supported on .NET6 in Linux
 			var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe),
 				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 			return Convert.ToBase64String(encryptedData);
@@ -372,12 +367,7 @@ namespace Chorus.Model
 				return decryptMe;
 			}
 
-			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
-				!RuntimeInformation.FrameworkDescription.Contains("Framework"))
-			{
-				throw new PlatformNotSupportedException("Password encryption/decryption not supported on Linux except with Mono.");
-			}
-
+			// Password encryption/decryption not supported on .NET6 in Linux
 			var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe),
 				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 			return Encoding.Unicode.GetString(decryptedData);
