@@ -11,7 +11,7 @@ namespace LibChorus.Tests
 		{
 			using (var listener = new SystemAssertListener())
 			{
-				System.Diagnostics.Debug.Listeners.Add(listener);
+				System.Diagnostics.Trace.Listeners.Add(listener);
 				// ReSharper disable once ObjectCreationAsStatement because the constructor asserts the conditions we're testing.
 				new Chorus.Properties.Settings();
 				Assert.That(listener.Messages, Is.Empty);

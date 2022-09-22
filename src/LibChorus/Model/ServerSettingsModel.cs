@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
@@ -352,7 +353,10 @@ namespace Chorus.Model
 			{
 				return encryptMe;
 			}
-			var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+
+			// Password encryption/decryption not supported on .NET6 in Linux
+			var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe),
+				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 			return Convert.ToBase64String(encryptedData);
 		}
 
@@ -362,7 +366,10 @@ namespace Chorus.Model
 			{
 				return decryptMe;
 			}
-			var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe), Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+
+			// Password encryption/decryption not supported on .NET6 in Linux
+			var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe),
+				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 			return Encoding.Unicode.GetString(decryptedData);
 		}
 

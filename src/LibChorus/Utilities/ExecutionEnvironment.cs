@@ -44,9 +44,10 @@ namespace Chorus.Utilities
 
 		internal static string ChorusMergeFilePath()
 		{
-			if (Platform.IsMono)
+			if (Platform.IsLinux)
 			{
-				// We need to use a shell script wrapper on Linux to ensure the correct mono is called.
+				// Use a shell script wrapper on Linux to call ChorusMerge.
+				// If there is a way to get hg to start it directly, that would be preferable.
 				var chorusMergeFilePath =
 					Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly,
 						"chorusmerge");
@@ -56,7 +57,8 @@ namespace Chorus.Utilities
 				// When MonoDevelop is fixed this can be removed.
 				return chorusMergeFilePath.Replace("$(Configuration)", "\\$(Configuration)");
 			}
-			return Path.Combine(ExecutionEnvironment.DirectoryOfExecutingAssembly, "ChorusMerge.exe");
+
+			return Path.Combine(DirectoryOfExecutingAssembly, "ChorusMerge.exe");
 		}
 	}
 }

@@ -109,9 +109,9 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 						() => setup.Repository.CloneLocalWithoutUpdate(other.ProjectFolder.Path)
 					);
 
-					if (!Platform.IsMono)
+					if (!Platform.IsLinux)
 					{
-						// On mono a different exception is thrown, which is fine, the rest of this test is still useful
+						// On linux a different exception is thrown, which is fine, the rest of this test is still useful
 						Assert.That(exception.Message.Contains("fixutf8"),
 							"Expected fixutf8 in:" + exception.Message);
 					}

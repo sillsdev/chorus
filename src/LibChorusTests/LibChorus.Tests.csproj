@@ -4,6 +4,7 @@
     <RootNamespace>LibChorus.Tests</RootNamespace>
     <AssemblyTitle>LibChorus.Tests</AssemblyTitle>
     <Description>Unit tests for LibChorus.dll</Description>
+    <TargetFrameworks>net461;net6.0</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -19,6 +20,7 @@
     <PackageReference Include="SIL.Core" Version="10.0.0-*" />
     <PackageReference Include="SIL.TestUtilities" Version="10.0.0-*" />
     <PackageReference Include="SIL.WritingSystems.Tests" Version="10.0.0-*" />
+    <PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,6 +34,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="VcsDrivers\TestData\incompletemergerepo.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="VcsDrivers\TestData\simplerepo.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="VcsDrivers\TestData\simplerepo_remotechange.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
