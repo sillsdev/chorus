@@ -59,9 +59,9 @@ namespace Chorus.UI.Misc
 			this._tlpUsername.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
-			//
+			// 
 			// _projectIdLabel
-			//
+			// 
 			this._projectIdLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._projectIdLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._projectIdLabel, null);
@@ -72,9 +72,9 @@ namespace Chorus.UI.Misc
 			this._projectIdLabel.Size = new System.Drawing.Size(54, 13);
 			this._projectIdLabel.TabIndex = 29;
 			this._projectIdLabel.Text = "Project &ID";
-			//
+			// 
 			// _accountLabel
-			//
+			// 
 			this._accountLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._accountLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._accountLabel, null);
@@ -85,9 +85,9 @@ namespace Chorus.UI.Misc
 			this._accountLabel.Size = new System.Drawing.Size(33, 13);
 			this._accountLabel.TabIndex = 2;
 			this._accountLabel.Text = "Logi&n";
-			//
+			// 
 			// _passwordLabel
-			//
+			// 
 			this._passwordLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._passwordLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._passwordLabel, null);
@@ -98,9 +98,9 @@ namespace Chorus.UI.Misc
 			this._passwordLabel.Size = new System.Drawing.Size(53, 13);
 			this._passwordLabel.TabIndex = 8;
 			this._passwordLabel.Text = "&Password";
-			//
+			// 
 			// _username
-			//
+			// 
 			this._username.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._username, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._username, null);
@@ -113,9 +113,9 @@ namespace Chorus.UI.Misc
 			this._username.TextChanged += new System.EventHandler(this._username_TextChanged);
 			this._username.KeyDown += new System.Windows.Forms.KeyEventHandler(this._textBox_KeyDown);
 			this._username.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this._textBox_KeyPress);
-			//
+			// 
 			// _password
-			//
+			// 
 			this._password.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._password, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._password, null);
@@ -129,9 +129,9 @@ namespace Chorus.UI.Misc
 			this._password.TextChanged += new System.EventHandler(this._password_TextChanged);
 			this._password.KeyDown += new System.Windows.Forms.KeyEventHandler(this._textBox_KeyDown);
 			this._password.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this._textBox_KeyPress);
-			//
+			// 
 			// _customUrlLabel
-			//
+			// 
 			this._customUrlLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._customUrlLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._customUrlLabel, null);
@@ -142,9 +142,9 @@ namespace Chorus.UI.Misc
 			this._customUrlLabel.Size = new System.Drawing.Size(67, 13);
 			this._customUrlLabel.TabIndex = 17;
 			this._customUrlLabel.Text = "Custom &URL";
-			//
+			// 
 			// tableLayoutPanel1
-			//
+			// 
 			this.tableLayoutPanel1.ColumnCount = 2;
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 99F));
@@ -171,7 +171,7 @@ namespace Chorus.UI.Misc
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 16.66667F));
 			this.tableLayoutPanel1.Size = new System.Drawing.Size(440, 208);
 			this.tableLayoutPanel1.TabIndex = 30;
-			//
+			// 
 			// _bandwidthLabel
 			// 
 			this._bandwidthLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
@@ -186,7 +186,7 @@ namespace Chorus.UI.Misc
 			this._bandwidthLabel.Text = "&Bandwidth";
 			// 
 			// _tlpCustomUrl
-			//
+			// 
 			this._tlpCustomUrl.ColumnCount = 2;
 			this._tlpCustomUrl.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this._tlpCustomUrl.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -200,9 +200,9 @@ namespace Chorus.UI.Misc
 			this._tlpCustomUrl.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this._tlpCustomUrl.Size = new System.Drawing.Size(367, 34);
 			this._tlpCustomUrl.TabIndex = 17;
-			//
+			// 
 			// _checkCustomUrl
-			//
+			// 
 			this._checkCustomUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
 			this._checkCustomUrl.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._checkCustomUrl, null);
@@ -214,9 +214,9 @@ namespace Chorus.UI.Misc
 			this._checkCustomUrl.TabIndex = 17;
 			this._checkCustomUrl.UseVisualStyleBackColor = true;
 			this._checkCustomUrl.CheckedChanged += new System.EventHandler(this._checkCustomUrl_CheckedChanged);
-			//
+			// 
 			// _customUrl
-			//
+			// 
 			this._customUrl.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._customUrl, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._customUrl, null);
@@ -226,7 +226,7 @@ namespace Chorus.UI.Misc
 			this._customUrl.Size = new System.Drawing.Size(341, 20);
 			this._customUrl.TabIndex = 18;
 			this._customUrl.TextChanged += new System.EventHandler(this._customUrl_TextChanged);
-			//
+			// 
 			// _bandwidth
 			// 
 			this._bandwidth.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -240,9 +240,9 @@ namespace Chorus.UI.Misc
 			this._bandwidth.Size = new System.Drawing.Size(361, 21);
 			this._bandwidth.TabIndex = 25;
 			this._bandwidth.SelectedIndexChanged += new System.EventHandler(this._bandwidth_SelectedIndexChanged);
-			//
+			// 
 			// _projectId
-			//
+			// 
 			this._projectId.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
 			this._projectId.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
 			this._projectId.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -255,9 +255,9 @@ namespace Chorus.UI.Misc
 			this._projectId.Size = new System.Drawing.Size(361, 21);
 			this._projectId.TabIndex = 29;
 			this._projectId.TextChanged += new System.EventHandler(this._projectId_TextChanged);
-			//
+			// 
 			// _tlpLogIn
-			//
+			// 
 			this._tlpLogIn.ColumnCount = 2;
 			this._tlpLogIn.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this._tlpLogIn.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
@@ -271,9 +271,9 @@ namespace Chorus.UI.Misc
 			this._tlpLogIn.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this._tlpLogIn.Size = new System.Drawing.Size(367, 34);
 			this._tlpLogIn.TabIndex = 22;
-			//
+			// 
 			// _buttonLogIn
-			//
+			// 
 			this._buttonLogIn.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._buttonLogIn, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._buttonLogIn, null);
@@ -282,12 +282,12 @@ namespace Chorus.UI.Misc
 			this._buttonLogIn.Name = "_buttonLogIn";
 			this._buttonLogIn.Size = new System.Drawing.Size(102, 24);
 			this._buttonLogIn.TabIndex = 22;
-			this._buttonLogIn.Text = "&Log in to continue";
+			this._buttonLogIn.Text = "&Log in";
 			this._buttonLogIn.UseVisualStyleBackColor = true;
 			this._buttonLogIn.Click += new System.EventHandler(this._buttonLogIn_Click);
-			//
+			// 
 			// _serverLabel
-			//
+			// 
 			this._serverLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this._serverLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._serverLabel, null);
@@ -298,9 +298,9 @@ namespace Chorus.UI.Misc
 			this._serverLabel.Size = new System.Drawing.Size(33, 13);
 			this._serverLabel.TabIndex = 23;
 			this._serverLabel.Text = "to {0}";
-			//
+			// 
 			// _tlpPassword
-			//
+			// 
 			this._tlpPassword.ColumnCount = 2;
 			this._tlpPassword.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 66F));
 			this._tlpPassword.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 34F));
@@ -314,9 +314,9 @@ namespace Chorus.UI.Misc
 			this._tlpPassword.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this._tlpPassword.Size = new System.Drawing.Size(367, 34);
 			this._tlpPassword.TabIndex = 8;
-			//
+			// 
 			// _checkRememberPassword
-			//
+			// 
 			this._checkRememberPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
 			this._checkRememberPassword.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._checkRememberPassword, null);
@@ -329,9 +329,9 @@ namespace Chorus.UI.Misc
 			this._checkRememberPassword.Text = "&Remember";
 			this._checkRememberPassword.UseVisualStyleBackColor = true;
 			this._checkRememberPassword.CheckedChanged += new System.EventHandler(this._checkRememberPassword_CheckedChanged);
-			//
+			// 
 			// _tlpUsername
-			//
+			// 
 			this._tlpUsername.ColumnCount = 2;
 			this._tlpUsername.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 66F));
 			this._tlpUsername.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 34F));
@@ -344,14 +344,14 @@ namespace Chorus.UI.Misc
 			this._tlpUsername.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this._tlpUsername.Size = new System.Drawing.Size(367, 34);
 			this._tlpUsername.TabIndex = 2;
-			//
+			// 
 			// l10NSharpExtender1
-			//
+			// 
 			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
 			this.l10NSharpExtender1.PrefixForNewItems = "ServerSettingsControl";
 			// 
 			// ServerSettingsControl
-			//
+			// 
 			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.Controls.Add(this.tableLayoutPanel1);
 			this.l10NSharpExtender1.SetLocalizableToolTip(this, null);

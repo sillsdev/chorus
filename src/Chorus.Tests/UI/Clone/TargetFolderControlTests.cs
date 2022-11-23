@@ -63,5 +63,7 @@ namespace Chorus.Tests.UI.Clone
 				Assert.AreEqual(Path.Combine(testFolder.Path, "Billy"), model.TargetDestination);
 			}
 		}
+
+		// TODO (Hasso) 2022.11: won't accept illegal project name characters
 	}
 }
