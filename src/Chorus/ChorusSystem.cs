@@ -102,40 +102,39 @@ namespace Chorus
 
 		/// <summary>
 		/// Typically root directory of installed files is something like [application exe directory]/localizations.
-		/// root directory of user modifiable tmx files has to be outside program files, something like
+		/// root directory of user modifiable xlf files has to be outside program files, something like
 		/// GetXAppDataFolder()/localizations, where GetXAppDataFolder would typically return something like
 		/// Company/Program (e.g. SIL/SayMore)
 		/// </summary>
-		/// <param name="kind"></param>
 		/// <param name="desiredUiLangId"></param>
-		/// <param name="rootDirectoryOfInstalledTranslationFiles">The folder path of the original TMX files
-		/// installed with the application.  The Chorus TMX files will be in a Chorus subdirectory of this directory.</param>
+		/// <param name="rootDirectoryOfInstalledTranslationFiles">The folder path of the original XLF files
+		/// installed with the application.  The Chorus XLF files will be in a Chorus subdirectory of this directory.</param>
 		/// <param name="relativeDirectoryOfUserModifiedTranslationFiles">The path, relative to %APPDATA%, where your
 		/// application stores user settings (e.g., "SIL\SayMore"). A folder named "Chorus\localizations" will be created there.</param>
-		public static void SetUpLocalization(TranslationMemory kind, string desiredUiLangId,
+		public static void SetUpLocalization(string desiredUiLangId,
 			string rootDirectoryOfInstalledTranslationFiles, string relativeDirectoryOfUserModifiedTranslationFiles)
 
 		{
-			string directoryOfInstalledTmxFiles = Path.Combine(rootDirectoryOfInstalledTranslationFiles, "Chorus");
-			string directoryOfUserModifiedTmxFiles = Path.Combine(relativeDirectoryOfUserModifiedTranslationFiles, "Chorus");
+			var directoryOfInstalledXlfFiles = Path.Combine(rootDirectoryOfInstalledTranslationFiles, "Chorus");
+			var directoryOfUserModifiedXlfFiles = Path.Combine(relativeDirectoryOfUserModifiedTranslationFiles, "Chorus");
 
 			// This is safer than Application.ProductVersion, which might contain words like 'alpha' or 'beta',
 			// which (on the SECOND run of the program) fail when L10NSharp tries to make a Version object out of them.
 			var versionObj = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 			// We don't need to reload strings for every "revision" (that might be every time we build).
 			var version = "" + versionObj.Major + "." + versionObj.Minor + "." + versionObj.Build;
-			LocalizationManager.Create(kind, desiredUiLangId, "Chorus",
-				Application.ProductName, version, directoryOfInstalledTmxFiles,
-				directoryOfUserModifiedTmxFiles,
+			LocalizationManager.Create(TranslationMemory.XLiff, desiredUiLangId, "Chorus",
+				Application.ProductName, version, directoryOfInstalledXlfFiles,
+				directoryOfUserModifiedXlfFiles,
 				Icon.FromHandle(Properties.Resources.chorus32x32.GetHicon()), // should call DestroyIcon, but when?
 				"issues@chorus.palaso.org", "Chorus");
 		}
 
-		public static void SetUpLocalization(string desiredUiLangId, string rootDirectoryOfInstalledTmxFiles,
+		[Obsolete("Only one kind of TranslationMemory is supported: XLF; there is no need for the kind parameter.")]
+		public static void SetUpLocalization(TranslationMemory kind, string desiredUiLangId, string rootDirectoryOfInstalledTmxFiles,
 			string relativeDirectoryOfUserModifiedTmxFiles)
 		{
-			SetUpLocalization(TranslationMemory.Tmx, desiredUiLangId, rootDirectoryOfInstalledTmxFiles,
-				relativeDirectoryOfUserModifiedTmxFiles);
+			SetUpLocalization(desiredUiLangId, rootDirectoryOfInstalledTmxFiles, relativeDirectoryOfUserModifiedTmxFiles);
 		}
 
 		public bool DidLoadUpCorrectly;
