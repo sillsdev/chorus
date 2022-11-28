@@ -79,7 +79,7 @@ namespace Chorus.Model
 
 		static ServerSettingsModel()
 		{
-			Bandwidths = new[] {new BandwidthItem(BandwidthEnum.Low), new BandwidthItem(BandwidthEnum.High)};
+			Bandwidths = new[] {new BandwidthItem(BandwidthEnum.High), new BandwidthItem(BandwidthEnum.Low)};
 		}
 		#endregion static and constant
 
