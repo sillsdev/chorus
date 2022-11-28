@@ -1,4 +1,4 @@
-﻿using SIL.Progress;
+using SIL.Progress;
 using SIL.Windows.Forms.Progress;
 
 namespace Chorus.UI.Clone
