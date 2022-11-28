@@ -230,7 +230,7 @@ namespace Chorus.UI.Clone
 			this._helpButton.TabIndex = 1;
 			this._helpButton.Text = "&Help";
 			this._helpButton.UseVisualStyleBackColor = true;
-			this._helpButton.Click += new System.EventHandler(this._fixSettingsButton_Click);
+			this._helpButton.Click += new System.EventHandler(this._helpButton_Click);
 			// 
 			// GetCloneFromInternetDialog
 			// 

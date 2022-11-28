@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
 using Chorus.UI.Misc;
+using Chorus.Utilities.Help;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
 using SIL.PlatformUtilities;
@@ -306,6 +307,11 @@ namespace Chorus.UI.Clone
 		{
 			_model.Click_FixSettingsButton();
 			UpdateDisplay(State.AskingUserForURL);
+		}
+
+		private void _helpButton_Click(object sender, EventArgs e)
+		{
+			Help.ShowHelp(this, HelpUtils.GetHelpFile(), @"/Chorus/Duplicate_Project_message.htm");
 		}
 
 		private void GetCloneFromInternetDialog_BackColorChanged(object sender, EventArgs e)
