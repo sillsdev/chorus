@@ -311,7 +311,8 @@ namespace Chorus.UI.Clone
 
 		private void _helpButton_Click(object sender, EventArgs e)
 		{
-			Help.ShowHelp(this, HelpUtils.GetHelpFile(), @"/Chorus/Use_the_Get_Project_from_Internet_dialog_box.htm");
+			var url = @"/Chorus/Use_Get_Project_from_Internet_dialog_box.htm";
+			Help.ShowHelp(this, HelpUtils.GetHelpFile(),url);
 		}
 
 		private void GetCloneFromInternetDialog_BackColorChanged(object sender, EventArgs e)
