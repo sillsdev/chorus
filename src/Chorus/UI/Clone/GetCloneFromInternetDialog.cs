@@ -127,6 +127,8 @@ namespace Chorus.UI.Clone
 		{
 			_state = newState;
 			_fixSettingsButton.Visible = false;
+			_serverSettingsControl.Visible = false;
+			_targetFolderControl.Visible = false;
 			switch (_state)
 			{
 				case State.AskingUserForURL:
@@ -135,6 +137,7 @@ namespace Chorus.UI.Clone
 					_logBox.Visible = false;
 					_okButton.Visible = false;
 					_progressBar.Visible = false;
+					_serverSettingsControl.Visible = true;
 					_targetFolderControl.UpdateDisplay();
 					_cancelButton.Enabled = true;
 					_cancelButton.Visible = true;
@@ -148,7 +151,6 @@ namespace Chorus.UI.Clone
 					_serverSettingsControl.DisplayUpdated -= ServerSettingsControlOnDisplayUpdated;
 					_progressBar.Focus();
 					_progressBar.Select();
-					_targetFolderControl.Visible = false;
 					_statusImage.Visible = false;
 					_progressBar.Visible = true;
 					_progressBar.Style = ProgressBarStyle.Marquee;
@@ -169,7 +171,6 @@ namespace Chorus.UI.Clone
 					_statusLabel.Visible = true;
 					_statusLabel.Text = LocalizationManager.GetString("Messages.Done", "Done.");
 					_progressBar.Visible = false;
-					_targetFolderControl.Visible = false;
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.Visible = true;
 					_statusImage.ImageKey=LocalizationManager.GetString("Messages.Success", "Success");
@@ -185,14 +186,13 @@ namespace Chorus.UI.Clone
 					_fixSettingsButton.Focus();
 					_cancelButton.Visible = true;
 					if (!Platform.IsMono)
+					{
 						_cancelButton.Text = LocalizationManager.GetString("Common.Cancel", "&Cancel");
-
-					//_cancelButton.Select();
+					}
 					_cancelTaskButton.Visible = false;
 					_statusLabel.Visible = true;
 					_statusLabel.Text = LocalizationManager.GetString("Messages.Failed", "Failed.");
 					_progressBar.Visible = false;
-					_targetFolderControl.Visible = false;
 					_statusLabel.Left = _statusImage.Right + 10;
 					_statusImage.ImageKey = LocalizationManager.GetString("Common.Error", "Error");
 					_statusImage.Visible = true;
@@ -207,7 +207,6 @@ namespace Chorus.UI.Clone
 					_statusLabel.Visible = true;
 					_statusLabel.Text = LocalizationManager.GetString("Messages.Cancelled", "Cancelled.");
 					_progressBar.Visible = false;
-					_targetFolderControl.Visible = false;
 					_statusLabel.Left =  _progressBar.Left;
 					_statusImage.Visible = false;
 					_statusProgress.Visible = false;
@@ -216,7 +215,6 @@ namespace Chorus.UI.Clone
 					throw new ArgumentOutOfRangeException();
 			}
 
-			_serverSettingsControl.Visible = _targetFolderControl.Visible;
 		}
 
 		private void ServerSettingsControlOnDisplayUpdated(object sender, EventArgs eventArgs)
