@@ -135,7 +135,7 @@ namespace Chorus.UI.Clone
 					_logBox.Visible = false;
 					_okButton.Visible = false;
 					_progressBar.Visible = false;
-					_targetFolderControl.Visible = true;
+					_targetFolderControl.UpdateDisplay();
 					_cancelButton.Enabled = true;
 					_cancelButton.Visible = true;
 					_cancelTaskButton.Visible = false;
@@ -228,6 +228,7 @@ namespace Chorus.UI.Clone
 		{
 			UpdateDisplay(State.AskingUserForURL);
 			_logBox.BackColor = this.BackColor;
+			//_targetFolderControl.UpdateDisplay();
 		}
 
 		private void _okButton_Click(object sender, EventArgs e)
@@ -305,7 +306,6 @@ namespace Chorus.UI.Clone
 
 		private void _fixSettingsButton_Click(object sender, EventArgs e)
 		{
-			//_statusProgress.Reset();
 			_model.Click_FixSettingsButton();
 			UpdateDisplay(State.AskingUserForURL);
 		}
