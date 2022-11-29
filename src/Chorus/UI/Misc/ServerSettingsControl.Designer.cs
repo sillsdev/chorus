@@ -80,7 +80,7 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._accountLabel, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._accountLabel, "This is a username. On Language Depot, it is called a \"login.\"");
 			this.l10NSharpExtender1.SetLocalizingId(this._accountLabel, "ServerSettingsControl.Login");
-			this._accountLabel.Location = new System.Drawing.Point(37, 10);
+			this._accountLabel.Location = new System.Drawing.Point(37, 44);
 			this._accountLabel.Name = "_accountLabel";
 			this._accountLabel.Size = new System.Drawing.Size(33, 13);
 			this._accountLabel.TabIndex = 2;
@@ -93,7 +93,7 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._passwordLabel, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._passwordLabel, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._passwordLabel, "ServerSettingsControl.Password");
-			this._passwordLabel.Location = new System.Drawing.Point(17, 44);
+			this._passwordLabel.Location = new System.Drawing.Point(17, 78);
 			this._passwordLabel.Name = "_passwordLabel";
 			this._passwordLabel.Size = new System.Drawing.Size(53, 13);
 			this._passwordLabel.TabIndex = 8;
@@ -137,7 +137,7 @@ namespace Chorus.UI.Misc
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._customUrlLabel, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._customUrlLabel, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._customUrlLabel, "ServerSettingsControl.URL");
-			this._customUrlLabel.Location = new System.Drawing.Point(3, 112);
+			this._customUrlLabel.Location = new System.Drawing.Point(3, 10);
 			this._customUrlLabel.Name = "_customUrlLabel";
 			this._customUrlLabel.Size = new System.Drawing.Size(67, 13);
 			this._customUrlLabel.TabIndex = 21;
@@ -149,16 +149,16 @@ namespace Chorus.UI.Misc
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 99F));
 			this.tableLayoutPanel1.Controls.Add(this._projectIdLabel, 0, 5);
-			this.tableLayoutPanel1.Controls.Add(this._customUrlLabel, 0, 3);
-			this.tableLayoutPanel1.Controls.Add(this._passwordLabel, 0, 1);
+			this.tableLayoutPanel1.Controls.Add(this._customUrlLabel, 0, 0);
+			this.tableLayoutPanel1.Controls.Add(this._passwordLabel, 0, 2);
 			this.tableLayoutPanel1.Controls.Add(this._bandwidthLabel, 0, 4);
-			this.tableLayoutPanel1.Controls.Add(this._accountLabel, 0, 0);
-			this.tableLayoutPanel1.Controls.Add(this._tlpCustomUrl, 1, 3);
+			this.tableLayoutPanel1.Controls.Add(this._accountLabel, 0, 1);
+			this.tableLayoutPanel1.Controls.Add(this._tlpCustomUrl, 1, 0);
 			this.tableLayoutPanel1.Controls.Add(this._bandwidth, 1, 4);
 			this.tableLayoutPanel1.Controls.Add(this._projectId, 1, 5);
-			this.tableLayoutPanel1.Controls.Add(this._tlpLogIn, 1, 2);
-			this.tableLayoutPanel1.Controls.Add(this._tlpPassword, 1, 1);
-			this.tableLayoutPanel1.Controls.Add(this._tlpUsername, 1, 0);
+			this.tableLayoutPanel1.Controls.Add(this._tlpLogIn, 1, 3);
+			this.tableLayoutPanel1.Controls.Add(this._tlpPassword, 1, 2);
+			this.tableLayoutPanel1.Controls.Add(this._tlpUsername, 1, 1);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -193,7 +193,7 @@ namespace Chorus.UI.Misc
 			this._tlpCustomUrl.Controls.Add(this._checkCustomUrl, 0, 0);
 			this._tlpCustomUrl.Controls.Add(this._customUrl, 1, 0);
 			this._tlpCustomUrl.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._tlpCustomUrl.Location = new System.Drawing.Point(73, 102);
+			this._tlpCustomUrl.Location = new System.Drawing.Point(73, 0);
 			this._tlpCustomUrl.Margin = new System.Windows.Forms.Padding(0);
 			this._tlpCustomUrl.Name = "_tlpCustomUrl";
 			this._tlpCustomUrl.RowCount = 1;
@@ -264,7 +264,7 @@ namespace Chorus.UI.Misc
 			this._tlpLogIn.Controls.Add(this._buttonLogIn, 0, 0);
 			this._tlpLogIn.Controls.Add(this._serverLabel, 1, 0);
 			this._tlpLogIn.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._tlpLogIn.Location = new System.Drawing.Point(73, 68);
+			this._tlpLogIn.Location = new System.Drawing.Point(73, 102);
 			this._tlpLogIn.Margin = new System.Windows.Forms.Padding(0);
 			this._tlpLogIn.Name = "_tlpLogIn";
 			this._tlpLogIn.RowCount = 1;
@@ -309,7 +309,7 @@ namespace Chorus.UI.Misc
 			this._tlpPassword.Controls.Add(this._password, 0, 0);
 			this._tlpPassword.Controls.Add(this._checkRememberPassword, 1, 0);
 			this._tlpPassword.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._tlpPassword.Location = new System.Drawing.Point(73, 34);
+			this._tlpPassword.Location = new System.Drawing.Point(73, 68);
 			this._tlpPassword.Margin = new System.Windows.Forms.Padding(0);
 			this._tlpPassword.Name = "_tlpPassword";
 			this._tlpPassword.RowCount = 1;
@@ -339,7 +339,7 @@ namespace Chorus.UI.Misc
 			this._tlpUsername.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 34F));
 			this._tlpUsername.Controls.Add(this._username, 0, 0);
 			this._tlpUsername.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._tlpUsername.Location = new System.Drawing.Point(73, 0);
+			this._tlpUsername.Location = new System.Drawing.Point(73, 34);
 			this._tlpUsername.Margin = new System.Windows.Forms.Padding(0);
 			this._tlpUsername.Name = "_tlpUsername";
 			this._tlpUsername.RowCount = 1;
