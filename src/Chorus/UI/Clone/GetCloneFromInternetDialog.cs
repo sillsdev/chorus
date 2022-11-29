@@ -75,7 +75,7 @@ namespace Chorus.UI.Clone
 			_targetFolderControl.TabIndex = 1;
 			this.Controls.Add(_targetFolderControl);
 
-			_fixSettingsButton.Left = _cancelButton.Left;
+			_fixSettingsButton.Left = _okButton.Left = _cancelButton.Left;
 			var fixBtnWidth = _fixSettingsButton.Width;
 			_fixSettingsButton.AutoSize = true;
 			if (_fixSettingsButton.Width > fixBtnWidth)
@@ -85,8 +85,8 @@ namespace Chorus.UI.Clone
 				if (diff < _cancelButton.Left)
 					_fixSettingsButton.Left = _cancelButton.Left - diff;
 			}
-			_targetFolderControl._downloadButton.Top = _okButton.Top-_targetFolderControl.Top	;
-			_targetFolderControl._downloadButton.Left = _okButton.Left - 15;
+			_targetFolderControl._downloadButton.Top = _cancelButton.Top-_targetFolderControl.Top	;
+			_targetFolderControl._downloadButton.Left = _cancelButton.Left - 100;
 
 			_logBox.GetDiagnosticsMethod = (progress) =>
 											{
@@ -309,8 +309,7 @@ namespace Chorus.UI.Clone
 
 		private void _helpButton_Click(object sender, EventArgs e)
 		{
-			var url = @"/Tasks/Use_Get_Project_from_Internet_dialog_box.htm"; // TODO: inline
-			Help.ShowHelp(this, HelpUtils.GetHelpFile(),url);
+			Help.ShowHelp(this, HelpUtils.GetHelpFile(), @"/Tasks/Use_Get_Project_from_Internet_dialog_box.htm");
 		}
 
 		private void GetCloneFromInternetDialog_BackColorChanged(object sender, EventArgs e)
@@ -332,8 +331,8 @@ namespace Chorus.UI.Clone
 		{
 			if (_resizing)
 			{
-				_targetFolderControl._downloadButton.Top = _okButton.Top - _targetFolderControl.Top;
-				_targetFolderControl._downloadButton.Left = _okButton.Left - 15;
+				_targetFolderControl._downloadButton.Top = _cancelButton.Top - _targetFolderControl.Top;
+				_targetFolderControl._downloadButton.Left = _cancelButton.Left - 100;
 			}
 		}
 	}
