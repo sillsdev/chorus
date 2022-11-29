@@ -78,7 +78,7 @@ namespace Chorus.UI.Misc
 			this._accountLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._accountLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._accountLabel, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._accountLabel, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._accountLabel, "This is a username. On Language Depot, it is called a \"login.\"");
 			this.l10NSharpExtender1.SetLocalizingId(this._accountLabel, "ServerSettingsControl.Login");
 			this._accountLabel.Location = new System.Drawing.Point(37, 10);
 			this._accountLabel.Name = "_accountLabel";
@@ -178,7 +178,7 @@ namespace Chorus.UI.Misc
 			this._bandwidthLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._bandwidthLabel, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._bandwidthLabel, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._bandwidthLabel, "ServerSettingsControl.Server");
+			this.l10NSharpExtender1.SetLocalizingId(this._bandwidthLabel, "ServerSettingsControl.Bandwidth");
 			this._bandwidthLabel.Location = new System.Drawing.Point(13, 146);
 			this._bandwidthLabel.Name = "_bandwidthLabel";
 			this._bandwidthLabel.Size = new System.Drawing.Size(57, 13);
@@ -277,7 +277,7 @@ namespace Chorus.UI.Misc
 			this._buttonLogIn.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._buttonLogIn, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._buttonLogIn, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._buttonLogIn, "ServerSettingsControl.button1");
+			this.l10NSharpExtender1.SetLocalizingId(this._buttonLogIn, "ServerSettingsControl.LogInButton");
 			this._buttonLogIn.Location = new System.Drawing.Point(3, 3);
 			this._buttonLogIn.Name = "_buttonLogIn";
 			this._buttonLogIn.Size = new System.Drawing.Size(102, 24);
@@ -291,13 +291,15 @@ namespace Chorus.UI.Misc
 			this._serverLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this._serverLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._serverLabel, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._serverLabel, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._serverLabel, "ServerSettingsControl.label1");
+			this.l10NSharpExtender1.SetLocalizationComment(this._serverLabel, "This adds information after the \"Log in\" button. Together, these two strings form" +
+        " a sentence. {0} is a URL, such as public.languageforge.org");
+			this.l10NSharpExtender1.SetLocalizationPriority(this._serverLabel, L10NSharp.LocalizationPriority.Low);
+			this.l10NSharpExtender1.SetLocalizingId(this._serverLabel, "ServerSettingsControl.ServerInfo");
 			this._serverLabel.Location = new System.Drawing.Point(111, 10);
 			this._serverLabel.Name = "_serverLabel";
-			this._serverLabel.Size = new System.Drawing.Size(33, 13);
+			this._serverLabel.Size = new System.Drawing.Size(122, 13);
 			this._serverLabel.TabIndex = 18;
-			this._serverLabel.Text = "to {0}";
+			this._serverLabel.Text = "to {0} (Language Depot)";
 			// 
 			// _tlpPassword
 			// 
@@ -321,7 +323,7 @@ namespace Chorus.UI.Misc
 			this._checkRememberPassword.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._checkRememberPassword, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._checkRememberPassword, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._checkRememberPassword, "ServerSettingsControl.checkBox1");
+			this.l10NSharpExtender1.SetLocalizingId(this._checkRememberPassword, "ServerSettingsControl.rememberPassword");
 			this._checkRememberPassword.Location = new System.Drawing.Point(245, 8);
 			this._checkRememberPassword.Name = "_checkRememberPassword";
 			this._checkRememberPassword.Size = new System.Drawing.Size(119, 17);
