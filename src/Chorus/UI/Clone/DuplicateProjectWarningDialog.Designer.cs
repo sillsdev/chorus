@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI.Clone
+namespace Chorus.UI.Clone
 {
 	partial class DuplicateProjectWarningDialog
 	{
@@ -69,7 +69,7 @@
 			this.buttonHelp.Name = "buttonHelp";
 			this.buttonHelp.Size = new System.Drawing.Size(82, 23);
 			this.buttonHelp.TabIndex = 2;
-			this.buttonHelp.Text = "Help";
+			this.buttonHelp.Text = "&Help";
 			this.buttonHelp.UseVisualStyleBackColor = true;
 			this.buttonHelp.Click += new System.EventHandler(this.buttonHelp_Click);
 			//
