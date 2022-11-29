@@ -74,9 +74,8 @@ namespace Chorus.UI.Clone
 			}
 			_targetFolderControl.TabIndex = 1;
 			this.Controls.Add(_targetFolderControl);
-			_okButton.TabIndex = 90;
-			_cancelButton.TabIndex = 91;
 
+			_helpButton.Left = _cancelButton.Left;
 			_fixSettingsButton.Left = _cancelButton.Left;
 			var fixBtnWidth = _fixSettingsButton.Width;
 			_fixSettingsButton.AutoSize = true;
@@ -311,7 +310,7 @@ namespace Chorus.UI.Clone
 
 		private void _helpButton_Click(object sender, EventArgs e)
 		{
-			var url = @"/Tasks/Use_Get_Project_from_Internet_dialog_box.htm";
+			var url = @"/Tasks/Use_Get_Project_from_Internet_dialog_box.htm"; // TODO: inline
 			Help.ShowHelp(this, HelpUtils.GetHelpFile(),url);
 		}
 

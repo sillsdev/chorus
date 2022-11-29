@@ -59,7 +59,7 @@ namespace Chorus.UI.Clone
 			this._cancelButton.Location = new System.Drawing.Point(295, 240);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(75, 23);
-			this._cancelButton.TabIndex = 1;
+			this._cancelButton.TabIndex = 91;
 			this._cancelButton.Text = "&Cancel";
 			this._cancelButton.UseVisualStyleBackColor = true;
 			this._cancelButton.Click += new System.EventHandler(this._cancelButton_Click);
@@ -74,7 +74,7 @@ namespace Chorus.UI.Clone
 			this._okButton.Location = new System.Drawing.Point(206, 240);
 			this._okButton.Name = "_okButton";
 			this._okButton.Size = new System.Drawing.Size(75, 23);
-			this._okButton.TabIndex = 2;
+			this._okButton.TabIndex = 90;
 			this._okButton.Text = "&OK";
 			this._okButton.UseVisualStyleBackColor = true;
 			this._okButton.Click += new System.EventHandler(this._okButton_Click);
@@ -160,7 +160,7 @@ namespace Chorus.UI.Clone
 			this._fixSettingsButton.Location = new System.Drawing.Point(113, 240);
 			this._fixSettingsButton.Name = "_fixSettingsButton";
 			this._fixSettingsButton.Size = new System.Drawing.Size(75, 23);
-			this._fixSettingsButton.TabIndex = 1;
+			this._fixSettingsButton.TabIndex = 89;
 			this._fixSettingsButton.Text = "&Fix Settings";
 			this._fixSettingsButton.UseVisualStyleBackColor = true;
 			this._fixSettingsButton.Click += new System.EventHandler(this._fixSettingsButton_Click);
@@ -227,7 +227,7 @@ namespace Chorus.UI.Clone
 			this._helpButton.Location = new System.Drawing.Point(32, 240);
 			this._helpButton.Name = "_helpButton";
 			this._helpButton.Size = new System.Drawing.Size(75, 23);
-			this._helpButton.TabIndex = 1;
+			this._helpButton.TabIndex = 88;
 			this._helpButton.Text = "&Help";
 			this._helpButton.UseVisualStyleBackColor = true;
 			this._helpButton.Click += new System.EventHandler(this._helpButton_Click);
