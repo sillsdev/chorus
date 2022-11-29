@@ -56,7 +56,7 @@ namespace Chorus.UI.Clone
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._cancelButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._cancelButton, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._cancelButton, "Common.Cancel");
-			this._cancelButton.Location = new System.Drawing.Point(295, 240);
+			this._cancelButton.Location = new System.Drawing.Point(214, 240);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(75, 23);
 			this._cancelButton.TabIndex = 91;
@@ -71,7 +71,7 @@ namespace Chorus.UI.Clone
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._okButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._okButton, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._okButton, "Common.OK");
-			this._okButton.Location = new System.Drawing.Point(206, 240);
+			this._okButton.Location = new System.Drawing.Point(133, 240);
 			this._okButton.Name = "_okButton";
 			this._okButton.Size = new System.Drawing.Size(75, 23);
 			this._okButton.TabIndex = 90;
@@ -157,7 +157,7 @@ namespace Chorus.UI.Clone
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._fixSettingsButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._fixSettingsButton, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._fixSettingsButton, "GetCloneFromInternetDialog.FixSettings");
-			this._fixSettingsButton.Location = new System.Drawing.Point(113, 240);
+			this._fixSettingsButton.Location = new System.Drawing.Point(52, 240);
 			this._fixSettingsButton.Name = "_fixSettingsButton";
 			this._fixSettingsButton.Size = new System.Drawing.Size(75, 23);
 			this._fixSettingsButton.TabIndex = 89;
@@ -180,6 +180,8 @@ namespace Chorus.UI.Clone
 			this.l10NSharpExtender1.SetLocalizationComment(this._logBox, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._logBox, "GetCloneFromInternetDialog.GetCloneFromInternetDialog.LogBox");
 			this._logBox.Location = new System.Drawing.Point(15, 80);
+			this._logBox.MaxLength = 715827882;
+			this._logBox.MaxLengthErrorMessage = "Maximum length exceeded!";
 			this._logBox.Name = "_logBox";
 			this._logBox.ProgressIndicator = null;
 			this._logBox.ShowCopyToClipboardMenuItem = false;
@@ -224,10 +226,10 @@ namespace Chorus.UI.Clone
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._helpButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._helpButton, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._helpButton, "Common.Help");
-			this._helpButton.Location = new System.Drawing.Point(32, 240);
+			this._helpButton.Location = new System.Drawing.Point(295, 240);
 			this._helpButton.Name = "_helpButton";
 			this._helpButton.Size = new System.Drawing.Size(75, 23);
-			this._helpButton.TabIndex = 88;
+			this._helpButton.TabIndex = 92;
 			this._helpButton.Text = "&Help";
 			this._helpButton.UseVisualStyleBackColor = true;
 			this._helpButton.Click += new System.EventHandler(this._helpButton_Click);

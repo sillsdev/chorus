@@ -75,7 +75,6 @@ namespace Chorus.UI.Clone
 			_targetFolderControl.TabIndex = 1;
 			this.Controls.Add(_targetFolderControl);
 
-			_helpButton.Left = _cancelButton.Left;
 			_fixSettingsButton.Left = _cancelButton.Left;
 			var fixBtnWidth = _fixSettingsButton.Width;
 			_fixSettingsButton.AutoSize = true;
