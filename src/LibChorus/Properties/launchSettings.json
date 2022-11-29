@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "LibChorus": {
-      "commandName": "Executable",
-      "executablePath": "C:\\fwrepo\\flexbridge\\output\\Debug\\net461\\FLExBridge.exe",
-      "commandLineArgs": "-u developer -p c:\\fwrepo\\fw\\DistFiles\\Projects -v obtain -projDir c:\\fwrepo\\fw\\DistFiles\\Projects -fwAppsDir C:\\fwrepo\\fw\\Output\\Debug -fwmodel 7000072 -liftmodel 0.13_ldml3 -locale en -pipeID SendReceivec:\\fwrepo\\fw\\DistFiles\\Projectsobtain"
-    }
-  }
-}
