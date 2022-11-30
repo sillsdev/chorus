@@ -20,6 +20,7 @@ namespace Chorus.UI.Misc
 		{
 			InitializeComponent();
 
+			// format the string with the server URL. We build our own URL because 'resumable' is not helpful here.
 			_serverLabel.Text = string.Format(_serverLabel.Text, $"{(ServerSettingsModel.IsPrivateServer ? "private" : "public")}{ServerSettingsModel.LanguageForgeServer}");
 
 			_bandwidth.Items.AddRange(ServerSettingsModel.Bandwidths);
