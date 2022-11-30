@@ -125,3 +125,7 @@ dotnet test
   * `build /t:pack` will pack nuget packages and publish them to `LOCAL_NUGET_REPO`
 
 Further instructions at https://github.com/sillsdev/libpalaso/wiki/Developing-with-locally-modified-nuget-packages
+
+### Debugging LibChorus in client projects
+
+Copy `src/LibChorus/Properties/launchSettings.json.sample` to `launchSettings.json`; verify paths to executables and in arguments.

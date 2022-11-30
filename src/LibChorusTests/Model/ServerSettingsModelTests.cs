@@ -436,7 +436,7 @@ namespace LibChorus.Tests.Model
 				var url = "https://joe:pass@hg-public.languageforge.org/tpi";
 				m.InitFromProjectPath(folder.Path);
 				m.SetUrlToUseIfSettingsAreEmpty(url);
-				Assert.AreEqual(existing,m.URL);
+				Assert.AreEqual(existing, m.URL);
 			}
 		}
 
@@ -466,7 +466,7 @@ namespace LibChorus.Tests.Model
 		public void DefaultIsResumable()
 		{
 			var m = new ServerSettingsModel();
-			Assert.AreEqual("resumable.languageforge.org", m.Host);
+			Assert.AreEqual("hg-public.languageforge.org", m.Host);
 		}
 
 		[Test]

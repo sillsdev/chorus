@@ -19,6 +19,7 @@ Mercurial/
 mercurial/
 *ReSharper*
 build/old
+launchSettings.json
 lib/$(Configuration)
 *.resources
 *.userprefs

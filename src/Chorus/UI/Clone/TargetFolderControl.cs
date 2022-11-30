@@ -23,6 +23,14 @@ namespace Chorus.UI.Clone
 
 		internal void UpdateDisplay()
 		{
+			if (_model != null && !_model.IsCustomUrl && !_model.HasLoggedIn)
+			{
+				Visible = false;
+				return;
+			}
+
+			Visible = true;
+
 			if (_localFolderName.Text != _model.LocalFolderName)
 				_localFolderName.Text = _model.LocalFolderName;
 			_downloadButton.Enabled = _model.ReadyToDownload;
@@ -31,7 +39,8 @@ namespace Chorus.UI.Clone
 
 			if (string.IsNullOrEmpty(_model.LocalFolderName))
 			{
-				_targetInfoLabel.Text = LocalizationManager.GetString("Messages.ExampleSwahili", "For example, 'Swahili Project'");
+				_targetInfoLabel.Text = LocalizationManager.GetString("Messages.ExampleSwahili", "For example, 'Swahili Project'",
+					"The example 'in quotes' must be a legal file name");
 			}
 
 			if (_model.HaveGoodUrl)
@@ -68,7 +77,7 @@ namespace Chorus.UI.Clone
 			var trimmedVersion = _localFolderName.Text.TrimStart();
 			if (_model.LocalFolderName != trimmedVersion)
 				_model.LocalFolderName = trimmedVersion;
-		   UpdateDisplay();
+			UpdateDisplay();
 		}
 
 		private void InternetCloneInstructionsControl_Load(object sender, EventArgs e)

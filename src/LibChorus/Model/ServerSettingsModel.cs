@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
@@ -31,6 +30,7 @@ namespace Chorus.Model
 			}
 		}
 
+		[Obsolete("no known clients")]
 		public static bool IsQaServer => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(ServerEnvVar));
 
 		public static bool IsPrivateServer { get; set; }
@@ -79,7 +79,7 @@ namespace Chorus.Model
 
 		static ServerSettingsModel()
 		{
-			Bandwidths = new[] {new BandwidthItem(BandwidthEnum.Low), new BandwidthItem(BandwidthEnum.High)};
+			Bandwidths = new[] {new BandwidthItem(BandwidthEnum.High), new BandwidthItem(BandwidthEnum.Low)};
 		}
 		#endregion static and constant
 

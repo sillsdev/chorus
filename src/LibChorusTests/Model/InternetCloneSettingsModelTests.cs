@@ -32,7 +32,7 @@ namespace LibChorus.Tests.Model
 				model.Username = "account";
 				model.Password = "password";
 				model.ProjectId = "id";
-				Assert.AreEqual("https://resumable.languageforge.org/id", model.URL.ToLower());
+				Assert.AreEqual("https://hg-public.languageforge.org/id", model.URL.ToLower());
 			}
 		}
 
