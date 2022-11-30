@@ -21,6 +21,10 @@ namespace Chorus.Model
 		private const string LanguageForge = "languageforge.org";
 		internal const string ServerEnvVar = "LANGUAGEFORGESERVER";
 
+		/// <remarks>
+		/// The leading . (or -) is required because public.languageforge.org (production) must be replaceable by public-qa.languageforge.org (testing).
+		/// We join subdomains with hyphens because a service we use (as of 2019) charges exorbitantly for subsubdomains.
+		/// </remarks>
 		public static string LanguageForgeServer
 		{
 			get
