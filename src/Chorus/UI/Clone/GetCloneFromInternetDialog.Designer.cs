@@ -1,4 +1,4 @@
-﻿using SIL.Progress;
+using SIL.Progress;
 using SIL.Windows.Forms.Progress;
 
 namespace Chorus.UI.Clone
@@ -45,48 +45,49 @@ namespace Chorus.UI.Clone
 			this._statusProgress = new SIL.Windows.Forms.Progress.SimpleStatusProgress();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
 			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this._helpButton = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
-			//
+			// 
 			// _cancelButton
-			//
+			// 
 			this._cancelButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this._cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._cancelButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._cancelButton, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._cancelButton, "Common.Cancel");
-			this._cancelButton.Location = new System.Drawing.Point(295, 240);
+			this._cancelButton.Location = new System.Drawing.Point(214, 240);
 			this._cancelButton.Name = "_cancelButton";
 			this._cancelButton.Size = new System.Drawing.Size(75, 23);
-			this._cancelButton.TabIndex = 1;
+			this._cancelButton.TabIndex = 91;
 			this._cancelButton.Text = "&Cancel";
 			this._cancelButton.UseVisualStyleBackColor = true;
 			this._cancelButton.Click += new System.EventHandler(this._cancelButton_Click);
-			//
+			// 
 			// _okButton
-			//
+			// 
 			this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this._okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._okButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._okButton, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._okButton, "Common.OK");
-			this._okButton.Location = new System.Drawing.Point(206, 240);
+			this._okButton.Location = new System.Drawing.Point(133, 240);
 			this._okButton.Name = "_okButton";
 			this._okButton.Size = new System.Drawing.Size(75, 23);
-			this._okButton.TabIndex = 2;
+			this._okButton.TabIndex = 90;
 			this._okButton.Text = "&OK";
 			this._okButton.UseVisualStyleBackColor = true;
 			this._okButton.Click += new System.EventHandler(this._okButton_Click);
-			//
+			// 
 			// _statusImages
-			//
+			// 
 			this._statusImages.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("_statusImages.ImageStream")));
 			this._statusImages.TransparentColor = System.Drawing.Color.Transparent;
 			this._statusImages.Images.SetKeyName(0, "Success");
 			this._statusImages.Images.SetKeyName(1, "Error");
-			//
+			// 
 			// _statusImage
-			//
+			// 
 			this._statusImage.FlatAppearance.BorderSize = 0;
 			this._statusImage.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this._statusImage.ImageIndex = 0;
@@ -99,12 +100,12 @@ namespace Chorus.UI.Clone
 			this._statusImage.Size = new System.Drawing.Size(50, 36);
 			this._statusImage.TabIndex = 17;
 			this._statusImage.UseVisualStyleBackColor = true;
-			//
+			// 
 			// _statusLabel
-			//
-			this._statusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			// 
+			this._statusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this._statusLabel.BackColor = System.Drawing.SystemColors.Control;
 			this._statusLabel.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this._statusLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -119,11 +120,11 @@ namespace Chorus.UI.Clone
 			this._statusLabel.Size = new System.Drawing.Size(316, 25);
 			this._statusLabel.TabIndex = 18;
 			this._statusLabel.Text = "Status label";
-			//
+			// 
 			// _progressBar
-			//
-			this._progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			// 
+			this._progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._progressBar, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._progressBar, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._progressBar, "GetCloneFromInternetDialog.GetCloneFromInternetDialog._progressBar");
@@ -135,9 +136,9 @@ namespace Chorus.UI.Clone
 			this._progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
 			this._progressBar.SyncContext = null;
 			this._progressBar.TabIndex = 0;
-			//
+			// 
 			// _cancelTaskButton
-			//
+			// 
 			this._cancelTaskButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._cancelTaskButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._cancelTaskButton, null);
@@ -149,26 +150,26 @@ namespace Chorus.UI.Clone
 			this._cancelTaskButton.Text = "Cancel";
 			this._cancelTaskButton.UseVisualStyleBackColor = true;
 			this._cancelTaskButton.Click += new System.EventHandler(this.button2_Click);
-			//
+			// 
 			// _fixSettingsButton
-			//
+			// 
 			this._fixSettingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._fixSettingsButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._fixSettingsButton, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._fixSettingsButton, "GetCloneFromInternetDialog.FixSettings");
-			this._fixSettingsButton.Location = new System.Drawing.Point(113, 240);
+			this._fixSettingsButton.Location = new System.Drawing.Point(52, 240);
 			this._fixSettingsButton.Name = "_fixSettingsButton";
 			this._fixSettingsButton.Size = new System.Drawing.Size(75, 23);
-			this._fixSettingsButton.TabIndex = 1;
+			this._fixSettingsButton.TabIndex = 89;
 			this._fixSettingsButton.Text = "&Fix Settings";
 			this._fixSettingsButton.UseVisualStyleBackColor = true;
 			this._fixSettingsButton.Click += new System.EventHandler(this._fixSettingsButton_Click);
-			//
+			// 
 			// _logBox
-			//
-			this._logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			// 
+			this._logBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this._logBox.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this._logBox.BackColor = System.Drawing.Color.Transparent;
 			this._logBox.CancelRequested = false;
@@ -179,6 +180,8 @@ namespace Chorus.UI.Clone
 			this.l10NSharpExtender1.SetLocalizationComment(this._logBox, null);
 			this.l10NSharpExtender1.SetLocalizingId(this._logBox, "GetCloneFromInternetDialog.GetCloneFromInternetDialog.LogBox");
 			this._logBox.Location = new System.Drawing.Point(15, 80);
+			this._logBox.MaxLength = 715827882;
+			this._logBox.MaxLengthErrorMessage = "Maximum length exceeded!";
 			this._logBox.Name = "_logBox";
 			this._logBox.ProgressIndicator = null;
 			this._logBox.ShowCopyToClipboardMenuItem = false;
@@ -189,12 +192,12 @@ namespace Chorus.UI.Clone
 			this._logBox.Size = new System.Drawing.Size(359, 172);
 			this._logBox.TabIndex = 0;
 			this._logBox.Load += new System.EventHandler(this._logBox_Load);
-			//
+			// 
 			// _statusProgress
-			//
-			this._statusProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			// 
+			this._statusProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this._statusProgress.AutoSize = true;
 			this._statusProgress.CancelRequested = false;
 			this._statusProgress.ErrorEncountered = false;
@@ -211,14 +214,28 @@ namespace Chorus.UI.Clone
 			this._statusProgress.TabIndex = 24;
 			this._statusProgress.Text = "status text";
 			this._statusProgress.WarningEncountered = false;
-			//
+			// 
 			// l10NSharpExtender1
-			//
+			// 
 			this.l10NSharpExtender1.LocalizationManagerId = "Chorus";
 			this.l10NSharpExtender1.PrefixForNewItems = "GetCloneFromInternetDialog";
-			//
+			// 
+			// _helpButton
+			// 
+			this._helpButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.l10NSharpExtender1.SetLocalizableToolTip(this._helpButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._helpButton, null);
+			this.l10NSharpExtender1.SetLocalizingId(this._helpButton, "Common.Help");
+			this._helpButton.Location = new System.Drawing.Point(295, 240);
+			this._helpButton.Name = "_helpButton";
+			this._helpButton.Size = new System.Drawing.Size(75, 23);
+			this._helpButton.TabIndex = 92;
+			this._helpButton.Text = "&Help";
+			this._helpButton.UseVisualStyleBackColor = true;
+			this._helpButton.Click += new System.EventHandler(this._helpButton_Click);
+			// 
 			// GetCloneFromInternetDialog
-			//
+			// 
 			this.AcceptButton = this._okButton;
 			this.BackColor = System.Drawing.SystemColors.Control;
 			this.CancelButton = this._cancelButton;
@@ -228,6 +245,7 @@ namespace Chorus.UI.Clone
 			this.Controls.Add(this._progressBar);
 			this.Controls.Add(this._statusImage);
 			this.Controls.Add(this._okButton);
+			this.Controls.Add(this._helpButton);
 			this.Controls.Add(this._fixSettingsButton);
 			this.Controls.Add(this._cancelButton);
 			this.Controls.Add(this._logBox);
@@ -267,5 +285,6 @@ namespace Chorus.UI.Clone
 		private SimpleStatusProgress _statusProgress;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
 		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private System.Windows.Forms.Button _helpButton;
 	}
 }
