@@ -17,7 +17,7 @@ namespace LibChorus.Tests.FileHandlers
 			get
 		{
 				var assem = Assembly.GetExecutingAssembly();
-				return Path.GetDirectoryName(assem.CodeBase.Substring(Platform.IsUnix ? 7 : 8));
+				return Path.GetDirectoryName(assem.Location.Substring(Platform.IsUnix ? 7 : 8));
 			}
 		}
 

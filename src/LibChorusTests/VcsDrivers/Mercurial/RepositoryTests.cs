@@ -130,7 +130,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var tempRepo = new TemporaryFolder("ChorusIncompleteMerge"))
 			{
-				var baseDir = PathHelper.NormalizePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase));
+				var baseDir = PathHelper.NormalizePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
 				baseDir = PathHelper.StripFilePrefix(baseDir);
 				string zipPath = Path.Combine(baseDir, Path.Combine("VcsDrivers", Path.Combine("TestData", "incompletemergerepo.zip")));
 				FastZip zipFile = new FastZip();

@@ -38,7 +38,7 @@ namespace Chorus.notes
 			var libChorusAssembly = Assembly.GetExecutingAssembly();
 
 			//Set the codebase variable appropriately depending on the OS
-			var codeBase = libChorusAssembly.CodeBase.Substring(Platform.IsUnix ? 7 : 8);
+			var codeBase = libChorusAssembly.Location.Substring(Platform.IsUnix ? 7 : 8);
 			var baseDir = Path.GetDirectoryName(codeBase);
 
 			// REVIEW: for some reason using *.* or *.dll didn't work - creating the catalogs in
