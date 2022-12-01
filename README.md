@@ -16,7 +16,7 @@ invisibly for the common cases and is kept simple for even beginner computer use
 
 ## Distinctive Features
 
-These features come for free with any Distribute Version Control System:
+These features come for free with any Distributed Version Control System:
 
  * Share files between users, even if they are never connected to the internet.
 
