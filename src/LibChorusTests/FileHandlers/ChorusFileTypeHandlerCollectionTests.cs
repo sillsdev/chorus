@@ -13,18 +13,17 @@ namespace LibChorus.Tests.FileHandlers
 	[TestFixture]
 	public class ChorusFileTypeHandlerCollectionTests
 	{
-		private static string BaseDir => Assembly.GetExecutingAssembly().Location;
+		private static string BaseDir => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
 		private static string SamplePluginPath
 		{
 			get
 			{
-				var outputDir = Directory.GetParent(BaseDir).Parent.FullName;
-				var samplePluginDir = Path.Combine(outputDir, "SamplePlugin");
-				var samplePluginDllPath = Path.Combine(samplePluginDir, "Release", "net461", "Tests-ChorusPlugin.dll");
-				return File.Exists(samplePluginDllPath) ?
-					samplePluginDllPath :
-					Path.Combine(samplePluginDir, "Debug", "net461", "Tests-ChorusPlugin.dll");
+				var configOutputDir = Directory.GetParent(BaseDir);
+				var outputDir = configOutputDir.Parent.FullName;
+				var config = configOutputDir.Name;
+				var samplePluginDllPath = Path.Combine(outputDir, "SamplePlugin", config, "net461", "Tests-ChorusPlugin.dll");
+				return samplePluginDllPath;
 			}
 		}
 

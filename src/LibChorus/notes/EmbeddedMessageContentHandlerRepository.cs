@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 
@@ -37,7 +38,9 @@ namespace Chorus.notes
 
 			// REVIEW: for some reason using *.* or *.dll didn't work - creating the catalogs in
 			// unit tests (on Linux) failed with FileNotFoundException - don't know why.
-			using (var aggregateCatalog = new AggregateCatalog(new DirectoryCatalog(libChorusAssembly.Location, "Chorus.exe"),
+			using (var aggregateCatalog = new AggregateCatalog(
+				// ReSharper disable once AssignNullToNotNullAttribute
+				new DirectoryCatalog(Path.GetDirectoryName(libChorusAssembly.Location), "Chorus.exe"),
 				new AssemblyCatalog(libChorusAssembly)))
 			using (var catalog = new FilteredCatalog(aggregateCatalog,
 				def => !def.Metadata.ContainsKey("IsDefault")))
