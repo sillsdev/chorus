@@ -42,6 +42,10 @@ jobs:
 
     - name: Build
       run: dotnet build --no-restore -c Release
+      
+    - name: Install python2 for test execution
+      run: sudo apt-get install python2
+      if: matrix.os == 'ubuntu-latest'
 
     # Unfortunately we need two test steps because we need different filters.
     # We could conditionally set an environment variable, but unfortunately
