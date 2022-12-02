@@ -83,7 +83,7 @@ namespace Chorus.FileTypeHandlers.image
 		/// </remarks>
 		public uint MaximumFileSize
 		{
-			get { return LargeFileFilter.Megabyte * 10; }
+			get { return LargeFileFilter.Megabyte; }
 		}
 	}
 }
