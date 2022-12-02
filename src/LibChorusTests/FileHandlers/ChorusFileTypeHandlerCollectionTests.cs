@@ -1,3 +1,5 @@
+// Copyright (c) 2015-2022 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -5,21 +7,13 @@ using NUnit.Framework;
 using Chorus.FileTypeHandlers;
 using Chorus.FileTypeHandlers.audio;
 using Chorus.FileTypeHandlers.test;
-using SIL.PlatformUtilities;
 
 namespace LibChorus.Tests.FileHandlers
 {
 	[TestFixture]
 	public class ChorusFileTypeHandlerCollectionTests
 	{
-		private static string BaseDir
-		{
-			get
-		{
-				var assem = Assembly.GetExecutingAssembly();
-				return Path.GetDirectoryName(assem.Location.Substring(Platform.IsUnix ? 7 : 8));
-			}
-		}
+		private static string BaseDir => Assembly.GetExecutingAssembly().Location;
 
 		private static string SamplePluginPath
 		{
@@ -56,7 +50,7 @@ namespace LibChorus.Tests.FileHandlers
 		}
 
 		[Test]
-		public void CreateWithInstalledHandlers_DefaulthandlerIsNotInMainCollection()
+		public void CreateWithInstalledHandlers_DefaultHandlerIsNotInMainCollection()
 		{
 			Assert.That(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 				.Select(x => x.GetType()), Has.No.Member(typeof(DefaultFileTypeHandler)));
@@ -70,7 +64,7 @@ namespace LibChorus.Tests.FileHandlers
 		}
 
 		[Test]
-		public void CreateWithTestHandlerOnly_DefaulthandlerIsNotInTestCollection()
+		public void CreateWithTestHandlerOnly_DefaultHandlerIsNotInTestCollection()
 		{
 			Assert.That(ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly().Handlers
 				.Select(x => x.GetType()), Has.No.Member(typeof(DefaultFileTypeHandler)));

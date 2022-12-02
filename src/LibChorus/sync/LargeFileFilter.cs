@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -9,7 +9,7 @@ namespace Chorus.sync
 {
 	///<summary>
 	/// Class that filters out large, binary, files from being put into the repo,
-	/// or if a binary file already is in the repo, then don't commit it if it exceeds the maximum allowablew size.
+	/// or if a binary file already is in the repo, then don't commit it if it exceeds the maximum allowable size.
 	///
 	/// JohnH comments:
 	///		"we could use a “large file” filter in Chorus.
@@ -47,6 +47,12 @@ namespace Chorus.sync
 	///
 	///		I'd err on the side of precision, and our policies rather than the users discretion and what they could really try."
 	///
+	/// 2022.03 discussion, committed 2022.12:
+	///		The 1MB limit set in 2011 was revisited. Today's phones typically take 4 MB photos that not everybody knows how to compress, and computers
+	///		and networks have become more powerful. We still don't want users to upload enormous files and prevent themselves and their team from
+	///		using their repositories, so we are increasing the limit to 10 MB. This will allow the inclusion of high-quality photos and .wav files up
+	///		to 56 seconds. https://github.com/sillsdev/chorus/issues/277
+	///
 	/// How to set the limits:
 	///		1. hard-coded
 	///		2. project manager determined
@@ -56,12 +62,9 @@ namespace Chorus.sync
 	public static class LargeFileFilter
 	{
 		///<summary>
-		/// Return a standard Megabyte size.
+		/// The number of bytes in a Mebibyte
 		///</summary>
-		public static uint Megabyte
-		{
-			get { return (uint)Math.Pow(2, 20); }
-		}
+		public static uint Megabyte => 1048576;
 
 		///<summary>
 		/// Filter the files, before the commit. Files that are too large are added to the exclude section of the configuration.
