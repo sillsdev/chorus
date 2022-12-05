@@ -1,3 +1,5 @@
+// Copyright (c) 2015-2022 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -5,32 +7,23 @@ using NUnit.Framework;
 using Chorus.FileTypeHandlers;
 using Chorus.FileTypeHandlers.audio;
 using Chorus.FileTypeHandlers.test;
-using SIL.PlatformUtilities;
 
 namespace LibChorus.Tests.FileHandlers
 {
 	[TestFixture]
 	public class ChorusFileTypeHandlerCollectionTests
 	{
-		private static string BaseDir
-		{
-			get
-		{
-				var assem = Assembly.GetExecutingAssembly();
-				return Path.GetDirectoryName(assem.CodeBase.Substring(Platform.IsUnix ? 7 : 8));
-			}
-		}
+		private static string BaseDir => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
 		private static string SamplePluginPath
 		{
 			get
 			{
-				var outputDir = Directory.GetParent(BaseDir).Parent.FullName;
-				var samplePluginDir = Path.Combine(outputDir, "SamplePlugin");
-				var samplePluginDllPath = Path.Combine(samplePluginDir, "Release", "net461", "Tests-ChorusPlugin.dll");
-				return File.Exists(samplePluginDllPath) ?
-					samplePluginDllPath :
-					Path.Combine(samplePluginDir, "Debug", "net461", "Tests-ChorusPlugin.dll");
+				var configOutputDir = Directory.GetParent(BaseDir);
+				var outputDir = configOutputDir.Parent.FullName;
+				var config = configOutputDir.Name;
+				var samplePluginDllPath = Path.Combine(outputDir, "SamplePlugin", config, "net461", "Tests-ChorusPlugin.dll");
+				return samplePluginDllPath;
 			}
 		}
 
@@ -56,7 +49,7 @@ namespace LibChorus.Tests.FileHandlers
 		}
 
 		[Test]
-		public void CreateWithInstalledHandlers_DefaulthandlerIsNotInMainCollection()
+		public void CreateWithInstalledHandlers_DefaultHandlerIsNotInMainCollection()
 		{
 			Assert.That(ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers().Handlers
 				.Select(x => x.GetType()), Has.No.Member(typeof(DefaultFileTypeHandler)));
@@ -70,7 +63,7 @@ namespace LibChorus.Tests.FileHandlers
 		}
 
 		[Test]
-		public void CreateWithTestHandlerOnly_DefaulthandlerIsNotInTestCollection()
+		public void CreateWithTestHandlerOnly_DefaultHandlerIsNotInTestCollection()
 		{
 			Assert.That(ChorusFileTypeHandlerCollection.CreateWithTestHandlerOnly().Handlers
 				.Select(x => x.GetType()), Has.No.Member(typeof(DefaultFileTypeHandler)));

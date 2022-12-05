@@ -1,4 +1,6 @@
-﻿using System;
+// Copyright (c) 2015-2022 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
+using System;
 using System.IO;
 using System.Linq;
 using Chorus.FileTypeHandlers;
@@ -213,8 +215,8 @@ namespace LibChorus.Tests.sync
 		{
 			using (var bob = new RepositorySetup("bob"))
 			{
-				var megabyteLongData = "long" + Environment.NewLine;
-				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+				var megabyteLongData = "super-duper-long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte * 10)
 					megabyteLongData += megabyteLongData;
 
 				const string fileName = "big.wav";
@@ -656,8 +658,8 @@ namespace LibChorus.Tests.sync
 			using (var bob = new RepositorySetup("bob"))
 			{
 				const string fileName = "whopper.Mp3";
-				var megabyteLongData = "long" + Environment.NewLine;
-				while (megabyteLongData.Length < LargeFileFilter.Megabyte)
+				var megabyteLongData = "super-duper-long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte * 10)
 					megabyteLongData += megabyteLongData;
 				bob.ChangeFile(fileName, megabyteLongData);
 				var fullPathname = Path.Combine(bob.ProjectFolderConfig.FolderPath, fileName);

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Chorus.FileTypeHandlers;
 using Chorus.sync;
@@ -28,9 +28,9 @@ namespace LibChorus.Tests.FileHandlers.image
 		}
 
 		[Test]
-		public void HandlerShouldOnlyProcessMegabyteSizedFiles()
+		public void HandlerShouldProcessOnlyTenMegabyteSizedFiles()
 		{
-			Assert.AreEqual(LargeFileFilter.Megabyte, _imageFileHandler.MaximumFileSize);
+			Assert.AreEqual(LargeFileFilter.Megabyte * 10, _imageFileHandler.MaximumFileSize);
 		}
 
 		[Test]

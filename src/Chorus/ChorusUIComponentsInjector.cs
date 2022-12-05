@@ -1,12 +1,11 @@
-using System;
+// Copyright (c) 2015-2022 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using Autofac;
 using Autofac.Builder;
 using Chorus.notes;
 using Chorus.FileTypeHandlers;
 using Chorus.retrieval;
 using Chorus.sync;
-using Chorus.UI;
-using Chorus.UI.Misc;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Bar;
 using Chorus.UI.Notes.Browser;
@@ -17,7 +16,6 @@ using Chorus.UI.Review.ChangesInRevision;
 using Chorus.UI.Review.RevisionsInRepository;
 using Chorus.UI.Settings;
 using Chorus.UI.Sync;
-using Chorus.Utilities;
 using Chorus.VcsDrivers.Mercurial;
 using SIL.Progress;
 

@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+// Copyright (c) 2015-2022 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
+using System;
 using System.Linq;
-using System.Windows.Forms;
 using System.Xml.Linq;
 using Chorus.notes;
-using Chorus.sync;
-using Chorus.UI;
 using Chorus.UI.Notes;
 using Chorus.UI.Notes.Html;
 using Chorus.UI.Review;
-using Chorus.Utilities;
 using NUnit.Framework;
 
 namespace Chorus.Tests.notes

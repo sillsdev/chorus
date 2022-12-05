@@ -1,4 +1,4 @@
-// Copyright (c) 2015 SIL International
+// Copyright (c) 2015-2022 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,6 @@ using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using SIL.PlatformUtilities;
 
 namespace Chorus.notes
 {
@@ -37,13 +36,11 @@ namespace Chorus.notes
 		{
 			var libChorusAssembly = Assembly.GetExecutingAssembly();
 
-			//Set the codebase variable appropriately depending on the OS
-			var codeBase = libChorusAssembly.CodeBase.Substring(Platform.IsUnix ? 7 : 8);
-			var baseDir = Path.GetDirectoryName(codeBase);
-
 			// REVIEW: for some reason using *.* or *.dll didn't work - creating the catalogs in
 			// unit tests (on Linux) failed with FileNotFoundException - don't know why.
-			using (var aggregateCatalog = new AggregateCatalog(new DirectoryCatalog(baseDir, "Chorus.exe"),
+			using (var aggregateCatalog = new AggregateCatalog(
+				// ReSharper disable once AssignNullToNotNullAttribute
+				new DirectoryCatalog(Path.GetDirectoryName(libChorusAssembly.Location), "Chorus.exe"),
 				new AssemblyCatalog(libChorusAssembly)))
 			using (var catalog = new FilteredCatalog(aggregateCatalog,
 				def => !def.Metadata.ContainsKey("IsDefault")))

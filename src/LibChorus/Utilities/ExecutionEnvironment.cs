@@ -1,3 +1,5 @@
+// Copyright (c) 2015-2022 SIL International
+// This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 using System.IO;
 using System.Reflection;
@@ -15,7 +17,7 @@ namespace Chorus.Utilities
 				bool unitTesting = Assembly.GetEntryAssembly() == null;
 				if (unitTesting)
 				{
-					path = new Uri(Assembly.GetExecutingAssembly().CodeBase).AbsolutePath;
+					path = new Uri(Assembly.GetExecutingAssembly().Location).AbsolutePath;
 					path = Uri.UnescapeDataString(path);
 				}
 				else
@@ -28,11 +30,9 @@ namespace Chorus.Utilities
 
 		protected static string GetTopAppDirectory()
 		{
-			string path;
+			var path = DirectoryOfExecutingAssembly;
 
-			path = DirectoryOfExecutingAssembly;
-
-			if (path.ToLower().IndexOf("output") > -1)
+			if (path.ToLower().IndexOf("output", StringComparison.Ordinal) > -1)
 			{
 				//go up to output
 				path = Directory.GetParent(path).FullName;
