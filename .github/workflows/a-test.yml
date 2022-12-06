@@ -1,0 +1,18 @@
+name: "An Investigation"
+
+on:
+  push:
+    branches: [ master ]
+    tags: [ v* ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  find_wix:
+    name: "Find WiX"
+    runs-on: ${{ matrix.os }}
+    run: where wix
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest] # 

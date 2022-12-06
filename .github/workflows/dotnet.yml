@@ -50,20 +50,20 @@ jobs:
     # Unfortunately we need two test steps because we need different filters.
     # We could conditionally set an environment variable, but unfortunately
     # the syntax to access that is different on Windows vs Linux.
-    - name: Test on Linux
-      run: dotnet test --no-build -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
-      if: matrix.os == 'ubuntu-latest'
+    # - name: Test on Linux
+      # run: dotnet test --no-build -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
+      # if: matrix.os == 'ubuntu-latest'
 
-    - name: Test on Windows
-      run: dotnet test --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
-      if: matrix.os == 'windows-latest'
+    # - name: Test on Windows
+      # run: dotnet test --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
+      # if: matrix.os == 'windows-latest'
 
-    - name: Upload Test Results
-      if: always()
-      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
-      with:
-        name: Test Results (${{matrix.os}})
-        path: "**/TestResults/*.xml"
+    # - name: Upload Test Results
+      # if: always()
+      # uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
+      # with:
+        # name: Test Results (${{matrix.os}})
+        # path: "**/TestResults/*.xml"
 
     - name: Pack
       run: dotnet pack --no-restore --no-build -c Release
@@ -78,7 +78,9 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       
     - name: Make Merge Modules
-      run: msbuild build/Chorus.proj /t:Installer
+      run: |
+        dotnet tool install --global wix --version 4.0.0-preview.1
+        wix build src/Installer/ChorusMergeModule.wixproj
       if: matrix.os == 'windows-latest'
 
     - name: Upload Merge Modules
