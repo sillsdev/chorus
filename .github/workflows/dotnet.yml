@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [windows-latest] # ubuntu-latest, 
 
     steps:
     - name: Checkout
@@ -75,6 +75,18 @@ jobs:
         path: |
           output/*.nupkg
           output/*.snupkg
+      if: matrix.os == 'ubuntu-latest'
+      
+    - name: Make Merge Modules
+      run: msbuild build/Chorus.proj /t:Installer
+      if: matrix.os == 'windows-latest'
+
+    - name: Upload Merge Modules
+      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
+      with:
+        name: chorus-merge-module
+        path: |
+          output/**/*.msm
       if: matrix.os == 'ubuntu-latest'
 
   publish-nuget:
