@@ -78,7 +78,12 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       
     - name: Make Merge Modules
+      env:
+        Configuration: Release
+        Platform: x86
       run: |
+        echo %WIX% $WIX
+        which wix || where wix || echo whatever
         dotnet tool install --global wix --version 4.0.0-preview.1
         wix build src/Installer/ChorusMergeModule.wixproj
       if: matrix.os == 'windows-latest'
