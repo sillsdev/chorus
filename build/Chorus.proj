@@ -1,0 +1,338 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build;Pack">
+	<PropertyGroup>
+		<RootDir Condition="'$(teamcity_build_checkoutDir)' == '' And '$(RootDir)'==''">$(MSBuildProjectDirectory)/..</RootDir>
+		<RootDir Condition="'$(teamcity_build_checkoutDir)' != ''">$(teamcity_build_checkoutDir)</RootDir>
+		<Solution>Chorus.sln</Solution>
+		<SolutionPath>$(RootDir)/$(Solution)</SolutionPath>
+		<ApplicationName Condition="'$(OS)'=='Windows_NT'">ChorusLibrary</ApplicationName>
+		<ApplicationName Condition="'$(OS)'!='Windows_NT'">Chorus</ApplicationName>
+		<ApplicationNameLC>chorus</ApplicationNameLC>
+		<Configuration Condition="'$(Configuration)'==''">Release</Configuration>
+		<ExtraExcludeCategories Condition="'$(OS)'!='Windows_NT'">KnownMonoIssue,</ExtraExcludeCategories>
+		<ExtraExcludeCategories Condition="'$(teamcity_version)' != ''">SkipOnTeamCity,SkipOnBuildServer,SkipOnTeamCityRandomTestFailure,$(ExtraExcludeCategories)</ExtraExcludeCategories>
+		<useNUnit-x86 Condition="'$(OS)'=='Windows_NT'">true</useNUnit-x86>
+		<useNUnit-x86 Condition="'$(OS)'!='Windows_NT'">false</useNUnit-x86>
+		<OutputDir>$(RootDir)/output/$(Configuration)</OutputDir>
+		<TeamCity Condition="'$(teamcity_version)' != ''">true</TeamCity>
+		<TeamCity Condition="'$(teamcity_version)' == ''">false</TeamCity>
+
+		<RestartBuild Condition="!Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll') Or !Exists('$(RootDir)/packages/NUnit.ConsoleRunner/tools/nunit3-console.exe') Or !Exists('$(RootDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll')">true</RestartBuild>
+		<RestartBuild Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll') And Exists('$(RootDir)/packages/NUnit.ConsoleRunner/tools/nunit3-console.exe') And Exists('$(RootDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll')">false</RestartBuild>
+	</PropertyGroup>
+
+	<Import Project="NuGet.targets"/>
+
+	<Target Name="RestoreBuildTasks" DependsOnTargets="CheckPrerequisites">
+		<Message Text="RestartBuild=$(RestartBuild)" />
+		<Exec Command='$(NuGetCommand) install NUnit.Console -excludeVersion -version 3.11.1 -solutionDirectory "$(RootDir)"' />
+		<Exec Command='$(NuGetCommand) install SIL.BuildTasks -excludeVersion -version 2.3.2 -solutionDirectory "$(RootDir)"' />
+		<Exec Command='$(NuGetCommand) install BuildDependencyTasks -excludeVersion -version 0.4.3 -solutionDirectory "$(RootDir)"' />
+	</Target>
+
+	<UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll"
+		Condition="'$(OS)'=='Windows_NT' And Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')"/>
+	<UsingTask TaskName="Archive" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll"
+		Condition="'$(OS)'!='Windows_NT' And Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')"/>
+	<UsingTask TaskName="FileUpdate" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')"/>
+	<UsingTask TaskName="NUnit3" AssemblyFile="$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll" Condition="Exists('$(RootDir)/packages/SIL.BuildTasks/tools/SIL.BuildTasks.dll')"/>
+	<UsingTask TaskName="Dependencies" AssemblyFile="$(SolutionDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll" Condition="Exists('$(RootDir)/packages/BuildDependencyTasks/BuildDependencyTasks.dll')"/>
+
+	<Target Name="DownloadDependencies" DependsOnTargets="RestoreBuildTasks">
+		<Dependencies DependencyFile="Chorus.dep" UseDependencyFile="true"
+			KeepJobsFile="true" WorkingDir="$(RootDir)" />
+	</Target>
+
+	<Target Name="Build">
+		<CallTarget Targets="RestoreBuildTasks" />
+		<CallTarget Targets="BuildInternal" Condition="!$(RestartBuild)" />
+		<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="BuildInternal"
+			Properties="Configuration=$(Configuration);RootDir=$(RootDir)"
+			Condition="$(RestartBuild)" />
+	</Target>
+
+	<Target Name="BuildInternal">
+		<CallTarget Targets="Clean"/>
+		<CallTarget Targets="Compile"/>
+		<Message Text="Build Complete"/>
+	</Target>
+
+	<ItemGroup>
+		<ExistingObjectFiles
+			Include="$(OutputDir)/**/*"
+			Exclude="$(RootDir)/.hg/**/*;$(RootDir)/.git/**/*"
+		/>
+	</ItemGroup>
+
+	<Target Name="Clean">
+		<Delete Files="@(ExistingObjectFiles)" />
+		<Delete Condition="'$(OS)'=='Windows_NT' OR $(MSBuildToolsVersion) &gt;= 15"
+			Files="$(RootDir)/**/obj/**/*" />
+		<Exec Condition="'$(OS)'!='Windows_NT' AND $(MSBuildToolsVersion) &lt; 15"
+			Command="find . %5c( -name obj -o -name bin -o -name test-results %5c) -type d -print0 | xargs -0 rm -rf"
+			WorkingDirectory="$(RootDir)" />
+		<CallTarget Targets="CleanInstaller" Condition="'$(OS)'=='Windows_NT'"/>
+	</Target>
+
+	<ItemGroup>
+		<ExistingInstallerFiles
+			Include="$(RootDir)/output/installer/**/*"
+			Exclude="$(RootDir)/.hg/**/*;$(RootDir)/.git/**/*"
+		/>
+	</ItemGroup>
+
+	<Target Name="CleanInstaller" Condition="'$(OS)'=='Windows_NT'">
+		<Delete Files="@(ExistingInstallerFiles)" />
+	</Target>
+
+	<Target Name="Compile" DependsOnTargets="RestorePackages;DownloadDependencies">
+		<MSBuild
+			Projects="$(SolutionPath)"
+			Targets="Build"
+			Properties="Configuration=$(Configuration)" />
+	</Target>
+
+	<Target Name="Test" DependsOnTargets="Build">
+		<CallTarget Targets="TestOnly" Condition="!$(RestartBuild)" />
+		<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="TestOnly"
+			Properties="Configuration=$(Configuration);RootDir=$(RootDir)"
+			Condition="$(RestartBuild)" />
+	</Target>
+
+	<Target Name="TestOnly">
+		<ItemGroup>
+			<TestAssemblies
+				Include="$(RootDir)/output/$(Configuration)/net461/*.Tests.dll"
+				Exclude="$(RootDir)/output/$(Configuration)/net461/SIL.WritingSystems.Tests.dll"/>
+		</ItemGroup>
+
+		<NUnit3 Assemblies="@(TestAssemblies)"
+			ToolPath="$(RootDir)/packages/NUnit.ConsoleRunner/tools"
+			ExcludeCategory="$(ExtraExcludeCategories)$(excludedCategories)"
+			WorkingDirectory="$(RootDir)/output/$(Configuration)/net461/"
+			Force32Bit="$(useNUnit-x86)"
+			UseNUnit3Xml="false"
+			OutputXmlFile="$(RootDir)/output/$(Configuration)/net461/TestResults.xml"
+			TeamCity="$(TeamCity)"
+			Verbose="true" />
+	</Target>
+
+	<!-- Windows installer stuff -->
+	<Target Name="Installer" DependsOnTargets="CleanInstaller; Build" Condition="'$(OS)'=='Windows_NT'">
+
+		<!-- set the version number in the installer configuration program.  Perhaps there's a way to just send in the variables rather than this brute-force
+		changing of the script, but I haven't figured that out. -->
+
+		<FileUpdate File="$(RootDir)\src\Installer\ChorusMergeModule.wxs" Regex='Property_ProductVersion = ".*"'
+				ReplacementText ="Property_ProductVersion = &quot;$(GitVersion_AssemblySemFileVer)&quot;" />
+		<Message Text="Making Chorus Merge Module Version: $(GitVersion_AssemblySemFileVer)" Importance="high"  />
+
+		<MSBuild Projects="$(RootDir)\src\Installer\ChorusMergeModule.wixproj"/>
+
+	</Target>
+
+	<Target Name="ChorusHubInstaller" DependsOnTargets="CleanInstaller;Build" Condition="'$(OS)'=='Windows_NT'">
+
+		<!-- set the version number in the installer configuration program.  Perhaps there's a way to just send in the variables rather than this brute-force
+		changing of the script, but I haven't figured that out. -->
+
+		<FileUpdate File="$(RootDir)\src\Installer\ChorusHub.wxs" Regex='Property_ProductVersion = ".*"'
+				ReplacementText="Property_ProductVersion = &quot;$(GitVersion_AssemblySemFileVer)&quot;" />
+		<FileUpdate File="$(RootDir)\src\Installer\resources\License.rtf" RegEx='COPYRIGHTYEARPLACEHOLDER'
+				ReplacementText="$([System.DateTime]::Now.ToString(yyyy))" />
+		<Message Text="Making Chorus Hub installer with version: $(GitVersion_AssemblySemFileVer)" Importance="high"  />
+
+		<MSBuild Projects="$(RootDir)\src\Installer\ChorusHub.wixproj"/>
+
+	</Target>
+
+	<Target Name="SignChorusHub" DependsOnTargets="ChorusHubInstaller">
+		<Message Text="Attempting to sign ChorusHubInstaller.msi" Importance="high" />
+		<Exec Command='sign "$(RootDir)\output\Release\ChorusHubInstaller.msi" ' />
+	</Target>
+
+	<Target Name="MakeWixForDistFiles" DependsOnTargets="Compile" Condition="'$(OS)'=='Windows_NT'">
+		<!-- NB: The Exclude argument doesn't seem to be working so you may need to hand edit the GeneratedMercurial.wxs -->
+		<MakeWixForDirTree
+			DirectoryReferenceId="mercurial"
+			ComponentGroupId="Mercurial"
+			RootDirectory="$(RootDir)\mercurial"
+			OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurial.wxs"
+			IgnoreRegExPattern="IGNOREME|\.gitignore"
+			Exclude="$(RootDir)\mercurial\mercurial.ini;$(RootDir)\mercurial\default.d\cacerts.rc"
+			MatchRegExPattern=".*">
+			<Output TaskParameter="OutputFilePath" ItemName="Compile" />
+		</MakeWixForDirTree>
+		<MakeWixForDirTree
+			DirectoryReferenceId="MercurialExtensions"
+			ComponentGroupId="MercurialExtensions"
+			RootDirectory="$(RootDir)\MercurialExtensions"
+			OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurialExtensions.wxs"
+			IgnoreRegExPattern="IGNOREME|\.gitignore"
+			MatchRegExPattern=".*">
+			<Output TaskParameter="OutputFilePath" ItemName="Compile" />
+		</MakeWixForDirTree>
+	</Target>
+
+	<!-- Linux package stuff -->
+	<!-- Source Package - used by wesay -->
+	<ItemGroup>
+		<ExistingPackageFiles Include="$(OutputDir)/$(ApplicationNameLC)*.tar.gz" />
+		<ExistingPackageFiles Include="$(OutputDir)/$(ApplicationNameLC)-*" />
+		<ExistingPackageBuildFiles Include="$(OutputDir)/Package/**/*" />
+		<ExistingPackageBuildFiles Include="$(OutputDir)/Package/**" />
+	</ItemGroup>
+
+	<Target Name="PackageClean" Condition="'$(OS)'!='Windows_NT'">
+		<Delete Files="@(ExistingPackageFiles)" />
+		<Delete Files="@(ExistingPackageBuildFiles)" />
+	</Target>
+
+	<ItemGroup>
+		<Source Include="$(RootDir)/.nuget/**"/>
+		<Source Include="$(RootDir)/src/**/*"/>
+		<Source Include="$(RootDir)/artwork/**" />
+		<Source Include="$(RootDir)/design/**/*" />
+		<Source Include="$(RootDir)/build/*.proj" />
+		<Source Include="$(RootDir)/build/NuGet.targets" />
+		<Source Include="$(RootDir)/build/MonoRunnerForTest/*" />
+		<Source Include="$(RootDir)/common/**/*" />
+		<Source Include="$(RootDir)/papers*/**" />
+		<Source Include="$(RootDir)/sounds/**" />
+		<Source Include="$(RootDir)/externals/**" />
+		<Source Include="$(RootDir)/*" />
+	</ItemGroup>
+
+	<Target Name="SourcePackage" DependsOnTargets="Clean;PackageClean;SetAssemblyVersion"
+		Condition="'$(OS)'!='Windows_NT'">
+		<CreateProperty Value="$(OutputDir)/$(ApplicationNameLC)-$(GitVersion_AssemblySemFileVer).tar.gz">
+			<Output TaskParameter="Value" PropertyName="SourcePackageFileName" />
+		</CreateProperty>
+		<CreateProperty Value="$(OutputDir)/$(ApplicationNameLC)-$(GitVersion_AssemblySemFileVer)">
+			<Output TaskParameter="Value" PropertyName="TarBaseDir" />
+		</CreateProperty>
+		<Message Text="Archive source to '$(SourcePackageFileName)'" />
+		<MakeDir Directories="$(OutputDir)" />
+		<Archive
+			Command="Tar"
+			InputFilePaths="@(Source)"
+			OutputFileName="$(SourcePackageFileName)"
+			BasePath="$(RootDir)"
+			WorkingDir="$(RootDir)"
+		/>
+		<MakeDir Directories="$(TarBaseDir)" />
+		<Exec
+			Command="tar -xzf $(SourcePackageFileName)"
+			WorkingDirectory="$(TarBaseDir)"
+		/>
+		<Exec
+			Command="tar -czf $(SourcePackageFileName) $(ApplicationNameLC)-$(GitVersion_AssemblySemFileVer)"
+			WorkingDirectory="$(OutputDir)"
+		/>
+	</Target>
+
+	<Target Name="Pack" DependsOnTargets="RestorePackages">
+		<MSBuild
+			Projects="$(SolutionPath)"
+			Targets="pack"
+			Properties="Configuration=$(Configuration)" />
+	</Target>
+
+</Project>
+
+---------------------------- build/NuGet.targets -----------------------------
+eleted file mode 100644
+ndex c122dc6c..00000000
+@ -1,93 +0,0 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">$(MSBuildProjectDirectory)/../</SolutionDir>
+
+		<!-- Enable the restore command to run before builds -->
+		<RestorePackages Condition="  '$(RestorePackages)' == '' ">true</RestorePackages>
+
+		<!-- Determines if package restore consent is required to restore packages -->
+		<RequireRestoreConsent Condition=" '$(RequireRestoreConsent)' != 'false' ">false</RequireRestoreConsent>
+
+		<!-- Download NuGet.exe if it does not already exist -->
+		<DownloadNuGetExe Condition=" '$(DownloadNuGetExe)' == '' ">true</DownloadNuGetExe>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<NuGetToolsPath>$(MSBuildThisFileDirectory)</NuGetToolsPath>
+		<PackagesConfig>$(ProjectDir)packages.config</PackagesConfig>
+
+		<!-- NuGet command -->
+		<NuGetExePath Condition=" '$(NuGetExePath)' == '' ">$(NuGetToolsPath)/nuget.exe</NuGetExePath>
+
+		<NuGetCommand Condition=" '$(OS)' == 'Windows_NT'">"$(NuGetExePath)"</NuGetCommand>
+		<NuGetCommand Condition=" '$(OS)' != 'Windows_NT' ">mono $(NuGetExePath)</NuGetCommand>
+		<NuGetDownloadUrl>https://dist.nuget.org/win-x86-commandline/latest/nuget.exe</NuGetDownloadUrl>
+	</PropertyGroup>
+
+	<Target Name="CheckPrerequisites">
+		<!-- Raise an error if we're unable to locate nuget.exe  -->
+		<Error Condition="'$(DownloadNuGetExe)' != 'true' AND !Exists('$(NuGetExePath)')"
+			Text="Unable to locate '$(NuGetExePath)'" />
+		<!--
+		Take advantage of MsBuild's build dependency tracking to make sure that we only ever download nuget.exe once.
+		This effectively acts as a lock that makes sure that the download operation will only happen once and all
+		parallel builds will have to wait for it to complete.
+		-->
+		<MsBuild Targets="_DownloadNuGet" Projects="$(MSBuildThisFileFullPath)"
+			Properties="Configuration=NOT_IMPORTANT;DownloadNuGetExe=$(DownloadNuGetExe)" />
+	</Target>
+
+	<Target Name="_DownloadNuGet" Condition=" '$(DownloadNuGetExe)' == 'true' AND !Exists('$(NuGetExePath)')">
+		<DownloadNuGet OutputFilename="$(NuGetExePath)"
+			Condition="'$(OS)' == 'Windows_NT'" />
+		<Exec Command="wget $(NuGetDownloadUrl) || curl -O -L $(NuGetDownloadUrl)"
+			WorkingDirectory="$(NuGetToolsPath)"
+			Condition="'$(OS)' != 'Windows_NT'" />
+	</Target>
+
+	<ItemGroup>
+		<PackageConfigs Include="$(SolutionDir)/**/packages.config"/>
+	</ItemGroup>
+
+	<Target Name="RestorePackages" DependsOnTargets="CheckPrerequisites">
+		<Exec Command='$(NuGetCommand) restore -Force "$(SolutionPath)"'
+			Condition="Exists('$(SolutionPath)')"/>
+		<Exec Command='$(NuGetCommand) restore -Force -SolutionDirectory "$(SolutionDir)" "%(PackageConfigs.FullPath)"'
+			Condition="!Exists('$(SolutionPath)')"/>
+	</Target>
+
+	<UsingTask TaskName="DownloadNuGet" TaskFactory="CodeTaskFactory"
+		AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll"
+		Condition=" '$(OS)' == 'Windows_NT' ">
+		<ParameterGroup>
+			<OutputFilename ParameterType="System.String" Required="true" />
+		</ParameterGroup>
+		<Task>
+			<Reference Include="System.Core" />
+			<Using Namespace="System" />
+			<Using Namespace="System.IO" />
+			<Using Namespace="System.Net" />
+			<Using Namespace="Microsoft.Build.Framework" />
+			<Using Namespace="Microsoft.Build.Utilities" />
+			<Code Type="Fragment" Language="cs">
+				<![CDATA[
+				try {
+					OutputFilename = Path.GetFullPath(OutputFilename);
+
+					Log.LogMessage("Downloading latest version of nuget.exe...");
+					ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+					WebClient webClient = new WebClient();
+					webClient.DownloadFile("$(NuGetDownloadUrl)", OutputFilename);
+
+					return true;
+				}
+				catch (Exception ex) {
+					Log.LogErrorFromException(ex);
+					return false;
+				}
+			]]>
+			</Code>
+		</Task>
+	</UsingTask>
+</Project>
