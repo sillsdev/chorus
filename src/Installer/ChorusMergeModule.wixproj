@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-	<ProductVersion>3.5</ProductVersion>
+	<ProductVersion>$(GitVersion_AssemblySemVer)</ProductVersion>
 	<ProjectGuid>ca0d1ee4-fbea-40fb-a6bc-d9a161e1f2fa</ProjectGuid>
 	<SchemaVersion>2.0</SchemaVersion>
 	<OutputName>ChorusMergeModule</OutputName>
