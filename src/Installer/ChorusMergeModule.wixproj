@@ -42,7 +42,7 @@
   </PropertyGroup>
 
   <Target Name="pack" DependsOnTargets="CheckPrerequisites">
-	<Exec Command="$(NuGetCommand) pack ChorusMergeModule.nuspec -Version $(GitVersion_NuGetVersion)" />
+	<Exec Command="$(NuGetCommand) pack ChorusMergeModule.nuspec -Version $(GitVersion_NuGetVersion) -p PackageId=$(PackageId);Year=$(Year)" />
 	<Copy SourceFiles="$(PackageId).$(Version).nupkg" DestinationFolder="$(MSBuildThisFileDirectory)../../output" />
   </Target>
 </Project>
