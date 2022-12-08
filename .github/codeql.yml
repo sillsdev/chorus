@@ -1,0 +1,7 @@
+query-filters:
+  - exclude:
+      id: cs/path-injection
+  - exclude:
+      id: cs/command-line-injection
+  - exclude:
+      id: cs/log-forging
