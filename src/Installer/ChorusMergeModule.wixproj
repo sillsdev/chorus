@@ -38,6 +38,7 @@
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<PackageId>SIL.Chorus.ChorusMergeModule</PackageId>
 	<Version>$(GitVersion_NuGetVersion)</Version>
+	<Year>$([System.DateTime]::Now.ToString(yyyy))</Year>
   </PropertyGroup>
 
   <Target Name="pack">
