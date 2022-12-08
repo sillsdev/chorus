@@ -1,26 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- NB: rather than bothering with GitVersion here, we simply expect the version to be lingering in the environment from previous runs.
+	This is supported by .github/workflows/dotnet.yml -->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-	<ProductVersion>3.5</ProductVersion>
+	<ProductVersion>$(GitVersion_AssemblySemVer)</ProductVersion>
 	<ProjectGuid>ca0d1ee4-fbea-40fb-a6bc-d9a161e1f2fa</ProjectGuid>
 	<SchemaVersion>2.0</SchemaVersion>
 	<OutputName>ChorusMergeModule</OutputName>
 	<OutputType>Module</OutputType>
+	<OutputPath>..\..\output\$(Configuration)\</OutputPath>
+	<IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
 	<WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
 	<WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
 	<Name>ChorusMergeModule</Name>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-	<OutputPath>..\..\output\$(Configuration)\</OutputPath>
-	<IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-	<DefineConstants>Debug</DefineConstants>
-	<SuppressPdbOutput>True</SuppressPdbOutput>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-	<OutputPath>..\..\output\$(Configuration)\</OutputPath>
-	<IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+	<DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
+	<DefineConstants Condition="'$(Configuration)' == 'Debug'">Debug;$(DefineConstants)</DefineConstants>
 	<SuppressPdbOutput>True</SuppressPdbOutput>
   </PropertyGroup>
   <ItemGroup>
@@ -35,12 +31,18 @@
 	</WixExtension>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
-  <!--
-	To modify your build process, add your task inside one of the targets below and uncomment it.
-	Other similar extension points exist, see Wix.targets.
-	<Target Name="BeforeBuild">
-	</Target>
-	<Target Name="AfterBuild">
-	</Target>
-	-->
+  <Import Project="NuGet.targets" />
+
+  <!-- Pack NuGet Package -->
+  <PropertyGroup>
+	<TargetFramework>netstandard2.0</TargetFramework>
+	<PackageId>SIL.Chorus.ChorusMergeModule</PackageId>
+	<Version>$(GitVersion_NuGetVersion)</Version>
+	<Year>$([System.DateTime]::Now.ToString(yyyy))</Year>
+  </PropertyGroup>
+
+  <Target Name="pack" DependsOnTargets="CheckPrerequisites">
+	<Exec Command="$(NuGetCommand) pack ChorusMergeModule.nuspec -Version $(GitVersion_NuGetVersion) -p PackageId=$(PackageId);Year=$(Year)" />
+	<Copy SourceFiles="$(PackageId).$(Version).nupkg" DestinationFolder="$(MSBuildThisFileDirectory)../../output" />
+  </Target>
 </Project>

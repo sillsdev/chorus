@@ -65,6 +65,37 @@ jobs:
         name: Test Results (${{matrix.os}})
         path: "**/TestResults/*.xml"
 
+    - name: Checkout Chorus Help # required for Chorus Merge Module
+      uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
+      with:
+        repository: sillsdev/chorushelp
+        path: lib
+        clean: false # don't delete other files from lib
+      if: matrix.os == 'windows-latest'
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@34cfbaee7f672c76950673338facd8a73f637506 # v1.1.3
+      if: matrix.os == 'windows-latest'
+
+    # ChorusMergeModule.msm is used by FieldWorks, FLExBridge, and possibly WeSay installers (as of 2022.12).
+    # CMM must be built after tests have been run, since the fixutf8.pyc files are generated only when the .py  files are run.
+    - name: Build Merge Module
+      run: msbuild src/Installer/ChorusMergeModule.wixproj
+      if: matrix.os == 'windows-latest'
+
+    - name: Pack Merge Module
+      run: msbuild src/Installer/ChorusMergeModule.wixproj -t:pack
+      if: matrix.os == 'windows-latest'
+
+    - name: Upload Merge Modules
+      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
+      with:
+        name: chorus-merge-module
+        path: |
+          output/Release/*.msm
+          output/*.nupkg
+      if: matrix.os == 'windows-latest'
+
     - name: Pack
       run: dotnet pack --no-restore --no-build -c Release
 
