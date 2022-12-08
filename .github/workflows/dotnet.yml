@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest] # ubuntu-latest, 
+        os: [ubuntu-latest, windows-latest]
 
     steps:
     - name: Checkout
@@ -75,7 +75,7 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@34cfbaee7f672c76950673338facd8a73f637506 # v1.1.3
 
-    # ChorusMergeModule.msm is used by FieldWorks, FLExBridge, and probably WeSay installers.
+    # ChorusMergeModule.msm is used by FieldWorks, FLExBridge, and possibly WeSay installers (as of 2022.12).
     # CMM must be built after tests have been run, since the fixutf8.pyc files are generated only when the .py  files are run.
     - name: Build Merge Modules
       run: msbuild src/Installer/ChorusMergeModule.wixproj
@@ -86,28 +86,19 @@ jobs:
         name: chorus-merge-module
         path: |
           output/**/*.msm
+      if: matrix.os == 'ubuntu-latest'
 
-    # - name: Pack
-      # run: dotnet pack --no-restore --no-build -c Release
+    - name: Pack
+      run: dotnet pack --no-restore --no-build -c Release
 
-    # - name: Upload Artifacts
-      # uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
-      # with:
-        # name: chorus-dotnet-nugetpackage
-        # path: |
-          # output/*.nupkg
-          # output/*.snupkg
-      # if: matrix.os == 'ubuntu-latest'
-
-  # build-installers:
-    # runs-on: ${{ matrix.os }}
-    # needs: build-and-test
-    # strategy:
-      # fail-fast: false
-      # matrix:
-        # os: [windows-latest] # ubuntu-latest,
-#     steps:
-
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
+      with:
+        name: chorus-dotnet-nugetpackage
+        path: |
+          output/*.nupkg
+          output/*.snupkg
+      if: matrix.os == 'ubuntu-latest'
 
   publish-nuget:
     name: "Publish NuGet package"

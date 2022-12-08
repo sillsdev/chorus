@@ -93,5 +93,4 @@
 			<Output TaskParameter="OutputFilePath" ItemName="Compile" />
 		</MakeWixForDirTree>
 	</Target>
-
 </Project>
