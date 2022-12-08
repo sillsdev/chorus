@@ -31,7 +31,6 @@
 	</WixExtension>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
-  <Import Project="NuGet.targets" />
 
   <!-- Pack NuGet Package -->
   <PropertyGroup>
