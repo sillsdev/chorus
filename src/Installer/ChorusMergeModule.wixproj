@@ -31,6 +31,7 @@
 	</WixExtension>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
+  <Import Project="NuGet.targets" />
 
   <!-- Pack NuGet Package -->
   <PropertyGroup>
@@ -40,7 +41,7 @@
 	<Year>$([System.DateTime]::Now.ToString(yyyy))</Year>
   </PropertyGroup>
 
-  <Target Name="pack">
+  <Target Name="pack" DependsOnTargets="CheckPrerequisites">
 	<Exec Command="$(NuGetCommand) pack ChorusMergeModule.nuspec -Version $(GitVersion_NuGetVersion)" />
 	<Copy SourceFiles="$(PackageId).$(Version).nupkg" DestinationFolder="$(MSBuildThisFileDirectory)../../output" />
   </Target>
