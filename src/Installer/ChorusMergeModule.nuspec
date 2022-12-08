@@ -7,7 +7,7 @@
 		<authors>SIL International</authors>
 		<license type="expression">MIT</license>
 		<projectUrl>https://github.com/sillsdev/chorus</projectUrl>
-		<copyright>Copyright © 2010-COPYRIGHTYEARPLACEHOLDER SIL International</copyright>
+		<copyright>Copyright © 2010-2022 SIL International</copyright>
 	</metadata>
 	<files>
 		<file src="../../output/Release/ChorusMergeModule.msm" target="content"/>

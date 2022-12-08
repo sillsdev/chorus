@@ -38,23 +38,10 @@
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<PackageId>SIL.Chorus.ChorusMergeModule</PackageId>
 	<Version>$(GitVersion_NuGetVersion)</Version>
-	<SilBuildTasksVersion>2.5.0</SilBuildTasksVersion>
-	<SilBuildTasksDll>$(NuGetToolsPath)/packages/SIL.BuildTasks.$(SilBuildTasksVersion)/tools/SIL.BuildTasks.dll</SilBuildTasksDll>
   </PropertyGroup>
 
-  <UsingTask TaskName="FileUpdate" AssemblyFile="$(SilBuildTasksDll)" Condition="Exists('$(SilBuildTasksDll)')" />
-
-  <Target Name="restore" DependsOnTargets="CheckPrerequisites">
-	<Exec Command='$(NuGetCommand) install SIL.BuildTasks -version $(SilBuildTasksVersion) -solutionDirectory $(NuGetToolsPath)'
-		Condition="!Exists('$(SilBuildTasksDll)')" />
-  </Target>
-
-  <Target Name="pack" DependsOnTargets="restore">
+  <Target Name="pack">
 	<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="packInternal" />
-  </Target>
-
-  <Target Name="packInternal">
-	<FileUpdate File="ChorusMergeModule.nuspec" RegEx='COPYRIGHTYEARPLACEHOLDER' ReplacementText="$([System.DateTime]::Now.ToString(yyyy))" />
 	<Exec Command="$(NuGetCommand) pack ChorusMergeModule.nuspec -Version $(GitVersion_NuGetVersion)" />
 	<Copy SourceFiles="$(PackageId).$(Version).nupkg" DestinationFolder="$(MSBuildThisFileDirectory)../../output" />
   </Target>
