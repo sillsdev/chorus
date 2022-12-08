@@ -41,7 +41,6 @@
   </PropertyGroup>
 
   <Target Name="pack">
-	<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="packInternal" />
 	<Exec Command="$(NuGetCommand) pack ChorusMergeModule.nuspec -Version $(GitVersion_NuGetVersion)" />
 	<Copy SourceFiles="$(PackageId).$(Version).nupkg" DestinationFolder="$(MSBuildThisFileDirectory)../../output" />
   </Target>
