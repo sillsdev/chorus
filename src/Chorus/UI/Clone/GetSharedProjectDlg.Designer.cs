@@ -111,7 +111,6 @@
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.Name = "GetSharedProjectDlg";
-			this.ShowInTaskbar = false;
 			this.Text = "Receive project";
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).EndInit();
 			this.ResumeLayout(false);
