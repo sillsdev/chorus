@@ -59,7 +59,6 @@
   </Target>
 
   <Target Name="StampLicenseYear" DependsOnTargets="Restore">
-	<FileUpdate File="..\..\src\Installer\resources\License.rtf" RegEx='COPYRIGHTYEARPLACEHOLDER'
-		ReplacementText="$([System.DateTime]::Now.ToString(yyyy))" />
+	<FileUpdate File="resources\License.rtf" RegEx='COPYRIGHTYEARPLACEHOLDER' ReplacementText="$([System.DateTime]::Now.ToString(yyyy))" />
   </Target>
 </Project>
