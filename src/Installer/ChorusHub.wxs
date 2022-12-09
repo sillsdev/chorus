@@ -81,7 +81,7 @@ http://blogs.msdn.com/robmen/archive/2003/10/04/56479.aspx -->
 						<File Id="Autofac.dll" Name="Autofac.dll" KeyPath="yes" Source="..\..\output\Release\net461\Autofac.dll" />
 					</Component>
 					<Component Id="chorushelp.chm" Guid="C1EECD56-E382-11DE-8A39-0800200C9A66">
-						<File Id="chorushelp.chm" Name="Chorus_Help.chm" KeyPath="yes" Source="..\..\lib\Chorus_Help.chm"/>
+						<File Id="chorushelp.chm" Name="Chorus_Help.chm" KeyPath="yes" Source="..\..\DistFiles\Help\Chorus_Help.chm"/>
 					</Component>
 					<!-- used by chorus help -->
 					<Component Id="Vulcan.Uczniowie.HelpProvider.dll" Guid="C1EEF450-E382-11DE-8A39-0800200C9A66">
