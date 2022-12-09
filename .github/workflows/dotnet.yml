@@ -72,8 +72,8 @@ jobs:
       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
       with:
         repository: sillsdev/chorushelp
-        path: lib
-        clean: false # don't delete other files from lib
+        path: lib/help
+      run: cp lib/help/Chorus_Help.chm lib/
       if: matrix.os == 'windows-latest'
 
     - name: reverify checkout
