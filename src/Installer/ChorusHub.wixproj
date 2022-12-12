@@ -1,26 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- NB: rather than bothering with GitVersion here, we simply expect the version to be lingering in the environment from previous runs.
+	This is supported by .github/workflows/dotnet.yml -->
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
 	<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
 	<Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-	<ProductVersion>3.5</ProductVersion>
+	<ProductVersion>$(GitVersion_AssemblySemVer)</ProductVersion>
 	<ProjectGuid>c1ee5822-e382-11de-8a39-0800200c9a66</ProjectGuid>
 	<SchemaVersion>2.0</SchemaVersion>
 	<OutputName>ChorusHubInstaller</OutputName>
 	<OutputType>Package</OutputType>
+	<OutputPath>..\..\output\$(Configuration)\</OutputPath>
 	<WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
 	<WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
 	<Name>ChorusHubInstaller</Name>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-	<OutputPath>..\..\output\Debug\</OutputPath>
-	<IntermediateOutputPath>obj\Debug\</IntermediateOutputPath>
-	<DefineConstants>Debug</DefineConstants>
-	<SuppressPdbOutput>True</SuppressPdbOutput>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-	<OutputPath>..\..\output\Release\</OutputPath>
-	<IntermediateOutputPath>obj\Release\</IntermediateOutputPath>
+	<DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
+	<DefineConstants Condition="'$(Configuration)' == 'Debug'">Debug;$(DefineConstants)</DefineConstants>
+	<DefineSolutionProperties>false</DefineSolutionProperties>
 	<SuppressPdbOutput>True</SuppressPdbOutput>
   </PropertyGroup>
   <ItemGroup>
@@ -47,12 +43,22 @@
 	</WixExtension>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
-  <!--
-	To modify your build process, add your task inside one of the targets below and uncomment it.
-	Other similar extension points exist, see Wix.targets.
-	<Target Name="BeforeBuild">
-	</Target>
-	<Target Name="AfterBuild">
-	</Target>
-	-->
+
+  <!-- Stamp Years -->
+  <Import Project="NuGet.targets" />
+  <PropertyGroup>
+	<SilBuildTasksVersion>2.5.0</SilBuildTasksVersion>
+	<SilBuildTasksDll>$(NuGetToolsPath)/packages/SIL.BuildTasks.$(SilBuildTasksVersion)/tools/SIL.BuildTasks.dll</SilBuildTasksDll>
+  </PropertyGroup>
+
+  <UsingTask TaskName="FileUpdate" AssemblyFile="$(SilBuildTasksDll)" Condition="Exists('$(SilBuildTasksDll)')" />
+
+  <Target Name="Restore" DependsOnTargets="CheckPrerequisites">
+	<Exec Command='$(NuGetCommand) install SIL.BuildTasks -version $(SilBuildTasksVersion) -solutionDirectory $(NuGetToolsPath)'
+		Condition="!Exists('$(SilBuildTasksDll)')" />
+  </Target>
+
+  <Target Name="StampLicenseYear" DependsOnTargets="Restore">
+	<FileUpdate File="resources\License.rtf" RegEx='COPYRIGHTYEARPLACEHOLDER' ReplacementText="$([System.DateTime]::Now.ToString(yyyy))" />
+  </Target>
 </Project>
