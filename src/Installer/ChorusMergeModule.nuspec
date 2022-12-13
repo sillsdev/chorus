@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>$PackageId$</id>
+		<version>$Version$</version>
+		<description>This is a merge module to set up https://github.com/sillsdev/chorus</description>
+		<authors>SIL International</authors>
+		<license type="expression">MIT</license>
+		<projectUrl>https://github.com/sillsdev/chorus</projectUrl>
+		<copyright>Copyright © 2010-$Year$ SIL International</copyright>
+	</metadata>
+	<files>
+		<file src="../../output/Release/ChorusMergeModule.msm" target="content"/>
+	</files>
+</package>

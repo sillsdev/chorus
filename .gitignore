@@ -1,5 +1,5 @@
-build/NuGet.exe
-build/nuget.exe
+NuGet.exe
+nuget.exe
 CopyToWeSay.bat
 output/
 obj/
@@ -21,6 +21,7 @@ mercurial/
 build/old
 launchSettings.json
 lib/$(Configuration)
+*.nupkg
 *.resources
 *.userprefs
 .vs/
