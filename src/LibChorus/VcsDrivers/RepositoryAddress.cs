@@ -13,6 +13,7 @@ using Chorus.VcsDrivers.Mercurial;
 using SIL.IO;
 using SIL.Progress;
 using SIL.Reporting;
+using System.Web;
 
 namespace Chorus.VcsDrivers
 {
@@ -163,7 +164,9 @@ namespace Chorus.VcsDrivers
 			// Our resumable API supports passing credentials in request headers; Mercurial requires them in the URL.
 			if (!IsResumable && string.IsNullOrEmpty(UrlHelper.GetUserName(uri)))
 			{
-				uri = uri.Replace("://", $"://{Properties.Settings.Default.LanguageForgeUser}:{ServerSettingsModel.PasswordForSession}@");
+				uri = uri.Replace("://",
+					$"://{HttpUtility.UrlEncode(Properties.Settings.Default.LanguageForgeUser)}" +
+					$":{HttpUtility.UrlEncode(ServerSettingsModel.PasswordForSession)}@");
 			}
 			return uri;
 		}

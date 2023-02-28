@@ -402,7 +402,7 @@ namespace Chorus.Model
 		/// <param name="clearString">Any string containing a URL with the <see cref="PasswordForSession"/> in clear text.</param>
 		internal static string RemovePasswordForLog(string clearString)
 		{
-			return clearString?.Replace($":{PasswordForSession}@", $":{PasswordAsterisks}@");
+			return clearString?.Replace($":{HttpUtility.UrlEncode(PasswordForSession)}@", $":{PasswordAsterisks}@");
 		}
 
 		/// <summary>
