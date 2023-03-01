@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Chorus.Model;
 using Chorus.Properties;
 using Chorus.VcsDrivers;
 using LibChorus.Tests.Model;

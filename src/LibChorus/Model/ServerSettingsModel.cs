@@ -91,8 +91,8 @@ namespace Chorus.Model
 
 		public ServerSettingsModel()
 		{
-			Username = Properties.Settings.Default.LanguageForgeUser;
-			Password = DecryptPassword(Properties.Settings.Default.LanguageForgePass);
+			Username = Settings.Default.LanguageForgeUser;
+			Password = DecryptPassword(Settings.Default.LanguageForgePass);
 			RememberPassword = !string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(Username);
 		}
 
@@ -264,10 +264,10 @@ namespace Chorus.Model
 
 		public void SaveUserSettings()
 		{
-			Properties.Settings.Default.LanguageForgeUser = Username;
-			Properties.Settings.Default.LanguageForgePass = RememberPassword ? EncryptPassword(Password) : null;
+			Settings.Default.LanguageForgeUser = Username;
+			Settings.Default.LanguageForgePass = RememberPassword ? EncryptPassword(Password) : null;
 			PasswordForSession = Password;
-			Properties.Settings.Default.Save();
+			Settings.Default.Save();
 		}
 
 		public void LogIn(out string error)
@@ -386,7 +386,7 @@ namespace Chorus.Model
 		public static string EncodedPasswordForSession => WebUtility.UrlEncode(PasswordForSession)?.Replace("+", "%20");
 
 		/// <summary>
-		/// URL-encoded language forge username <see cref="Chorus.Properties.Settings.Default.LanguageForgeUser"/>
+		/// URL-encoded language forge username
 		/// </summary>
 		public static string EncodedLanguageForgeUser => WebUtility.UrlEncode(Settings.Default.LanguageForgeUser);
 
@@ -400,7 +400,7 @@ namespace Chorus.Model
 		/// </summary>
 		public static string PasswordForSession
 		{
-			internal get { return _passwordForSession ?? DecryptPassword(Properties.Settings.Default.LanguageForgePass); }
+			internal get { return _passwordForSession ?? DecryptPassword(Settings.Default.LanguageForgePass); }
 			set { _passwordForSession = value; }
 		}
 
