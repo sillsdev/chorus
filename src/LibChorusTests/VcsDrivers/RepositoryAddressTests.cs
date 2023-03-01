@@ -188,7 +188,7 @@ namespace LibChorus.Tests.VcsDrivers
 			using (new ServerSettingsModelTests.PasswordForSession("p@ss:w0rd"))
 			{
 				Settings.Default.LanguageForgeUser = "joe@doe.co";
-				const string expected = "https://joe%40doe.co:p%40ss%3aw0rd@" + NonResDomainPlus + ProjectName;
+				const string expected = "https://joe%40doe.co:p%40ss%3Aw0rd@" + NonResDomainPlus + ProjectName;
 				var source = new HttpRepositoryPath("test", UrlSansCredentials, false);
 				Assert.That(source.GetPotentialRepoUri("testing", null, null), Is.EqualTo(expected));
 			}

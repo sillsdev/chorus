@@ -13,7 +13,6 @@ using Chorus.VcsDrivers.Mercurial;
 using SIL.IO;
 using SIL.Progress;
 using SIL.Reporting;
-using System.Web;
 
 namespace Chorus.VcsDrivers
 {
@@ -39,7 +38,7 @@ namespace Chorus.VcsDrivers
 		/// <summary>
 		/// This message is displayed when the user tries to create a new repository with the same name as an
 		/// unrelated, existing repository.  Because of the way this string is used, two customizations are necessary:
-		///  - replace <see cref="MediumVariable"/> with the name of the syncronization medium
+		///  - replace <see cref="MediumVariable"/> with the name of the synchronization medium
 		///  - replace {0} and {0} with the URI's of the existing and new repositories, respectively
 		/// </summary>
 		public const string DuplicateWarningMessage = "Warning: There is a project repository on the " + MediumVariable
@@ -164,9 +163,7 @@ namespace Chorus.VcsDrivers
 			// Our resumable API supports passing credentials in request headers; Mercurial requires them in the URL.
 			if (!IsResumable && string.IsNullOrEmpty(UrlHelper.GetUserName(uri)))
 			{
-				uri = uri.Replace("://",
-					$"://{HttpUtility.UrlEncode(Properties.Settings.Default.LanguageForgeUser)}" +
-					$":{HttpUtility.UrlEncode(ServerSettingsModel.PasswordForSession)}@");
+				uri = uri.Replace("://", $"://{ServerSettingsModel.EncodedLanguageForgeUser}:{ServerSettingsModel.EncodedPasswordForSession}@");
 			}
 			return uri;
 		}

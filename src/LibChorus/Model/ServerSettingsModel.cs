@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using System.Web;
+using Chorus.Properties;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
 using Chorus.VcsDrivers.Mercurial;
@@ -118,13 +118,13 @@ namespace Chorus.Model
 
 		public virtual void InitFromUri(string url)
 		{
-			var urlUsername = HttpUtility.UrlDecode(UrlHelper.GetUserName(url));
+			var urlUsername = WebUtility.UrlDecode(UrlHelper.GetUserName(url));
 			if (!string.IsNullOrEmpty(urlUsername))
 			{
 				Username = urlUsername;
-				Password = HttpUtility.UrlDecode(UrlHelper.GetPassword(url));
+				Password = WebUtility.UrlDecode(UrlHelper.GetPassword(url));
 			}
-			ProjectId = HttpUtility.UrlDecode(UrlHelper.GetPathAfterHost(url));
+			ProjectId = WebUtility.UrlDecode(UrlHelper.GetPathAfterHost(url));
 			HasLoggedIn = !string.IsNullOrEmpty(ProjectId);
 			Bandwidth = new BandwidthItem(RepositoryAddress.IsKnownResumableRepository(url) ? BandwidthEnum.Low : BandwidthEnum.High);
 
@@ -146,7 +146,7 @@ namespace Chorus.Model
 					return CustomUrl;
 				}
 
-				return $"https://{Host}/{HttpUtility.UrlEncode(ProjectId)}";
+				return $"https://{Host}/{WebUtility.UrlEncode(ProjectId)}";
 			}
 		}
 
@@ -377,6 +377,19 @@ namespace Chorus.Model
 			return Encoding.Unicode.GetString(decryptedData);
 		}
 
+		/// <summary>
+		/// URL-encoded password to use for the current Send and Receive session. <see cref="PasswordForSession"/>
+		/// </summary>
+		/// <remarks>
+		/// UrlEncode encodes spaces as "+" and "+" as "%2b". LanguageDepot fails to decode plus-encoded spaces. Encode spaces as "%20"
+		/// </remarks>
+		public static string EncodedPasswordForSession => WebUtility.UrlEncode(PasswordForSession)?.Replace("+", "%20");
+
+		/// <summary>
+		/// URL-encoded language forge username <see cref="Chorus.Properties.Settings.Default.LanguageForgeUser"/>
+		/// </summary>
+		public static string EncodedLanguageForgeUser => WebUtility.UrlEncode(Settings.Default.LanguageForgeUser);
+
 		private static string _passwordForSession;
 
 		/// <summary>
@@ -402,7 +415,7 @@ namespace Chorus.Model
 		/// <param name="clearString">Any string containing a URL with the <see cref="PasswordForSession"/> in clear text.</param>
 		internal static string RemovePasswordForLog(string clearString)
 		{
-			return clearString?.Replace($":{HttpUtility.UrlEncode(PasswordForSession)}@", $":{PasswordAsterisks}@");
+			return clearString?.Replace($":{EncodedPasswordForSession}@", $":{PasswordAsterisks}@");
 		}
 
 		/// <summary>
