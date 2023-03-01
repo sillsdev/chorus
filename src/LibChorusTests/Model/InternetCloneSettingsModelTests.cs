@@ -2,6 +2,7 @@ using System.IO;
 using NUnit.Framework;
 using SIL.TestUtilities;
 using Chorus.Model;
+using Chorus.Utilities;
 
 namespace LibChorus.Tests.Model
 {
@@ -26,7 +27,8 @@ namespace LibChorus.Tests.Model
 		[Test]
 		public void URL_AfterConstruction_GoodDefault()
 		{
-			using (var testFolder = new TemporaryFolder("clonetest"))
+			using (var testFolder = new TemporaryFolder("cloneTest"))
+			using (new ShortTermEnvironmentalVariable(ServerSettingsModel.ServerEnvVar, null))
 			{
 				var model = new InternetCloneSettingsModel(testFolder.Path);
 				model.Username = "account";

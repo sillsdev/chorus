@@ -188,7 +188,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void InitFromUri_NoUsernameOrPass_UsesSettings()
 		{
 			const string user = "john";
@@ -203,7 +203,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void InitFromUri_UsernameAndPass_OverwritesSettings()
 		{
 			Settings.Default.LanguageForgeUser = "from";
@@ -316,7 +316,7 @@ namespace LibChorus.Tests.Model
 		[TestCase(null, null, false)]
 		[TestCase(null, "", false)]
 		[TestCase("temporary", "", false)]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void RememberPassword(string cachedPassword, string savedPassword, bool expectedRememberPassword)
 		{
 			Settings.Default.LanguageForgeUser = "User";
@@ -367,7 +367,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void SaveSettings_PreexistsAndWeSave_MovesCredentials([Values(true, false)] bool isResumable)
 		{
 			ServerSettingsModel.PasswordForSession = Settings.Default.LanguageForgePass = Settings.Default.LanguageForgeUser = null;
@@ -470,7 +470,6 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
 		public void EncryptPassword_NullAndEmptyDoNotCrash()
 		{
 			Assert.DoesNotThrow(() => ServerSettingsModel.EncryptPassword(null));
@@ -485,7 +484,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void EncryptPassword_RoundTrips()
 		{
 			const string password = "P@55w0rd";
@@ -496,7 +495,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void PasswordForSession_UsesSaved([Values(null, "", "myPass")] string password)
 		{
 			Settings.Default.LanguageForgePass = ServerSettingsModel.EncryptPassword(password);

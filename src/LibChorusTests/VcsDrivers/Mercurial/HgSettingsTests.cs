@@ -139,7 +139,7 @@ two = https://foo.com");
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void GetIsReadyForInternetSendReceive_HasFullLangForgeUrlAndSavedCredentials_ReturnsTrue()
 		{
 			using (new MercurialIniForTests())
@@ -164,7 +164,7 @@ two = https://foo.com");
 		}
 
 		[Test]
-		public void GetUserName_NameInLocalReop_GetsName()
+		public void GetUserName_NameInLocalRepo_GetsName()
 		{
 			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Dan"))
@@ -179,7 +179,7 @@ username = joe
 
 
 		[Test]
-		public void GetUserName_NameInLocalReopHasSpace_GetsName()
+		public void GetUserName_NameInLocalRepoHasSpace_GetsName()
 		{
 			using (new MercurialIniForTests())
 			using (var setup = new RepositorySetup("Joe Schmoe"))
