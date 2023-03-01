@@ -110,7 +110,7 @@ namespace Chorus.UI.Misc
 
 		private void _password_TextChanged(object sender, EventArgs e)
 		{
-			Model.Password = _password.Text.Trim();
+			Model.Password = _password.Text;
 			UpdateDisplay();
 		}
 

@@ -127,8 +127,6 @@ namespace Chorus.UI.Misc
 			this.toolTip1.SetToolTip(this._password, "This is the password belonging to this account, as it was set up on the server.");
 			this._password.UseSystemPasswordChar = true;
 			this._password.TextChanged += new System.EventHandler(this._password_TextChanged);
-			this._password.KeyDown += new System.Windows.Forms.KeyEventHandler(this._textBox_KeyDown);
-			this._password.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this._textBox_KeyPress);
 			// 
 			// _customUrlLabel
 			// 
