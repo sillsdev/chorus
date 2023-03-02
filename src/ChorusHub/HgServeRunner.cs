@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Threading;
-using System.Web;
 using Chorus.VcsDrivers.Mercurial;
 using SIL.CommandLineProcessing;
 using SIL.Progress;
@@ -140,40 +140,45 @@ namespace ChorusHub
 			try
 			{
 				if (!File.Exists(AccessLogPath))
+				{
 					return;
+				}
 
 				using (var stream = File.Open(AccessLogPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
 				using (TextReader reader = new StreamReader(stream))
 				{
 					while (true)
 					{
-							var line = reader.ReadLine();
-							if (line == null)
-								return;
+						var line = reader.ReadLine();
+						if (line == null)
+						{
+							return;
+						}
 
-							var start = line.IndexOf("GET /") + 5;
-							var end = line.IndexOf("?");
-							if (line.Contains("404") && start > 9 & end > 0)
+						var start = line.IndexOf("GET /", StringComparison.Ordinal) + 5;
+						var end = line.IndexOf("?", StringComparison.Ordinal);
+						if (line.Contains("404") && start > 9 & end > 0)
+						{
+							var name = line.Substring(start, end - start);
+							string directory = Path.Combine(_rootFolder, name);
+
+							directory = WebUtility.UrlDecode(directory); // convert %20 --> space
+							if (!Directory.Exists(directory))
 							{
-								var name = line.Substring(start, end - start);
-								string directory = Path.Combine(_rootFolder, name);
+								//Progress.WriteMessage("Creating new folder '" + name + "'");
+								Directory.CreateDirectory(directory);
+							}
 
-							directory = HttpUtility.UrlDecode(directory); // convert %20 --> space
-								if (!Directory.Exists(directory))
-								{
-									//Progress.WriteMessage("Creating new folder '" + name + "'");
-									Directory.CreateDirectory(directory);
-								}
-								if (!Directory.Exists(Path.Combine(directory, ".hg")))
-								{
-									//Progress.WriteMessage("Initializing blank repository: " + name +
-									//				  ". Try Sending again in a few minutes, when hg notices the new directory.");
-									HgRepository.CreateRepositoryInExistingDir(directory, new ConsoleProgress());
-								}
+							if (!Directory.Exists(Path.Combine(directory, ".hg")))
+							{
+								//Progress.WriteMessage("Initializing blank repository: " + name +
+								//				  ". Try Sending again in a few minutes, when hg notices the new directory.");
+								HgRepository.CreateRepositoryInExistingDir(directory, new ConsoleProgress());
 							}
 						}
-						}
 					}
+				}
+			}
 			catch
 			{
 				//EventLog.WriteEntry("Application", error.Message, EventLogEntryType.Error);

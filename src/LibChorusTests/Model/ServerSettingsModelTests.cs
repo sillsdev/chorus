@@ -188,7 +188,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void InitFromUri_NoUsernameOrPass_UsesSettings()
 		{
 			const string user = "john";
@@ -203,7 +203,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void InitFromUri_UsernameAndPass_OverwritesSettings()
 		{
 			Settings.Default.LanguageForgeUser = "from";
@@ -316,7 +316,7 @@ namespace LibChorus.Tests.Model
 		[TestCase(null, null, false)]
 		[TestCase(null, "", false)]
 		[TestCase("temporary", "", false)]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void RememberPassword(string cachedPassword, string savedPassword, bool expectedRememberPassword)
 		{
 			Settings.Default.LanguageForgeUser = "User";
@@ -367,7 +367,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void SaveSettings_PreexistsAndWeSave_MovesCredentials([Values(true, false)] bool isResumable)
 		{
 			ServerSettingsModel.PasswordForSession = Settings.Default.LanguageForgePass = Settings.Default.LanguageForgeUser = null;
@@ -470,7 +470,6 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
 		public void EncryptPassword_NullAndEmptyDoNotCrash()
 		{
 			Assert.DoesNotThrow(() => ServerSettingsModel.EncryptPassword(null));
@@ -485,7 +484,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void EncryptPassword_RoundTrips()
 		{
 			const string password = "P@55w0rd";
@@ -496,7 +495,7 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
-		[Platform("Net-4.0,Mono")]
+		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void PasswordForSession_UsesSaved([Values(null, "", "myPass")] string password)
 		{
 			Settings.Default.LanguageForgePass = ServerSettingsModel.EncryptPassword(password);
@@ -507,16 +506,11 @@ namespace LibChorus.Tests.Model
 		[Test]
 		public void PasswordForSession_UsesCached()
 		{
-			try
+			const string pass = "yourPass";
+			using (new PasswordForSession(pass))
 			{
-				const string pass = "yourPass";
-				ServerSettingsModel.PasswordForSession = pass;
 				Settings.Default.LanguageForgePass = null;
 				Assert.AreEqual(pass, ServerSettingsModel.PasswordForSession);
-			}
-			finally
-			{
-				ServerSettingsModel.PasswordForSession = null;
 			}
 		}
 
@@ -527,16 +521,11 @@ namespace LibChorus.Tests.Model
 		[Test]
 		public void PasswordForSession_PrefersCached()
 		{
-			try
+			const string pass = "cachedPass";
+			using (new PasswordForSession(pass))
 			{
-				const string pass = "cachedPass";
-				ServerSettingsModel.PasswordForSession = pass;
 				Settings.Default.LanguageForgePass = "something-else";
 				Assert.AreEqual(pass, ServerSettingsModel.PasswordForSession);
-			}
-			finally
-			{
-				ServerSettingsModel.PasswordForSession = null;
 			}
 		}
 
@@ -550,35 +539,54 @@ namespace LibChorus.Tests.Model
 		[Test]
 		public void RemovePasswordForLog_RemovesThePassword()
 		{
-			try
+			const string password = "patch-work_Qu11t";
+			const string logFormat = "Cannot connect to https://someone:{0}@hg-public.languageforge.org/flex-proj; check your password and try again.";
+			using (new PasswordForSession(password))
 			{
-				const string password = "p@tchwork:Qu11+";
-				const string logFormat = "Cannot connect to https://someone:{0}@hg-public.languageforge.org/flex-proj; check your password and try again.";
-				ServerSettingsModel.PasswordForSession = password;
 				// SUT
 				var scrubbed = ServerSettingsModel.RemovePasswordForLog(string.Format(logFormat, password));
 				Assert.AreEqual(string.Format(logFormat, ServerSettingsModel.PasswordAsterisks), scrubbed);
 				StringAssert.DoesNotContain(password, scrubbed);
-			}
-			finally
-			{
-				ServerSettingsModel.PasswordForSession = null;
 			}
 		}
 
 		[Test]
 		public void RemovePasswordForLog_RemovesOnlyThePassword()
 		{
-			try
+			const string password = "password";
+			const string logFormat = "Cannot connect to https://someone:{0}@hg-public.languageforge.org/flex-proj; check your {1} and try again.";
+			using(new PasswordForSession(password))
 			{
-				const string password = "password";
-				const string logFormat = "Cannot connect to https://someone:{0}@hg-public.languageforge.org/flex-proj; check your {1} and try again.";
-				ServerSettingsModel.PasswordForSession = password;
 				// SUT
 				var scrubbed = ServerSettingsModel.RemovePasswordForLog(string.Format(logFormat, password, password));
 				Assert.AreEqual(string.Format(logFormat, ServerSettingsModel.PasswordAsterisks, password), scrubbed);
 			}
-			finally
+		}
+
+		[Test]
+		public void RemovePasswordForLog_RemovesTheEscapedPassword()
+		{
+			const string password = "p@tchwork:Qu11+";
+			using (new PasswordForSession(password))
+			{
+				var source = new HttpRepositoryPath("test", "https://public.languageforge.org", true);
+				var url = source.GetPotentialRepoUri("test", "test", null);
+				// SUT
+				var scrubbed = ServerSettingsModel.RemovePasswordForLog(url);
+				ServerSettingsModel.PasswordForSession = ServerSettingsModel.PasswordAsterisks; // this will be cleared when we exit the using block
+				var expected = source.GetPotentialRepoUri("test", "test", null);
+				Assert.That(scrubbed, Is.EqualTo(expected));
+			}
+		}
+
+		internal class PasswordForSession : IDisposable
+		{
+			public PasswordForSession(string password)
+			{
+				ServerSettingsModel.PasswordForSession = password;
+			}
+
+			public void Dispose()
 			{
 				ServerSettingsModel.PasswordForSession = null;
 			}
