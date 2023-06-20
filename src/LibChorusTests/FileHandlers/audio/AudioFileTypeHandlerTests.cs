@@ -37,8 +37,8 @@ namespace LibChorus.Tests.FileHandlers.audio
 		public void HandlerSupportsCorrectExtensions()
 		{
 			var extensions = _audioFileHandler.GetExtensionsOfKnownTextFileTypes().ToList();
-			Assert.That(extensions.Count(), Is.EqualTo(8));
-			var expectedExtensions = new HashSet<string> {"wav", "snd", "au", "aif", "aifc", "aiff", "wma", "mp3"};
+			Assert.That(extensions.Count(), Is.EqualTo(9));
+			var expectedExtensions = new HashSet<string> {"wav", "snd", "au", "aif", "aifc", "aiff", "wma", "mp3", "webm"};
 			foreach (var expectedExtension in expectedExtensions)
 				Assert.Contains(expectedExtension, extensions);
 		}
