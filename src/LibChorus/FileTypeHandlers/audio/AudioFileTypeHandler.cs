@@ -68,7 +68,7 @@ namespace Chorus.FileTypeHandlers.audio
 		/// <returns>A collection of extensions (without leading period (.)) that can be processed.</returns>
 		public IEnumerable<string> GetExtensionsOfKnownTextFileTypes()
 		{
-			return new List<string> { "wav", "snd", "au", "aif", "aifc", "aiff", "wma", "mp3" };
+			return new List<string> { "wav", "snd", "au", "aif", "aifc", "aiff", "wma", "mp3", "webm" };
 		}
 
 		/// <summary>
