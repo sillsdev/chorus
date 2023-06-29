@@ -215,7 +215,7 @@ namespace Chorus.merge.xml.generic
 
 		public virtual void MakeHtmlDetails(XmlNode oursContext, XmlNode theirsContext, XmlNode ancestorContext, IGenerateHtmlContext htmlMaker)
 		{
-			StringBuilder sb = new StringBuilder(@"<head><style type='text/css'>");
+			StringBuilder sb = new StringBuilder(HtmlHeaderStart);
 			sb.Append(htmlMaker.HtmlContextStyles(oursContext));
 			sb.Append(@"</style></head><body><div class='description'>");
 			sb.Append(GetFullHumanReadableDescription());
@@ -410,6 +410,8 @@ namespace Chorus.merge.xml.generic
 					"{0} is a general description of the conflict, {1} gives more detail, {2} says how it was resolved");
 			}
 		}
+
+		public const string HtmlHeaderStart = "<head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8'><style type='text/css'>";
 
 		public static IConflict CreateFromConflictElement(XmlNode conflictNode)
 		{
