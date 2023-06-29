@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
@@ -77,7 +77,7 @@ namespace Chorus.UI.Notes
 			{
 				var doc = new XmlDocument();
 				var conflict = Conflict.CreateFromConflictElement(XmlUtilities.GetDocumentNodeFromRawXml(content, doc));
-				var html = @"<html>" + conflict.HtmlDetails + @"</html>";
+				var html = $"<html>{conflict.HtmlDetails}</html>";
 				if (HtmlAdjuster != null)
 					html = HtmlAdjuster(html);
 				if (string.IsNullOrEmpty(html))
