@@ -62,7 +62,7 @@ namespace Chorus.FileTypeHandlers.lift
 		public string GetHtml(string style, string styleSheet)
 		{
 			var builder = new StringBuilder();
-			builder.Append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"+styleSheet+"</head>");
+			builder.Append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>"+styleSheet+"</head>");
 
 			if (_report is XmlAdditionChangeReport)
 			{

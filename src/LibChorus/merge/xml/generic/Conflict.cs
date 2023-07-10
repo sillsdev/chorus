@@ -411,7 +411,7 @@ namespace Chorus.merge.xml.generic
 			}
 		}
 
-		public const string HtmlHeaderStart = "<head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8'><style type='text/css'>";
+		public const string HtmlHeaderStart = "<head><meta http-equiv='Content-Type' content='text/html;charset=UTF-8'/><style type='text/css'>";
 
 		public static IConflict CreateFromConflictElement(XmlNode conflictNode)
 		{
