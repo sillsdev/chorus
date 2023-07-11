@@ -2180,7 +2180,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				return false;
 			}
 
-			if (string.IsNullOrEmpty(uri.PathAndQuery))
+			if (string.IsNullOrEmpty(uri.PathAndQuery?.Trim('/')))
 			{
 				message = string.Format(
 					LocalizationManager.GetString("GetInternetStatus.ProjectNameIsMissing", "The project name at {0} is missing."), uri.Host);
