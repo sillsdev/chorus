@@ -227,7 +227,7 @@ namespace Chorus.Model
 			{
 				return !string.IsNullOrEmpty(Username) &&
 					   !string.IsNullOrEmpty(Password) &&
-						HasLoggedIn ? UsernameOrPasswordEdited : true;
+						(!HasLoggedIn || UsernameOrPasswordEdited);
 			}
 		}
 
@@ -236,6 +236,22 @@ namespace Chorus.Model
 		/// last log in.
 		/// </summary>
 		private bool UsernameOrPasswordEdited { get; set; }
+
+		/// <summary>
+		/// Save only the settings that the user has modified.
+		/// If the user has not logged in to select a project ID, don't save a bare URL to hgrc (LT-21462)
+		/// </summary>
+		public void SaveSettingsThatMakeSense()
+		{
+			if (HasLoggedIn || IsCustomUrl)
+			{
+				SaveSettings();
+			}
+			else
+			{
+				SaveUserSettings();
+			}
+		}
 
 		/// <summary>
 		/// Save the settings in the folder's .hg, creating the folder and settings if necessary.

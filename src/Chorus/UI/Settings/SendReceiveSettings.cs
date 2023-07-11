@@ -83,7 +83,7 @@ namespace Chorus.UI.Settings
 		{
 			if(_internetButtonEnabledCheckBox.Checked)
 			{
-				_internetModel.SaveSettings();
+				_internetModel.SaveSettingsThatMakeSense();
 			}
 			_model.SaveSettings();
 			Properties.Settings.Default.InternetEnabled = _internetButtonEnabledCheckBox.Checked;
