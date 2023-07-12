@@ -5,6 +5,7 @@
     <AssemblyTitle>Chorus</AssemblyTitle>
     <PackageId>SIL.Chorus.App</PackageId>
     <OutputType>Exe</OutputType>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>

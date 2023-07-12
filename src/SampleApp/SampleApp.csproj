@@ -6,6 +6,7 @@
     <Description>Sample app for chorus.</Description>
     <OutputType>WinExe</OutputType>
     <IsPackable>false</IsPackable>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>

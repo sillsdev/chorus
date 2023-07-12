@@ -5,6 +5,7 @@
     <AssemblyTitle>ChorusHubApp</AssemblyTitle>
     <PackageId>SIL.Chorus.ChorusHubApp</PackageId>
     <OutputType>WinExe</OutputType>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>
