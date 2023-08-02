@@ -1,12 +1,14 @@
 using System.Collections.Generic;
+using System.IO;
 
 namespace Chorus.sync
 {
 	public class ProjectFolderConfiguration
 	{
 		public const string BareFolderReadmeFileName = "~~*.txt";
+		public static string ChorusStorageFolderContent = Path.Combine("Chorus", "ChorusStorage", "**.*");
 		private readonly List<string> _includePatterns = new List<string>(new[] { "**.ChorusNotes" });
-		private readonly List<string> _excludePatterns = new List<string>(new[] { BareFolderReadmeFileName /* for bare folder readme file */, "**.NewChorusNotes" });
+		private readonly List<string> _excludePatterns = new List<string>(new[] { BareFolderReadmeFileName /* for bare folder readme file */, "**.NewChorusNotes", ChorusStorageFolderContent });
 		private string _folderPath;
 
 		public ProjectFolderConfiguration(string folderPath)
@@ -59,6 +61,8 @@ namespace Chorus.sync
 				projectFolderConfiguration._excludePatterns.Add(BareFolderReadmeFileName);
 			if (!projectFolderConfiguration._excludePatterns.Contains("**.NewChorusNotes"))
 				projectFolderConfiguration._excludePatterns.Add("**.NewChorusNotes");
+			if (!projectFolderConfiguration._excludePatterns.Contains(ChorusStorageFolderContent))
+				projectFolderConfiguration._excludePatterns.Add(ChorusStorageFolderContent);
 		}
 
 		public static void AddExcludedVideoExtensions(ProjectFolderConfiguration projectFolderConfiguration)
