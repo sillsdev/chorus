@@ -73,6 +73,7 @@ namespace LibChorus.Tests.FileHandlers
 				Assert.That(syncResults.Succeeded, Is.True);
 
 				projectFolderConfiguration.ExcludePatterns.Remove(ProjectFolderConfiguration.BareFolderReadmeFileName);
+				projectFolderConfiguration.ExcludePatterns.Remove(ProjectFolderConfiguration.ChorusStorageFolderContent);
 				Assert.That(projectFolderConfiguration.ExcludePatterns.Count, Is.EqualTo(2));
 				Assert.That(projectFolderConfiguration.ExcludePatterns[0], Does.Contain(whopperFileName));
 

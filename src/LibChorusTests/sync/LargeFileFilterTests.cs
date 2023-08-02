@@ -243,6 +243,31 @@ namespace LibChorus.Tests.sync
 		}
 
 		[Test]
+		public void BundleInCacheDoesNotWarn()
+		{
+			using (var bob = new RepositorySetup("bob"))
+			{
+				var megabyteLongData = "super-duper-long" + Environment.NewLine;
+				while (megabyteLongData.Length < LargeFileFilter.Megabyte * 10)
+					megabyteLongData += megabyteLongData;
+				var chorusStoragePath = ProjectFolderConfiguration.ChorusStorageFolderContent.Replace("**.*", "");
+				string fileName = Path.Combine(chorusStoragePath, "test.bundle");
+				Directory.CreateDirectory(Path.Combine(bob.ProjectFolder.Path, chorusStoragePath));
+				bob.ChangeFile(fileName, megabyteLongData);
+				var config = bob.ProjectFolderConfig;
+
+				var result = LargeFileFilter.FilterFiles(
+					bob.Repository,
+					config,
+					ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers());
+				Assert.That(result, Is.Null.Or.Empty);
+				Assert.That(config.ExcludePatterns, Contains.Item(ProjectFolderConfiguration.ChorusStorageFolderContent));
+				bob.Repository.AddAndCheckinFiles(config.IncludePatterns, config.ExcludePatterns, "Some commit");
+				bob.AssertFileDoesNotExistInRepository("test.bundle");
+			}
+		}
+
+		[Test]
 		public void NormallyExcludedFwdataFileIsNotAddedByLargeFileFilter()
 		{
 			using (var bob = new RepositorySetup("bob"))
