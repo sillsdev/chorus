@@ -16,6 +16,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- [SIL.Chorus.LibChorus] Add webm as additional audio file type
+
+### Changed
+
+- Use UTF-8 in conflict details view
+- [SIL.Chorus.LibChorus] Add ChorusStorage (the bundle cache) as an Excluded folder
+
+### Fixed
+
+- Prevent S&R to Internet without full URL
+
+## [5.1.0] - 2023-03-07
+
 ### Changed
 
 - [SIL.Chorus.ChorusMerge] Additionally build with .net 6
@@ -53,7 +68,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [3.0.0] - non-nuget version
 
-[Unreleased]: https://github.com/sillsdev/libpalaso/compare/v5.0.0...master
+[Unreleased]: https://github.com/sillsdev/libpalaso/compare/v5.1.0...master
 
+[5.1.0]: https://github.com/sillsdev/libpalaso/compare/v5.0.0...v5.1.0
 [5.0.0]: https://github.com/sillsdev/libpalaso/compare/v4.0.0...v5.0.0
 [4.0.0]: https://github.com/sillsdev/libpalaso/compare/v3.0.0...v4.0.0
