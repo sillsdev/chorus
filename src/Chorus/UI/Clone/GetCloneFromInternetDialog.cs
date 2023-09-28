@@ -262,10 +262,26 @@ namespace Chorus.UI.Clone
 
 		private void OnDownloadClick(object sender, EventArgs e)
 		{
+			StartClone();
+		}
+
+		public void StartClone(string username, string password, Uri targetUri)
+		{
+			_model.Username = username;
+			_model.Password = password;
+			_model.CustomUrl = targetUri.ToString();
+			_model.IsCustomUrl = true;
+			_model.LocalFolderName = GetProjectName(targetUri);
+
+			StartClone();
+		}
+
+		private void StartClone()
+		{
 			lock (this)
 			{
 				_logBox.Clear();
-				if(_backgroundWorker.IsBusy)
+				if (_backgroundWorker.IsBusy)
 					return;
 				UpdateDisplay(State.MakingClone);
 				_model.SaveUserSettings();
@@ -275,6 +291,10 @@ namespace Chorus.UI.Clone
 			}
 		}
 
+		private string GetProjectName(Uri uri)
+		{
+			return uri.Segments[1].ToString();
+		}
 
 		public string ThreadSafeUrl
 		{
