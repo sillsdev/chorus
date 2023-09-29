@@ -270,14 +270,14 @@ namespace Chorus.UI.Clone
 		/// Starts a clone operation with the supplied information.
 		/// <param name="username">Username for Mercurial authentication</param>
 		/// <param name="password">Password for Mercurial authentication</param>
-		/// <param name="host">Host name (with scheme), e.g. https://www.google.com</param>
-		/// <param name="projectName">Name of the project to clone (will be combined with the host Uri)</param>
+		/// <param name="projectName">Name of the project to clone</param>
+		/// <param name="projectUri">URI where the project can be found</param>
 		/// </summary>
-		public void StartClone(string username, string password, Uri host, string projectName)
+		public void StartClone(string username, string password, string projectName, Uri projectUri)
 		{
 			_model.Username = username;
 			_model.Password = password;
-			_model.CustomUrl = new Uri(host, projectName).ToString();
+			_model.CustomUrl = projectUri.ToString();
 			_model.IsCustomUrl = true;
 			_model.LocalFolderName = projectName;
 
