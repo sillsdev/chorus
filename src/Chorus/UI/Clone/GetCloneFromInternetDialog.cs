@@ -265,13 +265,21 @@ namespace Chorus.UI.Clone
 			StartClone();
 		}
 
-		public void StartClone(string username, string password, Uri targetUri)
+		
+		/// <summary>
+		/// Starts a clone operation with the supplied information.
+		/// <param name="username">Username for Mercurial authentication</param>
+		/// <param name="password">Password for Mercurial authentication</param>
+		/// <param name="host">Host name (with scheme), e.g. https://www.google.com</param>
+		/// <param name="projectName">Name of the project to clone (will be combined with the host Uri)</param>
+		/// </summary>
+		public void StartClone(string username, string password, Uri host, string projectName)
 		{
 			_model.Username = username;
 			_model.Password = password;
-			_model.CustomUrl = targetUri.ToString();
+			_model.CustomUrl = new Uri(host, projectName).ToString();
 			_model.IsCustomUrl = true;
-			_model.LocalFolderName = GetProjectName(targetUri);
+			_model.LocalFolderName = projectName;
 
 			StartClone();
 		}
@@ -289,11 +297,6 @@ namespace Chorus.UI.Clone
 				//_backgroundWorker.RunWorkerAsync(new object[] { ThreadSafeUrl, PathToNewProject, _progress });
 				_backgroundWorker.RunWorkerAsync(new object[0]);
 			}
-		}
-
-		private string GetProjectName(Uri uri)
-		{
-			return uri.Segments[1].ToString();
 		}
 
 		public string ThreadSafeUrl
