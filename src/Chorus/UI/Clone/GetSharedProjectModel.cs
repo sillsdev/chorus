@@ -113,9 +113,13 @@ namespace Chorus.UI.Clone
 
 					using (var getCloneFromChorusHubDialog = new GetCloneFromChorusHubDialog(getCloneFromChorusHubModel))
 					{
-						result = GetResult(getCloneFromChorusHubDialog.ShowDialog(parent),
-							getCloneFromChorusHubDialog.PathToNewlyClonedFolder,
-							getCloneFromChorusHubModel.CloneSucceeded);
+						var dlgResult = getCloneFromChorusHubDialog.ShowDialog(parent);
+						if (dlgResult == DialogResult.OK && !getCloneFromChorusHubModel.CloneSucceeded)
+						{
+							// User clicked OK, but clone failed. Pass anything other than OK or Cancel to get CloneStatus.NotCreated
+							dlgResult = DialogResult.Abort;
+						}
+						result = GetResult(dlgResult, getCloneFromChorusHubDialog.PathToNewlyClonedFolder);
 					}
 					break;
 
@@ -145,7 +149,7 @@ namespace Chorus.UI.Clone
 			return result;
 		}
 
-		internal static CloneResult GetResult(DialogResult dialogResult, string cloneLocation, bool success = true)
+		internal static CloneResult GetResult(DialogResult dialogResult, string cloneLocation)
 		{
 			CloneStatus cloneStatus;
 			switch (dialogResult)
@@ -157,7 +161,7 @@ namespace Chorus.UI.Clone
 					cloneStatus = CloneStatus.Cancelled;
 					break;
 				case DialogResult.OK:
-					cloneStatus = success ? CloneStatus.Created : CloneStatus.NotCreated;
+					cloneStatus = CloneStatus.Created;
 					break;
 			}
 
