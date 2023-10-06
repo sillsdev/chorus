@@ -96,6 +96,38 @@ namespace Chorus.UI.Clone
 
 		}
 
+
+		/// <summary>
+		/// Performs a clone operation with the supplied information.
+		/// <param name="username">Username for Mercurial authentication</param>
+		/// <param name="password">Password for Mercurial authentication</param>
+		/// <param name="projectFolder">The parent directory to put the clone in</param>
+		/// <param name="projectName">Name for the project on the local machine</param>
+		/// <param name="projectUri">URI where the project can be found</param>
+		/// </summary>
+		public static CloneResult DoClone(string username, string password, string projectFolder, string projectName, Uri projectUri)
+		{
+			var model = new GetCloneFromInternetModel(projectFolder)
+			{
+				Username = username,
+				Password = password,
+				CustomUrl = projectUri.ToString(),
+				IsCustomUrl = true,
+				LocalFolderName = projectName
+			};
+
+			var dialog = new GetCloneFromInternetDialog(model);
+			DialogResult? res = null;
+			dialog.FormClosing += (sender, args) => res = dialog.DialogResult;
+
+			dialog.Show();
+			dialog.StartClone();
+			Application.Run(dialog);
+
+			var cloneStatus = res == DialogResult.OK ? CloneStatus.Created : CloneStatus.NotCreated;
+			return new CloneResult(dialog.PathToNewlyClonedFolder, cloneStatus);
+		}
+
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			if (_statusProgress.ErrorEncountered)
@@ -263,33 +295,6 @@ namespace Chorus.UI.Clone
 		private void OnDownloadClick(object sender, EventArgs e)
 		{
 			StartClone();
-		}
-
-		
-		/// <summary>
-		/// Starts a clone operation with the supplied information.
-		/// <param name="username">Username for Mercurial authentication</param>
-		/// <param name="password">Password for Mercurial authentication</param>
-		/// <param name="projectFolder">The parent directory to put the clone in</param>
-		/// <param name="projectName">Name of the project to clone</param>
-		/// <param name="projectUri">URI where the project can be found</param>
-		/// </summary>
-		public static GetCloneFromInternetDialog StartClone(string username, string password, string projectFolder, string projectName, Uri projectUri)
-		{
-			var model = new GetCloneFromInternetModel(projectFolder)
-			{
-				Username = username,
-				Password = password,
-				CustomUrl = projectUri.ToString(),
-				IsCustomUrl = true,
-				LocalFolderName = projectName
-			};
-
-			var dialog = new GetCloneFromInternetDialog(model);
-			dialog.Show();
-			dialog.StartClone();
-
-			return dialog;
 		}
 
 		private void StartClone()
