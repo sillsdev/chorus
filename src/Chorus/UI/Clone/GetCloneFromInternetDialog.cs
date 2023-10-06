@@ -116,16 +116,14 @@ namespace Chorus.UI.Clone
 				LocalFolderName = projectName
 			};
 
-			var dialog = new GetCloneFromInternetDialog(model);
-			DialogResult? res = null;
-			dialog.FormClosing += (sender, args) => res = dialog.DialogResult;
+			using (var dialog = new GetCloneFromInternetDialog(model))
+			{
+				dialog.Show();
+				dialog.StartClone();
+				Application.Run(dialog);
 
-			dialog.Show();
-			dialog.StartClone();
-			Application.Run(dialog);
-
-			var cloneStatus = res == DialogResult.OK ? CloneStatus.Created : CloneStatus.NotCreated;
-			return new CloneResult(dialog.PathToNewlyClonedFolder, cloneStatus);
+				return GetSharedProjectModel.GetResult(dialog.DialogResult, dialog.PathToNewlyClonedFolder);
+			}
 		}
 
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

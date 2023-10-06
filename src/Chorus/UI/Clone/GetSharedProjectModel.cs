@@ -76,6 +76,8 @@ namespace Chorus.UI.Clone
 			// "Seeing fit' may mean to warn the user they already have some repository, or as a filter to not show ones that already exist.
 			// What to do with the list of extant repos is left up to a view+model pair.
 
+			var result = new CloneResult(null, CloneStatus.NotCreated);
+
 			// Select basic source type.
 			using (var getSharedProjectDlg = new GetSharedProjectDlg())
 			{
@@ -83,13 +85,11 @@ namespace Chorus.UI.Clone
 				getSharedProjectDlg.ShowDialog(parent);
 				if (getSharedProjectDlg.DialogResult != DialogResult.OK)
 				{
-					return new CloneResult(null, CloneStatus.NotCreated);
+					return result;
 				}
 			}
 
 			// Make clone from some source.
-			string actualCloneLocation = null;
-			var cloneStatus = CloneStatus.NotCreated;
 			switch (RepositorySource)
 			{
 				case ExtantRepoSource.Internet:
@@ -99,19 +99,7 @@ namespace Chorus.UI.Clone
 						};
 					using (var cloneFromInternetDialog = new GetCloneFromInternetDialog(cloneFromInternetModel))
 					{
-						switch (cloneFromInternetDialog.ShowDialog(parent))
-						{
-							default:
-								cloneStatus = CloneStatus.NotCreated;
-								break;
-							case DialogResult.Cancel:
-								cloneStatus = CloneStatus.Cancelled;
-								break;
-							case DialogResult.OK:
-								actualCloneLocation = cloneFromInternetDialog.PathToNewlyClonedFolder;
-								cloneStatus = CloneStatus.Created;
-								break;
-						}
+						result = GetResult(cloneFromInternetDialog.ShowDialog(parent), cloneFromInternetDialog.PathToNewlyClonedFolder);
 					}
 					break;
 
@@ -125,26 +113,9 @@ namespace Chorus.UI.Clone
 
 					using (var getCloneFromChorusHubDialog = new GetCloneFromChorusHubDialog(getCloneFromChorusHubModel))
 					{
-						switch (getCloneFromChorusHubDialog.ShowDialog(parent))
-						{
-							default:
-								cloneStatus = CloneStatus.NotCreated;
-								break;
-							case DialogResult.Cancel:
-								cloneStatus = CloneStatus.Cancelled;
-								break;
-							case DialogResult.OK:
-								if (getCloneFromChorusHubModel.CloneSucceeded)
-								{
-									actualCloneLocation = getCloneFromChorusHubDialog.PathToNewlyClonedFolder;
-									cloneStatus = CloneStatus.Created;
-								}
-								else
-								{
-									cloneStatus = CloneStatus.NotCreated;
-								}
-								break;
-						}
+						result = GetResult(getCloneFromChorusHubDialog.ShowDialog(parent),
+							getCloneFromChorusHubDialog.PathToNewlyClonedFolder,
+							getCloneFromChorusHubModel.CloneSucceeded);
 					}
 					break;
 
@@ -154,40 +125,43 @@ namespace Chorus.UI.Clone
 						cloneFromUsbDialog.Model.ProjectFilter = projectFilter ?? DefaultProjectFilter;
 						cloneFromUsbDialog.Model.ReposInUse = existingRepositories;
 						cloneFromUsbDialog.Model.ExistingProjects = existingProjectNames;
-						switch (cloneFromUsbDialog.ShowDialog(parent))
-						{
-							default:
-								cloneStatus = CloneStatus.NotCreated;
-								break;
-							case DialogResult.Cancel:
-								cloneStatus = CloneStatus.Cancelled;
-								break;
-							case DialogResult.OK:
-								actualCloneLocation = cloneFromUsbDialog.PathToNewlyClonedFolder;
-								cloneStatus = CloneStatus.Created;
-								break;
-						}
+						// USB repositories have already been checked for to see if the same repo has already been cloned; return before this check
+						return GetResult(cloneFromUsbDialog.ShowDialog(parent), cloneFromUsbDialog.PathToNewlyClonedFolder);
 					}
-					break;
 
 			}
 			// Warn the user if they already have this by another name.
-			// Not currently needed for USB, since those have already been checked.
-			if (RepositorySource != ExtantRepoSource.Usb && cloneStatus == CloneStatus.Created)
+			if (result.CloneStatus == CloneStatus.Created)
 			{
-				var repo = new HgRepository(actualCloneLocation, new NullProgress());
-				string projectWithExistingRepo;
-				if (repo.Identifier != null && existingRepositories.TryGetValue(repo.Identifier, out projectWithExistingRepo))
+				var repo = new HgRepository(result.ActualLocation, new NullProgress());
+				if (repo.Identifier != null && existingRepositories.TryGetValue(repo.Identifier, out var projectWithExistingRepo))
 				{
 					using (var warningDlg = new DuplicateProjectWarningDialog())
 						warningDlg.Run(projectWithExistingRepo, howToSendReceiveMessageText);
-					Directory.Delete(actualCloneLocation, true);
-					actualCloneLocation = null;
-					cloneStatus = CloneStatus.Cancelled;
+					Directory.Delete(result.ActualLocation, true);
+					return new CloneResult(null, CloneStatus.NotCreated);
 				}
-
 			}
-			return new CloneResult(actualCloneLocation, cloneStatus);
+			return result;
+		}
+
+		internal static CloneResult GetResult(DialogResult dialogResult, string cloneLocation, bool success = true)
+		{
+			CloneStatus cloneStatus;
+			switch (dialogResult)
+			{
+				default:
+					cloneStatus = CloneStatus.NotCreated;
+					break;
+				case DialogResult.Cancel:
+					cloneStatus = CloneStatus.Cancelled;
+					break;
+				case DialogResult.OK:
+					cloneStatus = success ? CloneStatus.Created : CloneStatus.NotCreated;
+					break;
+			}
+
+			return new CloneResult(cloneStatus == CloneStatus.Created ? cloneLocation : null, cloneStatus);
 		}
 
 		internal static bool DefaultProjectFilter(string path)
