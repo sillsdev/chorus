@@ -104,12 +104,12 @@ namespace Chorus.UI.Clone
 		/// <param name="projectFolder">The parent directory to put the clone in</param>
 		/// <param name="projectName">Name for the project on the local machine</param>
 		/// <param name="projectUri">URI where the project can be found</param>
-		public static CloneResult ConfirmAndDoClone(string username, string password, string projectFolder, string projectName, Uri projectUri)
+		public static CloneResult ConfirmAndDoClone(string username, string password, string projectFolder, string projectName, string projectUri)
 		{
 			var projectNameExtractor = new GetCloneFromInternetModel();
-			projectNameExtractor.InitFromUri(projectUri.ToString());
+			projectNameExtractor.InitFromUri(projectUri);
 			var proj = string.IsNullOrEmpty(projectNameExtractor.ProjectId) ? projectName : projectNameExtractor.ProjectId;
-			var host = new Uri(projectUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.SafeUnescaped));
+			var host = new Uri(projectUri).GetComponents(UriComponents.SchemeAndServer, UriFormat.SafeUnescaped);
 
 			var msg = string.Format(LocalizationManager.GetString("GetCloneFromInternet.DownloadProjectFromHost", "Download {0} from {1}?"),
 				proj, host);
@@ -128,13 +128,13 @@ namespace Chorus.UI.Clone
 		/// <param name="projectFolder">The parent directory to put the clone in</param>
 		/// <param name="projectName">Name for the project on the local machine</param>
 		/// <param name="projectUri">URI where the project can be found</param>
-		public static CloneResult DoClone(string username, string password, string projectFolder, string projectName, Uri projectUri)
+		public static CloneResult DoClone(string username, string password, string projectFolder, string projectName, string projectUri)
 		{
 			var model = new GetCloneFromInternetModel(projectFolder)
 			{
 				Username = username,
 				Password = password,
-				CustomUrl = projectUri.ToString(),
+				CustomUrl = projectUri,
 				IsCustomUrl = true,
 				LocalFolderName = projectName
 			};
