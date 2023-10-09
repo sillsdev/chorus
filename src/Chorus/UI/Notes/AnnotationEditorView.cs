@@ -123,12 +123,6 @@ namespace Chorus.UI.Notes
 			_existingMessagesDisplay.ScrollLastElementIntoView();
 		}
 
-		private void OnBrower_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-		{
-			WebBrowser x = sender as WebBrowser;
-			x.Document.BackColor = this.BackColor;
-		}
-
 		private void _existingMessagesDisplay_Navigating(object sender, WebBrowserNavigatingEventArgs e)
 		{
 			if (e.Url.Scheme == "about" || e.Url.Scheme == "file")
