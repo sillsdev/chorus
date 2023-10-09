@@ -1,0 +1,9 @@
+base_path : "."
+preserve_hierarchy: true
+
+files: [
+ {
+  "source" : "Chorus.en.xlf",
+  "translation" : "/%locale%/Chorus.%locale%.xlf",
+ }
+]

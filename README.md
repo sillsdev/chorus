@@ -132,4 +132,4 @@ Copy `src/LibChorus/Properties/launchSettings.json.sample` to `launchSettings.js
 
 ### Localization
 
-Chorus is localized with [L10NSharp](https://github.com/sillsdev/l10nsharp). Chorus-specific documentation has been lost to history.
+Chorus is localized with [L10NSharp](https://github.com/sillsdev/l10nsharp). Chorus-specific documentation is under `l10n/README.md`.
