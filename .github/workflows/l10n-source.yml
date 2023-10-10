@@ -40,7 +40,7 @@ jobs:
 
     - name: Download Chorus.en.xlf source file # new strings will be merged into the existing file
       working-directory: ./l10n
-      run: crowdin download sources -T ${{ secrets.CROWDIN_PAT }} -i ${{ secrets.CROWDIN_PROJECT_ID }}
+      run: crowdin download sources -T ${{ secrets.CROWDIN_PAT }}
 
     - name: Restore packages
       run: msbuild l10n/l10n.proj /t:restore /p:Configuration=Release /p:Platform="Any CPU"
@@ -52,4 +52,4 @@ jobs:
 
     - name: Upload Chorus.en.xlf source file
       working-directory: ./l10n
-      run: crowdin upload sources -T ${{ secrets.CROWDIN_PAT }} -i ${{ secrets.CROWDIN_PROJECT_ID }}
+      run: crowdin upload sources -T ${{ secrets.CROWDIN_PAT }}
