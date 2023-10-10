@@ -10,7 +10,7 @@
 On each commit to `master`, a GitHub Action runs to
 - Download the current `Chorus.en.xlf` from Crowdin.
   (L10NSharp.ExtractXliff version 7.0.0-beta0011 fails to extract all strings, as not all are internationalized.
-  Merging into the existing file is easier than fixing 128 uninternationalized strings.)
+  Merging into the existing file is easier than fixing 195 uninternationalized strings.)
 - Extract all internationalized strings from all Chorus projects to `Chorus.en.xlf`
 - Upload Chorus.en.xlf to [Crowdin](https://crowdin.com/project/sil-common-libraries)
 

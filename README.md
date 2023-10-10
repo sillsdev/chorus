@@ -74,7 +74,7 @@ The following list of features should help you understand why we built this laye
 Chorus is functional and being used in several applications with different development teams.
 However, we are not really interested in supporting
 any further uses until things mature and someone writes good developer documentation.
-Documentation (what little exists) was kept in [this blog](http://chorussr.wordpress.com/),
+Documentation (what little exists) was kept on [this blog](http://chorussr.wordpress.com/),
 which contains three posts from August 2009.
 
 ## Testers
