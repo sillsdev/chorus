@@ -1,4 +1,4 @@
-name: "Build, Test and Pack"
+name: "Build, Test, and Pack"
 
 on:
   push:
