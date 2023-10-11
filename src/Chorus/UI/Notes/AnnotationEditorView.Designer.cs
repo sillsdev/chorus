@@ -1,4 +1,4 @@
-﻿using SIL.Windows.Forms.HtmlBrowser;
+using SIL.Windows.Forms.HtmlBrowser;
 
 namespace Chorus.UI.Notes
 {
@@ -55,7 +55,7 @@ namespace Chorus.UI.Notes
 			//
 			this._okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._okButton, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._okButton, null);
+			this.l10NSharpExtender1.SetLocalizationComment(this._okButton, "DO NOT LOCALIZE: this placeholder text is replaced when the dialog is displayed");
 			this.l10NSharpExtender1.SetLocalizingId(this._okButton, "AnnotationEditorView.Add");
 			this._okButton.Location = new System.Drawing.Point(159, 389);
 			this._okButton.Name = "_okButton";
@@ -88,7 +88,7 @@ namespace Chorus.UI.Notes
 			this._closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._closeButton, null);
 			this.l10NSharpExtender1.SetLocalizationComment(this._closeButton, null);
-			this.l10NSharpExtender1.SetLocalizingId(this._closeButton, "AnnotationEditorView.AddAndOk");
+			this.l10NSharpExtender1.SetLocalizingId(this._closeButton, "Common.Cancel");
 			this._closeButton.Location = new System.Drawing.Point(255, 389);
 			this._closeButton.Name = "_closeButton";
 			this._closeButton.Size = new System.Drawing.Size(63, 23);
