@@ -130,20 +130,24 @@ namespace Chorus.UI.Clone
 		/// <param name="projectUri">URI where the project can be found</param>
 		public static CloneResult DoClone(string username, string password, string projectFolder, string projectName, string projectUri)
 		{
-			var model = new GetCloneFromInternetModel(projectFolder)
-			{
-				Username = username,
-				Password = password,
-				CustomUrl = projectUri,
-				IsCustomUrl = true,
-				LocalFolderName = projectName
-			};
+			var model = new GetCloneFromInternetModel(projectFolder);
+			var oldUser = model.Username;
+			var oldPass = model.Password;
+			model.Username = username;
+			model.Password = password;
+			model.CustomUrl = projectUri;
+			model.IsCustomUrl = true;
+			model.LocalFolderName = projectName;
 
 			using (var dialog = new GetCloneFromInternetDialog(model))
 			{
 				dialog.Show();
 				dialog.StartClone();
 				Application.Run(dialog);
+
+				model.Username = oldUser;
+				model.Password = oldPass;
+				model.SaveUserSettings();
 
 				return GetSharedProjectModel.GetResult(dialog.DialogResult, dialog.PathToNewlyClonedFolder);
 			}
