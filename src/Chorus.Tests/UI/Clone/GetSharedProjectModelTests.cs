@@ -1,4 +1,5 @@
-﻿using System.IO;
+using System.IO;
+using System.Windows.Forms;
 using Chorus.UI.Clone;
 using Chorus.VcsDrivers.Mercurial;
 using NUnit.Framework;
@@ -10,6 +11,17 @@ namespace Chorus.Tests.UI.Clone
 	[TestFixture]
 	public class GetSharedProjectModelTests
 	{
+		[TestCase(DialogResult.OK, "C:\\somewhere", CloneStatus.Created)]
+		[TestCase(DialogResult.Cancel, "S:\\miles", CloneStatus.Cancelled)]
+		[TestCase(DialogResult.Abort, "E:\\elsewhere", CloneStatus.NotCreated)]
+		[TestCase(DialogResult.None, "~/no/where", CloneStatus.NotCreated)]
+		public void GetResult(DialogResult dialogResult, string cloneLocation, CloneStatus expectedStatus)
+		{
+			var result = GetSharedProjectModel.GetResult(dialogResult, cloneLocation);
+			Assert.That(result.CloneStatus, Is.EqualTo(expectedStatus));
+			Assert.That(result.ActualLocation, Is.EqualTo(expectedStatus == CloneStatus.Created ? cloneLocation : null));
+		}
+
 		[Test]
 		public void HasNoExtantRepositories()
 		{
