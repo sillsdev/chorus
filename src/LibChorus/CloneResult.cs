@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2015 SIL International
+// Copyright (c) 2015 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
 using System;
 
@@ -17,9 +17,9 @@ namespace Chorus
 		}
 
 		/// <summary>Get the actual location of a clone. (May, or may not, be the same as the desired location.)</summary>
-		public string ActualLocation { get; private set; }
+		public string ActualLocation { get; }
 		/// <summary>Get the status of the clone attempt.</summary>
-		public CloneStatus CloneStatus { get; private set; }
+		public CloneStatus CloneStatus { get; }
 	}
 
 	/// <summary>

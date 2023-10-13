@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - [SIL.Chorus.LibChorus] Add webm as additional audio file type
+- [SIL.Chorus] Add ability to clone project without direct user interaction
 
 ### Changed
 

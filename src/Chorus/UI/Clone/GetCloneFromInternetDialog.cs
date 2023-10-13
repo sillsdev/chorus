@@ -96,6 +96,73 @@ namespace Chorus.UI.Clone
 
 		}
 
+		/// <summary>
+		/// Confirms with a dialog, then performs a clone operation with the supplied information.
+		/// </summary>
+		/// <param name="username">Username for Mercurial authentication</param>
+		/// <param name="password">Password for Mercurial authentication</param>
+		/// <param name="projectFolder">The parent directory to put the clone in</param>
+		/// <param name="projectName">Name for the project on the local machine</param>
+		/// <param name="projectUri">URI where the project can be found</param>
+		/// <param name="saveUserSettings">Flag to persist username and password in settings</param>
+		public static CloneResult ConfirmAndDoClone(string username, string password, string projectFolder, string projectName, string projectUri, bool saveUserSettings = true)
+		{
+			var projectNameExtractor = new GetCloneFromInternetModel();
+			projectNameExtractor.InitFromUri(projectUri);
+			var proj = string.IsNullOrEmpty(projectNameExtractor.ProjectId) ? projectName : projectNameExtractor.ProjectId;
+			var host = new Uri(projectUri).GetComponents(UriComponents.SchemeAndServer, UriFormat.SafeUnescaped);
+
+			var msg = string.Format(LocalizationManager.GetString("GetCloneFromInternet.DownloadProjectFromHost", "Download {0} from {1}?"),
+				proj, host);
+			var caption = LocalizationManager.GetString("GetCloneFromInternet.ConfirmDownload", "Confirm Download");
+
+			return MessageBox.Show(msg, caption, MessageBoxButtons.YesNo) == DialogResult.Yes
+				? DoClone(username, password, projectFolder, projectName, projectUri, saveUserSettings)
+				: null;
+		}
+
+		/// <summary>
+		/// Performs a clone operation with the supplied information.
+		/// </summary>
+		/// <param name="username">Username for Mercurial authentication</param>
+		/// <param name="password">Password for Mercurial authentication</param>
+		/// <param name="projectFolder">The parent directory to put the clone in</param>
+		/// <param name="projectName">Name for the project on the local machine</param>
+		/// <param name="projectUri">URI where the project can be found</param>
+		/// <param name="saveUserSettings">Flag to persist username and password in settings</param>
+		public static CloneResult DoClone(string username, string password, string projectFolder, string projectName, string projectUri, bool saveUserSettings = true)
+		{
+			var model = new GetCloneFromInternetModel(projectFolder);
+			var oldUser = model.Username;
+			var oldPass = model.Password;
+			model.Username = username;
+			model.Password = password;
+			model.CustomUrl = projectUri;
+			model.IsCustomUrl = true;
+			model.LocalFolderName = projectName;
+
+			using (var dialog = new GetCloneFromInternetDialog(model))
+			{
+				try
+				{
+					dialog.Show();
+					dialog.StartClone();
+					Application.Run(dialog);
+				}
+				finally
+				{
+					if (!saveUserSettings)
+					{
+						model.Username = oldUser;
+						model.Password = oldPass;
+						model.SaveUserSettings();
+					}
+				}
+
+				return GetSharedProjectModel.GetResult(dialog.DialogResult, dialog.PathToNewlyClonedFolder);
+			}
+		}
+
 		private void _backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
 			if (_statusProgress.ErrorEncountered)
@@ -262,19 +329,22 @@ namespace Chorus.UI.Clone
 
 		private void OnDownloadClick(object sender, EventArgs e)
 		{
+			StartClone();
+		}
+
+		private void StartClone()
+		{
 			lock (this)
 			{
 				_logBox.Clear();
-				if(_backgroundWorker.IsBusy)
+				if (_backgroundWorker.IsBusy)
 					return;
 				UpdateDisplay(State.MakingClone);
 				_model.SaveUserSettings();
 				ThreadSafeUrl = _model.URL;
-				//_backgroundWorker.RunWorkerAsync(new object[] { ThreadSafeUrl, PathToNewProject, _progress });
 				_backgroundWorker.RunWorkerAsync(new object[0]);
 			}
 		}
-
 
 		public string ThreadSafeUrl
 		{
