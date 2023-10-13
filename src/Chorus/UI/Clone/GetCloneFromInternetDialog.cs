@@ -104,7 +104,8 @@ namespace Chorus.UI.Clone
 		/// <param name="projectFolder">The parent directory to put the clone in</param>
 		/// <param name="projectName">Name for the project on the local machine</param>
 		/// <param name="projectUri">URI where the project can be found</param>
-		public static CloneResult ConfirmAndDoClone(string username, string password, string projectFolder, string projectName, string projectUri)
+		/// <param name="saveUserSettings">Flag to persist username and password in settings</param>
+		public static CloneResult ConfirmAndDoClone(string username, string password, string projectFolder, string projectName, string projectUri, bool saveUserSettings = true)
 		{
 			var projectNameExtractor = new GetCloneFromInternetModel();
 			projectNameExtractor.InitFromUri(projectUri);
@@ -116,7 +117,7 @@ namespace Chorus.UI.Clone
 			var caption = LocalizationManager.GetString("GetCloneFromInternet.ConfirmDownload", "Confirm Download");
 
 			return MessageBox.Show(msg, caption, MessageBoxButtons.YesNo) == DialogResult.Yes
-				? DoClone(username, password, projectFolder, projectName, projectUri)
+				? DoClone(username, password, projectFolder, projectName, projectUri, saveUserSettings)
 				: null;
 		}
 
