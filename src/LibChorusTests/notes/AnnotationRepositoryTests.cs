@@ -224,7 +224,7 @@ namespace LibChorus.Tests.notes
 		// the setup of the watcher or the code in Save that tries to prevent the notifications at all,
 		// which is more than half the code this test wants to exercise.
 		[Test]
-		[Platform(Exclude = "Linux", Reason = "flaky (on both platforms)")]
+		[Platform(Exclude = "Win", Reason = "flaky (on both platforms)")]
 		public void ExternalFileModification_NotifiesIndices_ButSaveDoesNot()
 		{
 			const int SleepTime = 10; // milliseconds
