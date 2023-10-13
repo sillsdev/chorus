@@ -128,7 +128,8 @@ namespace Chorus.UI.Clone
 		/// <param name="projectFolder">The parent directory to put the clone in</param>
 		/// <param name="projectName">Name for the project on the local machine</param>
 		/// <param name="projectUri">URI where the project can be found</param>
-		public static CloneResult DoClone(string username, string password, string projectFolder, string projectName, string projectUri)
+		/// <param name="saveUserSettings">Flag to persist username and password in settings</param>
+		public static CloneResult DoClone(string username, string password, string projectFolder, string projectName, string projectUri, bool saveUserSettings = true)
 		{
 			var model = new GetCloneFromInternetModel(projectFolder);
 			var oldUser = model.Username;
@@ -141,13 +142,21 @@ namespace Chorus.UI.Clone
 
 			using (var dialog = new GetCloneFromInternetDialog(model))
 			{
-				dialog.Show();
-				dialog.StartClone();
-				Application.Run(dialog);
-
-				model.Username = oldUser;
-				model.Password = oldPass;
-				model.SaveUserSettings();
+				try
+				{
+					dialog.Show();
+					dialog.StartClone();
+					Application.Run(dialog);
+				}
+				finally
+				{
+					if (!saveUserSettings)
+					{
+						model.Username = oldUser;
+						model.Password = oldPass;
+						model.SaveUserSettings();
+					}
+				}
 
 				return GetSharedProjectModel.GetResult(dialog.DialogResult, dialog.PathToNewlyClonedFolder);
 			}
