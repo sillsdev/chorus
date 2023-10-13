@@ -214,6 +214,7 @@ namespace LibChorus.Tests.notes
 			}
 		}
 
+		// JohnT (2020.03), RE: https://jira.sil.org/browse/LT-20074
 		// I'm not very happy with this test. It's more integration than unit test. It might be flaky,
 		// if some build agent's file system is slow to send file modification notifications.
 		// It doesn't guarantee that both the guards against sending notifications for our own Saves
@@ -223,7 +224,7 @@ namespace LibChorus.Tests.notes
 		// the setup of the watcher or the code in Save that tries to prevent the notifications at all,
 		// which is more than half the code this test wants to exercise.
 		[Test]
-		[Platform(Exclude = "Linux", Reason = "flaky")]
+		[Platform(Exclude = "Linux", Reason = "flaky (on both platforms)")]
 		public void ExternalFileModification_NotifiesIndices_ButSaveDoesNot()
 		{
 			const int SleepTime = 10; // milliseconds
