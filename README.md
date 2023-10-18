@@ -69,13 +69,13 @@ The following list of features should help you understand why we built this laye
    any piece of data, and to carry on conversations about the data until they mark the
    note as "resolved".
 
-### Status
+## Status
 
 Chorus is functional and being used in several applications with different development teams.
 However, we are not really interested in supporting
 any further uses until things mature and someone writes good developer documentation.
-Documentation (what little exists) drips out in the form of occasional blogs
-[here](http://chorussr.wordpress.com/).
+Documentation (what little exists) was kept on [this blog](http://chorussr.wordpress.com/),
+which contains three posts from August 2009.
 
 ## Testers
 
@@ -129,3 +129,7 @@ Further instructions at https://github.com/sillsdev/libpalaso/wiki/Developing-wi
 ### Debugging LibChorus in client projects
 
 Copy `src/LibChorus/Properties/launchSettings.json.sample` to `launchSettings.json`; verify paths to executables and in arguments.
+
+### Localization
+
+Chorus is localized with [L10NSharp](https://github.com/sillsdev/l10nsharp). Chorus-specific documentation is under `l10n/README.md`.
