@@ -31,7 +31,7 @@ namespace Chorus.retrieval
 		public IEnumerable<IChangeReport> GetChangeRecords(Revision revision)
 		{
 			var changes = new List<IChangeReport>();
-			revision.EnsureParentRevisionInfo();
+			revision.EnsureParentRevisionInfo(Repository);
 
 			if (!revision.HasAtLeastOneParent)
 			{
