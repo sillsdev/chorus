@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Chorus.Properties;
 using Chorus.Utilities;
+using Newtonsoft.Json;
 using SIL.Progress;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -32,7 +32,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		private const int MaximumChunkSize = 20000000; // 20MB
 		private const int TimeoutInSeconds = 30;
 		private const int TargetTimeInSeconds = 7;
-		internal const string RevisionCacheFilename = "revisioncache.db";
+		internal const string RevisionCacheFilename = "revisioncache.json";
 		internal int RevisionRequestQuantity = 200;
 
 		///<summary>
@@ -65,59 +65,53 @@ namespace Chorus.VcsDrivers.Mercurial
 		///</summary>
 		private List<Revision> LastKnownCommonBases
 		{
-			get
-			{
-				string storagePath = PathToLocalStorage;
-				if (!Directory.Exists(storagePath))
-				{
-					Directory.CreateDirectory(storagePath);
-				}
-				string filePath = Path.Combine(storagePath, RevisionCacheFilename);
-				if (File.Exists(filePath))
-				{
-					List<ServerRevision> revisions = ReadServerRevisionCache(filePath);
-					if(revisions != null)
-					{
-						var remoteId = _apiServer.Host;
-						var result = revisions.Where(x => x.RemoteId == remoteId);
-						if (result.Count() > 0)
-						{
-							var results = new List<Revision>(result.Count());
-							foreach (var rev in result)
-							{
-								results.Add(rev.Revision);
-							}
-							return results;
-						}
-					}
-				}
-				return new List<Revision>();
-			}
-			set
-			{
-				string remoteId = _apiServer.Host;
-				var serverRevs = new List<ServerRevision>();
-				foreach (var revision in value)
-				{
-					serverRevs.Add(new ServerRevision(remoteId, revision));
-				}
-				var storagePath = PathToLocalStorage;
-				if (!Directory.Exists(storagePath))
-				{
-					Directory.CreateDirectory(storagePath);
-				}
+			get => GetLastKnownCommonBases(PathToLocalStorage, _apiServer.Host);
+			set => SetLastKnownCommonBases(value, PathToLocalStorage, _apiServer.Host);
+		}
 
-				var filePath = Path.Combine(storagePath, RevisionCacheFilename);
-				var fileContents = ReadServerRevisionCache(filePath);
-				fileContents.RemoveAll(x => x.RemoteId == remoteId);
-				serverRevs.AddRange(fileContents);
-				using(Stream stream = File.Open(filePath, FileMode.Create))
+		public static List<Revision> GetLastKnownCommonBases(string storagePath, string remoteId)
+		{
+			if (!Directory.Exists(storagePath))
+			{
+				Directory.CreateDirectory(storagePath);
+			}
+
+			string filePath = Path.Combine(storagePath, RevisionCacheFilename);
+			if (File.Exists(filePath))
+			{
+				List<ServerRevision> revisions = ReadServerRevisionCache(filePath);
+				if (revisions != null)
 				{
-					var bFormatter = new BinaryFormatter();
-					bFormatter.Serialize(stream, serverRevs);
-					stream.Close();
+					return revisions.Where(x => x.RemoteId == remoteId).Select(r => r.Revision).ToList();
 				}
-				return;
+			}
+
+			return new List<Revision>();
+		}
+
+		public static void SetLastKnownCommonBases(List<Revision> revisions, string storagePath, string remoteId)
+		{
+			var serverRevs = new List<ServerRevision>();
+			foreach (var revision in revisions)
+			{
+				serverRevs.Add(new ServerRevision(remoteId, revision));
+			}
+
+			if (!Directory.Exists(storagePath))
+			{
+				Directory.CreateDirectory(storagePath);
+			}
+
+			var filePath = Path.Combine(storagePath, RevisionCacheFilename);
+			var fileContents = ReadServerRevisionCache(filePath);
+			fileContents.RemoveAll(x => x.RemoteId == remoteId);
+			serverRevs.AddRange(fileContents);
+			var jsonSerializer = JsonSerializer.CreateDefault();
+			using (var stream = File.Open(filePath, FileMode.Create))
+			using (var jsonWriter = new JsonTextWriter(new StreamWriter(stream)))
+			{
+				jsonSerializer.Serialize(jsonWriter, serverRevs);
+				jsonWriter.Flush();
 			}
 		}
 
@@ -129,11 +123,11 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			if (File.Exists(filePath))
 			{
+				var jsonSerializer = JsonSerializer.CreateDefault();
 				using (Stream stream = File.Open(filePath, FileMode.Open))
+				using (var jsonReader = new JsonTextReader(new StreamReader(stream)))
 				{
-					var bFormatter = new BinaryFormatter();
-					var revisions = bFormatter.Deserialize(stream) as List<ServerRevision>;
-					stream.Close();
+					var revisions = jsonSerializer.Deserialize<List<ServerRevision>>(jsonReader);
 					return revisions;
 				}
 			}
@@ -143,16 +137,16 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
-		[Serializable]
 		internal class ServerRevision
 		{
 			public readonly string RemoteId;
 			public readonly Revision Revision;
 
-			public ServerRevision(string id, Revision rev)
+			//parameter names must be the same as the field names for json serialization to work
+			public ServerRevision(string remoteId, Revision revision)
 			{
-				RemoteId = id;
-				Revision = rev;
+				RemoteId = remoteId;
+				Revision = revision;
 			}
 		}
 

@@ -562,7 +562,7 @@ namespace Chorus.sync
 				//  when there are more than 2 people merging and there's a failure or a no-op merge happened
 				foreach (var head in heads)
 				{
-					if (parent.Number.Hash == head.Number.Hash || (head.Branch == parent.Branch && head.IsDirectDescendantOf(parent)))
+					if (parent.Number.Hash == head.Number.Hash || (head.Branch == parent.Branch && head.IsDirectDescendantOf(parent, repository)))
 					{
 						repository.RollbackWorkingDirectoryToRevision(head.Number.LocalRevisionNumber);
 						_sychronizerAdjunct.SimpleUpdate(_progress, true);

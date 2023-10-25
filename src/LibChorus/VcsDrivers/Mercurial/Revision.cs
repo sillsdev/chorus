@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
-	[Serializable]
+	/// <summary>
+	/// this class is json serialized, so don't change the names of the properties and don't store service objects in it that can't be serialized
+	/// </summary>
 	public class Revision
 	{
-		[NonSerialized]
-		private readonly HgRepository _repository;
 		public string UserId { get; set; }
 		public RevisionNumber Number;
 		public string Summary { get; set; }
@@ -27,9 +27,8 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 
-		public Revision(HgRepository repository)
+		public Revision()
 		{
-			_repository = repository;
 			Parents = new List<RevisionNumber>();
 			Tag = string.Empty;
 			Branch = string.Empty;
@@ -38,7 +37,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		public Revision(HgRepository repository, string name, string localRevisionNumber, string hash, string comment)
-			:this(repository)
+			:this()
 		{
 			UserId = name;
 			Number = new RevisionNumber(repository, localRevisionNumber, hash);
@@ -51,9 +50,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			Branch = branchName;
 		}
 
-		public void SetRevisionAndHashFromCombinedDescriptor(string descriptor)
+		public void SetRevisionAndHashFromCombinedDescriptor(string descriptor, HgRepository repository)
 		{
-			Number = new RevisionNumber(_repository, descriptor);
+			Number = new RevisionNumber(repository, descriptor);
 		}
 		public bool IsMatchingStub(Revision stub)
 		{
@@ -66,30 +65,29 @@ namespace Chorus.VcsDrivers.Mercurial
 //            return Repository.GetParentsOfRevision(this.Number.LocalRevisionNumber);
 		}
 
-		public void AddParentFromCombinedNumberAndHash(string descriptor)
+		public void AddParentFromCombinedNumberAndHash(string descriptor, HgRepository repository)
 		{
-			Parents.Add(new RevisionNumber(_repository, descriptor));
-
+			Parents.Add(new RevisionNumber(repository, descriptor));
 		}
 
-		public bool IsDirectDescendantOf(Revision revision)
+		public bool IsDirectDescendantOf(Revision revision, HgRepository repository)
 		{
-			EnsureParentRevisionInfo();
+			EnsureParentRevisionInfo(repository);
 			//TODO: this is only checking direct descendant
 			return Parents.Any(p => p.Hash == revision.Number.Hash);
 		}
 
-	 /// <summary>
+		/// <summary>
 		/// I can't for the life of me get hg to indicate parentage in the "hg log" (even with templates
 		/// asking for parents), if the revision is not the result of a merge.  And yet, it's expensive
 		/// to ask again for every single one.  So as a hack, for now, this  can be called on a revision
 		/// where we really need to know the parent.
 		/// </summary>
-		public void EnsureParentRevisionInfo()
+		public void EnsureParentRevisionInfo(HgRepository repository)
 		{
 			if (this.Parents.Count == 0)
 			{
-				Parents.AddRange(_repository.GetParentsRevisionNumbers(this.Number.LocalRevisionNumber));
+				Parents.AddRange(repository.GetParentsRevisionNumbers(this.Number.LocalRevisionNumber));
 			}
 		}
 
@@ -99,7 +97,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 	}
 
-	[Serializable]
 	public class RevisionNumber
 	{
 		internal RevisionNumber()

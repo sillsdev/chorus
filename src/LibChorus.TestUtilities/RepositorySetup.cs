@@ -297,7 +297,7 @@ namespace LibChorus.TestUtilities
 			Synchronizer.SyncNow(options);
 
 			Revision revision = Repository.GetRevisionWorkingSetIsBasedOn();
-			revision.EnsureParentRevisionInfo();
+			revision.EnsureParentRevisionInfo(Repository);
 			Assert.AreEqual(originalTip.Number.LocalRevisionNumber, revision.Parents[0].LocalRevisionNumber, "Should have moved back to original tip.");
 		}
 

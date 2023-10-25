@@ -813,7 +813,86 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
             Assert.That(HgResumeTransport.CalculateEstimatedTimeRemaining(bundleSize, chunkSize, startOfWindow), Is.EqualTo("(about 5 minutes)"));
         }
 
+		[Test]
+		public void RoundTripLastKnownCommonBases_ResultsAreTheSame()
+		{
+			string storagePath = Path.Combine(Path.GetTempPath(), "HgResumeTransportTest");
+			var expectedRevisions = new List<Revision>()
+			{
+				new Revision()
+				{
+					Branch = "test1",
+					Number = new RevisionNumber()
+					{
+						Hash = "hash1",
+						LocalRevisionNumber = "abc",
+						LongHash = "long hash"
+					},
+					Summary = "summary",
+					UserId = "123",
+					Tag = "hello",
+					DateString = "a date?",
+					Parents =
+					{
+						new RevisionNumber()
+						{
+							LocalRevisionNumber = "parent1",
+							Hash = "parent hash",
+							LongHash = "parent long hash"
+						}
+					}
+				},
+				new Revision()
+				{
+					Branch = "test2",
+					Number = new RevisionNumber()
+					{
+						Hash = "hash2",
+						LocalRevisionNumber = "def",
+						LongHash = "long hash 2"
+					},
+					Summary = "summary 2",
+					UserId = "456",
+					Tag = "hello 2",
+					DateString = "a date 2?",
+					Parents =
+					{
+						new RevisionNumber()
+						{
+							LocalRevisionNumber = "parent2",
+							Hash = "parent hash 2",
+							LongHash = "parent long hash 2"
+						}
+					}
+				}
+			};
 
+			HgResumeTransport.SetLastKnownCommonBases(expectedRevisions, storagePath, "id1");
+			var actualRevisions = HgResumeTransport.GetLastKnownCommonBases(storagePath, "id1");
+			Assert.That(actualRevisions.Count, Is.EqualTo(expectedRevisions.Count));
+			for (int i = 0; i < expectedRevisions.Count; i++)
+			{
+				var actualRevision = actualRevisions[i];
+				var expectedRevision = expectedRevisions[i];
+				Assert.That(actualRevision.Branch, Is.EqualTo(expectedRevision.Branch));
+				Assert.That(actualRevision.Number.Hash, Is.EqualTo(expectedRevision.Number.Hash));
+				Assert.That(actualRevision.Number.LocalRevisionNumber, Is.EqualTo(expectedRevision.Number.LocalRevisionNumber));
+				Assert.That(actualRevision.Number.LongHash, Is.EqualTo(expectedRevision.Number.LongHash));
+				Assert.That(actualRevision.Summary, Is.EqualTo(expectedRevision.Summary));
+				Assert.That(actualRevision.UserId, Is.EqualTo(expectedRevision.UserId));
+				Assert.That(actualRevision.Tag, Is.EqualTo(expectedRevision.Tag));
+				Assert.That(actualRevision.DateString, Is.EqualTo(expectedRevision.DateString));
+				Assert.That(actualRevision.Parents.Count, Is.EqualTo(expectedRevision.Parents.Count));
+				for (int j = 0; j < expectedRevision.Parents.Count; j++)
+				{
+					var actualRevisionParent = actualRevision.Parents[j];
+					var expectedRevisionParent = expectedRevision.Parents[j];
+					Assert.That(actualRevisionParent.LocalRevisionNumber, Is.EqualTo(expectedRevisionParent.LocalRevisionNumber));
+					Assert.That(actualRevisionParent.Hash, Is.EqualTo(expectedRevisionParent.Hash));
+					Assert.That(actualRevisionParent.LongHash, Is.EqualTo(expectedRevisionParent.LongHash));
+				}
+			}
+		}
 
 		private class BranchTestAdjunct : ISychronizerAdjunct
 		{
