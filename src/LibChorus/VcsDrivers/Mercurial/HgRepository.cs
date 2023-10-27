@@ -1148,12 +1148,12 @@ namespace Chorus.VcsDrivers.Mercurial
 								infiniteLoopChecker++;
 							break;
 						case "changeset":
-							item = new Revision(this);
+							item = new Revision();
 							items.Add(item);
-							item.SetRevisionAndHashFromCombinedDescriptor(value);
+							item.SetRevisionAndHashFromCombinedDescriptor(value, this);
 							break;
 						case "parent":
-							item.AddParentFromCombinedNumberAndHash(value);
+							item.AddParentFromCombinedNumberAndHash(value, this);
 							break;
 
 						case "branch":

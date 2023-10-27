@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Use UTF-8 in conflict details view
 - [SIL.Chorus.LibChorus] Add ChorusStorage (the bundle cache) as an Excluded folder
+- [SIL.Chorus.LibChorus] Changed HgResumeTransport LastKnownCommonBases to use Json serialization instead of BinaryFormatter
 
 ### Fixed
 
