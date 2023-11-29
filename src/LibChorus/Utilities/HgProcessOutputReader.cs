@@ -119,14 +119,14 @@ namespace Chorus.Utilities
 			// use (c)hanged version or leave (d)eleted?
 
 			string changedVsDeletedFile = null;
-			var match = Regex.Match(line, @"local changed (.*) which remote deleted");
+			var match = Regex.Match(line, @"file '(.*)' was deleted in other \[merge rev\] but was modified in local \[working copy\]");
 			if(match.Captures.Count > 0)
 			{
 				changedVsDeletedFile = match.Groups[1].Value;
 			}
 			else
 			{
-				match = Regex.Match(line, @"remote changed (.*) which local deleted");
+				match = Regex.Match(line, @"file '(.*)' was deleted in local \[working copy\] but was modified in other \[merge rev\]");
 				if(match.Captures.Count > 0)
 				{
 					changedVsDeletedFile = match.Groups[1].Value;
