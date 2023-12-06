@@ -64,7 +64,6 @@ namespace ChorusMerge.Tests
 		}
 
 		[Test]
-		[Platform(Exclude = "Linux", Reason = "This test assumes Windows file system behavior.")]
 		public void Main_Utf8FilePaths_FileNamesOk()
 		{
 			using (var e = new TemporaryFolder("ChorusMergeTest"))
@@ -77,14 +76,9 @@ namespace ChorusMerge.Tests
 				var filePath3 = Path.Combine(e.Path, "aaa.chorusTest");
 				File.WriteAllText(filePath3, @"aaa");
 
-				var encoding = Encoding.GetEncoding(1252);
-				string filePath1Cp1252 = encoding.GetString(Encoding.UTF8.GetBytes(filePath1));
-				string filePath2Cp1252 = encoding.GetString(Encoding.UTF8.GetBytes(filePath2));
-				string filePath3Cp1252 = encoding.GetString(Encoding.UTF8.GetBytes(filePath3));
-
 				MergeSituation.PushRevisionsToEnvironmentVariables("bob", "-123", "sally", "-456");
 				MergeOrder.PushToEnvironmentVariables(p.Path);
-				var result = Program.Main(new[] { filePath1Cp1252, filePath2Cp1252, filePath3Cp1252 });
+				var result = Program.Main(new[] { filePath1, filePath2, filePath3 });
 
 				Assert.That(result, Is.EqualTo(0));
 			}
