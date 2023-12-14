@@ -23,10 +23,9 @@ namespace ChorusMerge
 	/// See MergeOrder and MergeSituation for a description of those variables and their possible values.
 	/// </summary>
 	/// <remarks>
-	/// The arguments are presumed to be presented in utf-8 encoding presented via CP1252. This is a departure
-	/// from the norm on Windows of UCS2. However, python has issues in calling out to processes using UCS2
-	/// so gives utf8, which is then mangled via CP1252.  This can all be decoded to give ChorusMerge the
-	/// ucs2 args it expects.
+	/// The arguments used to be presented in utf-8 encoding presented via CP1252, but Mercurial 6.5.1 and
+	/// Python 3 have made that unnecessary. Unicode arguments are now passed correctly without needing
+	/// to play games with encoding.
 	/// </remarks>
 	public class Program
 	{
