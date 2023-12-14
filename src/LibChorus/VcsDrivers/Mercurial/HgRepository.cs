@@ -252,6 +252,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			var uiSection = doc.Sections.GetOrCreate("ui");
 
 			uiSection.Set("merge", mergetoolname);
+			uiSection.Set("interactive", "True");
 			var mergeToolsSection = doc.Sections.GetOrCreate("merge-tools");
 			// If the premerge is allowed to happen Mercurial will occasionally think it did a good enough job and not
 			// call our mergetool. This has data corrupting results for us so we tell mercurial to skip it.

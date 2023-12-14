@@ -354,6 +354,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var setup = new HgTestSetup())
 			{
+				setup.Repository.SetUserNameInIni("charlie brown", new NullProgress());
 				var path = setup.Root.GetNewTempFile(true).Path;
 				setup.Repository.AddAndCheckinFile(path);
 				Assert.Throws<ApplicationException>(() =>
@@ -366,6 +367,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			using (var setup = new HgTestSetup())
 			{
+				setup.Repository.SetUserNameInIni("charlie brown", new NullProgress());
 				var path = setup.Root.GetNewTempFile(true).Path;
 				setup.Repository.AddAndCheckinFile(path);
 				File.WriteAllText(path,"2");
@@ -404,6 +406,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			*/
 			using (var setup = new HgTestSetup())
 			{
+				setup.Repository.SetUserNameInIni("charlie brown", new NullProgress());
 				var path = setup.Root.GetNewTempFile(true).Path;
 				File.WriteAllText(path, "original");
 				setup.Repository.AddAndCheckinFile(path);
@@ -438,6 +441,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			*/
 			using (var setup = new HgTestSetup())
 			{
+				setup.Repository.SetUserNameInIni("charlie brown", new NullProgress());
 				var path = setup.Root.GetNewTempFile(true).Path;
 				File.WriteAllText(path, "original");
 				setup.Repository.AddAndCheckinFile(path);

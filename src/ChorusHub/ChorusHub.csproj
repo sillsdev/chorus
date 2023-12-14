@@ -6,12 +6,15 @@
     <PackageId>SIL.Chorus.ChorusHub</PackageId>
     <OutputType>WinExe</OutputType>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <RootDir Condition="'$(teamcity_build_checkoutDir)' == '' And '$(RootDir)'==''">$(MSBuildProjectDirectory)/../..</RootDir>
+    <RootDir Condition="'$(teamcity_build_checkoutDir)' != ''">$(teamcity_build_checkoutDir)</RootDir>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="5.10.3" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SIL.ReleaseTasks" Version="2.5.0" PrivateAssets="All" />
+    <PackageReference Include="SIL.BuildTasks" Version="2.5.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,5 +30,29 @@
     <!-- See https://github.com/dotnet/sdk/issues/987#issuecomment-286307697 why that is needed -->
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
   </PropertyGroup>
+
+  <UsingTask TaskName="MakeWixForDirTree" AssemblyFile="$(PkgSIL_BuildTasks)\tools\SIL.BuildTasks.dll" />
+  <Target Name="MakeWixForDistFiles" DependsOnTargets="Compile" Condition="'$(OS)'=='Windows_NT'">
+    <!-- NB: The Exclude argument doesn't seem to be working so you may need to hand edit the GeneratedMercurial.wxs -->
+    <MakeWixForDirTree
+      DirectoryReferenceId="mercurial"
+      ComponentGroupId="Mercurial"
+      RootDirectory="$(RootDir)\mercurial"
+      OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurial.wxs"
+      IgnoreRegExPattern="IGNOREME|\.gitignore"
+      Exclude="$(RootDir)\mercurial\mercurial.ini;$(RootDir)\mercurial\default.d\cacerts.rc"
+      MatchRegExPattern=".*">
+      <Output TaskParameter="OutputFilePath" ItemName="Compile" />
+    </MakeWixForDirTree>
+    <MakeWixForDirTree
+      DirectoryReferenceId="MercurialExtensions"
+      ComponentGroupId="MercurialExtensions"
+      RootDirectory="$(RootDir)\MercurialExtensions"
+      OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurialExtensions.wxs"
+      IgnoreRegExPattern="IGNOREME|\.gitignore"
+      MatchRegExPattern=".*">
+      <Output TaskParameter="OutputFilePath" ItemName="Compile" />
+    </MakeWixForDirTree>
+  </Target>
 
 </Project>

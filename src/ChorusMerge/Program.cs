@@ -23,10 +23,9 @@ namespace ChorusMerge
 	/// See MergeOrder and MergeSituation for a description of those variables and their possible values.
 	/// </summary>
 	/// <remarks>
-	/// The arguments are presumed to be presented in utf-8 encoding presented via CP1252. This is a departure
-	/// from the norm on Windows of UCS2. However, python has issues in calling out to processes using UCS2
-	/// so gives utf8, which is then mangled via CP1252.  This can all be decoded to give ChorusMerge the
-	/// ucs2 args it expects.
+	/// The arguments used to be presented in utf-8 encoding presented via CP1252, but Mercurial 6.5.1 and
+	/// Python 3 have made that unnecessary. Unicode arguments are now passed correctly without needing
+	/// to play games with encoding.
 	/// </remarks>
 	public class Program
 	{
@@ -39,24 +38,6 @@ namespace ChorusMerge
 				string ourFilePath = args[0];
 				string commonFilePath = args[1];
 				string theirFilePath = args[2];
-
-				if (Platform.IsWindows)
-				{
-					if (!RuntimeInformation.FrameworkDescription.Contains("Framework"))
-					{
-						Encoding.RegisterProvider(CodePagesEncodingProvider.Instance); // required for .NET6
-					}
-
-					// Convert the input arguments from cp1252 -> utf8 -> ucs2
-					// It always seems to be 1252, even when the input code page is actually something else. CP 2012-03
-					// var inputEncoding = Console.InputEncoding;
-					var inputEncoding = Encoding.GetEncoding(1252);
-					ourFilePath = Encoding.UTF8.GetString(inputEncoding.GetBytes(args[0]));
-					commonFilePath = Encoding.UTF8.GetString(inputEncoding.GetBytes(args[1]));
-					theirFilePath = Encoding.UTF8.GetString(inputEncoding.GetBytes(args[2]));
-					Console.WriteLine("ChorusMerge: Input encoding {0}",
-						inputEncoding.EncodingName);
-				}
 
 				//this was originally put here to test if console writes were making it out to the linux log or not
 				Console.WriteLine("ChorusMerge: {0}, {1}, {2}", ourFilePath, commonFilePath, theirFilePath);

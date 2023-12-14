@@ -4,162 +4,501 @@
         <DirectoryRef Id="mercurial">
             <Component Id="mercurial.add_path.exe" Guid="D63A8C10-90B6-4843-9BCB-187366FEFED0">
                 <File Id="mercurial.add_path.exe" Name="add_path.exe" KeyPath="yes" Source="..\..\mercurial\add_path.exe" />
-                <RemoveFile Id="_d22be778a4cf4a6a83016ed0574231cf" On="both" Name="*.*" />
+                <RemoveFile Id="_61f9ede899b748d5b9c9423e116e6a2e" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.cacert.pem" Guid="6DF15B8B-194E-4322-936D-29AA8E693B89">
                 <File Id="mercurial.cacert.pem" Name="cacert.pem" Source="..\..\mercurial\cacert.pem" />
-                <RemoveFile Id="_728e1a17b32e4768aa7223741571d62b" On="both" Name="*.*" />
+                <RemoveFile Id="_d7b45344abab49e6ba1f7c4fed8833f8" On="both" Name="*.*" />
+            </Component>
+            <Component Id="mercurial.concrt140.dll" Guid="4EAB95C0-DA91-4749-BB7A-015176E63B58">
+                <File Id="mercurial.concrt140.dll" Name="concrt140.dll" Source="..\..\mercurial\concrt140.dll" />
+                <RemoveFile Id="_dc9e2b9042da486c9b5d5e15e307ae5f" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.hg.exe" Guid="C65B2D2E-3705-4BA7-99D8-6B87FFB6CE81">
                 <File Id="mercurial.hg.exe" Name="hg.exe" Source="..\..\mercurial\hg.exe" />
-                <RemoveFile Id="_215aac47d6b64a29ad32b4f3703d9baf" On="both" Name="*.*" />
+                <RemoveFile Id="_2b61fb1c0fd746cbb0f3d076b35007b3" On="both" Name="*.*" />
             </Component>
-            <Component Id="mercurial.hg.exe.local" Guid="EE1D96EC-14B4-467F-BA2D-849962E49C73">
-                <File Id="mercurial.hg.exe.local" Name="hg.exe.local" Source="..\..\mercurial\hg.exe.local" />
-                <RemoveFile Id="_2521e3745d014b589026a74fd15b2683" On="both" Name="*.*" />
+            <Component Id="mercurial.libcrypto_1_1_x64.dll" Guid="BD414959-E2B5-43A4-991B-9CE24D6798CC">
+                <File Id="mercurial.libcrypto_1_1_x64.dll" Name="libcrypto-1_1-x64.dll" Source="..\..\mercurial\libcrypto-1_1-x64.dll" />
+                <RemoveFile Id="_a91bcea8101c4bd09914b2f7ebadee28" On="both" Name="*.*" />
             </Component>
-            <Component Id="mercurial.library.zip" Guid="30C62CEF-C4BB-4C02-A162-12A0649F790C">
-                <File Id="mercurial.library.zip" Name="library.zip" Source="..\..\mercurial\library.zip" />
-                <RemoveFile Id="_68797db8df72481abb090de8702a23f6" On="both" Name="*.*" />
+            <Component Id="mercurial.libssl_1_1_x64.dll" Guid="AC0005B7-F031-4868-8D02-3F601E6FEDE2">
+                <File Id="mercurial.libssl_1_1_x64.dll" Name="libssl-1_1-x64.dll" Source="..\..\mercurial\libssl-1_1-x64.dll" />
+                <RemoveFile Id="_452b9c4a08114f2994ef5133718f06d3" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.Mercurial.url" Guid="FC11F10A-E025-4DB8-BB84-A28B4B06606D">
                 <File Id="mercurial.Mercurial.url" Name="Mercurial.url" Source="..\..\mercurial\Mercurial.url" />
-                <RemoveFile Id="_6a49c79550e849fa9aa9e41cbe808951" On="both" Name="*.*" />
+                <RemoveFile Id="_c450fb581b7a418faaa15eb390d4fd7c" On="both" Name="*.*" />
             </Component>
-            <Component Id="mercurial.Microsoft.VC90.CRT.manifest" Guid="E296637A-0C13-4FBA-A514-EA2A141FABEE">
-                <File Id="mercurial.Microsoft.VC90.CRT.manifest" Name="Microsoft.VC90.CRT.manifest" Source="..\..\mercurial\Microsoft.VC90.CRT.manifest" />
-                <RemoveFile Id="_b173fa6423074898b96a97d1509bff1e" On="both" Name="*.*" />
+            <Component Id="mercurial.msvcp140.dll" Guid="C92284E3-B83D-4F86-A21A-ECF9E9AC4F30">
+                <File Id="mercurial.msvcp140.dll" Name="msvcp140.dll" Source="..\..\mercurial\msvcp140.dll" />
+                <RemoveFile Id="_8a14d4b186c0465db3acc1b24b75107f" On="both" Name="*.*" />
             </Component>
-            <Component Id="mercurial.msvcm90.dll" Guid="A1887C96-D3C6-4833-8446-8CCC038F4F02">
-                <File Id="mercurial.msvcm90.dll" Name="msvcm90.dll" Source="..\..\mercurial\msvcm90.dll" />
-                <RemoveFile Id="_a42f5f61dbba48688748c34281360913" On="both" Name="*.*" />
+            <Component Id="mercurial.msvcp140_1.dll" Guid="8E79712E-F9D4-4DEE-8A26-D8EDFAC2E59B">
+                <File Id="mercurial.msvcp140_1.dll" Name="msvcp140_1.dll" Source="..\..\mercurial\msvcp140_1.dll" />
+                <RemoveFile Id="_6831e5984ef24400aec4e942b6f656ae" On="both" Name="*.*" />
             </Component>
-            <Component Id="mercurial.msvcp90.dll" Guid="60EC2A57-8A66-4663-929A-2F9B4FF8A878">
-                <File Id="mercurial.msvcp90.dll" Name="msvcp90.dll" Source="..\..\mercurial\msvcp90.dll" />
-                <RemoveFile Id="_d574d71f26eb4c38b260ff4e172ed224" On="both" Name="*.*" />
+            <Component Id="mercurial.python39.dll" Guid="23EE5CAF-04BA-438E-8A71-A6B5DB737450">
+                <File Id="mercurial.python39.dll" Name="python39.dll" Source="..\..\mercurial\python39.dll" />
+                <RemoveFile Id="_aa177123806548f3a718d142cc41f7cf" On="both" Name="*.*" />
             </Component>
-            <Component Id="mercurial.msvcr90.dll" Guid="58201B58-B52B-4F05-9B4D-315BF9DE4CDD">
-                <File Id="mercurial.msvcr90.dll" Name="msvcr90.dll" Source="..\..\mercurial\msvcr90.dll" />
-                <RemoveFile Id="_f66593e299f540bc83487e64a71d6094" On="both" Name="*.*" />
+            <Component Id="mercurial.vcruntime140.dll" Guid="43F601F6-C480-477F-9AD1-A41A042F1BF8">
+                <File Id="mercurial.vcruntime140.dll" Name="vcruntime140.dll" Source="..\..\mercurial\vcruntime140.dll" />
+                <RemoveFile Id="_1719a7a3d64e4bb7abc918bf0733975d" On="both" Name="*.*" />
             </Component>
-            <Component Id="mercurial.python27.dll" Guid="5951AD1A-1ACF-41CA-8B5C-6C9048141C9A">
-                <File Id="mercurial.python27.dll" Name="python27.dll" Source="..\..\mercurial\python27.dll" />
-                <RemoveFile Id="_a37c41b4402f42388410e4b75010dff4" On="both" Name="*.*" />
+            <Component Id="mercurial.vcruntime140_1.dll" Guid="DD1DB127-A458-4147-A988-1E0E7A8AAA07">
+                <File Id="mercurial.vcruntime140_1.dll" Name="vcruntime140_1.dll" Source="..\..\mercurial\vcruntime140_1.dll" />
+                <RemoveFile Id="_3be245abd92c4996b32226d8781f44a7" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.w9xpopen.exe" Guid="E10BB6A7-1325-4AD3-B6A1-3F8869125D8F">
                 <File Id="mercurial.w9xpopen.exe" Name="w9xpopen.exe" Source="..\..\mercurial\w9xpopen.exe" />
-                <RemoveFile Id="_870a3eb6ca5943da86c63382e09492b3" On="both" Name="*.*" />
+                <RemoveFile Id="_fb4ab72536fb463486dad441ccf64650" On="both" Name="*.*" />
             </Component>
-            <Directory Id="mercurial.Contrib" Name="Contrib">
-                <Component Id="mercurial.Contrib.bash_completion" Guid="D560E908-33AA-4029-935E-6FE08C9778DC">
-                    <File Id="mercurial.Contrib.bash_completion" Name="bash_completion" KeyPath="yes" Source="..\..\mercurial\Contrib\bash_completion" />
-                    <RemoveFile Id="_3c99383a756f4cce8c61dcbd4d5a56b9" On="both" Name="*.*" />
+            <Directory Id="mercurial.contrib" Name="contrib">
+                <Component Id="mercurial.contrib.bash_completion" Guid="75D38E4B-91FD-4A29-965F-C61405E10728">
+                    <File Id="mercurial.contrib.bash_completion" Name="bash_completion" KeyPath="yes" Source="..\..\mercurial\contrib\bash_completion" />
+                    <RemoveFile Id="_42acc2f762624513ba9ec874c5dfc1f5" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.Contrib.hgk.tcl" Guid="F92713AA-98D3-41BA-9783-AE54D396ED24">
-                    <File Id="mercurial.Contrib.hgk.tcl" Name="hgk.tcl" Source="..\..\mercurial\Contrib\hgk.tcl" />
-                    <RemoveFile Id="_b6fe894b7e9b40f5be2438160538e7b2" On="both" Name="*.*" />
+                <Component Id="mercurial.contrib.hgk" Guid="BA507C60-99A0-474A-8577-D468946D159F">
+                    <File Id="mercurial.contrib.hgk" Name="hgk" Source="..\..\mercurial\contrib\hgk" />
+                    <RemoveFile Id="_3590b13a0a664d5480293a99d002a6dd" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.Contrib.hgweb.fcgi" Guid="025233E4-0336-4E65-84D3-F3A21BC749B4">
-                    <File Id="mercurial.Contrib.hgweb.fcgi" Name="hgweb.fcgi" Source="..\..\mercurial\Contrib\hgweb.fcgi" />
-                    <RemoveFile Id="_ca6be4f470ac48888a534dbc8d8127e1" On="both" Name="*.*" />
+                <Component Id="mercurial.contrib.hgweb.fcgi" Guid="3CEBB764-4A68-4770-9D9E-EECB1814C3CE">
+                    <File Id="mercurial.contrib.hgweb.fcgi" Name="hgweb.fcgi" Source="..\..\mercurial\contrib\hgweb.fcgi" />
+                    <RemoveFile Id="_97aae94f5f144b5c81a6b08fcc642301" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.Contrib.hgweb.wsgi" Guid="48953CEA-4772-4D5B-BA2F-85637685C52B">
-                    <File Id="mercurial.Contrib.hgweb.wsgi" Name="hgweb.wsgi" Source="..\..\mercurial\Contrib\hgweb.wsgi" />
-                    <RemoveFile Id="_2e372db5010f4922b602e7f56471ee47" On="both" Name="*.*" />
+                <Component Id="mercurial.contrib.hgweb.wsgi" Guid="4742AC50-A367-4116-8398-9F780E059396">
+                    <File Id="mercurial.contrib.hgweb.wsgi" Name="hgweb.wsgi" Source="..\..\mercurial\contrib\hgweb.wsgi" />
+                    <RemoveFile Id="_00f8ccce3a9b4606b917c6577583ba56" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.Contrib.mercurial.el" Guid="71E613B1-D53A-455D-A16E-E2410ABC5E8D">
-                    <File Id="mercurial.Contrib.mercurial.el" Name="mercurial.el" Source="..\..\mercurial\Contrib\mercurial.el" />
-                    <RemoveFile Id="_e457b4d5274d4ffabe6a849f80a0fc8d" On="both" Name="*.*" />
+                <Component Id="mercurial.contrib.logo_droplets.svg" Guid="9266A7E2-C868-42CF-9F9E-F73792A43D4C">
+                    <File Id="mercurial.contrib.logo_droplets.svg" Name="logo-droplets.svg" Source="..\..\mercurial\contrib\logo-droplets.svg" />
+                    <RemoveFile Id="_ab03d0bf12e5422b802ea3c9d694a9d2" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.Contrib.mq.el" Guid="FC3AB9F0-32BD-4838-B254-04243D517065">
-                    <File Id="mercurial.Contrib.mq.el" Name="mq.el" Source="..\..\mercurial\Contrib\mq.el" />
-                    <RemoveFile Id="_6bde5cea220b41908164ec184b509cbe" On="both" Name="*.*" />
+                <Component Id="mercurial.contrib.mercurial.el" Guid="25F723F8-FF38-4617-8E91-C8938A5882DD">
+                    <File Id="mercurial.contrib.mercurial.el" Name="mercurial.el" Source="..\..\mercurial\contrib\mercurial.el" />
+                    <RemoveFile Id="_87eef7c2318341c6a0bd77517b76ab39" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.Contrib.tcsh_completion" Guid="B9BB5D57-220B-4EE6-885C-920C238B3CFA">
-                    <File Id="mercurial.Contrib.tcsh_completion" Name="tcsh_completion" Source="..\..\mercurial\Contrib\tcsh_completion" />
-                    <RemoveFile Id="_cc974948a82b450192a1db2125565c0e" On="both" Name="*.*" />
+                <Component Id="mercurial.contrib.tcsh_completion" Guid="6D4CF914-DF69-42DE-B860-C89C04C8EBCD">
+                    <File Id="mercurial.contrib.tcsh_completion" Name="tcsh_completion" Source="..\..\mercurial\contrib\tcsh_completion" />
+                    <RemoveFile Id="_f469dc5e258b43d5854dc597f02b8a56" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.Contrib.tcsh_completion_build.sh" Guid="0D1FE716-B199-464B-BD0F-F3A85DBF96F1">
-                    <File Id="mercurial.Contrib.tcsh_completion_build.sh" Name="tcsh_completion_build.sh" Source="..\..\mercurial\Contrib\tcsh_completion_build.sh" />
-                    <RemoveFile Id="_b612be782124440cb82a0d8b75a40b4f" On="both" Name="*.*" />
+                <Component Id="mercurial.contrib.tcsh_completion_build.sh" Guid="3D581884-2EE1-4949-8AAC-D592B24ABB36">
+                    <File Id="mercurial.contrib.tcsh_completion_build.sh" Name="tcsh_completion_build.sh" Source="..\..\mercurial\contrib\tcsh_completion_build.sh" />
+                    <RemoveFile Id="_779e177455264cf1b87507d1faf2ec25" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.Contrib.xml.rnc" Guid="E85F2F40-9F86-4578-8D5C-303032CC66FF">
-                    <File Id="mercurial.Contrib.xml.rnc" Name="xml.rnc" Source="..\..\mercurial\Contrib\xml.rnc" />
-                    <RemoveFile Id="_bff96b9ab9dc4854a7e3c840691cd52a" On="both" Name="*.*" />
+                <Component Id="mercurial.contrib.xml.rnc" Guid="D4C8C223-1099-42E4-B83F-E39F4E4CEB76">
+                    <File Id="mercurial.contrib.xml.rnc" Name="xml.rnc" Source="..\..\mercurial\contrib\xml.rnc" />
+                    <RemoveFile Id="_9469f9d8a8254f5ba91a6b27b3f50f6e" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.Contrib.zsh_completion" Guid="D45098EE-1515-4917-91D5-F62DD07AD301">
-                    <File Id="mercurial.Contrib.zsh_completion" Name="zsh_completion" Source="..\..\mercurial\Contrib\zsh_completion" />
-                    <RemoveFile Id="_6e894ff4b8174f9e9193d2f734808b28" On="both" Name="*.*" />
+                <Component Id="mercurial.contrib.zsh_completion" Guid="DB45B1DC-C9DB-4366-B936-D2C7B9D374F5">
+                    <File Id="mercurial.contrib.zsh_completion" Name="zsh_completion" Source="..\..\mercurial\contrib\zsh_completion" />
+                    <RemoveFile Id="_06c707f2850f43f3bffc02fc8502a67d" On="both" Name="*.*" />
                 </Component>
-                <Directory Id="mercurial.Contrib.Vim" Name="Vim">
-                    <Component Id="mercurial.Contrib.Vim.hg_menu.vim" Guid="4D494BDB-97A8-4436-AC7D-39FB95BADC7F">
-                        <File Id="mercurial.Contrib.Vim.hg_menu.vim" Name="hg-menu.vim" KeyPath="yes" Source="..\..\mercurial\Contrib\Vim\hg-menu.vim" />
-                        <RemoveFile Id="_7a9d854a9590464daca156c9c1664d27" On="both" Name="*.*" />
+                <Directory Id="mercurial.contrib.vim" Name="vim">
+                    <Component Id="mercurial.contrib.vim.hg_menu.vim" Guid="5D544B2D-0DF7-43AD-8490-84CA033D1C83">
+                        <File Id="mercurial.contrib.vim.hg_menu.vim" Name="hg-menu.vim" KeyPath="yes" Source="..\..\mercurial\contrib\vim\hg-menu.vim" />
+                        <RemoveFile Id="_f4b35f4384af45248548923db4e25398" On="both" Name="*.*" />
                     </Component>
-                    <Component Id="mercurial.Contrib.Vim.HGAnnotate.vim" Guid="B386FB78-CD89-4665-8C23-22190B75A2B3">
-                        <File Id="mercurial.Contrib.Vim.HGAnnotate.vim" Name="HGAnnotate.vim" Source="..\..\mercurial\Contrib\Vim\HGAnnotate.vim" />
-                        <RemoveFile Id="_93f13a70c93648cdb0abea3b70b0e944" On="both" Name="*.*" />
+                    <Component Id="mercurial.contrib.vim.HGAnnotate.vim" Guid="BE4BF1FD-0C53-49BD-AD03-E4046D0BC7A1">
+                        <File Id="mercurial.contrib.vim.HGAnnotate.vim" Name="HGAnnotate.vim" Source="..\..\mercurial\contrib\vim\HGAnnotate.vim" />
+                        <RemoveFile Id="_3392dd2c426645a28a26a32c9425f343" On="both" Name="*.*" />
                     </Component>
-                    <Component Id="mercurial.Contrib.Vim.hgcommand.vim" Guid="856172DB-A2CA-4908-B468-817F3C67BCEC">
-                        <File Id="mercurial.Contrib.Vim.hgcommand.vim" Name="hgcommand.vim" Source="..\..\mercurial\Contrib\Vim\hgcommand.vim" />
-                        <RemoveFile Id="_5a9cbc7feaa64c6c9acaf5bb290419cc" On="both" Name="*.*" />
+                    <Component Id="mercurial.contrib.vim.hgcommand.vim" Guid="902EA048-FDB7-4632-8EE3-278908054390">
+                        <File Id="mercurial.contrib.vim.hgcommand.vim" Name="hgcommand.vim" Source="..\..\mercurial\contrib\vim\hgcommand.vim" />
+                        <RemoveFile Id="_4cb253a37f174ad1b5b45e89f84ca99b" On="both" Name="*.*" />
                     </Component>
-                    <Component Id="mercurial.Contrib.Vim.hgtest.vim" Guid="7B2EEF77-F580-493D-B611-CA24AA019F69">
-                        <File Id="mercurial.Contrib.Vim.hgtest.vim" Name="hgtest.vim" Source="..\..\mercurial\Contrib\Vim\hgtest.vim" />
-                        <RemoveFile Id="_3fb72166f2d64974bb9186d93bb79278" On="both" Name="*.*" />
+                    <Component Id="mercurial.contrib.vim.hgtest.vim" Guid="A9AB9BA6-5351-47D5-8458-3CE9EFCA41BB">
+                        <File Id="mercurial.contrib.vim.hgtest.vim" Name="hgtest.vim" Source="..\..\mercurial\contrib\vim\hgtest.vim" />
+                        <RemoveFile Id="_9fff682be4c84907842b45b7d9e3e6c2" On="both" Name="*.*" />
                     </Component>
-                    <Component Id="mercurial.Contrib.Vim.patchreview.txt" Guid="5E461A59-65BC-437F-AB75-03BC7A3FBDCA">
-                        <File Id="mercurial.Contrib.Vim.patchreview.txt" Name="patchreview.txt" Source="..\..\mercurial\Contrib\Vim\patchreview.txt" />
-                        <RemoveFile Id="_b5ed692d8f8b4cffbb6a4d4c030308f4" On="both" Name="*.*" />
+                    <Component Id="mercurial.contrib.vim.patchreview.txt" Guid="43A0CC4E-FC0C-4B46-AA7B-837E7F632F6C">
+                        <File Id="mercurial.contrib.vim.patchreview.txt" Name="patchreview.txt" Source="..\..\mercurial\contrib\vim\patchreview.txt" />
+                        <RemoveFile Id="_10b869f0f7a947ca9dd4899d3fac9b0b" On="both" Name="*.*" />
                     </Component>
-                    <Component Id="mercurial.Contrib.Vim.patchreview.vim" Guid="DF8C3C0B-209A-42E9-8BF8-3116D1B0D192">
-                        <File Id="mercurial.Contrib.Vim.patchreview.vim" Name="patchreview.vim" Source="..\..\mercurial\Contrib\Vim\patchreview.vim" />
-                        <RemoveFile Id="_f48abd1b3478413d8783b9e2f83ee38f" On="both" Name="*.*" />
+                    <Component Id="mercurial.contrib.vim.patchreview.vim" Guid="F0412167-2FFD-4F8B-A552-608243862B2F">
+                        <File Id="mercurial.contrib.vim.patchreview.vim" Name="patchreview.vim" Source="..\..\mercurial\contrib\vim\patchreview.vim" />
+                        <RemoveFile Id="_4d650f03ca614825834e61a25dadc8ee" On="both" Name="*.*" />
                     </Component>
                 </Directory>
             </Directory>
             <Directory Id="mercurial.default.d" Name="default.d">
                 <Component Id="mercurial.default.d.editor.rc" Guid="5CE11261-3D90-447A-B240-E57394090508">
-                    <File Id="mercurial.default.d.editor.rc" Name="editor.rc" Source="..\..\mercurial\default.d\editor.rc" />
-                    <RemoveFile Id="_f94e9b53391f47f2beda7eccb9250163" On="both" Name="*.*" />
+                    <File Id="mercurial.default.d.editor.rc" Name="editor.rc" KeyPath="yes" Source="..\..\mercurial\default.d\editor.rc" />
+                    <RemoveFile Id="_c7da6efc3fc8413493d446ea5c9ae074" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.default.d.mergetools.rc" Guid="DB7B8034-ABA8-4DB1-A388-94C9C1A4A462">
                     <File Id="mercurial.default.d.mergetools.rc" Name="mergetools.rc" Source="..\..\mercurial\default.d\mergetools.rc" />
-                    <RemoveFile Id="_4000f34e932941b08751dfd027924987" On="both" Name="*.*" />
+                    <RemoveFile Id="_112d26722c4549168482a81f7d13b97f" On="both" Name="*.*" />
+                </Component>
+            </Directory>
+            <Directory Id="mercurial.defaultrc" Name="defaultrc">
+                <Component Id="mercurial.defaultrc.EditorTools.rc" Guid="BF72D8CE-C95D-49D9-B9E4-9B103CD95110">
+                    <File Id="mercurial.defaultrc.EditorTools.rc" Name="EditorTools.rc" KeyPath="yes" Source="..\..\mercurial\defaultrc\EditorTools.rc" />
+                    <RemoveFile Id="_49a6ec392a794a888a5c70115bd99078" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.defaultrc.Mercurial.rc" Guid="7DCF60F9-809E-4A3A-9CB1-F7D99D4726C4">
+                    <File Id="mercurial.defaultrc.Mercurial.rc" Name="Mercurial.rc" Source="..\..\mercurial\defaultrc\Mercurial.rc" />
+                    <RemoveFile Id="_c3c7eee45b1b4d52b203058b3d13ff29" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.defaultrc.MergePatterns.rc" Guid="C4B85478-3ECC-4166-B110-4EB6D70FCDE6">
+                    <File Id="mercurial.defaultrc.MergePatterns.rc" Name="MergePatterns.rc" Source="..\..\mercurial\defaultrc\MergePatterns.rc" />
+                    <RemoveFile Id="_23b4e4a88fc34bf786b3781d6cc7bf0b" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.defaultrc.MergeTools.rc" Guid="FA22312D-7A32-4F11-9C98-93F546D592B6">
+                    <File Id="mercurial.defaultrc.MergeTools.rc" Name="MergeTools.rc" Source="..\..\mercurial\defaultrc\MergeTools.rc" />
+                    <RemoveFile Id="_96817020854547ac9304b14578adbbed" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.defaultrc.Paths.rc" Guid="7D782105-8675-47AC-A775-42F48845FF3D">
+                    <File Id="mercurial.defaultrc.Paths.rc" Name="Paths.rc" Source="..\..\mercurial\defaultrc\Paths.rc" />
+                    <RemoveFile Id="_235d0d3ad9774348b7b27c8b6f5633da" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.defaultrc.TerminalTools.rc" Guid="61E8255E-A607-4C52-858F-DA6CEDAF968E">
+                    <File Id="mercurial.defaultrc.TerminalTools.rc" Name="TerminalTools.rc" Source="..\..\mercurial\defaultrc\TerminalTools.rc" />
+                    <RemoveFile Id="_411226c365ad4ddf8c7acae8f4c528e4" On="both" Name="*.*" />
+                </Component>
+            </Directory>
+            <Directory Id="mercurial.lib" Name="lib">
+                <Component Id="mercurial.lib.dulwich._diff_tree.pyd" Guid="64965023-97A1-408A-9FFE-5EFAC5F2FB37">
+                    <File Id="mercurial.lib.dulwich._diff_tree.pyd" Name="dulwich._diff_tree.pyd" KeyPath="yes" Source="..\..\mercurial\lib\dulwich._diff_tree.pyd" />
+                    <RemoveFile Id="_30ca05a397fd4abcac290ef6f836a112" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.dulwich._objects.pyd" Guid="94F2A493-15CD-4DDC-87E1-FB94C3B7EE31">
+                    <File Id="mercurial.lib.dulwich._objects.pyd" Name="dulwich._objects.pyd" Source="..\..\mercurial\lib\dulwich._objects.pyd" />
+                    <RemoveFile Id="_49c07494ad7849f39529d375a51da335" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.dulwich._pack.pyd" Guid="8C8450D0-5098-4F14-BC64-F40BAEDFEAB2">
+                    <File Id="mercurial.lib.dulwich._pack.pyd" Name="dulwich._pack.pyd" Source="..\..\mercurial\lib\dulwich._pack.pyd" />
+                    <RemoveFile Id="_fe142d109b394bb8b56afb1702c6cfc9" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.git2.dll" Guid="410FB49C-D3F7-48D8-8417-A7BA96ED4493">
+                    <File Id="mercurial.lib.git2.dll" Name="git2.dll" Source="..\..\mercurial\lib\git2.dll" />
+                    <RemoveFile Id="_6a11974194de4793b7f57795221147fe" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.hgext.fsmonitor.pywatchman.bser.pyd" Guid="16175DE9-BC36-4D2C-9C2A-3AA15CE46A4E">
+                    <File Id="mercurial.lib.hgext.fsmonitor.pywatchman.bser.pyd" Name="hgext.fsmonitor.pywatchman.bser.pyd" Source="..\..\mercurial\lib\hgext.fsmonitor.pywatchman.bser.pyd" />
+                    <RemoveFile Id="_0c83e144f3784b4db70bb4f174faa18b" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.kdiff3.exe" Guid="61D143B3-687C-43CB-A0D8-CDF84B7264BD">
+                    <File Id="mercurial.lib.kdiff3.exe" Name="kdiff3.exe" Source="..\..\mercurial\lib\kdiff3.exe" />
+                    <RemoveFile Id="_de1efc7c16ec44c08dc619c9743568d1" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.libcrypto_1_1.dll" Guid="DE182A35-2E73-4467-8FF5-5171C7BE454A">
+                    <File Id="mercurial.lib.libcrypto_1_1.dll" Name="libcrypto-1_1.dll" Source="..\..\mercurial\lib\libcrypto-1_1.dll" />
+                    <RemoveFile Id="_d2b12acb0a70412297b0ea9a1373f27d" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.libffi_7.dll" Guid="2CF97D1B-52B5-4E68-8F18-2C5F9827BE97">
+                    <File Id="mercurial.lib.libffi_7.dll" Name="libffi-7.dll" Source="..\..\mercurial\lib\libffi-7.dll" />
+                    <RemoveFile Id="_ef854a66783141f6b08b716c26cafd77" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.library.zip" Guid="2E845A67-F4C0-4AA2-A717-8D0A92F1777F">
+                    <File Id="mercurial.lib.library.zip" Name="library.zip" Source="..\..\mercurial\lib\library.zip" />
+                    <RemoveFile Id="_b86d34f74136497d8a8c777314a24c27" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.libssl_1_1.dll" Guid="4593DE95-77AA-4D1E-9A9B-B83CC1BEE17A">
+                    <File Id="mercurial.lib.libssl_1_1.dll" Name="libssl-1_1.dll" Source="..\..\mercurial\lib\libssl-1_1.dll" />
+                    <RemoveFile Id="_12b7c421e235439493899e045951c89f" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.mercurial.cext.base85.pyd" Guid="D12F5F7D-E47A-4875-9B72-0838D25E4CCC">
+                    <File Id="mercurial.lib.mercurial.cext.base85.pyd" Name="mercurial.cext.base85.pyd" Source="..\..\mercurial\lib\mercurial.cext.base85.pyd" />
+                    <RemoveFile Id="_f863cea8a8ff439a910b1706e809355a" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.mercurial.cext.bdiff.pyd" Guid="89633CDE-6B4A-4BEF-83D1-AA5F7087286E">
+                    <File Id="mercurial.lib.mercurial.cext.bdiff.pyd" Name="mercurial.cext.bdiff.pyd" Source="..\..\mercurial\lib\mercurial.cext.bdiff.pyd" />
+                    <RemoveFile Id="_3cb90c9b4321447ebac15e38f5b11b9e" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.mercurial.cext.mpatch.pyd" Guid="0AFCD53B-E636-47D5-BD20-D49B32387897">
+                    <File Id="mercurial.lib.mercurial.cext.mpatch.pyd" Name="mercurial.cext.mpatch.pyd" Source="..\..\mercurial\lib\mercurial.cext.mpatch.pyd" />
+                    <RemoveFile Id="_47b9fe16aa34452faec006c9a6a3d01b" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.mercurial.cext.osutil.pyd" Guid="A112C872-2DB4-4949-8BB2-7A4691A6B0B6">
+                    <File Id="mercurial.lib.mercurial.cext.osutil.pyd" Name="mercurial.cext.osutil.pyd" Source="..\..\mercurial\lib\mercurial.cext.osutil.pyd" />
+                    <RemoveFile Id="_4825befe25704397b5c21d2f437cb5a6" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.mercurial.cext.parsers.pyd" Guid="4DAD8FF9-CF0D-4CE8-AEA7-477373AE2480">
+                    <File Id="mercurial.lib.mercurial.cext.parsers.pyd" Name="mercurial.cext.parsers.pyd" Source="..\..\mercurial\lib\mercurial.cext.parsers.pyd" />
+                    <RemoveFile Id="_2a5075f4156e4fb682be50f87a249ae1" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.mercurial.thirdparty.sha1dc.pyd" Guid="87A13B6C-1382-41CB-B096-DA220494054A">
+                    <File Id="mercurial.lib.mercurial.thirdparty.sha1dc.pyd" Name="mercurial.thirdparty.sha1dc.pyd" Source="..\..\mercurial\lib\mercurial.thirdparty.sha1dc.pyd" />
+                    <RemoveFile Id="_8a77a14f5b53483eaa7dcd19a21aa53c" On="both" Name="*.*" />
+                </Component>
+                <Component Id="_.zope.interface._zope_interface_coptimizations.pyd" Guid="6E5DACBE-D611-493B-BCA5-D0E658059B36">
+                    <File Id="_.zope.interface._zope_interface_coptimizations.pyd" Name="mercurial.thirdparty.zope.interface._zope_interface_coptimizations.pyd" Source="..\..\mercurial\lib\mercurial.thirdparty.zope.interface._zope_interface_coptimizations.pyd" />
+                    <RemoveFile Id="_bd7f1b7b20b54351abd1b0c0f0272019" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.mercurial.zstd.pyd" Guid="04DEC5A9-93C0-413C-8FF4-C1653E2C9880">
+                    <File Id="mercurial.lib.mercurial.zstd.pyd" Name="mercurial.zstd.pyd" Source="..\..\mercurial\lib\mercurial.zstd.pyd" />
+                    <RemoveFile Id="_d926ac12d6914374bf8fd5be40383c8b" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.pyexpat.pyd" Guid="DE7CEC60-D92B-433B-AE3D-9D2D0C17DD0C">
+                    <File Id="mercurial.lib.pyexpat.pyd" Name="pyexpat.pyd" Source="..\..\mercurial\lib\pyexpat.pyd" />
+                    <RemoveFile Id="_78e150831fc446158de1ba2f6e912d94" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.pygit2._libgit2.pyd" Guid="E73E3675-A472-406A-B38F-AC0B55E44FFC">
+                    <File Id="mercurial.lib.pygit2._libgit2.pyd" Name="pygit2._libgit2.pyd" Source="..\..\mercurial\lib\pygit2._libgit2.pyd" />
+                    <RemoveFile Id="_729bba68148646e88a22d8d02d80ab4c" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.pygit2._pygit2.pyd" Guid="AF7F51C3-0A27-4239-A6C5-3F70CD250DC2">
+                    <File Id="mercurial.lib.pygit2._pygit2.pyd" Name="pygit2._pygit2.pyd" Source="..\..\mercurial\lib\pygit2._pygit2.pyd" />
+                    <RemoveFile Id="_3254fb1b78364de7a94bfa1e609ec062" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.python3.dll" Guid="647D056B-7BBD-4BEB-A6DF-9AAFBE4A5694">
+                    <File Id="mercurial.lib.python3.dll" Name="python3.dll" Source="..\..\mercurial\lib\python3.dll" />
+                    <RemoveFile Id="_24387cc42c4642938271bd2aecbabc24" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.pythoncom39.dll" Guid="5BC5E00F-DF9D-47FC-917F-D64E4A16F2BC">
+                    <File Id="mercurial.lib.pythoncom39.dll" Name="pythoncom39.dll" Source="..\..\mercurial\lib\pythoncom39.dll" />
+                    <RemoveFile Id="_e52e9dc8e3924e809291e2f5f2ec608d" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.pywintypes39.dll" Guid="79AA97B3-D672-4C03-8782-B34DE8252AE4">
+                    <File Id="mercurial.lib.pywintypes39.dll" Name="pywintypes39.dll" Source="..\..\mercurial\lib\pywintypes39.dll" />
+                    <RemoveFile Id="_e6a4f35792ac45d9893f6d1618fca04a" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.select.pyd" Guid="83C8EA7E-AEB6-4719-84DD-B9013E4BFBCF">
+                    <File Id="mercurial.lib.select.pyd" Name="select.pyd" Source="..\..\mercurial\lib\select.pyd" />
+                    <RemoveFile Id="_bb7f270deae041e3b1c3ced1b36fed40" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.spawn.cmd" Guid="8B75715A-07E9-415A-90B8-61F60612156E">
+                    <File Id="mercurial.lib.spawn.cmd" Name="spawn.cmd" Source="..\..\mercurial\lib\spawn.cmd" />
+                    <RemoveFile Id="_882c2eecc9194834943d78bad592ed58" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.sqlite3.dll" Guid="509A7AAB-2258-446C-9760-92A31661B5A0">
+                    <File Id="mercurial.lib.sqlite3.dll" Name="sqlite3.dll" Source="..\..\mercurial\lib\sqlite3.dll" />
+                    <RemoveFile Id="_99c7f4c23a2a4b41a6898036264652af" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.tcl86t.dll" Guid="71584039-8A55-459D-8243-19C72B9FB498">
+                    <File Id="mercurial.lib.tcl86t.dll" Name="tcl86t.dll" Source="..\..\mercurial\lib\tcl86t.dll" />
+                    <RemoveFile Id="_2d42e87efbc94a07b88560afaa2ac4c2" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.tk86t.dll" Guid="2C309CB4-5EE2-4A81-A4C6-98E46FA3E58E">
+                    <File Id="mercurial.lib.tk86t.dll" Name="tk86t.dll" Source="..\..\mercurial\lib\tk86t.dll" />
+                    <RemoveFile Id="_62e8113fac4145feade4b8bc1120b4a5" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.TortoisePlink.exe" Guid="BB900F95-EFB9-4A9F-AA09-C43BADFDC1B8">
+                    <File Id="mercurial.lib.TortoisePlink.exe" Name="TortoisePlink.exe" Source="..\..\mercurial\lib\TortoisePlink.exe" />
+                    <RemoveFile Id="_5e83fc83a721478fb9440c467eacd26f" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.unicodedata.pyd" Guid="6E7F7F88-5D3D-46C8-839A-775F95A21AA5">
+                    <File Id="mercurial.lib.unicodedata.pyd" Name="unicodedata.pyd" Source="..\..\mercurial\lib\unicodedata.pyd" />
+                    <RemoveFile Id="_4a4aa5cfd2114821acb9ae33edbe24ca" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.win32api.pyd" Guid="026EF86E-E080-435D-9B5D-781E1C188A87">
+                    <File Id="mercurial.lib.win32api.pyd" Name="win32api.pyd" Source="..\..\mercurial\lib\win32api.pyd" />
+                    <RemoveFile Id="_49429aca3c2c4138aeb0526b7eb9e4d3" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.win32com.shell.shell.pyd" Guid="5282C431-7160-4957-AC82-492D298AE033">
+                    <File Id="mercurial.lib.win32com.shell.shell.pyd" Name="win32com.shell.shell.pyd" Source="..\..\mercurial\lib\win32com.shell.shell.pyd" />
+                    <RemoveFile Id="_50263f1684f2465cb4746751222def36" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.win32cred.pyd" Guid="15CA62E8-E35C-4034-8A4F-CA23CB40AF82">
+                    <File Id="mercurial.lib.win32cred.pyd" Name="win32cred.pyd" Source="..\..\mercurial\lib\win32cred.pyd" />
+                    <RemoveFile Id="_129f4e33d47c4acdaa61f7e4641a6011" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.win32event.pyd" Guid="A362D8AE-17FA-44DD-9578-5A67195FBEE4">
+                    <File Id="mercurial.lib.win32event.pyd" Name="win32event.pyd" Source="..\..\mercurial\lib\win32event.pyd" />
+                    <RemoveFile Id="_c92fef9a4bc1449bafaa083f46e506dd" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.win32file.pyd" Guid="605091C2-10E7-4914-887B-2EE3F9F246AD">
+                    <File Id="mercurial.lib.win32file.pyd" Name="win32file.pyd" Source="..\..\mercurial\lib\win32file.pyd" />
+                    <RemoveFile Id="_519a29be260e4afb9703986359b31b29" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.win32gui.pyd" Guid="A9B39F5E-07F4-4451-BCA9-D206849A83C2">
+                    <File Id="mercurial.lib.win32gui.pyd" Name="win32gui.pyd" Source="..\..\mercurial\lib\win32gui.pyd" />
+                    <RemoveFile Id="_5b7f85562b1440bd86fe7d75abd8d80d" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.win32pipe.pyd" Guid="7C4B0757-ADE4-44E6-BBC2-5A5675B34B01">
+                    <File Id="mercurial.lib.win32pipe.pyd" Name="win32pipe.pyd" Source="..\..\mercurial\lib\win32pipe.pyd" />
+                    <RemoveFile Id="_62af2debcdf843df8a69127b9b875d3d" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.win32process.pyd" Guid="F049D7E5-D03A-4B69-BA11-243EFD443DAC">
+                    <File Id="mercurial.lib.win32process.pyd" Name="win32process.pyd" Source="..\..\mercurial\lib\win32process.pyd" />
+                    <RemoveFile Id="_1e72e1765bee4b07aec59e7f6da2afbf" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.win32security.pyd" Guid="1BBC8EC2-D80F-44AC-9788-628723451DFE">
+                    <File Id="mercurial.lib.win32security.pyd" Name="win32security.pyd" Source="..\..\mercurial\lib\win32security.pyd" />
+                    <RemoveFile Id="_da5e2d707d59473fbcbf4daf91198286" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib.win32trace.pyd" Guid="AFD38333-3DA5-49FE-A775-9256816E896A">
+                    <File Id="mercurial.lib.win32trace.pyd" Name="win32trace.pyd" Source="..\..\mercurial\lib\win32trace.pyd" />
+                    <RemoveFile Id="_74d91b27d646465a92223fabf45bc642" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._asyncio.pyd" Guid="D2AEDF21-364B-43D7-95E8-635553B26280">
+                    <File Id="mercurial.lib._asyncio.pyd" Name="_asyncio.pyd" Source="..\..\mercurial\lib\_asyncio.pyd" />
+                    <RemoveFile Id="_bfe4b39c2e814f60b36f560974ebf2ab" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._bz2.pyd" Guid="501746C3-E1F7-4C20-B9B6-0ACE720A074A">
+                    <File Id="mercurial.lib._bz2.pyd" Name="_bz2.pyd" Source="..\..\mercurial\lib\_bz2.pyd" />
+                    <RemoveFile Id="_767c54bb6c804bf6a601c7c1d16409ce" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._cffi_backend.pyd" Guid="71E523A6-7DE6-4907-8FDA-68AE0343B036">
+                    <File Id="mercurial.lib._cffi_backend.pyd" Name="_cffi_backend.pyd" Source="..\..\mercurial\lib\_cffi_backend.pyd" />
+                    <RemoveFile Id="_5662216b99f84ae8bac300603c7045b5" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._ctypes.pyd" Guid="9C89396F-2E54-40AA-B356-D45C3986398B">
+                    <File Id="mercurial.lib._ctypes.pyd" Name="_ctypes.pyd" Source="..\..\mercurial\lib\_ctypes.pyd" />
+                    <RemoveFile Id="_c3566fec93014dfeb9a769ce0671cda6" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._curses.pyd" Guid="84C01CB4-12FE-42BA-AC0D-692D79B7CAD4">
+                    <File Id="mercurial.lib._curses.pyd" Name="_curses.pyd" Source="..\..\mercurial\lib\_curses.pyd" />
+                    <RemoveFile Id="_5ab409ea371d4857ada7df28fe7dc415" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._curses_panel.pyd" Guid="F8195793-AD01-4AA9-B83F-40DCE9605632">
+                    <File Id="mercurial.lib._curses_panel.pyd" Name="_curses_panel.pyd" Source="..\..\mercurial\lib\_curses_panel.pyd" />
+                    <RemoveFile Id="_e1250e62b1b34759b218b3adfa8fb2de" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._decimal.pyd" Guid="A1ED229F-DD54-4B60-B382-F99BDAB579E0">
+                    <File Id="mercurial.lib._decimal.pyd" Name="_decimal.pyd" Source="..\..\mercurial\lib\_decimal.pyd" />
+                    <RemoveFile Id="_9e0b0ffe88e740b9863ccbc93be54785" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._elementtree.pyd" Guid="2BB37E40-865D-48F3-A2BA-9E75AFB174EB">
+                    <File Id="mercurial.lib._elementtree.pyd" Name="_elementtree.pyd" Source="..\..\mercurial\lib\_elementtree.pyd" />
+                    <RemoveFile Id="_ea38412bc26d4efebdd9aea9e25c0fef" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._hashlib.pyd" Guid="2B8C69B5-48E4-4833-AA91-D8A067080B2C">
+                    <File Id="mercurial.lib._hashlib.pyd" Name="_hashlib.pyd" Source="..\..\mercurial\lib\_hashlib.pyd" />
+                    <RemoveFile Id="_07c45e3afacc470db39e7ed56ba33937" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._lzma.pyd" Guid="DBBB25E4-E477-40CA-A25D-BEB023E3949A">
+                    <File Id="mercurial.lib._lzma.pyd" Name="_lzma.pyd" Source="..\..\mercurial\lib\_lzma.pyd" />
+                    <RemoveFile Id="_4d788a039d514784a7e34d84f3c74cfe" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._multiprocessing.pyd" Guid="4CE9D592-4ECC-493C-B050-BB5433EC1D33">
+                    <File Id="mercurial.lib._multiprocessing.pyd" Name="_multiprocessing.pyd" Source="..\..\mercurial\lib\_multiprocessing.pyd" />
+                    <RemoveFile Id="_925e49424d964895a7784f2add123280" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._overlapped.pyd" Guid="EBD9A9E8-5A91-4BD6-A87A-1E891990BC25">
+                    <File Id="mercurial.lib._overlapped.pyd" Name="_overlapped.pyd" Source="..\..\mercurial\lib\_overlapped.pyd" />
+                    <RemoveFile Id="_f2c1bde194064cbf9de4bc9995c11caa" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._queue.pyd" Guid="5B02440D-C7DD-4E0B-B5D2-00F0E858D363">
+                    <File Id="mercurial.lib._queue.pyd" Name="_queue.pyd" Source="..\..\mercurial\lib\_queue.pyd" />
+                    <RemoveFile Id="_ec342a6cffa6419c8c10ce96d6d459aa" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._socket.pyd" Guid="D2B4C9D9-CB7F-4A3E-B719-0313FAC1E599">
+                    <File Id="mercurial.lib._socket.pyd" Name="_socket.pyd" Source="..\..\mercurial\lib\_socket.pyd" />
+                    <RemoveFile Id="_ac6c8e1c6a8541b18905866f37ac2359" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._sqlite3.pyd" Guid="5779B960-3CCE-4370-BD7D-1FA0D140A67A">
+                    <File Id="mercurial.lib._sqlite3.pyd" Name="_sqlite3.pyd" Source="..\..\mercurial\lib\_sqlite3.pyd" />
+                    <RemoveFile Id="_9dad5f5e08f34af0babb0750ad1e1ac6" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._ssl.pyd" Guid="073AE8E6-9D8B-49AF-BE21-60897CA2884E">
+                    <File Id="mercurial.lib._ssl.pyd" Name="_ssl.pyd" Source="..\..\mercurial\lib\_ssl.pyd" />
+                    <RemoveFile Id="_b03f990b121c4ad6894a3c961c94e1f4" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._tkinter.pyd" Guid="8C3B68ED-B7AC-461C-9020-400B64A0D204">
+                    <File Id="mercurial.lib._tkinter.pyd" Name="_tkinter.pyd" Source="..\..\mercurial\lib\_tkinter.pyd" />
+                    <RemoveFile Id="_65c7c759e49b4f89a22a5f41962ef337" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._uuid.pyd" Guid="73EA3EF1-49EC-422A-A129-F48701CFBB30">
+                    <File Id="mercurial.lib._uuid.pyd" Name="_uuid.pyd" Source="..\..\mercurial\lib\_uuid.pyd" />
+                    <RemoveFile Id="_936c641d967948faa323873322d82d7f" On="both" Name="*.*" />
+                </Component>
+                <Component Id="mercurial.lib._win32sysloader.pyd" Guid="C0EEA904-E361-4A5B-8B66-CCD63D5ED32F">
+                    <File Id="mercurial.lib._win32sysloader.pyd" Name="_win32sysloader.pyd" Source="..\..\mercurial\lib\_win32sysloader.pyd" />
+                    <RemoveFile Id="_b67fe4fea68548b59e600b6685a6d679" On="both" Name="*.*" />
                 </Component>
             </Directory>
         </DirectoryRef>
         <ComponentGroup Id="Mercurial">
             <ComponentRef Id="mercurial.add_path.exe" />
             <ComponentRef Id="mercurial.cacert.pem" />
+            <ComponentRef Id="mercurial.concrt140.dll" />
             <ComponentRef Id="mercurial.hg.exe" />
-            <ComponentRef Id="mercurial.hg.exe.local" />
-            <ComponentRef Id="mercurial.library.zip" />
+            <ComponentRef Id="mercurial.libcrypto_1_1_x64.dll" />
+            <ComponentRef Id="mercurial.libssl_1_1_x64.dll" />
             <ComponentRef Id="mercurial.Mercurial.url" />
-            <ComponentRef Id="mercurial.Microsoft.VC90.CRT.manifest" />
-            <ComponentRef Id="mercurial.msvcm90.dll" />
-            <ComponentRef Id="mercurial.msvcp90.dll" />
-            <ComponentRef Id="mercurial.msvcr90.dll" />
-            <ComponentRef Id="mercurial.python27.dll" />
+            <ComponentRef Id="mercurial.msvcp140.dll" />
+            <ComponentRef Id="mercurial.msvcp140_1.dll" />
+            <ComponentRef Id="mercurial.python39.dll" />
+            <ComponentRef Id="mercurial.vcruntime140.dll" />
+            <ComponentRef Id="mercurial.vcruntime140_1.dll" />
             <ComponentRef Id="mercurial.w9xpopen.exe" />
-            <ComponentRef Id="mercurial.Contrib.bash_completion" />
-            <ComponentRef Id="mercurial.Contrib.hgk.tcl" />
-            <ComponentRef Id="mercurial.Contrib.hgweb.fcgi" />
-            <ComponentRef Id="mercurial.Contrib.hgweb.wsgi" />
-            <ComponentRef Id="mercurial.Contrib.mercurial.el" />
-            <ComponentRef Id="mercurial.Contrib.mq.el" />
-            <ComponentRef Id="mercurial.Contrib.tcsh_completion" />
-            <ComponentRef Id="mercurial.Contrib.tcsh_completion_build.sh" />
-            <ComponentRef Id="mercurial.Contrib.xml.rnc" />
-            <ComponentRef Id="mercurial.Contrib.zsh_completion" />
-            <ComponentRef Id="mercurial.Contrib.Vim.hg_menu.vim" />
-            <ComponentRef Id="mercurial.Contrib.Vim.HGAnnotate.vim" />
-            <ComponentRef Id="mercurial.Contrib.Vim.hgcommand.vim" />
-            <ComponentRef Id="mercurial.Contrib.Vim.hgtest.vim" />
-            <ComponentRef Id="mercurial.Contrib.Vim.patchreview.txt" />
-            <ComponentRef Id="mercurial.Contrib.Vim.patchreview.vim" />
+            <ComponentRef Id="mercurial.contrib.bash_completion" />
+            <ComponentRef Id="mercurial.contrib.hgk" />
+            <ComponentRef Id="mercurial.contrib.hgweb.fcgi" />
+            <ComponentRef Id="mercurial.contrib.hgweb.wsgi" />
+            <ComponentRef Id="mercurial.contrib.logo_droplets.svg" />
+            <ComponentRef Id="mercurial.contrib.mercurial.el" />
+            <ComponentRef Id="mercurial.contrib.tcsh_completion" />
+            <ComponentRef Id="mercurial.contrib.tcsh_completion_build.sh" />
+            <ComponentRef Id="mercurial.contrib.xml.rnc" />
+            <ComponentRef Id="mercurial.contrib.zsh_completion" />
+            <ComponentRef Id="mercurial.contrib.vim.hg_menu.vim" />
+            <ComponentRef Id="mercurial.contrib.vim.HGAnnotate.vim" />
+            <ComponentRef Id="mercurial.contrib.vim.hgcommand.vim" />
+            <ComponentRef Id="mercurial.contrib.vim.hgtest.vim" />
+            <ComponentRef Id="mercurial.contrib.vim.patchreview.txt" />
+            <ComponentRef Id="mercurial.contrib.vim.patchreview.vim" />
             <ComponentRef Id="mercurial.default.d.editor.rc" />
             <ComponentRef Id="mercurial.default.d.mergetools.rc" />
+            <ComponentRef Id="mercurial.defaultrc.EditorTools.rc" />
+            <ComponentRef Id="mercurial.defaultrc.Mercurial.rc" />
+            <ComponentRef Id="mercurial.defaultrc.MergePatterns.rc" />
+            <ComponentRef Id="mercurial.defaultrc.MergeTools.rc" />
+            <ComponentRef Id="mercurial.defaultrc.Paths.rc" />
+            <ComponentRef Id="mercurial.defaultrc.TerminalTools.rc" />
+            <ComponentRef Id="mercurial.lib.dulwich._diff_tree.pyd" />
+            <ComponentRef Id="mercurial.lib.dulwich._objects.pyd" />
+            <ComponentRef Id="mercurial.lib.dulwich._pack.pyd" />
+            <ComponentRef Id="mercurial.lib.git2.dll" />
+            <ComponentRef Id="mercurial.lib.hgext.fsmonitor.pywatchman.bser.pyd" />
+            <ComponentRef Id="mercurial.lib.kdiff3.exe" />
+            <ComponentRef Id="mercurial.lib.libcrypto_1_1.dll" />
+            <ComponentRef Id="mercurial.lib.libffi_7.dll" />
+            <ComponentRef Id="mercurial.lib.library.zip" />
+            <ComponentRef Id="mercurial.lib.libssl_1_1.dll" />
+            <ComponentRef Id="mercurial.lib.mercurial.cext.base85.pyd" />
+            <ComponentRef Id="mercurial.lib.mercurial.cext.bdiff.pyd" />
+            <ComponentRef Id="mercurial.lib.mercurial.cext.mpatch.pyd" />
+            <ComponentRef Id="mercurial.lib.mercurial.cext.osutil.pyd" />
+            <ComponentRef Id="mercurial.lib.mercurial.cext.parsers.pyd" />
+            <ComponentRef Id="mercurial.lib.mercurial.thirdparty.sha1dc.pyd" />
+            <ComponentRef Id="_.zope.interface._zope_interface_coptimizations.pyd" />
+            <ComponentRef Id="mercurial.lib.mercurial.zstd.pyd" />
+            <ComponentRef Id="mercurial.lib.pyexpat.pyd" />
+            <ComponentRef Id="mercurial.lib.pygit2._libgit2.pyd" />
+            <ComponentRef Id="mercurial.lib.pygit2._pygit2.pyd" />
+            <ComponentRef Id="mercurial.lib.python3.dll" />
+            <ComponentRef Id="mercurial.lib.pythoncom39.dll" />
+            <ComponentRef Id="mercurial.lib.pywintypes39.dll" />
+            <ComponentRef Id="mercurial.lib.select.pyd" />
+            <ComponentRef Id="mercurial.lib.spawn.cmd" />
+            <ComponentRef Id="mercurial.lib.sqlite3.dll" />
+            <ComponentRef Id="mercurial.lib.tcl86t.dll" />
+            <ComponentRef Id="mercurial.lib.tk86t.dll" />
+            <ComponentRef Id="mercurial.lib.TortoisePlink.exe" />
+            <ComponentRef Id="mercurial.lib.unicodedata.pyd" />
+            <ComponentRef Id="mercurial.lib.win32api.pyd" />
+            <ComponentRef Id="mercurial.lib.win32com.shell.shell.pyd" />
+            <ComponentRef Id="mercurial.lib.win32cred.pyd" />
+            <ComponentRef Id="mercurial.lib.win32event.pyd" />
+            <ComponentRef Id="mercurial.lib.win32file.pyd" />
+            <ComponentRef Id="mercurial.lib.win32gui.pyd" />
+            <ComponentRef Id="mercurial.lib.win32pipe.pyd" />
+            <ComponentRef Id="mercurial.lib.win32process.pyd" />
+            <ComponentRef Id="mercurial.lib.win32security.pyd" />
+            <ComponentRef Id="mercurial.lib.win32trace.pyd" />
+            <ComponentRef Id="mercurial.lib._asyncio.pyd" />
+            <ComponentRef Id="mercurial.lib._bz2.pyd" />
+            <ComponentRef Id="mercurial.lib._cffi_backend.pyd" />
+            <ComponentRef Id="mercurial.lib._ctypes.pyd" />
+            <ComponentRef Id="mercurial.lib._curses.pyd" />
+            <ComponentRef Id="mercurial.lib._curses_panel.pyd" />
+            <ComponentRef Id="mercurial.lib._decimal.pyd" />
+            <ComponentRef Id="mercurial.lib._elementtree.pyd" />
+            <ComponentRef Id="mercurial.lib._hashlib.pyd" />
+            <ComponentRef Id="mercurial.lib._lzma.pyd" />
+            <ComponentRef Id="mercurial.lib._multiprocessing.pyd" />
+            <ComponentRef Id="mercurial.lib._overlapped.pyd" />
+            <ComponentRef Id="mercurial.lib._queue.pyd" />
+            <ComponentRef Id="mercurial.lib._socket.pyd" />
+            <ComponentRef Id="mercurial.lib._sqlite3.pyd" />
+            <ComponentRef Id="mercurial.lib._ssl.pyd" />
+            <ComponentRef Id="mercurial.lib._tkinter.pyd" />
+            <ComponentRef Id="mercurial.lib._uuid.pyd" />
+            <ComponentRef Id="mercurial.lib._win32sysloader.pyd" />
         </ComponentGroup>
     </Fragment>
 </Wix>
