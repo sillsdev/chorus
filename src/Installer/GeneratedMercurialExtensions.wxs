@@ -11,33 +11,13 @@
                     <File Id="MercurialExtensions.fixutf8.cpmap.py" Name="cpmap.py" Source="..\..\MercurialExtensions\fixutf8\cpmap.py" />
                     <RemoveFile Id="_38684329826f4029b435aeb13eb01e70" On="both" Name="*.*" />
                 </Component>
-                <Component Id="MercurialExtensions.fixutf8.cpmap.pyc" Guid="EFE88174-6357-41BB-BC0E-6413635F89B2">
-                    <File Id="MercurialExtensions.fixutf8.cpmap.pyc" Name="cpmap.pyc" Source="..\..\MercurialExtensions\fixutf8\cpmap.pyc" />
-                    <RemoveFile Id="_897b48f876ab438889a270b7d78edce1" On="both" Name="*.*" />
-                </Component>
                 <Component Id="MercurialExtensions.fixutf8.fixutf8.py" Guid="4E259FD4-1C1D-4DD9-98D3-E11F75BCD354">
                     <File Id="MercurialExtensions.fixutf8.fixutf8.py" Name="fixutf8.py" Source="..\..\MercurialExtensions\fixutf8\fixutf8.py" />
                     <RemoveFile Id="_d6616895414a4153a54d6155d0f46990" On="both" Name="*.*" />
                 </Component>
-                <Component Id="MercurialExtensions.fixutf8.fixutf8.pyc" Guid="5E357E7C-FC92-4C4D-B620-A26E2B5A68B3">
-                    <File Id="MercurialExtensions.fixutf8.fixutf8.pyc" Name="fixutf8.pyc" Source="..\..\MercurialExtensions\fixutf8\fixutf8.pyc" />
-                    <RemoveFile Id="_4f3dcc3e32254cfda9194a76be75fc6f" On="both" Name="*.*" />
-                </Component>
-                <Component Id="MercurialExtensions.fixutf8.fixutf8.pyo" Guid="E2F3BA7A-A7F1-4B1E-B92D-9B41985D76ED">
-                    <File Id="MercurialExtensions.fixutf8.fixutf8.pyo" Name="fixutf8.pyo" Source="..\..\MercurialExtensions\fixutf8\fixutf8.pyo" />
-                    <RemoveFile Id="_345b30f31f2b48fe9b407f94b793c4e2" On="both" Name="*.*" />
-                </Component>
                 <Component Id="MercurialExtensions.fixutf8.osutil.py" Guid="3FDCFA06-1BEE-479A-B62C-81C4A59580D5">
                     <File Id="MercurialExtensions.fixutf8.osutil.py" Name="osutil.py" Source="..\..\MercurialExtensions\fixutf8\osutil.py" />
                     <RemoveFile Id="_3d1bbab80ac04b9a9f6cb158ed6ce2bc" On="both" Name="*.*" />
-                </Component>
-                <Component Id="MercurialExtensions.fixutf8.osutil.pyc" Guid="AB3127DD-9BEB-4E56-800A-77FF5935AFA9">
-                    <File Id="MercurialExtensions.fixutf8.osutil.pyc" Name="osutil.pyc" Source="..\..\MercurialExtensions\fixutf8\osutil.pyc" />
-                    <RemoveFile Id="_463c5a429c544ae8ae653ef6e31bfb80" On="both" Name="*.*" />
-                </Component>
-                <Component Id="MercurialExtensions.fixutf8.osutil.pyo" Guid="16FF6D2F-39B1-48BF-B4DE-3107F68D5657">
-                    <File Id="MercurialExtensions.fixutf8.osutil.pyo" Name="osutil.pyo" Source="..\..\MercurialExtensions\fixutf8\osutil.pyo" />
-                    <RemoveFile Id="_a2a1d5452308414a8b131036dcf2af6e" On="both" Name="*.*" />
                 </Component>
                 <Component Id="MercurialExtensions.fixutf8.README" Guid="258101CF-9BE2-4FA4-A9AB-2DECCC9DE2D1">
                     <File Id="MercurialExtensions.fixutf8.README" Name="README" Source="..\..\MercurialExtensions\fixutf8\README" />
@@ -47,30 +27,62 @@
                     <File Id="MercurialExtensions.fixutf8.win32helper.py" Name="win32helper.py" Source="..\..\MercurialExtensions\fixutf8\win32helper.py" />
                     <RemoveFile Id="_d4f27d2716da4613b2304084d00a24f6" On="both" Name="*.*" />
                 </Component>
-                <Component Id="MercurialExtensions.fixutf8.win32helper.pyc" Guid="3F7C9583-9291-44C7-B6E0-2A2854EE7256">
-                    <File Id="MercurialExtensions.fixutf8.win32helper.pyc" Name="win32helper.pyc" Source="..\..\MercurialExtensions\fixutf8\win32helper.pyc" />
-                    <RemoveFile Id="_ba7ffb2a876441ad8505c8b1c113ea71" On="both" Name="*.*" />
+            </Directory>
+            <Directory Id="MercurialExtensions.fixutf8.__pycache__" Name="__pycache__">
+                <Component Id="ions.fixutf8.__pycache__.buildcpmap.cpython_39.pyc" Guid="3E292B5E-8EAB-4DA7-AE01-1D1AF7ACEC0B">
+                    <File Id="ions.fixutf8.__pycache__.buildcpmap.cpython_39.pyc" Name="buildcpmap.cpython-39.pyc" KeyPath="yes" Source="..\..\MercurialExtensions\fixutf8\__pycache__\buildcpmap.cpython-39.pyc" />
+                    <RemoveFile Id="_b8dfbea78a364248bc5d469442966379" On="both" Name="*.*" />
                 </Component>
-                <Component Id="MercurialExtensions.fixutf8.win32helper.pyo" Guid="317E099A-E1A1-4E31-9868-BA91AC3B8420">
-                    <File Id="MercurialExtensions.fixutf8.win32helper.pyo" Name="win32helper.pyo" Source="..\..\MercurialExtensions\fixutf8\win32helper.pyo" />
-                    <RemoveFile Id="_019eb677f68e466c95d5f0b695f9ec3c" On="both" Name="*.*" />
+                <Component Id="ons.fixutf8.__pycache__.cpmap.cpython_39.opt_1.pyc" Guid="48A3DD5B-5649-49A5-8B3E-18F329C10684">
+                    <File Id="ons.fixutf8.__pycache__.cpmap.cpython_39.opt_1.pyc" Name="cpmap.cpython-39.opt-1.pyc" Source="..\..\MercurialExtensions\fixutf8\__pycache__\cpmap.cpython-39.opt-1.pyc" />
+                    <RemoveFile Id="_2318c45e9d654a6a9ba92488f29e0fc1" On="both" Name="*.*" />
+                </Component>
+                <Component Id="xtensions.fixutf8.__pycache__.cpmap.cpython_39.pyc" Guid="7FBF57E0-16B4-4972-B5A6-2EA321824088">
+                    <File Id="xtensions.fixutf8.__pycache__.cpmap.cpython_39.pyc" Name="cpmap.cpython-39.pyc" Source="..\..\MercurialExtensions\fixutf8\__pycache__\cpmap.cpython-39.pyc" />
+                    <RemoveFile Id="_1542b1ed6ac6491d82d1bd6b017b8d57" On="both" Name="*.*" />
+                </Component>
+                <Component Id="s.fixutf8.__pycache__.fixutf8.cpython_39.opt_1.pyc" Guid="9B5DDF51-C490-4280-9A54-C05EAC0341D2">
+                    <File Id="s.fixutf8.__pycache__.fixutf8.cpython_39.opt_1.pyc" Name="fixutf8.cpython-39.opt-1.pyc" Source="..\..\MercurialExtensions\fixutf8\__pycache__\fixutf8.cpython-39.opt-1.pyc" />
+                    <RemoveFile Id="_7637aca75451463ab8546a112c96583c" On="both" Name="*.*" />
+                </Component>
+                <Component Id="ensions.fixutf8.__pycache__.fixutf8.cpython_39.pyc" Guid="DE46E069-17C4-4E95-8FFE-73277E56016B">
+                    <File Id="ensions.fixutf8.__pycache__.fixutf8.cpython_39.pyc" Name="fixutf8.cpython-39.pyc" Source="..\..\MercurialExtensions\fixutf8\__pycache__\fixutf8.cpython-39.pyc" />
+                    <RemoveFile Id="_e8244cec7dee4d699b2aa84c1ecfca1f" On="both" Name="*.*" />
+                </Component>
+                <Component Id="ns.fixutf8.__pycache__.osutil.cpython_39.opt_1.pyc" Guid="85C53DB1-80A2-4778-B5F1-0EF9340D67A3">
+                    <File Id="ns.fixutf8.__pycache__.osutil.cpython_39.opt_1.pyc" Name="osutil.cpython-39.opt-1.pyc" Source="..\..\MercurialExtensions\fixutf8\__pycache__\osutil.cpython-39.opt-1.pyc" />
+                    <RemoveFile Id="_d5ff0685b91f405f88a0d0c4681d218a" On="both" Name="*.*" />
+                </Component>
+                <Component Id="tensions.fixutf8.__pycache__.osutil.cpython_39.pyc" Guid="BAA3650E-AA08-4589-826B-31CD51F26780">
+                    <File Id="tensions.fixutf8.__pycache__.osutil.cpython_39.pyc" Name="osutil.cpython-39.pyc" Source="..\..\MercurialExtensions\fixutf8\__pycache__\osutil.cpython-39.pyc" />
+                    <RemoveFile Id="_278c8c55f41c45cdb363847eb436f3b7" On="both" Name="*.*" />
+                </Component>
+                <Component Id="xutf8.__pycache__.win32helper.cpython_39.opt_1.pyc" Guid="B9226463-399B-4E2D-AA9F-37759487814E">
+                    <File Id="xutf8.__pycache__.win32helper.cpython_39.opt_1.pyc" Name="win32helper.cpython-39.opt-1.pyc" Source="..\..\MercurialExtensions\fixutf8\__pycache__\win32helper.cpython-39.opt-1.pyc" />
+                    <RemoveFile Id="_c5e7a35857374bd8ba4b6f02f0c1f68f" On="both" Name="*.*" />
+                </Component>
+                <Component Id="ons.fixutf8.__pycache__.win32helper.cpython_39.pyc" Guid="9C3E4DB0-C7F4-4BAB-B793-1C85DDACB13E">
+                    <File Id="ons.fixutf8.__pycache__.win32helper.cpython_39.pyc" Name="win32helper.cpython-39.pyc" Source="..\..\MercurialExtensions\fixutf8\__pycache__\win32helper.cpython-39.pyc" />
+                    <RemoveFile Id="_8080984b0aa84afba7e003c337b0a533" On="both" Name="*.*" />
                 </Component>
             </Directory>
         </DirectoryRef>
         <ComponentGroup Id="MercurialExtensions">
             <ComponentRef Id="MercurialExtensions.fixutf8.buildcpmap.py" />
             <ComponentRef Id="MercurialExtensions.fixutf8.cpmap.py" />
-            <ComponentRef Id="MercurialExtensions.fixutf8.cpmap.pyc" />
             <ComponentRef Id="MercurialExtensions.fixutf8.fixutf8.py" />
-            <ComponentRef Id="MercurialExtensions.fixutf8.fixutf8.pyc" />
-            <ComponentRef Id="MercurialExtensions.fixutf8.fixutf8.pyo" />
             <ComponentRef Id="MercurialExtensions.fixutf8.osutil.py" />
-            <ComponentRef Id="MercurialExtensions.fixutf8.osutil.pyc" />
-            <ComponentRef Id="MercurialExtensions.fixutf8.osutil.pyo" />
             <ComponentRef Id="MercurialExtensions.fixutf8.README" />
             <ComponentRef Id="MercurialExtensions.fixutf8.win32helper.py" />
-            <ComponentRef Id="MercurialExtensions.fixutf8.win32helper.pyc" />
-            <ComponentRef Id="MercurialExtensions.fixutf8.win32helper.pyo" />
+            <ComponentRef Id="ions.fixutf8.__pycache__.buildcpmap.cpython_39.pyc" />
+            <ComponentRef Id="ons.fixutf8.__pycache__.cpmap.cpython_39.opt_1.pyc" />
+            <ComponentRef Id="xtensions.fixutf8.__pycache__.cpmap.cpython_39.pyc" />
+            <ComponentRef Id="s.fixutf8.__pycache__.fixutf8.cpython_39.opt_1.pyc" />
+            <ComponentRef Id="ensions.fixutf8.__pycache__.fixutf8.cpython_39.pyc" />
+            <ComponentRef Id="ns.fixutf8.__pycache__.osutil.cpython_39.opt_1.pyc" />
+            <ComponentRef Id="tensions.fixutf8.__pycache__.osutil.cpython_39.pyc" />
+            <ComponentRef Id="xutf8.__pycache__.win32helper.cpython_39.opt_1.pyc" />
+            <ComponentRef Id="ons.fixutf8.__pycache__.win32helper.cpython_39.pyc" />
         </ComponentGroup>
     </Fragment>
 </Wix>
