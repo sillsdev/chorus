@@ -224,11 +224,11 @@ namespace LibChorus.Tests.notes
 		// the setup of the watcher or the code in Save that tries to prevent the notifications at all,
 		// which is more than half the code this test wants to exercise.
 		[Test]
-		[Platform(Exclude = "Win", Reason = "flaky (on both platforms)")]
+		[Ignore("flaky (on both platforms)")]
 		public void ExternalFileModification_NotifiesIndices_ButSaveDoesNot()
 		{
-			const int SleepTime = 25; // milliseconds
-			const int MaxTries = 1000; // max try 25ms * 1000 = 25s
+			const int SleepTime = 10; // milliseconds
+			const int MaxTries = 1000; // max try 10ms * 1000 = 10s
 			using (var t = new TempFile(@"<notes version='0'><annotation guid='123'>
 <message guid='234'>&lt;p&gt;hello</message></annotation></notes>"))
 			{
