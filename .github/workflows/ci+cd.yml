@@ -35,14 +35,16 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@c0d4ad69d8bd405d234f1c9166d383b7a4f69ed8 # v2.1.0
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: |
+          6.0.x
+          8.0.x
 
     - name: Restore
       run: dotnet restore
 
     - name: Build
       run: dotnet build --no-restore -c Release
-      
+
     - name: Install python2 for test execution
       run: sudo apt-get install python2
       if: matrix.os == 'ubuntu-latest'
