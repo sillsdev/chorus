@@ -18,6 +18,8 @@
 	<DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
 	<DefineConstants Condition="'$(Configuration)' == 'Debug'">Debug;$(DefineConstants)</DefineConstants>
 	<SuppressPdbOutput>True</SuppressPdbOutput>
+	<!-- Per https://wixtoolset.org/docs/tools/validation/, validation doesn't work in CIs like GitHub Actions -->
+	<SuppressValidation>true</SuppressValidation>
   </PropertyGroup>
   <ItemGroup>
 	<Compile Include="GeneratedMercurial.wxs" />

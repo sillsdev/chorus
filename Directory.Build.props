@@ -29,6 +29,6 @@ See full changelog at https://github.com/sillsdev/chorus/blob/master/CHANGELOG.m
     RuntimeIdentifiers when building with .NET 5 on AppVeyor. Otherwise the build
     fails with an error that there is no target for'net461/win7-x86'. -->
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
   </PropertyGroup>
 </Project>
