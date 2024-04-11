@@ -15,6 +15,7 @@ namespace ChorusHub
 		public readonly int Port;
 		private readonly string _rootFolder;
 		private Thread _hgServeThread;
+		private CancellationTokenSource _tokenSource;
 
 		public HgServeRunner(string rootFolder, int port)
 		{
@@ -76,32 +77,25 @@ namespace ChorusHub
 				_hgServeProcess.StartInfo.RedirectStandardOutput = true;
 				_hgServeProcess.Start();
 #else
+				_tokenSource = new CancellationTokenSource();
 				_hgServeThread = new Thread(() =>
-												{
-													var commandLineRunner = new CommandLineRunner();
-													try
-													{
-														var progress = new ConsoleProgress();
-														commandLineRunner.Start(
-															Chorus.MercurialLocation.PathToHgExecutable,
-															arguments,
-															Encoding.UTF8, _rootFolder, -1,
-															progress, s => progress.WriteMessage(s));
-													}
-													catch (ThreadAbortException)
-													{
-														//Progress.WriteVerbose("Hg Serve command Thread Aborting (that's normal when stopping)");
-                                                        try
-                                                        {
-                                                            if (!commandLineRunner.Abort(1))
-                                                            {
-                                                                //EventLog.WriteEntry("Application", "Hg Serve might not have closed down.", EventLogEntryType.Information);
-                                                            }
-                                                        }
-                                                        catch { }
-
-													}
-												});
+				{
+					var commandLineRunner = new CommandLineRunner();
+					var progress = new ConsoleProgress();
+					_tokenSource.Token.Register(() =>
+					{
+						progress.CancelRequested = true;
+						commandLineRunner.Abort(1);
+					});
+					commandLineRunner.Start(
+						Chorus.MercurialLocation.PathToHgExecutable,
+						arguments,
+						Encoding.UTF8,
+						_rootFolder,
+						-1,
+						progress,
+						s => progress.WriteMessage(s));
+				});
 				_hgServeThread.Start();
 #endif
 
@@ -190,16 +184,8 @@ namespace ChorusHub
 			if(_hgServeThread !=null && _hgServeThread.IsAlive)
 			{
 				//Progress.WriteMessage("Hg Server Stopping...");
-				_hgServeThread.Abort();
-
-				if(_hgServeThread.Join(2 * 1000))
-				{
-					//Progress.WriteMessage("Hg Server Stopped");
-				}
-				else
-				{
-					//Progress.WriteError("***Gave up on hg server stopping");
-				}
+				_tokenSource.Cancel(false);
+				_hgServeThread.Join(2 * 1000);
 				_hgServeThread = null;
 			}
 		}
