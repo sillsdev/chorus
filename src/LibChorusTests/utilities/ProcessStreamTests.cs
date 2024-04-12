@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using Chorus.Utilities;
 using NUnit.Framework;
+using SIL.PlatformUtilities;
 
 namespace LibChorus.Tests.utilities
 {
@@ -16,8 +17,13 @@ namespace LibChorus.Tests.utilities
 			var expectedOutput = "Hello, World!";
 			var ps = new ProcessStream();
 			var process = new Process();
-			process.StartInfo.FileName = "cmd.exe";
-			process.StartInfo.Arguments = "/c echo " + expectedOutput;
+			if (Platform.IsUnix) {
+				process.StartInfo.FileName = "sh";
+				process.StartInfo.Arguments = $"-c \"echo '{expectedOutput}'\"";
+			} else {
+				process.StartInfo.FileName = "cmd.exe";
+				process.StartInfo.Arguments = "/c echo " + expectedOutput;
+			}
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.Start();
@@ -33,8 +39,13 @@ namespace LibChorus.Tests.utilities
 			var expectedOutput = "Hello, World!";
 			var ps = new ProcessStream();
 			var process = new Process();
-			process.StartInfo.FileName = "cmd.exe";
-			process.StartInfo.Arguments = "/c echo " + expectedOutput + " 1>&2";
+			if (Platform.IsUnix) {
+				process.StartInfo.FileName = "sh";
+				process.StartInfo.Arguments = $"-c \"echo '{expectedOutput}' 1>&2\"";
+			} else {
+				process.StartInfo.FileName = "cmd.exe";
+				process.StartInfo.Arguments = "/c echo " + expectedOutput + " 1>&2";
+			}
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.RedirectStandardError = true;
 			process.Start();
@@ -49,8 +60,13 @@ namespace LibChorus.Tests.utilities
 		{
 			var ps = new ProcessStream();
 			var process = new Process();
-			process.StartInfo.FileName = "cmd.exe";
-			process.StartInfo.Arguments = "/c waitfor /T 10 pause1 & echo test";
+			if (Platform.IsUnix) {
+				process.StartInfo.FileName = "sh";
+				process.StartInfo.Arguments = "-c \"sleep 10s && echo -n test\"";
+			} else {
+				process.StartInfo.FileName = "cmd.exe";
+				process.StartInfo.Arguments = "/c waitfor /T 10 pause1 & echo test";
+			}
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
@@ -67,8 +83,13 @@ namespace LibChorus.Tests.utilities
 		{
 			var ps = new ProcessStream();
 			var process = new Process();
-			process.StartInfo.FileName = "cmd.exe";
-			process.StartInfo.Arguments = "/c waitfor /T 1 pause2 & echo test";
+			if (Platform.IsUnix) {
+				process.StartInfo.FileName = "sh";
+				process.StartInfo.Arguments = "-c \"sleep 1s && echo -n test\"";
+			} else {
+				process.StartInfo.FileName = "cmd.exe";
+				process.StartInfo.Arguments = "/c waitfor /T 1 pause2 & echo test";
+			}
 			process.StartInfo.UseShellExecute = false;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
