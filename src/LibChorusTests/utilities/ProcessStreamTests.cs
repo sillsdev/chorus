@@ -96,7 +96,11 @@ namespace LibChorus.Tests.utilities
 			process.Start();
 			var readReturnCode = ps.Read(ref process, 10);
 			Assert.That(ps.StandardOutput, Does.Contain("test"));
-			Assert.That(ps.StandardError, Is.Not.Empty); //should not be empty because waitfor gives an error
+			if (Platform.IsUnix) {
+				Assert.That(ps.StandardError?.TrimEnd(), Is.Null.Or.Empty); //should be empty because sleep does not give an error
+			} else {
+				Assert.That(ps.StandardError, Is.Not.Null.Or.Empty); //should not be empty because waitfor gives an error
+			}
 			Assert.AreEqual(1, readReturnCode);
 			process.WaitForExit();
 		}
