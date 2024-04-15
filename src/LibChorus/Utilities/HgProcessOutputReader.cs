@@ -47,23 +47,21 @@ namespace Chorus.Utilities
 		}
 
 		/// <summary>
-		/// Safely read the streams of the process
+		/// Safely read the streams of the process, must redirect stdErr, out and in before calling
 		/// </summary>
 		/// <returns>true if the process completed before the timeout or cancellation</returns>
 		public bool Read(ref Process process, int secondsBeforeTimeOut, IProgress progress)
 		{
-			var outputReaderArgs = new ReaderArgs() {Proc = process, Reader = process.StandardOutput};
-			if (process.StartInfo.RedirectStandardOutput)
-			{
-				_outputReader = new Thread(new ParameterizedThreadStart(ReadStream));
-				_outputReader.Start(outputReaderArgs);
-			}
-		   var errorReaderArgs = new ReaderArgs() { Proc = process, Reader = process.StandardError };
-		   if (process.StartInfo.RedirectStandardError)
-			{
-				_errorReader = new Thread(new ParameterizedThreadStart(ReadStream));
-				_errorReader.Start(errorReaderArgs);
-			}
+			var cts = new CancellationTokenSource();
+			var outputReaderArgs = new ReaderArgs(process, process.StandardOutput, cts.Token);
+			_outputReader = new Thread(ReadStream);
+			_outputReader.Start(outputReaderArgs);
+
+
+			var errorReaderArgs = new ReaderArgs(process, process.StandardError, cts.Token);
+			_errorReader = new Thread(ReadStream);
+			_errorReader.Start(errorReaderArgs);
+
 
 			lock(this)
 			{
@@ -71,23 +69,24 @@ namespace Chorus.Utilities
 			}
 
 			//nb: at one point I (jh) tried adding !process.HasExited, but that made things less stable.
-			while (/*!process.HasExited &&*/ (_outputReader.ThreadState == ThreadState.Running || (_errorReader != null && _errorReader.ThreadState == ThreadState.Running)))
+			while ( _outputReader.ThreadState != ThreadState.Stopped && _errorReader.ThreadState != ThreadState.Stopped)
 			{
 				DateTime end;
 				lock (this)
 				{
 					end = _heartbeat.AddSeconds(secondsBeforeTimeOut);
 				}
-				if(progress.CancelRequested)
+
+				if (progress.CancelRequested)
+				{
+					cts.Cancel();
 					return false;
+				}
 
 				Thread.Sleep(100);
 				if (DateTime.Now > end)
 				{
-					if (_outputReader != null)
-						_outputReader.Abort();
-					if (_errorReader != null)
-						_errorReader.Abort();
+					cts.Cancel();
 					return false;
 				}
 			}
@@ -155,34 +154,46 @@ namespace Chorus.Utilities
 		private void ReadStream(object args)
 		{
 			var result = new StringBuilder();
-			var readerArgs = args as ReaderArgs;
-
-			var reader = readerArgs.Reader;
-			do
+			var readerArgs = (ReaderArgs)args;
+			try
 			{
-			   var s = reader.ReadLine();
-			   if (s != null)
-			   {
-				   // Eat up any heartbeat lines from the stream, also remove warnings about dotencode
-				   if (s != Properties.Resources.MergeHeartbeat && s != DotEncodeWarning
+				var reader = readerArgs.Reader;
+				do
+				{
+					var s = reader.ReadLineAsync(readerArgs.Token).Result;
+					if (s == null) return; //cancelled
+					// Eat up any heartbeat lines from the stream, also remove warnings about dotencode
+					if (s != Properties.Resources.MergeHeartbeat
+						&& s != DotEncodeWarning
 						&& !HandleChangedVsDeletedFiles(s, readerArgs.Proc.StandardInput))
-				   {
-					   result.AppendLine(s.Trim());
-				   }
-				   lock (this)
-				   {
-					   // set the last heartbeat if data was read from the stream
-					   _heartbeat = DateTime.Now;
-				   }
-			  }
-			} while (!reader.EndOfStream);// && !readerArgs.Proc.HasExited);
+					{
+						result.AppendLine(s.Trim());
+					}
 
-			readerArgs.Results = result.ToString().Replace("\r\n", "\n");
+					lock (this)
+					{
+						// set the last heartbeat if data was read from the stream
+						_heartbeat = DateTime.Now;
+					}
+				} while (!reader.EndOfStream && !readerArgs.Token.IsCancellationRequested); // && !readerArgs.Proc.HasExited);
+			}
+			finally
+			{
+				readerArgs.Results = result.ToString().Replace("\r\n", "\n");
+			}
 		}
 	}
 
-	class ReaderArgs
+	internal class ReaderArgs
 	{
+		public ReaderArgs(Process proc, StreamReader reader, CancellationToken token)
+		{
+			Token = token;
+			Reader = reader;
+			Proc = proc;
+		}
+
+		public CancellationToken Token;
 		public StreamReader Reader;
 		public Process Proc;
 		public string Results;

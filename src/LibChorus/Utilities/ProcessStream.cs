@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Chorus.Utilities
 {
@@ -37,10 +39,6 @@ namespace Chorus.Utilities
 		string error = myProcessStream.StandardError;
 		*/
 
-		private Thread StandardOutputReader;
-		private Thread StandardErrorReader;
-		private static Process _srunningProcess;
-
 		private string _standardOutput = "";
 		public string StandardOutput
 		{
@@ -55,81 +53,25 @@ namespace Chorus.Utilities
 			get { return _standardError; }
 		}
 
-		public ProcessStream()
-		{
-			Init();
-		}
-
 		public int Read(ref Process process, int secondsBeforeTimeOut)
 		{
-//            try
-//            {
-				Init();
-				_srunningProcess = process;
+			Task<string> stdOutTask, stdErrTask;
+			stdOutTask = stdErrTask = Task.FromResult(string.Empty);
 
-				if (_srunningProcess.StartInfo.RedirectStandardOutput)
-				{
-					StandardOutputReader = new Thread(new ThreadStart(ReadStandardOutput));
-					StandardOutputReader.Start();
-				}
-				if (_srunningProcess.StartInfo.RedirectStandardError)
-				{
-					StandardErrorReader = new Thread(new ThreadStart(ReadStandardError));
-					StandardErrorReader.Start();
-				}
+			if (process.StartInfo.RedirectStandardOutput)
+				stdOutTask = process.StandardOutput.ReadToEndAsync(secondsBeforeTimeOut);
+			if (process.StartInfo.RedirectStandardError)
+				stdErrTask = process.StandardError.ReadToEndAsync(secondsBeforeTimeOut);
+			var stdOut = stdOutTask.Result;
+			var stdErr = stdErrTask.Result;
+			_standardOutput = stdOut ?? string.Empty;
+			_standardError = stdErr ?? string.Empty;
+			//null indicates the read timed out
+			if (stdOut == null || stdErr == null)
+			{
+				return kTimedOut;
+			}
 
-				//_srunningProcess.WaitForExit();
-				if (StandardOutputReader != null)
-				{
-					if (!StandardOutputReader.Join(new TimeSpan(0, 0, 0, secondsBeforeTimeOut)))
-					{
-						return kTimedOut;
-					}
-				}
-				if (StandardErrorReader != null)
-				{
-					if (!StandardErrorReader.Join(new TimeSpan(0, 0, 0, secondsBeforeTimeOut)))
-					{
-						return kTimedOut;
-					}
-				}
-//            }
-//            catch
-//            { }
-
-			return 1;
-		}
-
-		private void ReadStandardOutput()
-		{
-			if (_srunningProcess != null)
-				_standardOutput = _srunningProcess.StandardOutput.ReadToEnd();
-		}
-
-		private void ReadStandardError()
-		{
-			if (_srunningProcess != null)
-				_standardError = _srunningProcess.StandardError.ReadToEnd();
-		}
-
-		private int Init()
-		{
-			_standardError = "";
-			_standardOutput = "";
-			_srunningProcess = null;
-			Stop();
-			return 1;
-		}
-
-		[System.Diagnostics.DebuggerStepThrough]
-		public int Stop()
-		{
-			try { StandardOutputReader.Abort(); }
-			catch { }
-			try { StandardErrorReader.Abort(); }
-			catch { }
-			StandardOutputReader = null;
-			StandardErrorReader = null;
 			return 1;
 		}
 	}

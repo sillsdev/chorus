@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Chorus.ChorusHub;
 
 namespace ChorusHub
@@ -12,6 +13,7 @@ namespace ChorusHub
 	public class Advertiser : IDisposable
 	{
 		private Thread _thread;
+		private CancellationTokenSource _cancellationTokenSource;
 		private UdpClient _client;
 		private IPEndPoint _endPoint;
 		private byte[] _sendBytes;
@@ -33,6 +35,7 @@ namespace ChorusHub
 				EnableBroadcast = true
 			};
 			_endPoint = new IPEndPoint(IPAddress.Parse("255.255.255.255"), Port);
+			_cancellationTokenSource = new CancellationTokenSource();
 			 _thread = new Thread(Work);
 			_thread.Start();
 		}
@@ -41,17 +44,16 @@ namespace ChorusHub
 		{
 			try
 			{
-				while (true)
+				while (!_cancellationTokenSource.Token.IsCancellationRequested)
 				{
 					UpdateAdvertisementBasedOnCurrentIpAddress();
-					_client.BeginSend(_sendBytes, _sendBytes.Length, _endPoint, SendCallback, _client);
-					Thread.Sleep(1000);
+					_client.BeginSend(_sendBytes,
+						_sendBytes.Length,
+						_endPoint,
+						SendCallback,
+						_client);
+					Task.Delay(1000).Wait(_cancellationTokenSource.Token);
 				}
-			}
-			catch(ThreadAbortException)
-			{
-				//Progress.WriteVerbose("Advertiser Thread Aborting (that's normal)");
-				_client.Close();
 			}
 			catch(Exception)
 			{
@@ -104,9 +106,12 @@ namespace ChorusHub
 				return;
 
 			//EventLog.WriteEntry("Application", "Advertiser Stopping...", EventLogEntryType.Information);
-			_thread.Abort();
+			_cancellationTokenSource.Cancel();
 			_thread.Join(2 * 1000);
 			_thread = null;
+			_client.Close();
+			_client.Dispose();
+			_client = null;
 		}
 
 		public void Dispose()
