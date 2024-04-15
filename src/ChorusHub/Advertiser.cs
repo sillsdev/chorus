@@ -42,7 +42,6 @@ namespace ChorusHub
 
 		private void Work()
 		{
-			bool cancelled = false;
 			try
 			{
 				while (!_cancellationTokenSource.Token.IsCancellationRequested)
@@ -56,22 +55,9 @@ namespace ChorusHub
 					Task.Delay(1000).Wait(_cancellationTokenSource.Token);
 				}
 			}
-			catch (OperationCanceledException)
-			{
-				cancelled = true;
-			}
-			catch(ThreadAbortException)
-			{
-				cancelled = true;
-			}
 			catch(Exception)
 			{
 				//EventLog.WriteEntry("Application", string.Format("Error in Advertiser: {0}", error.Message), EventLogEntryType.Error);
-			}
-
-			if (_cancellationTokenSource.Token.IsCancellationRequested && cancelled)
-			{
-				_client.Close();
 			}
 		}
 
@@ -123,6 +109,9 @@ namespace ChorusHub
 			_cancellationTokenSource.Cancel();
 			_thread.Join(2 * 1000);
 			_thread = null;
+			_client.Close();
+			_client.Dispose();
+			_client = null;
 		}
 
 		public void Dispose()
