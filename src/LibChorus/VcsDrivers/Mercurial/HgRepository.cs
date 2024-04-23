@@ -1071,13 +1071,18 @@ namespace Chorus.VcsDrivers.Mercurial
 				// and it will appear later in the log.
 				if(address.URI.Contains(RepositoryAddress.ProjectNameVariable))
 				{
-					return address.GetPotentialRepoUri(Identifier,
+					return ServerSettingsModel.RemovePasswordForLog(address.GetPotentialRepoUri(Identifier,
 						Path.GetFileNameWithoutExtension(_pathToRepository) + Path.GetExtension(_pathToRepository),
-						_progress);
+						_progress));
 				}
 			}
 			catch { /* Don't throw trying to get extra information to log */ }
-			return address.URI;
+			try
+			{
+				return ServerSettingsModel.RemovePasswordForLog(address.URI);
+			}
+			catch { /* Really don't throw trying to get extra information to log */ }
+			return "(unknown error getting URI)";
 		}
 
 		/// <summary>
