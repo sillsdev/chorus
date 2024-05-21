@@ -12,6 +12,7 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 	public class MercurialLocation
 	{
 		private static string _pathToMercurialFolder;
+		private static string _hgExe = Platform.IsWindows ? "hg.exe" : "hg";
 
 		/// <summary>
 		/// Clients can set this if they have their own private copy of Mercurial (recommended)
@@ -31,7 +32,7 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 					return;
 				}
 				RequireThat.Directory(value).Exists();
-				string expectedHgLocation=Path.Combine(value, Platform.IsWindows ? "hg.exe" : "hg");
+				string expectedHgLocation=Path.Combine(value, _hgExe);
 				if (!File.Exists(expectedHgLocation))
 				{
 					throw new FileNotFoundException(expectedHgLocation);
@@ -50,8 +51,8 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 				GuessAtLocationIfNotSetAlready();
 
 				if(string.IsNullOrEmpty(_pathToMercurialFolder))
-					return "hg"; //rely on the PATH
-				return Path.Combine(_pathToMercurialFolder, "hg");
+					return _hgExe; //rely on the PATH
+				return Path.Combine(_pathToMercurialFolder, _hgExe);
 			}
 		}
 
