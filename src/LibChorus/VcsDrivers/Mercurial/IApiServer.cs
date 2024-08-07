@@ -43,9 +43,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		// used only by getRevisions API
 		public int Quantity { get; set; }
 
+		/// <summary>
+		/// returns a query string, prefixed with a '?' unless there are no parameters
+		/// </summary>
+		/// <returns></returns>
 		public string BuildQueryString()
 		{
-			string query = "";
+			string query = "?";
 			if (StartOfWindow >= 0)
 			{
 				query += String.Format("offset={0}&", StartOfWindow);
@@ -76,6 +80,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (!String.IsNullOrEmpty(RepoId))
 			{
 				query += String.Format("repoId={0}&", RepoId);
+			}
+			if (query == "?")
+			{
+				return "";
 			}
 			return query.TrimEnd('&');
 		}

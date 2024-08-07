@@ -33,10 +33,15 @@ namespace Chorus.VcsDrivers.Mercurial
 		[Obsolete] public string UserName => null;
 		[Obsolete] public string Password => null;
 
-		public HgResumeApiResponse Execute(string method, HgResumeApiParameters parameters, byte[] contentToSend, int secondsBeforeTimeout)
+		public static string FormatUrl(Uri uri, string method, HgResumeApiParameters parameters)
 		{
 			string queryString = parameters.BuildQueryString();
-			Url = string.Format("{0}://{1}/api/v{2}/{3}?{4}", _url.Scheme, _url.Host, ApiVersion, method, queryString);
+			return $"{uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped)}/api/v{ApiVersion}/{method}{queryString}";
+		}
+
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters parameters, byte[] contentToSend, int secondsBeforeTimeout)
+		{
+			Url = FormatUrl(_url, method, parameters);
 			var req = (HttpWebRequest) WebRequest.Create(Url);
 			req.UserAgent = $"HgResume v{ApiVersion}";
 			req.PreAuthenticate = true;
