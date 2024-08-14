@@ -702,13 +702,13 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				throw new UserCancelledException();
 			}
-			if (!string.IsNullOrEmpty(result.StandardError))
+			if (!string.IsNullOrWhiteSpace(result.StandardError))
 			{
-				_progress.WriteVerbose("standerr: " + result.StandardError);//not necessarily an *error* down this deep
+				_progress.WriteVerbose("standerr: " + result.StandardError.TrimEnd());//not necessarily an *error* down this deep
 			}
-			if (!string.IsNullOrEmpty(result.StandardOutput))
+			if (!string.IsNullOrWhiteSpace(result.StandardOutput))
 			{
-				_progress.WriteVerbose("standout: " + result.StandardOutput);//not necessarily an *error* down this deep
+				_progress.WriteVerbose("standout: " + result.StandardOutput.TrimEnd());//not necessarily an *error* down this deep
 			}
 
 #if DEBUG
