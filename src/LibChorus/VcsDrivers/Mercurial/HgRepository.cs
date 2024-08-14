@@ -468,13 +468,13 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var result = ExecuteErrorsOk(query, secondsBeforeTimeoutOnLocalOperation);
 
-			var standardOutputText = result.StandardOutput.Trim();
+			var standardOutputText = result.StandardOutput?.Trim();
 			if (!string.IsNullOrEmpty(standardOutputText))
 			{
 				_progress.WriteVerbose(standardOutputText);
 			}
 
-			var standardErrorText = result.StandardError.Trim();
+			var standardErrorText = result.StandardError?.Trim();
 			if (!string.IsNullOrEmpty(standardErrorText))
 			{
 				_progress.WriteError(standardErrorText);
@@ -485,7 +485,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteWarning("Hg Command {0} left lock", query);
 			}
 
-			return result.StandardOutput;
+			return result.StandardOutput ?? "";
 		}
 
 		/// <summary>
