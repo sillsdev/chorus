@@ -69,7 +69,7 @@ namespace Chorus.Utilities
 			}
 
 			//nb: at one point I (jh) tried adding !process.HasExited, but that made things less stable.
-			while ( _outputReader.ThreadState != ThreadState.Stopped && _errorReader.ThreadState != ThreadState.Stopped)
+			while (outputReaderArgs.Results == null || errorReaderArgs.Results == null)
 			{
 				DateTime end;
 				lock (this)
