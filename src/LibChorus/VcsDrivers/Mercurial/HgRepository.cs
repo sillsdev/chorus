@@ -468,18 +468,6 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			var result = ExecuteErrorsOk(query, secondsBeforeTimeoutOnLocalOperation);
 
-			var standardOutputText = result.StandardOutput?.Trim();
-			if (!string.IsNullOrEmpty(standardOutputText))
-			{
-				_progress.WriteVerbose(standardOutputText);
-			}
-
-			var standardErrorText = result.StandardError?.Trim();
-			if (!string.IsNullOrEmpty(standardErrorText))
-			{
-				_progress.WriteError(standardErrorText);
-			}
-
 			if (GetHasLocks())
 			{
 				_progress.WriteWarning("Hg Command {0} left lock", query);
