@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Upload
-      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
+      uses: actions/upload-artifact@v4
       with:
         name: Event File
         path: ${{ github.event_path }}
@@ -66,7 +66,7 @@ jobs:
 
     - name: Upload Test Results
       if: always()
-      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
+      uses: actions/upload-artifact@v4
       with:
         name: Test Results (${{matrix.os}})
         path: "**/TestResults/*.xml"
@@ -93,7 +93,7 @@ jobs:
       if: matrix.os == 'windows-latest'
 
     - name: Upload Merge Module
-      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
+      uses: actions/upload-artifact@v4
       with:
         name: chorus-merge-module
         path: |
@@ -109,7 +109,7 @@ jobs:
       if: matrix.os == 'windows-latest'
 
     - name: Upload Chorus Hub Installer
-      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
+      uses: actions/upload-artifact@v4
       with:
         name: chorus-hub-installer
         path: |
@@ -120,7 +120,7 @@ jobs:
       run: dotnet pack --no-restore --no-build -c Release
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@3cea5372237819ed00197afe530f5a7ea3e805c8 # v3.1.0
+      uses: actions/upload-artifact@v4
       with:
         name: chorus-dotnet-nugetpackage
         path: |
@@ -135,7 +135,7 @@ jobs:
     if: github.event_name == 'push'
     steps:
     - name: Download Artifacts
-      uses: actions/download-artifact@fb598a63ae348fa914e94cd0ff38f362e927b741 # v3.0.0
+      uses: actions/download-artifact@v4
       with:
         path: artifacts
 
