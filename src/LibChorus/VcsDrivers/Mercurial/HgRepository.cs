@@ -1138,7 +1138,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					switch (label)
 					{
 						default:
-							if (Platform.IsMono)
+							if (Platform.IsLinux)
 								infiniteLoopChecker++;
 							break;
 						case "changeset":

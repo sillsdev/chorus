@@ -154,7 +154,7 @@ namespace Chorus.FileTypeHandlers.text
 
 		public static string GetShortPath(string path)
 		{
-			if (Platform.IsMono)
+			if (!Platform.IsWindows)
 				return path;
 
 			var shortPath = new StringBuilder(255);
