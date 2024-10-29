@@ -52,7 +52,7 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet build -f ${{ matrix.framework }} --no-restore -c Release
+      run: dotnet build --no-restore -c Release
 
     - name: Install python2 for test execution
       run: sudo apt-get install python2
