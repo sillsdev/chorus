@@ -26,6 +26,11 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
+        framework: [net461, net6.0, net8.0]
+        exclude:
+          # dotnet on Linux cannot build net461 without additional, unnecessary, work
+          - os: ubuntu-latest
+            framework: net461
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.os }}
       cancel-in-progress: true
@@ -47,7 +52,7 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet build --no-restore -c Release
+      run: dotnet build -f ${{ matrix.framework }} --no-restore -c Release
 
     - name: Install python2 for test execution
       run: sudo apt-get install python2
@@ -57,7 +62,7 @@ jobs:
     # We could conditionally set an environment variable, but unfortunately
     # the syntax to access that is different on Windows vs Linux.
     - name: Test on Linux
-      run: dotnet test --no-build -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
+      run: dotnet test -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'ubuntu-latest'
 
     - name: Test on Windows
@@ -68,29 +73,30 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: Test Results (${{matrix.os}})
+        name: Test Results (${{ matrix.framework }} on ${{matrix.os}})
         path: "**/TestResults/*.xml"
 
+  build-installers:
+    name: "Build Windows installers"
+    runs-on: windows-latest
+    needs: build-and-test
+    steps:
     - name: Checkout Chorus Help # required for Chorus Merge Module
       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
       with:
         repository: sillsdev/chorushelp
         path: DistFiles/Help
-      if: matrix.os == 'windows-latest'
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@34cfbaee7f672c76950673338facd8a73f637506 # v1.1.3
-      if: matrix.os == 'windows-latest'
 
     # ChorusMergeModule.msm is used by FieldWorks, FLExBridge, and possibly WeSay installers (as of 2022.12).
     # CMM must be built after tests have been run, since the fixutf8.pyc files are generated only when the .py  files are run.
     - name: Build Merge Module
       run: msbuild src/Installer/ChorusMergeModule.wixproj
-      if: matrix.os == 'windows-latest'
 
     - name: Pack Merge Module
       run: msbuild src/Installer/ChorusMergeModule.wixproj -t:pack
-      if: matrix.os == 'windows-latest'
 
     - name: Upload Merge Module
       uses: actions/upload-artifact@v4
@@ -99,14 +105,12 @@ jobs:
         path: |
           output/Release/*.msm
           output/*.nupkg
-      if: matrix.os == 'windows-latest'
 
     - name: Build Chorus Hub Installer
       run: |
         msbuild src/Installer/ChorusHub.wixproj /t:Restore
         msbuild src/Installer/ChorusHub.wixproj /t:StampLicenseYear
         msbuild src/Installer/ChorusHub.wixproj /t:Build
-      if: matrix.os == 'windows-latest'
 
     - name: Upload Chorus Hub Installer
       uses: actions/upload-artifact@v4
@@ -114,7 +118,6 @@ jobs:
         name: chorus-hub-installer
         path: |
           output/Release/*.msi
-      if: matrix.os == 'windows-latest'
 
     - name: Pack
       run: dotnet pack --no-restore --no-build -c Release
@@ -126,12 +129,11 @@ jobs:
         path: |
           output/*.nupkg
           output/*.snupkg
-      if: matrix.os == 'ubuntu-latest'
 
   publish-nuget:
     name: "Publish NuGet package"
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: build-installers
     if: github.event_name == 'push'
     steps:
     - name: Download Artifacts
