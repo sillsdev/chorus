@@ -165,7 +165,7 @@ namespace Chorus.UI.Sync
 				try
 				{
 					var first = usbDrives[0];
-					if (!Platform.IsMono)
+					if (Platform.IsWindows)
 					{
 						message = string.Format(LocalizationManager.GetString(
 								"GetUsbStatus.DriveInfoAndFreeSpace",
