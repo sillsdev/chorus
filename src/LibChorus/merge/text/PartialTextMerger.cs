@@ -183,7 +183,8 @@ namespace Chorus.merge.text
 			p.StartInfo.RedirectStandardOutput = true;
 
 			//NB: there is a post-build step in this project which copies the diff3 folder into the output
-			p.StartInfo.FileName = "diff3/bin/diff3.exe";
+			var filename = File.Exists("diff3/bin/diff3.exe") ? "diff3/bin/diff3.exe" : "diff3"; // On Linux, just use diff3 from the PATH
+			p.StartInfo.FileName = filename;
 			p.StartInfo.Arguments = "-m " + oursPath + " "+commonPath+" "+theirPath;
 			p.StartInfo.CreateNoWindow = true;
 			p.Start();
