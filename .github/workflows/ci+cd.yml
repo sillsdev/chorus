@@ -32,7 +32,7 @@ jobs:
           - os: ubuntu-latest
             framework: net461
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.os }}
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.os }}-${{ matrix.framework }}
       cancel-in-progress: true
 
     steps:
