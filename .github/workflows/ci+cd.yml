@@ -48,11 +48,14 @@ jobs:
           6.0.x
           8.0.x
 
+    # We skip restore and build steps on Linux due to a dotnet SDK bug - 2024-10-30 RM
     - name: Restore
       run: dotnet restore
+      if: matrix.os == 'windows-latest'
 
     - name: Build
       run: dotnet build --no-restore -c Release
+      if: matrix.os == 'windows-latest'
 
     - name: Install python2 for test execution
       run: sudo apt-get install python2
@@ -61,7 +64,7 @@ jobs:
     # Unfortunately we need two test steps because we need different filters.
     # We could conditionally set an environment variable, but unfortunately
     # the syntax to access that is different on Windows vs Linux.
-    # Note: we also omit `--no-build` on Linux due to dotnet SDK bug 29742, so that `dotnet test` won't complain about pre-built DLLs
+    # Note: we also omit `--no-build` on Linux due to dotnet SDK bug 29742, so that `dotnet test` won't complain about pre-built DLLs - 2024-10-30 RM
     - name: Test on Linux
       run: dotnet test -f ${{ matrix.framework }} -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'ubuntu-latest'
