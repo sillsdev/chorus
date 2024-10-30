@@ -63,7 +63,7 @@ jobs:
     # the syntax to access that is different on Windows vs Linux.
     # Note: we also omit `--no-build` on Linux due to dotnet SDK bug 29742, so that `dotnet test` won't complain about pre-built DLLs - 2024-10-30 RM
     - name: Test on Linux
-      run: dotnet test -f ${{ matrix.framework }} --no-build --runtime linux-x64 -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
+      run: dotnet test -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'ubuntu-latest'
 
     - name: Test on Windows
