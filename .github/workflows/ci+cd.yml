@@ -61,14 +61,16 @@ jobs:
     # Unfortunately we need two test steps because we need different filters.
     # We could conditionally set an environment variable, but unfortunately
     # the syntax to access that is different on Windows vs Linux.
+    # Note: we also omit `--no-build` on Linux due to dotnet SDK bug 29742, so that `dotnet test` won't complain about pre-built DLLs
     - name: Test on Linux
-      run: dotnet test -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
+      run: dotnet test -f ${{ matrix.framework }} -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'ubuntu-latest'
 
     - name: Test on Windows
       run: dotnet test --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
       if: matrix.os == 'windows-latest'
 
+    # TODO: Give each test result its own name based on OS and framework and change the test-results.yml workflow accordingly, so that they don't overwrite each other
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v4
