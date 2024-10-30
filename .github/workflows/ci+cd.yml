@@ -48,14 +48,11 @@ jobs:
           6.0.x
           8.0.x
 
-    # We skip restore and build steps on Linux due to a dotnet SDK bug - 2024-10-30 RM
     - name: Restore
-      run: dotnet restore
-      if: matrix.os == 'windows-latest'
+      run: dotnet restore -p:TargetFramework=${{ matrix.framework }}
 
     - name: Build
-      run: dotnet build --no-restore -c Release
-      if: matrix.os == 'windows-latest'
+      run: dotnet build --no-restore -c Release -f ${{ matrix.framework }}
 
     - name: Install python2 for test execution
       run: sudo apt-get install python2
