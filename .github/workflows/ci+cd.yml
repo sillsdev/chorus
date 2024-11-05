@@ -58,17 +58,15 @@ jobs:
       run: sudo apt-get install python2
       if: matrix.os == 'ubuntu-latest'
 
-    # Unfortunately we need two test steps because we need different filters.
-    # We could conditionally set an environment variable, but unfortunately
-    # the syntax to access that is different on Windows vs Linux.
-    # Note: we also omit `--no-build` on Linux due to dotnet SDK bug 29742, so that `dotnet test` won't complain about pre-built DLLs - 2024-10-30 RM
-    - name: Test on Linux
-      run: dotnet test -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=RequiresUI -- NUnit.TestOutputXml=TestResults
-      if: matrix.os == 'ubuntu-latest'
+    - name: Test Chorus
+      run: dotnet test src/Chorus.Tests/Chorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
+      if: matrix.framework == 'net461'
 
-    - name: Test on Windows
-      run: dotnet test -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
-      if: matrix.os == 'windows-latest'
+    - name: Test ChorusMerge
+      run: dotnet test src/ChorusMerge.Tests/ChorusMerge.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
+
+    - name: Test LibChorus
+      run: dotnet test src/LibChorus.Tests/LibChorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
 
     # TODO: Give each test result its own name based on OS and framework and change the test-results.yml workflow accordingly, so that they don't overwrite each other
     - name: Upload Test Results
