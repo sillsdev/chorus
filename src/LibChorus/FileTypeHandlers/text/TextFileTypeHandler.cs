@@ -66,17 +66,21 @@ namespace Chorus.FileTypeHandlers.text
 		{
 			//NB: surrounding with quotes didn't cut it to get past paths with spaces
 
-			return RunProcess(_diff3Exe, new string[] {"-m", LongToShortConverter.GetShortPath(oursPath),
-				LongToShortConverter.GetShortPath(commonPath),
-				LongToShortConverter.GetShortPath(theirPath) });
+			return RunProcess(_diff3Exe, "-m" + QuoteIfNeeded(LongToShortConverter.GetShortPath(oursPath))
+				+ " " + QuoteIfNeeded(LongToShortConverter.GetShortPath(commonPath))
+				+ " " + QuoteIfNeeded(LongToShortConverter.GetShortPath(theirPath)));
 		}
 
-		protected static string SurroundWithQuotes(string path)
+		protected static string QuoteIfNeeded(string arg)
 		{
-			return "\"" + path + "\"";
+			if (arg.Contains(" ")) {
+				return "\"" + arg.Replace("\"", "\\\"") + "\"";
+			} else {
+				return arg;
+			}
 		}
 
-		public static string RunProcess(string filePath, string[] arguments)
+		public static string RunProcess(string filePath, string arguments)
 		{
 			Process p = new Process();
 			p.StartInfo.UseShellExecute = false;
@@ -84,17 +88,7 @@ namespace Chorus.FileTypeHandlers.text
 			p.StartInfo.RedirectStandardOutput = true;
 
 			p.StartInfo.FileName = filePath;
-			// netstandard2.1 has p.StartInfo.ArgumentList that would solve all our problems, but we have to target netstandard2.0 so we have to do this ourselves
-			var quotedArgs = new List<string>(arguments.Length);
-			foreach (var arg in arguments)
-			{
-				if (arg.Contains(" ")) {
-					quotedArgs.Add("\"" + arg.Replace("\"", "\\\"") + "\"");
-				} else {
-					quotedArgs.Add(arg);
-				}
-			}
-			p.StartInfo.Arguments = string.Join(" ", quotedArgs);
+			p.StartInfo.Arguments = arguments;
 			p.StartInfo.CreateNoWindow = true;
 			p.Start();
 			p.WaitForExit();
