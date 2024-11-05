@@ -54,7 +54,7 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 			get
 			{
 				string path = Environment.GetEnvironmentVariable(EnvPathToHgExecutable);
-				if (path != null) return path;
+				if (!string.IsNullOrEmpty(path)) return path;
 				GuessAtLocationIfNotSetAlready();
 
 				if(string.IsNullOrEmpty(_pathToMercurialFolder))
