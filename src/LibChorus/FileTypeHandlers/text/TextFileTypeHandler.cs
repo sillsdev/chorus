@@ -79,7 +79,6 @@ namespace Chorus.FileTypeHandlers.text
 		public static string RunProcess(string filePath, string[] arguments)
 		{
 			Process p = new Process();
-			ProcessStartInfo startInfo = new ProcessStartInfo();
 			p.StartInfo.UseShellExecute = false;
 			p.StartInfo.RedirectStandardError = true;
 			p.StartInfo.RedirectStandardOutput = true;
