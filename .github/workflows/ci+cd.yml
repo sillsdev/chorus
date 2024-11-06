@@ -62,6 +62,10 @@ jobs:
       run: dotnet test src/Chorus.Tests/Chorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
       if: matrix.framework == 'net461'
 
+    - name: Test Chorus Hub
+      run: dotnet test src/ChorusHubTests/ChorusHubTests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
+      if: matrix.framework == 'net461'
+
     - name: Test ChorusMerge
       run: dotnet test src/ChorusMerge.Tests/ChorusMerge.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
 
