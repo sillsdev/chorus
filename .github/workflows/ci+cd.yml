@@ -85,6 +85,17 @@ jobs:
     runs-on: windows-latest
     needs: build-and-test
     steps:
+    - name: Checkout
+      uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
+      with:
+        fetch-depth: 0 # fetch full history for GitVersion
+
+    - name: Restore
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore -c Release
+
     - name: Checkout Chorus Help # required for Chorus Merge Module
       uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
       with:
