@@ -30,7 +30,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private static void UpdateExtensions()
 		{
 			var extensions = new Dictionary<string, string>();
-			if (!Platform.IsMono)
+			if (Platform.IsWindows)
 				extensions.Add("eol", ""); //for converting line endings on windows machines
 			extensions.Add("hgext.graphlog", ""); //for more easily readable diagnostic logs
 			extensions.Add("convert", ""); //for catastrophic repair in case of repo corruption

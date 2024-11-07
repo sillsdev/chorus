@@ -17,6 +17,8 @@ namespace Chorus.FileTypeHandlers.text
 	[Export(typeof(IChorusFileTypeHandler))]
 	public class TextFileTypeHandler : IChorusFileTypeHandler
 	{
+		//NB: there is a post-build step in this project which copies the diff3 folder into the output on Windows
+		private static string _diff3Exe = Platform.IsWindows ? "diff3/bin/diff3.exe" : "diff3";
 		internal TextFileTypeHandler()
 		{}
 
@@ -64,14 +66,18 @@ namespace Chorus.FileTypeHandlers.text
 		{
 			//NB: surrounding with quotes didn't cut it to get past paths with spaces
 
-			return RunProcess("diff3/bin/diff3.exe", "-m " + LongToShortConverter.GetShortPath(oursPath) + " " +
-				LongToShortConverter.GetShortPath(commonPath) + " " +
-				LongToShortConverter.GetShortPath(theirPath));
+			return RunProcess(_diff3Exe, "-m" + QuoteIfNeeded(LongToShortConverter.GetShortPath(oursPath))
+				+ " " + QuoteIfNeeded(LongToShortConverter.GetShortPath(commonPath))
+				+ " " + QuoteIfNeeded(LongToShortConverter.GetShortPath(theirPath)));
 		}
 
-		protected static string SurroundWithQuotes(string path)
+		protected static string QuoteIfNeeded(string arg)
 		{
-			return "\"" + path + "\"";
+			if (arg.Contains(" ")) {
+				return "\"" + arg.Replace("\"", "\\\"") + "\"";
+			} else {
+				return arg;
+			}
 		}
 
 		public static string RunProcess(string filePath, string arguments)
@@ -81,7 +87,6 @@ namespace Chorus.FileTypeHandlers.text
 			p.StartInfo.RedirectStandardError = true;
 			p.StartInfo.RedirectStandardOutput = true;
 
-			//NB: there is a post-build step in this project which copies the diff3 folder into the output
 			p.StartInfo.FileName = filePath;
 			p.StartInfo.Arguments = arguments;
 			p.StartInfo.CreateNoWindow = true;
@@ -154,7 +159,7 @@ namespace Chorus.FileTypeHandlers.text
 
 		public static string GetShortPath(string path)
 		{
-			if (Platform.IsMono)
+			if (!Platform.IsWindows)
 				return path;
 
 			var shortPath = new StringBuilder(255);
