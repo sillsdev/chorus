@@ -1,4 +1,5 @@
-﻿using System.IO;
+using System;
+using System.IO;
 using Chorus.Utilities;
 using SIL.Code;
 using SIL.PlatformUtilities;
@@ -11,8 +12,12 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 	/// </summary>
 	public class MercurialLocation
 	{
+		public const string EnvPathToHgExecutable = "CHORUS_PATH_TO_HG_EXECUTABLE";
+		public const string EnvPathToMercurialFolder = "CHORUS_PATH_TO_MERCURIAL_FOLDER";
+		public const string EnvHgExe = "CHORUS_HG_EXE";
+
 		private static string _pathToMercurialFolder;
-		private static string _hgExe = Platform.IsWindows ? "hg.exe" : "hg";
+		private static string _hgExe = Environment.GetEnvironmentVariable(EnvHgExe) ?? (Platform.IsWindows ? "hg.exe" : "hg");
 
 		/// <summary>
 		/// Clients can set this if they have their own private copy of Mercurial (recommended)
@@ -42,12 +47,14 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 		}
 
 		/// <summary>
-		/// Will use the PathToMercurialFolder, otherwise will just return "hg"
+		/// Will use the environment variable override if set, or will use PathToMercurialFolder if possible, otherwise will just return "hg" and rely on PATH
 		/// </summary>
 		public static string PathToHgExecutable
 		{
 			get
 			{
+				string path = Environment.GetEnvironmentVariable(EnvPathToHgExecutable);
+				if (!string.IsNullOrEmpty(path)) return path;
 				GuessAtLocationIfNotSetAlready();
 
 				if(string.IsNullOrEmpty(_pathToMercurialFolder))
@@ -60,6 +67,13 @@ namespace Chorus// DON'T MOVE THIS! It needs to be super easy for the client to 
 		{
 			if (!string.IsNullOrEmpty(_pathToMercurialFolder))
 			{
+				return;
+			}
+
+			string path = Environment.GetEnvironmentVariable(EnvPathToMercurialFolder);
+			if (!string.IsNullOrEmpty(path))
+			{
+				PathToMercurialFolder = path;
 				return;
 			}
 
