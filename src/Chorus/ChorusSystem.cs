@@ -123,11 +123,11 @@ namespace Chorus
 			var versionObj = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 			// We don't need to reload strings for every "revision" (that might be every time we build).
 			var version = "" + versionObj.Major + "." + versionObj.Minor + "." + versionObj.Build;
-			LocalizationManager.Create(TranslationMemory.XLiff, desiredUiLangId, "Chorus",
+			LocalizationManager.Create(desiredUiLangId, "Chorus",
 				Application.ProductName, version, directoryOfInstalledXlfFiles,
 				directoryOfUserModifiedXlfFiles,
 				Icon.FromHandle(Properties.Resources.chorus32x32.GetHicon()), // should call DestroyIcon, but when?
-				"issues@chorus.palaso.org", "Chorus");
+				"issues@chorus.palaso.org", new [] {"Chorus"});
 		}
 
 		[Obsolete("Only one kind of TranslationMemory is supported: XLF; there is no need for the kind parameter.")]

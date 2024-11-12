@@ -1,3 +1,4 @@
+using L10NSharp;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 
@@ -16,6 +17,16 @@ namespace LibChorus.Tests
 				new Chorus.Properties.Settings();
 				Assert.That(listener.Messages, Is.Empty);
 			}
+		}
+	}
+
+	[SetUpFixture]
+	public class SetupFixture
+	{
+		[OneTimeSetUp]
+		public void RunBeforeAnyTests()
+		{
+			LocalizationManager.StrictInitializationMode = false;
 		}
 	}
 }
