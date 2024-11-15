@@ -2,12 +2,12 @@
   "profiles": {
     "FLEx Bridge (Get)": {
       "commandName": "Executable",
-      "executablePath": "C:\\fwrepo\\flexbridge\\output\\Debug\\net461\\FLExBridge.exe",
+      "executablePath": "C:\\fwrepo\\flexbridge\\output\\Debug\\net462\\FLExBridge.exe",
       "commandLineArgs": "-u developer -p c:\\fwrepo\\fw\\DistFiles\\Projects -v obtain -projDir c:\\fwrepo\\fw\\DistFiles\\Projects -fwAppsDir C:\\fwrepo\\fw\\Output\\Debug -fwmodel 7000072 -liftmodel 0.13_ldml3 -locale en -pipeID SendReceivec:\\fwrepo\\fw\\DistFiles\\Projectsobtain"
     },
     "FLEx Bridge (S&R)": {
       "commandName": "Executable",
-      "executablePath": "C:\\fwrepo\\flexbridge\\output\\Debug\\net461\\FLExBridge.exe",
+      "executablePath": "C:\\fwrepo\\flexbridge\\output\\Debug\\net462\\FLExBridge.exe",
       "commandLineArgs": "-u developer -p c:\\fwrepo\\fw\\DistFiles\\Projects\\Sena 3\\Sena 3.fwdata -v send_receive -f C:\\fwrepo\\fw\\Output\\Debug\\FixFwData.exe -projDir c:\\fwrepo\\fw\\DistFiles\\Projects -fwAppsDir C:\\fwrepo\\fw\\Output\\Debug -fwmodel 7000072 -liftmodel 0.13_ldml3 -locale en -pipeID SendReceivec:\\fwrepo\\fw\\DistFiles\\Projects\\Sena 3\\Sena 3.fwdatasend_receive -ws seh"
     }
   }

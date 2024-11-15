@@ -22,7 +22,7 @@ namespace LibChorus.Tests.FileHandlers
 				var configOutputDir = Directory.GetParent(BaseDir);
 				var outputDir = configOutputDir.Parent.FullName;
 				var config = configOutputDir.Name;
-				var samplePluginDllPath = Path.Combine(outputDir, "SamplePlugin", config, "net461", "Tests-ChorusPlugin.dll");
+				var samplePluginDllPath = Path.Combine(outputDir, "SamplePlugin", config, "net462", "Tests-ChorusPlugin.dll");
 				return samplePluginDllPath;
 			}
 		}
