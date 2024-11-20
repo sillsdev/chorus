@@ -3,6 +3,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Chorus.FileTypeHandlers;
 using Chorus.FileTypeHandlers.audio;
@@ -44,6 +45,7 @@ namespace LibChorus.Tests.FileHandlers
 		[Test]
 		public void CreateWithInstalledHandlers_HandlersFromAdditionalAssembly()
 		{
+			Assume.That(RuntimeInformation.FrameworkDescription.Contains(".NET Framework"), "Not running on .NET Framework");
 			var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers(
 				new[] { SamplePluginPath }).Handlers;
 			Assert.That(handlers.Select(x => x.GetType().Name), Has.Member("TestAFileTypeHandler"));
