@@ -4,7 +4,7 @@
     <RootNamespace>ChorusMerge.Tests</RootNamespace>
     <AssemblyTitle>ChorusMerge.Tests</AssemblyTitle>
     <Description>Unit tests for LibChorus.dll</Description>
-    <TargetFrameworks>net461;net8.0</TargetFrameworks>
+    <TargetFrameworks>net462;net8.0</TargetFrameworks>
     <IsTestProject>true</IsTestProject>
     <IsPackable>false</IsPackable>
   </PropertyGroup>

@@ -26,11 +26,11 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        framework: [net461, net8.0]
-        exclude:
-          # dotnet on Linux cannot build net461 without additional, unnecessary, work
-          - os: ubuntu-latest
-            framework: net461
+        framework: [net462, net8.0]
+#        exclude:
+#          # dotnet on Linux cannot build net461 without additional, unnecessary, work
+#          - os: ubuntu-latest
+#            framework: net461
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.os }}-${{ matrix.framework }}
       cancel-in-progress: true
@@ -45,7 +45,6 @@ jobs:
       uses: actions/setup-dotnet@4d6c8fcf3c8f7a60068d26b594648e99df24cee3 # v4.0.0
       with:
         dotnet-version: |
-          6.0.x
           8.0.x
 
     - name: Restore
@@ -60,11 +59,11 @@ jobs:
 
     - name: Test Chorus
       run: dotnet test src/Chorus.Tests/Chorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
-      if: matrix.framework == 'net461'
+      if: matrix.framework == 'net462'
 
     - name: Test Chorus Hub
       run: dotnet test src/ChorusHubTests/ChorusHubTests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
-      if: matrix.framework == 'net461'
+      if: matrix.framework == 'net462'
 
     - name: Test ChorusMerge
       run: dotnet test src/ChorusMerge.Tests/ChorusMerge.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
