@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TargetFrameworks>net461</TargetFrameworks>
+    <TargetFrameworks>net462</TargetFrameworks>
     <Configurations>Debug;Release</Configurations>
     <Description>End-user collaboration library via 3-way xml merging and hg dvcs under the hood.</Description>
     <Company>SIL International</Company>
