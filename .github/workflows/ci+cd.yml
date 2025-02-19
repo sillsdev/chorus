@@ -11,7 +11,7 @@ on:
 jobs:
   event_file:
     name: "Event File"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Upload
       uses: actions/upload-artifact@v4
@@ -25,11 +25,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-22.04, windows-latest]
         framework: [net462, net8.0]
         exclude:
           # dotnet on Linux cannot build net461 without additional, unnecessary, work
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             framework: net462
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.os }}-${{ matrix.framework }}
@@ -55,7 +55,7 @@ jobs:
 
     - name: Install python2 for test execution
       run: sudo apt-get install python2
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-22.04'
 
     - name: Test Chorus
       run: dotnet test src/Chorus.Tests/Chorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
@@ -146,7 +146,7 @@ jobs:
 
   publish-nuget:
     name: "Publish NuGet package"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: build-installers
     if: github.event_name == 'push'
     steps:

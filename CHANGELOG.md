@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Prevent S&R to Internet without full URL
+- [SIL.Chorus.LibChorus] Correctly handle & and other special characters in passwords
 
 ## [5.1.0] - 2023-03-07
 

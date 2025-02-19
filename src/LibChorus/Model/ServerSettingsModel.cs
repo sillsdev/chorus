@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Web;
 using Chorus.Properties;
 using Chorus.Utilities;
 using Chorus.VcsDrivers;
@@ -335,7 +336,7 @@ namespace Chorus.Model
 			var privateQuery = IsPrivateServer ? "?private=true" : string.Empty;
 			var request = WebRequest.Create($"https://admin{LanguageForgeServer}/api/user/{Username}/projects{privateQuery}");
 			request.Method = "POST";
-			var passwordBytes = Encoding.UTF8.GetBytes($"password={Password}");
+			var passwordBytes = Encoding.UTF8.GetBytes($"password={HttpUtility.UrlEncode(Password)}");
 			request.ContentType = "application/x-www-form-urlencoded";
 			request.ContentLength = passwordBytes.Length;
 			var passwordStream = request.GetRequestStream();
