@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using Chorus.Model;
 using Chorus.Utilities;
 using SIL.Progress;
 using SIL.Reporting;
@@ -44,10 +45,14 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static ExecutionResult Run(string commandLine, string fromDirectory, int secondsBeforeTimeOut, IProgress progress)
 		{
+			using var activity = LibChorusActivitySource.Value.StartActivity();
+			activity?.SetTag("app.hg.cmd", ServerSettingsModel.RemovePasswordForLog(commandLine));
+			activity?.SetTag("app.hg.timeout-sec", secondsBeforeTimeOut);
 			ExecutionResult result = new ExecutionResult();
 			Process process = new Process();
 			if (String.IsNullOrEmpty(MercurialLocation.PathToMercurialFolder))
 			{
+				activity?.SetStatus(ActivityStatusCode.Error, "Mercurial location not configured");
 				throw new ApplicationException("Mercurial location has not been configured.");
 			}
 			process.StartInfo.EnvironmentVariables["PYTHONPATH"] = Path.Combine(MercurialLocation.PathToMercurialFolder, "library.zip");
@@ -60,6 +65,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			process.StartInfo.CreateNoWindow = true;
 			process.StartInfo.WorkingDirectory = fromDirectory;
 			process.StartInfo.FileName = MercurialLocation.PathToHgExecutable;
+			activity?.SetTag("app.hg.binary-path", MercurialLocation.PathToHgExecutable);
 
 			var debug = Environment.GetEnvironmentVariable(@"CHORUSDEBUGGING") == null ? String.Empty : @"--debug ";
 			process.StartInfo.Arguments = commandLine.Replace("hg ", debug); //we don't want the whole command line, just the args portion
@@ -69,6 +75,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			process.StartInfo.StandardErrorEncoding = System.Text.Encoding.UTF8;
 			if(!String.IsNullOrEmpty(debug))
 			{
+				activity?.SetTag("app.hg.debug", true);
 				Logger.WriteEvent("Running hg command: hg --debug {0}", commandLine);
 			}
 			try
@@ -128,16 +135,19 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				result.StandardError += Environment.NewLine + "Timed Out after waiting " + secondsBeforeTimeOut + " seconds.";
 				result.ExitCode = ProcessStream.kTimedOut;
+				activity?.SetStatus(ActivityStatusCode.Error, "Timeout");
 			}
 
 			else if (progress.CancelRequested)
 			{
 				result.StandardError += Environment.NewLine + "User Cancelled.";
 				result.ExitCode = ProcessStream.kCancelled;
+				activity?.SetStatus(ActivityStatusCode.Error, "User Cancelled");
 			}
 			else
 			{
 				result.ExitCode = process.ExitCode;
+				activity?.SetTag("app.hg.exit-code", result.ExitCode);
 			}
 			return result;
 		}
