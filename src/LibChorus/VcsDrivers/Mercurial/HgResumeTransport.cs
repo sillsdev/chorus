@@ -505,6 +505,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private PushResponse PushOneChunk(HgResumeApiParameters request, byte[] dataToPush)
 		{
+			using var activity = LibChorusActivitySource.Value.StartActivity();
+			activity?.TagResumableParameters("push", request);
+
 			var pushResponse = new PushResponse(PushStatus.Fail);
 			try
 			{
@@ -810,6 +813,8 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private PullResponse PullOneChunk(HgResumeApiParameters request)
 		{
+			using var activity = LibChorusActivitySource.Value.StartActivity();
+			activity?.TagResumableParameters("pull", request);
 			var pullResponse = new PullResponse(PullStatus.Fail);
 			try
 			{
