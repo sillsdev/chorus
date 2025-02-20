@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Chorus.VcsDrivers.Mercurial;
+using JetBrains.Annotations;
 
 namespace Chorus
 {
@@ -13,6 +14,7 @@ namespace Chorus
 
 		public static void TagResumableParameters(this Activity activity, string direction, HgResumeApiParameters request)
 		{
+			if (activity is null) return;
 			activity.SetTag($"app.chorus.resumable.{direction}.chunk-size", request.ChunkSize);
 			activity.SetTag($"app.chorus.resumable.{direction}.bundle-size", request.BundleSize);
 			activity.SetTag($"app.chorus.resumable.{direction}.start-of-window", request.StartOfWindow);
