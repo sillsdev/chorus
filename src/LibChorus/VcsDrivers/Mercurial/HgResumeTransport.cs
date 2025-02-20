@@ -815,6 +815,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			using var activity = LibChorusActivitySource.Value.StartActivity();
 			activity?.TagResumableParameters("pull", request);
+
 			var pullResponse = new PullResponse(PullStatus.Fail);
 			try
 			{
