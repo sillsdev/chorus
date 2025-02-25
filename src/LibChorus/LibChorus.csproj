@@ -6,6 +6,7 @@
     <PackageId>SIL.Chorus.LibChorus</PackageId>
     <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
     <RepositoryUrl>https://github.com/sillsdev/chorus.git</RepositoryUrl>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +22,7 @@
     <PackageReference Include="SIL.Lift" Version="15.0.0-*" />
     <PackageReference Include="SIL.ReleaseTasks" Version="3.0.0" PrivateAssets="All" />
     <PackageReference Include="System.ComponentModel.Composition" Version="6.0.0" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.2" />
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" />
   </ItemGroup>

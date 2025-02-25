@@ -104,6 +104,8 @@ namespace Chorus.sync
 
 		public SyncResults SyncNow(SyncOptions options)
 		{
+			using var activity = LibChorusActivitySource.Value.StartActivity();
+
 			SyncResults results = new SyncResults();
 			List<RepositoryAddress> sourcesToTry = options.RepositorySourcesToTry;
 			// this saves us from trying to connect twice to the same repo that is, for example, not there.
@@ -156,12 +158,14 @@ namespace Chorus.sync
 				error.DoNotifications(Repository, _progress);
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
+				activity?.AddException(error);
 			}
 			catch (UserCancelledException)
 			{
 				results.Succeeded = false;
 				results.Cancelled = true;
 				results.ErrorEncountered = null;
+				activity?.SetTag("app.chorus.sync.cancelled", true);
 			}
 			catch (Exception error)
 			{
@@ -178,6 +182,7 @@ namespace Chorus.sync
 
 				results.Succeeded = false;
 				results.ErrorEncountered = error;
+				activity?.AddException(error);
 			}
 			finally
 			{
@@ -245,6 +250,7 @@ namespace Chorus.sync
 
 	   private void SendToOthers(HgRepository repo, List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
+			using var activity = LibChorusActivitySource.Value.StartActivity();
 			foreach (RepositoryAddress address in sourcesToTry)
 			{
 				ThrowIfCancelPending();
@@ -325,6 +331,7 @@ namespace Chorus.sync
 		/// <returns>true if there was at least one successful pull</returns>
 		private bool PullFromOthers(HgRepository repo,  List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
+			using var activity = LibChorusActivitySource.Value.StartActivity();
 			bool didGetFromAtLeastOneSource = false;
 			foreach (RepositoryAddress source in new List<RepositoryAddress>(sourcesToTry)) // LT-18276: apparently possible to modify sourcesToTry
 			{
@@ -628,6 +635,7 @@ namespace Chorus.sync
 		#region Merging
 		private void MergeHeadsOrRollbackAndThrow(HgRepository repo, Revision workingRevBeforeSync)
 		{
+			using var activity = LibChorusActivitySource.Value.StartActivity();
 			try
 			{
 				MergeHeads();
@@ -642,6 +650,7 @@ namespace Chorus.sync
 				_progress.WriteException(error);
 				_progress.WriteError("Rolling back...");
 				UpdateToTheDescendantRevision(repo, workingRevBeforeSync); //rollback
+				activity?.AddException(error);
 				throw;
 			}
 		}
