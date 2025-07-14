@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.4" />
-    <PackageReference Include="GitVersion.MsBuild" Version="5.10.3" PrivateAssets="All" />
+    <PackageReference Include="GitVersion.MsBuild" Version="6.3.0" PrivateAssets="All" />
     <PackageReference Include="icu.net" Version="3.0.0-*" />
     <PackageReference Include="Icu4c.Win.Min" Version="59.1.7" IncludeAssets="build" />
     <PackageReference Include="L10NSharp" Version="8.0.0-beta0005" />
