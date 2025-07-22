@@ -4,7 +4,7 @@
     <TargetFrameworks/>
     <TargetFramework>netframework4.8</TargetFramework>
     <PackageId>SIL.Chorus.l10ns</PackageId>
-    <Version>$(GitVersion_NuGetVersion)</Version>
+    <Version>$(GitVersion_SemVer)</Version>
     <Authors>Jason Naylor</Authors>
     <Company>SIL International</Company>
 	<RestartBuild Condition="'$(PkgGitVersion_GitVersion_MsBuild)' == ''
@@ -14,7 +14,7 @@
 	  OR '$(PkgSIL_BuildTasks)' == ''">true</RestartBuild>
 	<RestartBuild Condition="'$(RestartBuild)' == ''">false</RestartBuild>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="GitVersion.MsBuild" Version="5.12.0" GeneratePathProperty="true">
       <PrivateAssets>All</PrivateAssets>
@@ -24,19 +24,19 @@
     <PackageReference Include="NuGet.CommandLine" Version="6.7.0" GeneratePathProperty="true" />
     <PackageReference Include="SIL.BuildTasks" Version="2.6.0-beta0030" GeneratePathProperty="true" />
   </ItemGroup>
-  
+
   <UsingTask TaskName="NormalizeLocales" AssemblyFile="$(PkgSIL_BuildTasks)\tools\SIL.BuildTasks.dll" />
-  
+
   <Target Name="UpdateCrowdin">
 	<Message Text="RestartBuild=$(RestartBuild)"/>
 	<CallTarget Targets="RestoreBuildDependencies"/>
 	<CallTarget Targets="UpdateCrowdinInternal" Condition="!$(RestartBuild)" />
 	<MSBuild Projects="$(MSBuildProjectFullPath)" Targets="UpdateCrowdinInternal" Properties="Configuration=$(Configuration)" Condition="$(RestartBuild)" />
   </Target>
-  
+
   <Target Name="RestoreBuildDependencies" DependsOnTargets="restore">
   </Target>
-	
+
   <Target Name="UpdateCrowdinInternal" DependsOnTargets="GetVersion">
 	<!-- Remove "not found" messages that are appended each run (Can't MatchWholeLine because leading spaces are trimmed from Lines).
 		These messages accumulate linearly and inifinitely at each ExtractXliff run and are not removed if the string is later found.
@@ -46,12 +46,12 @@
 	  Lines="        &lt;note xml:lang=&quot;en&quot;&gt;Not found in static scan of compiled code (version 0.0.0)&lt;/note&gt;"/>
 	<!-- Build and extract strings -->
 	<Exec Command="dotnet build -c Release" WorkingDirectory=".."/>
-	<Exec Command="&quot;$(PkgL10NSharp_ExtractXliff)\tools\ExtractXliff.exe&quot; -n SIL -o Chorus.dll -b Chorus.en.xlf -x Chorus.en.xlf -p $(GitVersion_NuGetVersion) -m SIL.Localizer.GetString -m SIL.Localizer.Localize -g ../Output/Release/net462/SIL.*.dll" />
+	<Exec Command="&quot;$(PkgL10NSharp_ExtractXliff)\tools\ExtractXliff.exe&quot; -n SIL -o Chorus.dll -b Chorus.en.xlf -x Chorus.en.xlf -p $(GitVersion_SemVer) -m SIL.Localizer.GetString -m SIL.Localizer.Localize -g ../Output/Release/net462/SIL.*.dll" />
   </Target>
-  
+
   <Target Name="PackageL10ns" DependsOnTargets="restore;GetVersion">
 	<!-- Expects `crowdin download -i CROWDIN_PROJECT_ID -T CROWDIN_ACCESS_TOKEN` to have been run first -->
 	<NormalizeLocales L10nsDirectory="." />
-	<Exec Command="&quot;$(PkgNuGet_CommandLine)\tools\NuGet.exe&quot; pack l10ns.nuspec -Version $(GitVersion_NuGetVersion)" />
+	<Exec Command="&quot;$(PkgNuGet_CommandLine)\tools\NuGet.exe&quot; pack l10ns.nuspec -Version $(GitVersion_SemVer)" />
   </Target>
 </Project>
