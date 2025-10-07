@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI.Clone
+namespace Chorus.UI.Clone
 {
 	partial class GetCloneFromChorusHubDialog
 	{
@@ -39,7 +39,7 @@
 			this.progressBar = new System.Windows.Forms.ProgressBar();
 			this._getChorusHubInfoBackgroundWorker = new System.ComponentModel.BackgroundWorker();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			this.panel.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
@@ -171,6 +171,6 @@
 		private System.Windows.Forms.ProgressBar progressBar;
 		private System.ComponentModel.BackgroundWorker _getChorusHubInfoBackgroundWorker;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }

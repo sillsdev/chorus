@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI.Review.ChangedReport
+namespace Chorus.UI.Review.ChangedReport
 {
 	partial class ChangeReportView
 	{
@@ -41,7 +41,7 @@
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.tabPageRaw = new System.Windows.Forms.TabPage();
 			this._rawChangeDescriptionRenderer = new SIL.Windows.Forms.HtmlBrowser.XWebBrowser();
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.tabPageRaw.SuspendLayout();
@@ -145,7 +145,7 @@
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabPage tabPageRaw;
 		private SIL.Windows.Forms.HtmlBrowser.XWebBrowser _rawChangeDescriptionRenderer;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 
 	}
 }

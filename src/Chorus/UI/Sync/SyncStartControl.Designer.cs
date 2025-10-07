@@ -1,4 +1,4 @@
-﻿﻿using System.Threading;
+﻿using System.Threading;
 using SIL.Windows.Forms.SettingProtection;
 
 namespace Chorus.UI.Sync
@@ -48,7 +48,7 @@ namespace Chorus.UI.Sync
 			this._sharedNetworkDiagnosticsLink = new System.Windows.Forms.LinkLabel();
 			this._settingsButton = new SIL.Windows.Forms.SettingProtection.SettingsLauncherButton();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			this.commitMessageLabel = new Chorus.UI.BetterLabel();
 			this._usbStatusLabel = new Chorus.UI.BetterLabel();
 			this.usbDriveLocator = new Chorus.UI.UsbDriveLocator(this.components);
@@ -334,6 +334,6 @@ namespace Chorus.UI.Sync
 		private System.Windows.Forms.LinkLabel _sharedNetworkDiagnosticsLink;
 		private System.Windows.Forms.LinkLabel _internetDiagnosticsLink;
 		private SettingsLauncherButton _settingsButton;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }

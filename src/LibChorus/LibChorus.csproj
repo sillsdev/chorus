@@ -12,14 +12,15 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.4" />
     <PackageReference Include="GitVersion.MsBuild" Version="5.10.3" PrivateAssets="All" />
-    <PackageReference Include="icu.net" Version="3.0.0-*" />
+    <PackageReference Include="icu.net" Version="3.0.1" />
     <PackageReference Include="Icu4c.Win.Min" Version="59.1.7" IncludeAssets="build" />
-    <PackageReference Include="L10NSharp" Version="8.0.0-beta0005" />
+    <PackageReference Include="L10NSharp" Version="9.0.0-*" />
+    <PackageReference Include="L10NSharp.Windows.Forms" Version="9.0.0-*" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="NDesk.DBus" Version="0.15.0" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
     <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.*" IncludeAssets="build" />
-    <PackageReference Include="SIL.Core" Version="15.0.0-*" />
-    <PackageReference Include="SIL.Lift" Version="15.0.0-*" />
+    <PackageReference Include="SIL.Core" Version="17.0.0-*" />
+    <PackageReference Include="SIL.Lift" Version="17.0.0-*" />
     <PackageReference Include="SIL.ReleaseTasks" Version="3.0.0" PrivateAssets="All" />
     <PackageReference Include="System.ComponentModel.Composition" Version="6.0.0" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.2" />

@@ -1,4 +1,4 @@
-﻿using Chorus.UI.Review.RevisionsInRepository;
+using Chorus.UI.Review.RevisionsInRepository;
 using L10NSharp;
 
 namespace Chorus.UI.Notes.Browser
@@ -33,7 +33,7 @@ namespace Chorus.UI.Notes.Browser
 		{
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NotesInProjectView));
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this._messageListView = new System.Windows.Forms.ListView();
 			this.label = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -285,6 +285,6 @@ namespace Chorus.UI.Notes.Browser
 		private System.Windows.Forms.ToolStripMenuItem showMergeNotifcationsMenuItem;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 		private System.Windows.Forms.Label filterStateLabel;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }

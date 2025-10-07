@@ -51,7 +51,7 @@ namespace Chorus.UI.Settings
 			this.settingsProtectionButton = new SIL.Windows.Forms.SettingProtection.SettingsProtectionLauncherButton();
 			this.pictureBox3 = new System.Windows.Forms.PictureBox();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			this.settingsTabs.SuspendLayout();
 			this.internetTab.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -370,6 +370,6 @@ namespace Chorus.UI.Settings
 		private SIL.Windows.Forms.HtmlBrowser.XWebBrowser chorusHubSetup;
 		private System.Windows.Forms.PictureBox pictureBox4;
 		private System.Windows.Forms.CheckBox _showChorusHubInSendReceive;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }

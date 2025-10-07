@@ -15,6 +15,7 @@ using Chorus.UI.Review;
 using Chorus.UI.Sync;
 using Chorus.VcsDrivers.Mercurial;
 using L10NSharp;
+using L10NSharp.Windows.Forms;
 using SIL.Code;
 using SIL.Extensions;
 using SIL.Progress;
@@ -123,7 +124,7 @@ namespace Chorus
 			var versionObj = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 			// We don't need to reload strings for every "revision" (that might be every time we build).
 			var version = "" + versionObj.Major + "." + versionObj.Minor + "." + versionObj.Build;
-			LocalizationManager.Create(desiredUiLangId, "Chorus",
+			LocalizationManagerWinforms.Create(desiredUiLangId, "Chorus",
 				Application.ProductName, version, directoryOfInstalledXlfFiles,
 				directoryOfUserModifiedXlfFiles,
 				Icon.FromHandle(Properties.Resources.chorus32x32.GetHicon()), // should call DestroyIcon, but when?

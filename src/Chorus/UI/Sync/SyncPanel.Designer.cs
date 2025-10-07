@@ -31,7 +31,7 @@ namespace Chorus.UI.Sync
 			this.components = new System.ComponentModel.Container();
 			this.label3 = new System.Windows.Forms.Label();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -82,6 +82,6 @@ namespace Chorus.UI.Sync
 
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.Timer timer1;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }

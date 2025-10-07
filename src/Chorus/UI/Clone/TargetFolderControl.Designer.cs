@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI.Clone
+namespace Chorus.UI.Clone
 {
 	partial class TargetFolderControl
 	{
@@ -35,7 +35,7 @@
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this._downloadButton = new System.Windows.Forms.Button();
 			this._targetInfoLabel = new Chorus.UI.BetterLabel();
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this._targetWarningImage)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
@@ -146,6 +146,6 @@
 		private System.Windows.Forms.Label _localFolderLabel;
 		private System.Windows.Forms.ToolTip toolTip1;
 		public System.Windows.Forms.Button _downloadButton;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }

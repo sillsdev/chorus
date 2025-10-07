@@ -1,4 +1,4 @@
-﻿using SIL.Progress;
+using SIL.Progress;
 using SIL.Windows.Forms.Progress;
 
 namespace Chorus.UI.Sync
@@ -58,7 +58,7 @@ namespace Chorus.UI.Sync
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.panel2 = new System.Windows.Forms.Panel();
 			this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			this._tabControl.SuspendLayout();
 			this._chooseTargetsTab.SuspendLayout();
 			this.tableLayoutPanel5.SuspendLayout();
@@ -479,6 +479,6 @@ namespace Chorus.UI.Sync
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }
