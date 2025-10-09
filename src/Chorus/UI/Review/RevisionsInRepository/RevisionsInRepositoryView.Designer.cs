@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI.Review.RevisionsInRepository
+namespace Chorus.UI.Review.RevisionsInRepository
 {
 	partial class RevisionsInRepositoryView
 	{
@@ -43,7 +43,7 @@
 			this.ColumnAction = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this._rowAddingTimer = new System.Windows.Forms.Timer(this.components);
 			this._showAdvanced = new System.Windows.Forms.CheckBox();
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this._historyGrid)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
@@ -214,7 +214,7 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn ColumnAction;
 		private System.Windows.Forms.Timer _rowAddingTimer;
 		private System.Windows.Forms.CheckBox _showAdvanced;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 
 	}
 }

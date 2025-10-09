@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Chorus.UI.Sync
 {
@@ -36,7 +36,7 @@ namespace Chorus.UI.Sync
 			this._syncStartControl = new Chorus.UI.Sync.SyncStartControl();
 			this._syncControl = new Chorus.UI.Sync.SyncControl();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			this.SuspendLayout();
 			//
 			// l10NSharpExtender1
@@ -101,7 +101,7 @@ namespace Chorus.UI.Sync
 
 		#endregion
 
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 		private SyncControl _syncControl;
 		private System.Windows.Forms.Timer _closeWhenDoneTimer;
 		private SyncStartControl _syncStartControl;

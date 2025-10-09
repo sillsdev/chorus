@@ -32,7 +32,7 @@ namespace Chorus.UI.Clone
 			this._mainLabel = new System.Windows.Forms.Label();
 			this.buttonOK = new System.Windows.Forms.Button();
 			this.buttonHelp = new System.Windows.Forms.Button();
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -103,6 +103,6 @@ namespace Chorus.UI.Clone
 		private System.Windows.Forms.Label _mainLabel;
 		private System.Windows.Forms.Button buttonOK;
 		private System.Windows.Forms.Button buttonHelp;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }

@@ -46,7 +46,7 @@ namespace Chorus.UI.Notes
 			this._existingMessagesDisplay = new XWebBrowser();
 			this._annotationLabel = new System.Windows.Forms.LinkLabel();
 			this._addNewMessageLabel = new Chorus.UI.BetterLabel();
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this._annotationLogo)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
@@ -219,6 +219,6 @@ namespace Chorus.UI.Notes
 		private System.Windows.Forms.TextBox _newMessage;
 		private SIL.Windows.Forms.HtmlBrowser.XWebBrowser _existingMessagesDisplay;
 		private System.Windows.Forms.LinkLabel _annotationLabel;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }

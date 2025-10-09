@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI.Clone
+namespace Chorus.UI.Clone
 {
 	partial class GetSharedProjectDlg
 	{
@@ -33,7 +33,7 @@
 			this._useUSBButton = new System.Windows.Forms.Button();
 			this._useInternetButton = new System.Windows.Forms.Button();
 			this._useChorusHubButton = new System.Windows.Forms.Button();
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -122,6 +122,6 @@
 		private System.Windows.Forms.Button _useUSBButton;
 		private System.Windows.Forms.Button _useInternetButton;
 		private System.Windows.Forms.Button _useChorusHubButton;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }

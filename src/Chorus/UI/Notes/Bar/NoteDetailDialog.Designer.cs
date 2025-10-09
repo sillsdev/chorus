@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI.Notes.Bar
+namespace Chorus.UI.Notes.Bar
 {
 	partial class NoteDetailDialog
 	{
@@ -31,7 +31,7 @@
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NoteDetailDialog));
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -61,7 +61,7 @@
 		#endregion
 
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 
 	}
 }

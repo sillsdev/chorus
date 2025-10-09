@@ -51,7 +51,7 @@ namespace Chorus.UI.Misc
 			this._tlpPassword = new System.Windows.Forms.TableLayoutPanel();
 			this._checkRememberPassword = new System.Windows.Forms.CheckBox();
 			this._tlpUsername = new System.Windows.Forms.TableLayoutPanel();
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			this.tableLayoutPanel1.SuspendLayout();
 			this._tlpCustomUrl.SuspendLayout();
 			this._tlpLogIn.SuspendLayout();
@@ -388,7 +388,7 @@ namespace Chorus.UI.Misc
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.Label _bandwidthLabel;
 		private System.Windows.Forms.TextBox _customUrl;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 		private System.Windows.Forms.TableLayoutPanel _tlpCustomUrl;
 		private System.Windows.Forms.CheckBox _checkCustomUrl;
 		private System.Windows.Forms.Button _buttonLogIn;

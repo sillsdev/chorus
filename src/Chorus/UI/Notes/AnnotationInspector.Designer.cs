@@ -1,4 +1,4 @@
-﻿using SIL.Windows.Forms.HtmlBrowser;
+using SIL.Windows.Forms.HtmlBrowser;
 
 namespace Chorus.UI.Notes
 {
@@ -38,7 +38,7 @@ namespace Chorus.UI.Notes
 			this.webBrowser1 = new XWebBrowser();
 			this._pathLabel = new System.Windows.Forms.Label();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -99,6 +99,6 @@ namespace Chorus.UI.Notes
 		private XWebBrowser webBrowser1;
 		private System.Windows.Forms.Label _pathLabel;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }

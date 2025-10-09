@@ -44,7 +44,7 @@ namespace Chorus.UI.Clone
 			this._logBox = new SIL.Windows.Forms.Progress.LogBox();
 			this._statusProgress = new SIL.Windows.Forms.Progress.SimpleStatusProgress();
 			this._helpProvider = new Vulcan.Uczniowie.HelpProvider.HelpComponent(this.components);
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			this._helpButton = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
@@ -284,7 +284,7 @@ namespace Chorus.UI.Clone
 		private System.Windows.Forms.Button _fixSettingsButton;
 		private SimpleStatusProgress _statusProgress;
 		private Vulcan.Uczniowie.HelpProvider.HelpComponent _helpProvider;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 		private System.Windows.Forms.Button _helpButton;
 	}
 }

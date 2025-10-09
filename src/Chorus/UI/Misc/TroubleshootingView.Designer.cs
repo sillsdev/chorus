@@ -1,4 +1,4 @@
-﻿namespace Chorus.UI.Misc
+namespace Chorus.UI.Misc
 {
 	partial class TroubleshootingView
 	{
@@ -33,7 +33,7 @@
 			this._copyLink = new System.Windows.Forms.LinkLabel();
 			this._outputBox = new System.Windows.Forms.RichTextBox();
 			this._statusLabel = new System.Windows.Forms.Label();
-			this.l10NSharpExtender1 = new L10NSharp.UI.L10NSharpExtender(this.components);
+			this.l10NSharpExtender1 = new L10NSharp.Windows.Forms.L10NSharpExtender(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.l10NSharpExtender1)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -122,6 +122,6 @@
 		private System.Windows.Forms.LinkLabel _copyLink;
 		private System.Windows.Forms.RichTextBox _outputBox;
 		private System.Windows.Forms.Label _statusLabel;
-		private L10NSharp.UI.L10NSharpExtender l10NSharpExtender1;
+		private L10NSharp.Windows.Forms.L10NSharpExtender l10NSharpExtender1;
 	}
 }
