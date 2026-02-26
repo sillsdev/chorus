@@ -302,7 +302,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			catch (Exception err)
 			{
 				_progress.WriteMessageWithColor("OrangeRed",
-					$"Could not send to {ServerSettingsModel.RemovePasswordForLog(targetUri)}{Environment.NewLine}{err.Message}");
+					$"Could not send to {ServerSettingsModel.RemovePasswordForLog(targetUri)}");
+				_progress.WriteException(err);
 			}
 
 			if (GetIsLocalUri(targetUri))
@@ -314,7 +315,8 @@ namespace Chorus.VcsDrivers.Mercurial
 				catch (Exception err)
 				{
 					_progress.WriteMessageWithColor("OrangeRed",
-						$"Could not update the actual files after a pushing to {ServerSettingsModel.RemovePasswordForLog(targetUri)}{Environment.NewLine}{err.Message}");
+						$"Could not update the actual files after a pushing to {ServerSettingsModel.RemovePasswordForLog(targetUri)}");
+					_progress.WriteException(err);
 				}
 			}
 		}
