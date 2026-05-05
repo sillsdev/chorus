@@ -69,13 +69,65 @@ namespace LibChorus.Tests.sync
 					DoPullFromOthers = false,
 					DoSendToOthers = true,
 				};
-				options.RepositorySourcesToTry.Add(new PretendConnectableHttpRepositoryAddress());
+				options.RepositorySourcesToTry.Add(new FailingConnectableHttpRepositoryAddress("test-repo"));
 
 				var result = sender.SyncWithOptions(options);
 				Assert.That(result.Succeeded, Is.False);
 				Assert.That(result.ErrorEncountered, Is.Not.Null);
-				Assert.That(result.ErrorEncountered.Message, Does.Contain("Failed to send to"));
-				Assert.That(sender.GetProgressString(), Does.Contain("Failed to send to"));
+				Assert.That(result.ErrorEncountered.Message, Does.Contain("Failed to send changes"));
+				Assert.That(sender.GetProgressString(), Does.Contain("Failed to send to test-repo"));
+			}
+		}
+
+		[Test]
+		public void Sync_FirstPushFails_OtherSourcesStillTried()
+		{
+			using (var sender = new RepositorySetup("sender"))
+			{
+				sender.AddAndCheckinFile("one.txt", "sender's content");
+
+				var options = new SyncOptions
+				{
+					DoMergeWithOthers = false,
+					DoPullFromOthers = false,
+					DoSendToOthers = true,
+				};
+				options.RepositorySourcesToTry.Add(new FailingConnectableHttpRepositoryAddress("first-test-repo"));
+				options.RepositorySourcesToTry.Add(new FailingConnectableHttpRepositoryAddress("second-test-repo"));
+
+				var result = sender.SyncWithOptions(options);
+				Assert.That(result.Succeeded, Is.False);
+				Assert.That(result.ErrorEncountered, Is.Not.Null);
+				// Both targets should have been attempted even though the first failed.
+				var progress = sender.GetProgressString();
+				Assert.That(progress, Does.Contain("Failed to send to first-test-repo"));
+				Assert.That(progress, Does.Contain("Failed to send to second-test-repo"));
+			}
+		}
+
+		[Test]
+		public void Sync_OneOfMultiplePushTargetsFails_SyncStillSucceeds()
+		{
+			using (var sender = new RepositorySetup("sender"))
+			{
+				sender.AddAndCheckinFile("one.txt", "sender's content");
+
+				using (var receiver = new RepositorySetup("receiver", sender))
+				{
+					var options = new SyncOptions
+					{
+						DoMergeWithOthers = false,
+						DoPullFromOthers = false,
+						DoSendToOthers = true,
+					};
+					options.RepositorySourcesToTry.Add(new FailingConnectableHttpRepositoryAddress("test-repo"));
+					options.RepositorySourcesToTry.Add(receiver.GetRepositoryAddress());
+
+					var result = sender.SyncWithOptions(options);
+					Assert.That(result.Succeeded, Is.True);
+					Assert.That(result.ErrorEncountered, Is.Null);
+					Assert.That(sender.GetProgressString(), Does.Contain("Failed to send to test-repo"));
+				}
 			}
 		}
 
@@ -548,9 +600,9 @@ namespace LibChorus.Tests.sync
 		/// sync operations from executing. This allows CanConnect() to return true while sync operations
 		/// fail, enabling tests of sync failure scenarios (push/pull/merge failures).
 		/// </summary>
-		private class PretendConnectableHttpRepositoryAddress : RepositoryAddress
+		private class FailingConnectableHttpRepositoryAddress : RepositoryAddress
 		{
-			public PretendConnectableHttpRepositoryAddress() : base("unknownname", "http://127.0.0.1:1/test-project", false)
+			public FailingConnectableHttpRepositoryAddress(string name) : base(name, "http://127.0.0.1:1/test-project", false)
 			{
 			}
 
