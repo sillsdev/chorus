@@ -294,16 +294,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public void PushToTarget(string targetLabel, string targetUri)
 		{
-			try
-			{
-				CheckAndUpdateHgrc();
-				Execute(false, _mercurialTwoCompatible,SecondsBeforeTimeoutOnRemoteOperation, "push --new-branch " + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
-			}
-			catch (Exception err)
-			{
-				_progress.WriteMessageWithColor("OrangeRed",
-					$"Could not send to {ServerSettingsModel.RemovePasswordForLog(targetUri)}{Environment.NewLine}{err.Message}");
-			}
+			CheckAndUpdateHgrc();
+			Execute(false, _mercurialTwoCompatible, SecondsBeforeTimeoutOnRemoteOperation,
+				"push --new-branch " + GetProxyConfigParameterString(targetUri), SurroundWithQuotes(targetUri));
 
 			if (GetIsLocalUri(targetUri))
 			{
@@ -313,8 +306,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				catch (Exception err)
 				{
-					_progress.WriteMessageWithColor("OrangeRed",
-						$"Could not update the actual files after a pushing to {ServerSettingsModel.RemovePasswordForLog(targetUri)}{Environment.NewLine}{err.Message}");
+					throw new ApplicationException(
+						$"Could not update the actual files after pushing to {ServerSettingsModel.RemovePasswordForLog(targetUri)}",
+						err);
 				}
 			}
 		}
