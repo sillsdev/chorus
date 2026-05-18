@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - [SIL.Chorus.LibChorus] Add webm as additional audio file type
 - [SIL.Chorus] Add ability to clone project without direct user interaction
-- Add L10NSharp.Windows.Forms dependency for version 9.0.0-*
+- Add L10NSharp.Windows.Forms dependency for version 10.0.0-*
 
 ### Changed
 
@@ -28,10 +28,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [SIL.Chorus.LibChorus] Add ChorusStorage (the bundle cache) as an Excluded folder
 - [SIL.Chorus.LibChorus] Changed HgResumeTransport LastKnownCommonBases to use Json serialization instead of BinaryFormatter
 - Update SIL.Chorus.Mercurial dependency to version 6.5.1 which uses Python 3
-- Update libPalaso dependency from version 15.0.0-* to 17.0.0-*
-- Update Newtonsoft.Json dependency from version 13.0.2 to 13.0.3
+- Update libPalaso dependency from version 15.0.0-* to 18.0.0-*
+- Update Newtonsoft.Json dependency from version 13.0.2 to 13.0.4
+- Update Microsoft.NET.Test.Sdk dependency from version 17.3.1 to 17.14.1
 - Update icu.net dependency from version 3.0.0-* to 3.0.1
-- Update L10NSharp dependency from version 8.0.0-beta0005 to 9.0.0-*
+- Update L10NSharp dependency from version 8.0.0-beta0005 to 10.0.0-*
+- [SIL.Chorus] Remove `emailForSubmissions` argument from `LocalizationManagerWinforms.Create` call (removed in L10NSharp 10)
+
+### Removed
+
+- [SIL.Chorus] Remove obsolete `ChorusSystem.SetUpLocalization(TranslationMemory, ...)` overload (TranslationMemory type removed in L10NSharp 10)
 
 ### Fixed
 

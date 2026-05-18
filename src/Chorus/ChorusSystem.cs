@@ -14,7 +14,6 @@ using Chorus.UI.Notes.Browser;
 using Chorus.UI.Review;
 using Chorus.UI.Sync;
 using Chorus.VcsDrivers.Mercurial;
-using L10NSharp;
 using L10NSharp.Windows.Forms;
 using SIL.Code;
 using SIL.Extensions;
@@ -128,14 +127,7 @@ namespace Chorus
 				Application.ProductName, version, directoryOfInstalledXlfFiles,
 				directoryOfUserModifiedXlfFiles,
 				Icon.FromHandle(Properties.Resources.chorus32x32.GetHicon()), // should call DestroyIcon, but when?
-				"issues@chorus.palaso.org", new [] {"Chorus"});
-		}
-
-		[Obsolete("Only one kind of TranslationMemory is supported: XLF; there is no need for the kind parameter.")]
-		public static void SetUpLocalization(TranslationMemory kind, string desiredUiLangId, string rootDirectoryOfInstalledTmxFiles,
-			string relativeDirectoryOfUserModifiedTmxFiles)
-		{
-			SetUpLocalization(desiredUiLangId, rootDirectoryOfInstalledTmxFiles, relativeDirectoryOfUserModifiedTmxFiles);
+				new [] {"Chorus"});
 		}
 
 		public bool DidLoadUpCorrectly;
