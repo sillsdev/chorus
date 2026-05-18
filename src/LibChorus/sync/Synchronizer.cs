@@ -251,16 +251,39 @@ namespace Chorus.sync
 	   private void SendToOthers(HgRepository repo, List<RepositoryAddress> sourcesToTry, Dictionary<RepositoryAddress, bool> connectionAttempt)
 		{
 			using var activity = LibChorusActivitySource.Value.StartActivity();
+			List<Exception> errors = new List<Exception>();
+			bool atLeastOneSucceeded = false;
 			foreach (RepositoryAddress address in sourcesToTry)
 			{
 				ThrowIfCancelPending();
 
 				if (!address.IsReadOnly)
 				{
-					SendToOneOther(address, connectionAttempt, repo);
+					try
+					{
+						SendToOneOther(address, connectionAttempt, repo);
+						atLeastOneSucceeded = true;
+					}
+					catch (UserCancelledException)
+					{
+						throw;
+					}
+					catch (Exception e)
+					{
+						_progress.WriteException(e);
+						_progress.WriteError(e.Message);
+						errors.Add(e);
+					}
 				}
 			}
 			ThrowIfCancelPending();
+
+			// Only throw and fail the sync if every writable target failed; partial success still counts as success.
+			if (errors.Any() && !atLeastOneSucceeded)
+			{
+				var error = errors.Count == 1 ? errors.Single() : new AggregateException(errors);
+				throw new SynchronizationException(error, WhatToDo.CheckAddressAndConnection, "Failed to send changes");
+			}
 		}
 
 		private void ThrowIfCancelPending()

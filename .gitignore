@@ -1,6 +1,7 @@
 .idea/
 .vs/
 *.files
+*.lscache
 *.mdb
 *.nupkg
 *.orig
