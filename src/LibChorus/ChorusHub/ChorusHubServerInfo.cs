@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Web;
 
 namespace Chorus.ChorusHub
 {
@@ -52,21 +53,8 @@ namespace Chorus.ChorusHub
 
 		private static string GetValue(string parameters, string name)
 		{
-			var queryParameters = new NameValueCollection();
-			var querySegments = parameters.Split('&');
-			foreach (var segment in querySegments)
-			{
-				var parts = segment.Split(new[] { '=' }, 2);
-				if (parts.Length < 2)
-					continue;
-
-				var key = parts[0].Trim(new[] { '?', ' ' });
-				var val = parts[1].Trim();
-
-				queryParameters.Add(key, val);
-			}
-
-			var r = queryParameters.GetValues(name);
+			var parsed = HttpUtility.ParseQueryString(parameters.TrimStart('?'));
+			var r = parsed.GetValues(name);
 			return r == null ? "?" : r.First();
 		}
 
