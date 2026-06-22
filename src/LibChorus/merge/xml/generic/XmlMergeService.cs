@@ -786,7 +786,7 @@ namespace Chorus.merge.xml.generic
 							continue;
 
 						var identifier = attrValues[identifierAttribute];
-						if (string.IsNullOrEmpty(identifierAttribute))
+						if (string.IsNullOrEmpty(identifier))
 						{
 							mainMergeEventListener.WarningOccurred(
 								new MergeWarning(string.Format("{0}: There was no identifier for the record", pathname)));
