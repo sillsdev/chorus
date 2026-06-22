@@ -59,9 +59,12 @@ namespace Chorus.UI
 
 		private void ScanForUsbDrives()
 		{
-			while (_keepRunning)
+			// https://github.com/sillsdev/chorus/issues/261
+			// some users have problems with their USB drive (hardware?) such that GetDrives throws
+			//	an exception, which if not caught, results in a fatal exception for Chorus
+			try
 			{
-				try
+				while (_keepRunning)
 				{
 					var usbRoots = new SIL.UsbDrive.RetrieveUsbDriveInfo().GetDrives()
 						.Select(u => u.RootDirectory.FullName);
@@ -78,15 +81,13 @@ namespace Chorus.UI
 						_usbDrives.Clear();
 						_usbDrives.AddRange(usbDrives);
 					}
-				}
-				catch (Exception ex)
-				{
-					// Faulty USB hardware (e.g. ManagementException "Invalid class") can cause
-					// GetDrives to throw. Log quietly and retry next cycle so scanning keeps running.
-					SIL.Reporting.Logger.WriteEvent("UsbDriveLocator: {0}", ex.ToString());
-				}
 
-				Thread.Sleep(3000); // check again after 3 second
+					Thread.Sleep(3000); // check again after 3 second
+				}
+			}
+			catch (Exception ex)
+			{
+				ErrorReport.ReportNonFatalException(ex);
 			}
 		}
 
