@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -69,7 +68,7 @@ namespace Chorus.ChorusHub
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return $"ChorusHubInfo?version={VersionOfThisCode}&address={_ipAddress}&port={_port}&hostname={HostName}";
+			return $"ChorusHubInfo?version={VersionOfThisCode}&address={Uri.EscapeDataString(_ipAddress)}&port={Uri.EscapeDataString(_port)}&hostname={Uri.EscapeDataString(HostName)}";
 		}
 
 		public string ServiceUri => $"net.tcp://{_ipAddress}:{ChorusHubOptions.ServicePort}";
