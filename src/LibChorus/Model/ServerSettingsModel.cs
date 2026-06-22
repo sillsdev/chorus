@@ -386,6 +386,12 @@ namespace Chorus.Model
 				// ProtectedData is not supported on Linux (.NET 6+); treat as RememberPassword=false
 				return null;
 			}
+			catch (CryptographicException)
+			{
+				// Protect can fail if the DPAPI subsystem is broken; treat as RememberPassword=false
+				// rather than crashing the save operation.
+				return null;
+			}
 		}
 
 		internal static string DecryptPassword(string decryptMe)
@@ -411,7 +417,13 @@ namespace Chorus.Model
 			catch (CryptographicException)
 			{
 				// Unprotect can fail if the data was encrypted by a different Windows user
-				// account, after an OS reinstall, or if the stored value is corrupted.
+				// account or after an OS reinstall.
+				return null;
+			}
+			catch (FormatException)
+			{
+				// Convert.FromBase64String throws if the stored value is not valid Base64
+				// (e.g. manual settings file corruption).
 				return null;
 			}
 		}
