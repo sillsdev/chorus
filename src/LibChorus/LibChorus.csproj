@@ -13,7 +13,7 @@
     <PackageReference Include="GitVersion.MsBuild" Version="5.10.3" PrivateAssets="All" />
     <PackageReference Include="icu.net" Version="2.8.1" />
     <PackageReference Include="Icu4c.Win.Min" Version="59.1.7" IncludeAssets="build" />
-    <PackageReference Include="L10NSharp" Version="5.0.0-*" />
+    <PackageReference Include="L10NSharp" Version="[5.0.0, 9.0.0)" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="NDesk.DBus" Version="0.15.0" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
     <PackageReference Include="SIL.Chorus.Mercurial" Version="3.0.3.6-*" IncludeAssets="build" />
