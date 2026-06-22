@@ -34,11 +34,17 @@ jobs:
             framework: net462
         include:
           - os: windows-latest
+            framework: net462
+            libchorus-split: vcs
+          - os: windows-latest
             framework: net8.0
-            libchorus-split: hg
+            libchorus-split: vcs
           - os: windows-latest
             framework: net462
-            libchorus-split: hg
+            libchorus-split: sync
+          - os: windows-latest
+            framework: net8.0
+            libchorus-split: sync
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.os }}-${{ matrix.framework }}-${{ matrix.libchorus-split }}
       cancel-in-progress: true
@@ -63,26 +69,30 @@ jobs:
 
     - name: Install python2 for test execution
       run: sudo apt-get install python2
-      if: matrix.os == 'ubuntu-22.04' && matrix['libchorus-split'] != 'hg'
+      if: matrix.os == 'ubuntu-22.04'
 
     - name: Test Chorus
       run: dotnet test src/Chorus.Tests/Chorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
-      if: matrix.framework == 'net462' && matrix['libchorus-split'] != 'hg'
+      if: matrix.framework == 'net462' && matrix['libchorus-split'] == ''
 
     - name: Test Chorus Hub
       run: dotnet test src/ChorusHubTests/ChorusHubTests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
-      if: matrix.framework == 'net462' && matrix['libchorus-split'] != 'hg'
+      if: matrix.framework == 'net462' && matrix['libchorus-split'] == ''
 
     - name: Test ChorusMerge
       run: dotnet test src/ChorusMerge.Tests/ChorusMerge.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
-      if: matrix['libchorus-split'] != 'hg'
+      if: matrix['libchorus-split'] == ''
 
-    - name: Test LibChorus (VcsDrivers + sync)
-      if: runner.os == 'Windows' && matrix['libchorus-split'] == 'hg'
-      run: dotnet test src/LibChorusTests/LibChorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter "TestCategory!=SkipOnBuildServer&(FullyQualifiedName~LibChorus.Tests.VcsDrivers|FullyQualifiedName~LibChorus.Tests.sync)" -- NUnit.TestOutputXml=TestResults
+    - name: Test LibChorus (VcsDrivers)
+      if: runner.os == 'Windows' && matrix['libchorus-split'] == 'vcs'
+      run: dotnet test src/LibChorusTests/LibChorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter "TestCategory!=SkipOnBuildServer&FullyQualifiedName~LibChorus.Tests.VcsDrivers" -- NUnit.TestOutputXml=TestResults
 
-    - name: Test LibChorus (merge, FileHandlers, utilities, Model)
-      if: runner.os == 'Windows' && matrix['libchorus-split'] != 'hg'
+    - name: Test LibChorus (sync)
+      if: runner.os == 'Windows' && matrix['libchorus-split'] == 'sync'
+      run: dotnet test src/LibChorusTests/LibChorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter "TestCategory!=SkipOnBuildServer&FullyQualifiedName~LibChorus.Tests.sync" -- NUnit.TestOutputXml=TestResults
+
+    - name: Test LibChorus (remaining)
+      if: runner.os == 'Windows' && matrix['libchorus-split'] == ''
       run: dotnet test src/LibChorusTests/LibChorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter "TestCategory!=SkipOnBuildServer&FullyQualifiedName!~LibChorus.Tests.VcsDrivers&FullyQualifiedName!~LibChorus.Tests.sync" -- NUnit.TestOutputXml=TestResults
 
     - name: Test LibChorus
