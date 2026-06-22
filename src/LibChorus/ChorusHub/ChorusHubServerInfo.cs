@@ -56,7 +56,7 @@ namespace Chorus.ChorusHub
 			var querySegments = parameters.Split('&');
 			foreach (var segment in querySegments)
 			{
-				var parts = segment.Split('=');
+				var parts = segment.Split(new[] { '=' }, 2);
 				if (parts.Length < 2)
 					continue;
 
