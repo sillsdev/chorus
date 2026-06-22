@@ -83,7 +83,7 @@ namespace Chorus.UI
 				{
 					// Faulty USB hardware (e.g. ManagementException "Invalid class") can cause
 					// GetDrives to throw. Log quietly and retry next cycle so scanning keeps running.
-					SIL.Reporting.Logger.WriteEvent("UsbDriveLocator: {0}", ex.Message);
+					SIL.Reporting.Logger.WriteEvent("UsbDriveLocator: {0}", ex.ToString());
 				}
 
 				Thread.Sleep(3000); // check again after 3 second
@@ -96,7 +96,7 @@ namespace Chorus.UI
 			{
 				lock (_usbDrives)
 				{
-					return _usbDrives;
+					return _usbDrives.ToList();
 				}
 			}
 		}
