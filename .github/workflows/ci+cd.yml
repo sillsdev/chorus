@@ -53,6 +53,13 @@ jobs:
     - name: Build
       run: dotnet build --no-restore -c Release
 
+    - name: Disable Windows Defender scanning for test execution
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Add-MpPreference -ExclusionPath "$env:GITHUB_WORKSPACE"
+        Add-MpPreference -ExclusionProcess "hg.exe"
+
     - name: Install python2 for test execution
       run: sudo apt-get install python2
       if: matrix.os == 'ubuntu-22.04'
@@ -67,13 +74,6 @@ jobs:
 
     - name: Test ChorusMerge
       run: dotnet test src/ChorusMerge.Tests/ChorusMerge.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
-
-    - name: Disable Windows Defender for test directories
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        Add-MpPreference -ExclusionPath "$env:TEMP"
-        Add-MpPreference -ExclusionProcess "hg.exe"
 
     - name: Test LibChorus
       run: dotnet test src/LibChorusTests/LibChorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
