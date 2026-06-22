@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Web;
 
 namespace Chorus.ChorusHub
 {
@@ -52,8 +52,20 @@ namespace Chorus.ChorusHub
 
 		private static string GetValue(string parameters, string name)
 		{
-			var parsed = HttpUtility.ParseQueryString(parameters.TrimStart('?'));
-			var r = parsed.GetValues(name);
+			var queryParameters = new NameValueCollection();
+			foreach (var segment in parameters.Split('&'))
+			{
+				var parts = segment.Split(new[] { '=' }, 2);
+				if (parts.Length < 2)
+					continue;
+
+				var key = parts[0].Trim(new[] { '?', ' ' });
+				var val = parts[1].Trim();
+
+				queryParameters.Add(key, val);
+			}
+
+			var r = queryParameters.GetValues(name);
 			return r == null ? "?" : r.First();
 		}
 
@@ -68,7 +80,7 @@ namespace Chorus.ChorusHub
 		/// <inheritdoc />
 		public override string ToString()
 		{
-			return $"ChorusHubInfo?version={VersionOfThisCode}&address={Uri.EscapeDataString(_ipAddress)}&port={Uri.EscapeDataString(_port)}&hostname={Uri.EscapeDataString(HostName)}";
+			return $"ChorusHubInfo?version={VersionOfThisCode}&address={_ipAddress}&port={_port}&hostname={HostName}";
 		}
 
 		public string ServiceUri => $"net.tcp://{_ipAddress}:{ChorusHubOptions.ServicePort}";
