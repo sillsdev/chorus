@@ -408,6 +408,12 @@ namespace Chorus.Model
 				// Windows-to-Linux settings migration, causing silent auth failures.
 				return null;
 			}
+			catch (CryptographicException)
+			{
+				// Unprotect can fail if the data was encrypted by a different Windows user
+				// account, after an OS reinstall, or if the stored value is corrupted.
+				return null;
+			}
 		}
 
 		/// <summary>
