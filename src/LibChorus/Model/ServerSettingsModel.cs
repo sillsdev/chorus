@@ -403,8 +403,10 @@ namespace Chorus.Model
 			}
 			catch (PlatformNotSupportedException)
 			{
-				// ProtectedData is not supported on Linux (.NET 6+); return input unmodified
-				return decryptMe;
+				// ProtectedData is not supported on Linux (.NET 6+); treat as no saved password.
+				// Returning decryptMe would pass a raw DPAPI blob as a credential on
+				// Windows-to-Linux settings migration, causing silent auth failures.
+				return null;
 			}
 		}
 
