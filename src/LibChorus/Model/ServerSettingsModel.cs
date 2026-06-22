@@ -375,10 +375,17 @@ namespace Chorus.Model
 				return encryptMe;
 			}
 
-			// Password encryption/decryption not supported on .NET6 in Linux
-			var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe),
-				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
-			return Convert.ToBase64String(encryptedData);
+			try
+			{
+				var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe),
+					Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+				return Convert.ToBase64String(encryptedData);
+			}
+			catch (PlatformNotSupportedException)
+			{
+				// ProtectedData is not supported on Linux (.NET 6+); treat as RememberPassword=false
+				return null;
+			}
 		}
 
 		internal static string DecryptPassword(string decryptMe)
@@ -388,10 +395,17 @@ namespace Chorus.Model
 				return decryptMe;
 			}
 
-			// Password encryption/decryption not supported on .NET6 in Linux
-			var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe),
-				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
-			return Encoding.Unicode.GetString(decryptedData);
+			try
+			{
+				var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe),
+					Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+				return Encoding.Unicode.GetString(decryptedData);
+			}
+			catch (PlatformNotSupportedException)
+			{
+				// ProtectedData is not supported on Linux (.NET 6+); return input unmodified
+				return decryptMe;
+			}
 		}
 
 		/// <summary>
