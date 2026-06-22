@@ -6,7 +6,7 @@ on:
     tags: [ v* ]
   workflow_dispatch:
 
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}-package-l10ns
   cancel-in-progress: true
 
@@ -15,7 +15,7 @@ jobs:
   package-l10n:
     strategy:
       fail-fast: false
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     steps:
     - name: Checkout
