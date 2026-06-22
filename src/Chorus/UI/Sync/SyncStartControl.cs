@@ -399,6 +399,8 @@ namespace Chorus.UI.Sync
 				}
 				else // if (_lanMode == LANMode.ChorusHub)
 				{
+					if (_chorusHubClient == null || _chorusHubServerInfo == null)
+						return;
 					Cursor.Current = Cursors.WaitCursor;
 					string directoryName = Path.GetFileName(_repository.PathToRepo);
 					var doWait  = _chorusHubClient.PrepareHubToSync(directoryName, _repository.Identifier);
@@ -439,6 +441,7 @@ namespace Chorus.UI.Sync
 		{
 			_networkWorkerStarted = false;
 			_chorusHubClient = null;
+			_chorusHubServerInfo = null;
 			// Setup Shared Network Folder Checking thread and its worker
 			_networkStateWorker = new ConnectivityStateWorker(CheckNetworkStatusAndUpdateUI);
 			_updateNetworkSituation = new Thread(_networkStateWorker.DoWork);
