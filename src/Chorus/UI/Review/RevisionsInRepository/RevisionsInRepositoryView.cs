@@ -183,7 +183,8 @@ namespace Chorus.UI.Review.RevisionsInRepository
 
 		private string GetDescriptionForListView(Revision rev)
 		{
-			var s = rev.Summary.Substring(rev.Summary.IndexOf(']')+1).Trim();
+			int idx = rev.Summary.IndexOf(']');
+			var s = idx >= 0 ? rev.Summary.Substring(idx + 1).Trim() : rev.Summary.Trim();
 			if(s=="auto")
 				return string.Empty;
 			return s;
