@@ -68,6 +68,13 @@ jobs:
     - name: Test ChorusMerge
       run: dotnet test src/ChorusMerge.Tests/ChorusMerge.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
 
+    - name: Disable Windows Defender for test directories
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        Add-MpPreference -ExclusionPath "$env:TEMP"
+        Add-MpPreference -ExclusionProcess "hg.exe"
+
     - name: Test LibChorus
       run: dotnet test src/LibChorusTests/LibChorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
 
