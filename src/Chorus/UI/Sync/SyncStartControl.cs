@@ -438,6 +438,7 @@ namespace Chorus.UI.Sync
 		private void RecheckNetworkStatus()
 		{
 			_networkWorkerStarted = false;
+			_chorusHubClient = null;
 			// Setup Shared Network Folder Checking thread and its worker
 			_networkStateWorker = new ConnectivityStateWorker(CheckNetworkStatusAndUpdateUI);
 			_updateNetworkSituation = new Thread(_networkStateWorker.DoWork);
