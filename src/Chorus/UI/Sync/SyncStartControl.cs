@@ -441,7 +441,6 @@ namespace Chorus.UI.Sync
 		{
 			_networkWorkerStarted = false;
 			_chorusHubClient = null;
-			_chorusHubServerInfo = null;
 			// Setup Shared Network Folder Checking thread and its worker
 			_networkStateWorker = new ConnectivityStateWorker(CheckNetworkStatusAndUpdateUI);
 			_updateNetworkSituation = new Thread(_networkStateWorker.DoWork);
