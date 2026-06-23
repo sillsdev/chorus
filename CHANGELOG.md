@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Prevent S&R to Internet without full URL
 - [SIL.Chorus.LibChorus] Correctly handle & and other special characters in passwords
+- [SIL.Chorus.LibChorus] Fix null-key insertion when XML record identifier attribute is absent in XmlMergeService
 
 ## [5.1.0] - 2023-03-07
 
