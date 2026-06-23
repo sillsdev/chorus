@@ -484,6 +484,13 @@ namespace LibChorus.Tests.Model
 		}
 
 		[Test]
+		public void DecryptPassword_InvalidBase64_ReturnsNull()
+		{
+			// FormatException from Convert.FromBase64String was unhandled before the fix.
+			Assert.That(ServerSettingsModel.DecryptPassword("not-valid-base64!!!"), Is.Null);
+		}
+
+		[Test]
 		[Platform(Exclude = "Linux", Reason = "Windows Data Protection API (DPAPI) is not supported on this platform")]
 		public void EncryptPassword_RoundTrips()
 		{
