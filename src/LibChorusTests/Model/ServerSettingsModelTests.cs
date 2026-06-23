@@ -486,7 +486,6 @@ namespace LibChorus.Tests.Model
 		[Test]
 		public void DecryptPassword_InvalidBase64_ReturnsNull()
 		{
-			// FormatException from Convert.FromBase64String was unhandled before the fix.
 			Assert.That(ServerSettingsModel.DecryptPassword("not-valid-base64!!!"), Is.Null);
 		}
 
