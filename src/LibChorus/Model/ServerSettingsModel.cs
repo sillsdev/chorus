@@ -374,8 +374,10 @@ namespace Chorus.Model
 			if (string.IsNullOrEmpty(encryptMe))
 				return encryptMe;
 
+#if !NETFRAMEWORK
 			if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 				return null;
+#endif
 
 			try
 			{
@@ -396,8 +398,10 @@ namespace Chorus.Model
 			if (string.IsNullOrEmpty(decryptMe))
 				return decryptMe;
 
+#if !NETFRAMEWORK
 			if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 				return null;
+#endif
 
 			try
 			{
