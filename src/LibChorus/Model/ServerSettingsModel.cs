@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
@@ -371,20 +372,16 @@ namespace Chorus.Model
 		internal static string EncryptPassword(string encryptMe)
 		{
 			if (string.IsNullOrEmpty(encryptMe))
-			{
 				return encryptMe;
-			}
+
+			if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				return null;
 
 			try
 			{
 				var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe),
 					Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 				return Convert.ToBase64String(encryptedData);
-			}
-			catch (PlatformNotSupportedException)
-			{
-				// ProtectedData is not supported on Linux (.NET 6+); treat as RememberPassword=false
-				return null;
 			}
 			catch (CryptographicException)
 			{
@@ -397,22 +394,16 @@ namespace Chorus.Model
 		internal static string DecryptPassword(string decryptMe)
 		{
 			if (string.IsNullOrEmpty(decryptMe))
-			{
 				return decryptMe;
-			}
+
+			if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				return null;
 
 			try
 			{
 				var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe),
 					Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
 				return Encoding.Unicode.GetString(decryptedData);
-			}
-			catch (PlatformNotSupportedException)
-			{
-				// ProtectedData is not supported on Linux (.NET 6+); treat as no saved password.
-				// Returning decryptMe would pass a raw DPAPI blob as a credential on
-				// Windows-to-Linux settings migration, causing silent auth failures.
-				return null;
 			}
 			catch (CryptographicException)
 			{
