@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Prevent S&R to Internet without full URL
 - [SIL.Chorus.LibChorus] Correctly handle & and other special characters in passwords
+- [SIL.Chorus.LibChorus] Fix crash in password encryption/decryption on non-Windows platforms and on Windows data-protection failure
 
 ## [5.1.0] - 2023-03-07
 

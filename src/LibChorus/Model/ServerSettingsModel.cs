@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
@@ -371,27 +372,55 @@ namespace Chorus.Model
 		internal static string EncryptPassword(string encryptMe)
 		{
 			if (string.IsNullOrEmpty(encryptMe))
-			{
 				return encryptMe;
-			}
 
-			// Password encryption/decryption not supported on .NET6 in Linux
-			var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe),
-				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
-			return Convert.ToBase64String(encryptedData);
+#if !NETFRAMEWORK
+			if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				return null;
+#endif
+
+			try
+			{
+				var encryptedData = ProtectedData.Protect(Encoding.Unicode.GetBytes(encryptMe),
+					Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+				return Convert.ToBase64String(encryptedData);
+			}
+			catch (CryptographicException)
+			{
+				// Protect can fail if the DPAPI subsystem is broken; treat as RememberPassword=false
+				// rather than crashing the save operation.
+				return null;
+			}
 		}
 
 		internal static string DecryptPassword(string decryptMe)
 		{
 			if (string.IsNullOrEmpty(decryptMe))
-			{
 				return decryptMe;
-			}
 
-			// Password encryption/decryption not supported on .NET6 in Linux
-			var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe),
-				Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
-			return Encoding.Unicode.GetString(decryptedData);
+#if !NETFRAMEWORK
+			if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				return null;
+#endif
+
+			try
+			{
+				var decryptedData = ProtectedData.Unprotect(Convert.FromBase64String(decryptMe),
+					Encoding.Unicode.GetBytes(EntropyValue), DataProtectionScope.CurrentUser);
+				return Encoding.Unicode.GetString(decryptedData);
+			}
+			catch (CryptographicException)
+			{
+				// Unprotect can fail if the data was encrypted by a different Windows user
+				// account or after an OS reinstall.
+				return null;
+			}
+			catch (FormatException)
+			{
+				// Convert.FromBase64String throws if the stored value is not valid Base64
+				// (e.g. manual settings file corruption).
+				return null;
+			}
 		}
 
 		/// <summary>
