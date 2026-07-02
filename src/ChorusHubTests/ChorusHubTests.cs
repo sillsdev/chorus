@@ -240,4 +240,39 @@ namespace ChorusHubTests
 			}
 		}
 	}
+
+	[TestFixture]
+	public class ChorusHubServerInfoParseTests
+	{
+		[Test]
+		public void Parse_SegmentWithoutEquals_DoesNotThrow()
+		{
+			const string input = "ChorusHubInfo?version=3&address=192.168.1.1&port=5912&hostname=mypc&flag";
+			Assert.DoesNotThrow(() => ChorusHubServerInfo.Parse(input));
+		}
+
+		[Test]
+		public void Parse_SegmentWithoutEquals_OtherValuesStillParsed()
+		{
+			const string input = "ChorusHubInfo?version=3&address=192.168.1.1&port=5912&hostname=mypc&flag";
+			var info = ChorusHubServerInfo.Parse(input);
+			Assert.That(info.HostName, Is.EqualTo("mypc"));
+		}
+
+		[Test]
+		public void Parse_ValueContainsEquals_FullValuePreserved()
+		{
+			const string input = "ChorusHubInfo?version=3&address=192.168.1.1&port=5912&hostname=my=pc";
+			var info = ChorusHubServerInfo.Parse(input);
+			Assert.That(info.HostName, Is.EqualTo("my=pc"));
+		}
+
+		[Test]
+		public void Parse_SegmentWithoutEquals_ParsedWithEmptyValue()
+		{
+			const string input = "ChorusHubInfo?version=3&address=192.168.1.1&port=5912&hostname";
+			var info = ChorusHubServerInfo.Parse(input);
+			Assert.That(info.HostName, Is.EqualTo(""));
+		}
+	}
 }
