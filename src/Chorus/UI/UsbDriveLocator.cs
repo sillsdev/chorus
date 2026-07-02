@@ -97,7 +97,7 @@ namespace Chorus.UI
 			{
 				lock (_usbDrives)
 				{
-					return _usbDrives;
+					return _usbDrives.ToList();
 				}
 			}
 		}
