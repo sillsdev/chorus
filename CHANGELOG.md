@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Prevent S&R to Internet without full URL
 - [SIL.Chorus.LibChorus] Correctly handle & and other special characters in passwords
+- [SIL.Chorus] Fix collection-modified exception when UsbDrives property is read while background scan thread updates the list
 - [SIL.Chorus.LibChorus] Fix null-key insertion when XML record identifier attribute is absent in XmlMergeService
 - [SIL.Chorus.LibChorus] Fix crash in password encryption/decryption on non-Windows platforms and on Windows data-protection failure
 
