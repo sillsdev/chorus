@@ -335,7 +335,7 @@ namespace Chorus.Model
 		private WebResponse LogIn()
 		{
 			var privateQuery = IsPrivateServer ? "?private=true" : string.Empty;
-			var request = WebRequest.Create($"https://admin{LanguageForgeServer}/api/user/{Username}/projects{privateQuery}");
+			var request = WebRequest.Create($"https://{LanguageForgeServer.TrimStart('-', '.')}/api/user/{Username}/projects{privateQuery}");
 			request.Method = "POST";
 			var passwordBytes = Encoding.UTF8.GetBytes($"password={HttpUtility.UrlEncode(Password)}");
 			request.ContentType = "application/x-www-form-urlencoded";
