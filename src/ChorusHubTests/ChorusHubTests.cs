@@ -266,5 +266,13 @@ namespace ChorusHubTests
 			var info = ChorusHubServerInfo.Parse(input);
 			Assert.That(info.HostName, Is.EqualTo("my=pc"));
 		}
+
+		[Test]
+		public void Parse_SegmentWithoutEquals_ParsedWithEmptyValue()
+		{
+			const string input = "ChorusHubInfo?version=3&address=192.168.1.1&port=5912&hostname";
+			var info = ChorusHubServerInfo.Parse(input);
+			Assert.That(info.HostName, Is.EqualTo(""));
+		}
 	}
 }
