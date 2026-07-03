@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
 
