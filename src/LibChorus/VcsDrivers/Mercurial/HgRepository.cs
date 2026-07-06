@@ -1037,7 +1037,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose($"Local User: {GetUserIdInUse()}");
 			if (potentialAddresses.Any(a => a is HttpRepositoryPath))
 			{
-				_progress.WriteVerbose($"LanguageForge User: {Settings.Default.LanguageForgeUser}");
+				_progress.WriteVerbose($"Lexbox User: {Settings.Default.LanguageForgeUser}");
 			}
 
 			_progress.WriteVerbose($"Repository URI: {string.Join(Environment.NewLine, potentialAddresses.Select(RepositoryURIForLog))}");
@@ -1519,7 +1519,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			IniSection section = GetDefaultRepositoriesSection(doc);
 			foreach (var alias in aliases)
 			{
-				section.Set(alias, string.Empty); //so we'll have "LanguageForge =", which is weird, but it's the hgrc style
+				section.Set(alias, string.Empty); //so we'll have "Lexbox =", which is weird, but it's the hgrc style
 			}
 			doc.SaveAndGiveMessageIfCannot();
 
@@ -2095,7 +2095,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public static string DoWorkOfDeterminingProxyConfigParameterString(string httpUrl, IProgress progress)
 		{
 			/* The hg url itself would be more robust for the theoretical possibility of different
-				* proxies for different destinations, but some hg servers (notably language depot) require a login.
+				* proxies for different destinations, but some hg servers (notably Lexbox) require a login.
 				* So we're ignoring what we were given, and just using a known address, for now.
 				*/
 			httpUrl = "http://proxycheck.palaso.org";

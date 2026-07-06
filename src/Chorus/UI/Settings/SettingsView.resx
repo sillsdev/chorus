@@ -156,6 +156,6 @@ suzie = \\SUZIE-PC\TokPisin
 For an internet server, include your username and password like this:
 online = https://JoeSmith:mypassword@hg-public.languageforge.org/tpi
 
-For a free internet repository, visit https://public.languageforge.org</value>
+For a free Lexbox internet repository, visit https://public.languageforge.org</value>
   </data>
 </root>

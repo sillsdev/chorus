@@ -78,7 +78,7 @@ namespace Chorus.UI.Misc
 			this._accountLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._accountLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._accountLabel, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._accountLabel, "This is a username. On Language Depot, it is called a \"login.\"");
+			this.l10NSharpExtender1.SetLocalizationComment(this._accountLabel, "This is a username. On Lexbox, it is called a \"login.\"");
 			this.l10NSharpExtender1.SetLocalizingId(this._accountLabel, "ServerSettingsControl.Login");
 			this._accountLabel.Location = new System.Drawing.Point(37, 44);
 			this._accountLabel.Name = "_accountLabel";
@@ -297,7 +297,7 @@ namespace Chorus.UI.Misc
 			this._serverLabel.Name = "_serverLabel";
 			this._serverLabel.Size = new System.Drawing.Size(122, 13);
 			this._serverLabel.TabIndex = 18;
-			this._serverLabel.Text = "to {0} (Language Depot)";
+			this._serverLabel.Text = "to {0} (Lexbox)";
 			// 
 			// _tlpPassword
 			// 

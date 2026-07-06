@@ -94,7 +94,7 @@ namespace Chorus.Model
 			}
 			else if (name.ToLower().EndsWith(@"languageforge.org"))
 			{
-				name = @"LanguageForge";
+				name = @"Lexbox";
 			}
 
 			var address = RepositoryAddress.Create(name, URL);
