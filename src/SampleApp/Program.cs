@@ -2,6 +2,8 @@
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using Chorus;
+using L10NSharp;
 
 namespace SampleApp
 {
@@ -12,6 +14,17 @@ namespace SampleApp
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
+
+			LocalizationManager.StrictInitializationMode = false;
+			var installedTranslations = Path.Combine(AppContext.BaseDirectory, "localizations");
+			if (Directory.Exists(Path.Combine(installedTranslations, "Chorus")))
+			{
+				var userTranslations = Path.Combine(
+					Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+					"SIL", "ChorusSampleApp");
+				Directory.CreateDirectory(userTranslations);
+				ChorusSystem.SetUpLocalization("en", installedTranslations, userTranslations);
+			}
 
 			string dataDirectory = Path.Combine(Path.GetTempPath(), "ChorusSampleApp");
 			if(Directory.Exists(dataDirectory ))

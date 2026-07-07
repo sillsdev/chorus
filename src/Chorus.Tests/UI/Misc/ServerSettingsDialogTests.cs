@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Windows.Forms;
 using Chorus.Model;
 using Chorus.UI.Misc;
 using NUnit.Framework;
@@ -5,8 +7,15 @@ using NUnit.Framework;
 namespace Chorus.Tests.UI.Misc
 {
 	[TestFixture]
+	[Apartment(ApartmentState.STA)]
 	public class ServerSettingsDialogTests
 	{
+		[SetUp]
+		public void Setup()
+		{
+			Application.EnableVisualStyles();
+		}
+
 		[Test, Ignore("Run by hand only")]
 		public void LaunchDialog_FullAddress()
 		{
