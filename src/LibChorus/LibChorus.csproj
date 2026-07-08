@@ -15,7 +15,6 @@
     <PackageReference Include="icu.net" Version="3.0.1" />
     <PackageReference Include="Icu4c.Win.Min" Version="59.1.7" IncludeAssets="build" />
     <PackageReference Include="L10NSharp" Version="10.0.0-*" />
-    <PackageReference Include="L10NSharp.Windows.Forms" Version="10.0.0-*" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="NDesk.DBus" Version="0.15.0" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
     <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.*" IncludeAssets="build" />
@@ -26,6 +25,10 @@
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="9.0.2" />
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.8.1" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+    <Reference Include="System.ServiceModel" />
   </ItemGroup>
 
   <ItemGroup>
