@@ -1498,6 +1498,19 @@ namespace Chorus.VcsDrivers.Mercurial
 			if(match!=null)
 			{
 				addresses.Remove(match);
+				// If the alias name changed (e.g. because the default server was rebranded), migrate the
+				// matching entry in [ChorusDefaultRepositories] as well. Default-sync membership is matched
+				// by alias name, so leaving the old name behind would silently drop this repository from
+				// default sync operations.
+				if (match.Name != address.Name)
+				{
+					var defaultSyncAliases = GetDefaultSyncAliases();
+					if (defaultSyncAliases.Remove(match.Name))
+					{
+						defaultSyncAliases.Add(address.Name);
+						SetDefaultSyncRepositoryAliases(defaultSyncAliases);
+					}
+				}
 			}
 			addresses.Add(address);
 			SetKnownRepositoryAddresses(addresses);

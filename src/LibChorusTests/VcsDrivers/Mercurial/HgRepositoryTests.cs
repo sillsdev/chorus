@@ -152,5 +152,29 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				}
 			}
 		}
+
+		[Test]
+		public void SetTheOnlyAddressOfThisType_AliasRenamed_MigratesDefaultSyncEntry()
+		{
+			const string oldAlias = "languageForge.org [High bandwidth]";
+			const string newAlias = "Lexbox [High bandwidth]";
+			const string url = "https://hg-public.languageforge.org/tpi";
+
+			using (var tempDir = new TemporaryFolder("HgRepoDefaultSync"))
+			{
+				var repo = new HgRepository(tempDir.Path, _progress);
+				Directory.CreateDirectory(Path.GetDirectoryName(repo.GetPathToHgrc()));
+				repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(oldAlias, url, false));
+				repo.SetDefaultSyncRepositoryAliases(new[] { oldAlias });
+
+				// SUT: rename the alias (same address type, e.g. server rebranding)
+				repo.SetTheOnlyAddressOfThisType(new HttpRepositoryPath(newAlias, url, false));
+
+				var defaultAliases = repo.GetDefaultSyncAliases();
+				Assert.That(defaultAliases, Does.Contain(newAlias), "default sync entry should follow the renamed alias");
+				Assert.That(defaultAliases, Does.Not.Contain(oldAlias), "stale default sync entry should be removed");
+				Assert.That(repo.GetRepositoryPathsInHgrc().Select(p => p.Name), Does.Contain(newAlias));
+			}
+		}
 	}
 }
