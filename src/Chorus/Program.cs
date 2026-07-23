@@ -74,9 +74,11 @@ namespace Chorus
 			var installedTranslations = Path.Combine(AppContext.BaseDirectory, "localizations");
 			if (Directory.Exists(Path.Combine(installedTranslations, "Chorus")))
 			{
+				// Pass the app's settings root; SetUpLocalization appends "Chorus" itself, so passing
+				// "SIL" (not "SIL\Chorus") avoids a redundant nested Chorus\Chorus directory.
 				var userTranslations = Path.Combine(
 					Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-					"SIL", "Chorus");
+					"SIL");
 				Directory.CreateDirectory(userTranslations);
 				ChorusSystem.SetUpLocalization("en", installedTranslations, userTranslations);
 			}
