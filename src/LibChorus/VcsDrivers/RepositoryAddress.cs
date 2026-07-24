@@ -68,7 +68,7 @@ namespace Chorus.VcsDrivers
 		/// <summary>
 		/// Creates a new HttpRepositoryPath or DirectoryRepositorySource.
 		/// </summary>
-		/// <param name="name">examples: SIL Language Depot, My Machine, USB Key, Greg</param>
+		/// <param name="name">examples: Lexbox, My Machine, USB Key, Greg</param>
 		/// <param name="uri">
 		/// examples: https://sil.org/chorus, c:\work, UsbKey, //GregSmith/public/language projects
 		/// Note: does not work for ChorusHub

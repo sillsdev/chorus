@@ -365,7 +365,7 @@ namespace Chorus.Model
 					return "custom";
 				}
 
-				return $"languageForge.org [{Bandwidth}]";
+				return $"Lexbox [{Bandwidth}]";
 			}
 		}
 
@@ -427,12 +427,12 @@ namespace Chorus.Model
 		/// URL-encoded password to use for the current Send and Receive session. <see cref="PasswordForSession"/>
 		/// </summary>
 		/// <remarks>
-		/// UrlEncode encodes spaces as "+" and "+" as "%2b". LanguageDepot fails to decode plus-encoded spaces. Encode spaces as "%20"
+		/// UrlEncode encodes spaces as "+" and "+" as "%2b". Lexbox fails to decode plus-encoded spaces. Encode spaces as "%20"
 		/// </remarks>
 		public static string EncodedPasswordForSession => WebUtility.UrlEncode(PasswordForSession)?.Replace("+", "%20");
 
 		/// <summary>
-		/// URL-encoded language forge username
+		/// URL-encoded Lexbox username
 		/// </summary>
 		public static string EncodedLanguageForgeUser => WebUtility.UrlEncode(Settings.Default.LanguageForgeUser);
 

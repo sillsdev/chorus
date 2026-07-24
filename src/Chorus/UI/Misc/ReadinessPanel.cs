@@ -12,7 +12,7 @@ namespace Chorus.UI.Misc
 {
 	/// <summary>
 	/// Show this control somewhere in the setup UI of your application.
-	/// It will help people know if the project is ready to use LanguageDepot, and
+	/// It will help people know if the project is ready to use Lexbox, and
 	/// gives them a button to edit the relevant settings.
 	/// </summary>
 	public partial class ReadinessPanel : UserControl

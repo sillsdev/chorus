@@ -77,7 +77,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				}
 				else if(_targetUri.ToLower().Contains("languageforge"))
 				{
-					return "Your computer could reach LanguageForge.org, but couldn't communicate with the Chorus server there. Possible causes:\r\n1) The Chorus server on LanguageForge might be temporarily out of order. If it is, try again later/tomorrow. \r\n2) A firewall on your machine or on your network is blocking the communication with LanguageForge.org.";
+					return "Your computer could reach Lexbox, but couldn't communicate with the Chorus server there. Possible causes:\r\n1) The Chorus server on Lexbox might be temporarily out of order. If it is, try again later/tomorrow. \r\n2) A firewall on your machine or on your network is blocking the communication with Lexbox.";
 				}
 				else
 				{

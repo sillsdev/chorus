@@ -20,6 +20,7 @@ namespace Chorus
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
+			SetUpLocalization();
 			SetUpErrorHandling();
 
 			//Xpcom.Initialize(XULRunnerLocator.GetXULRunnerLocation());
@@ -64,6 +65,23 @@ namespace Chorus
 
 			Properties.Settings.Default.Save();
 			Application.Exit ();
+		}
+
+		private static void SetUpLocalization()
+		{
+			// Standalone Chorus.exe has no host app to initialize L10NSharp; use English defaults unless XLF files are deployed.
+			LocalizationManager.StrictInitializationMode = false;
+			var installedTranslations = Path.Combine(AppContext.BaseDirectory, "localizations");
+			if (Directory.Exists(Path.Combine(installedTranslations, "Chorus")))
+			{
+				// Pass the app's settings root; SetUpLocalization appends "Chorus" itself, so passing
+				// "SIL" (not "SIL\Chorus") avoids a redundant nested Chorus\Chorus directory.
+				var userTranslations = Path.Combine(
+					Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+					"SIL");
+				Directory.CreateDirectory(userTranslations);
+				ChorusSystem.SetUpLocalization("en", installedTranslations, userTranslations);
+			}
 		}
 
 		private static void SetUpErrorHandling()

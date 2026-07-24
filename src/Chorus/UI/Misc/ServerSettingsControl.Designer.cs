@@ -78,7 +78,7 @@ namespace Chorus.UI.Misc
 			this._accountLabel.Anchor = System.Windows.Forms.AnchorStyles.Right;
 			this._accountLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._accountLabel, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._accountLabel, "This is a username. On Language Depot, it is called a \"login.\"");
+			this.l10NSharpExtender1.SetLocalizationComment(this._accountLabel, "This is a username. On Lexbox, it is called a \"login.\"");
 			this.l10NSharpExtender1.SetLocalizingId(this._accountLabel, "ServerSettingsControl.Login");
 			this._accountLabel.Location = new System.Drawing.Point(37, 44);
 			this._accountLabel.Name = "_accountLabel";
@@ -289,15 +289,14 @@ namespace Chorus.UI.Misc
 			this._serverLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this._serverLabel.AutoSize = true;
 			this.l10NSharpExtender1.SetLocalizableToolTip(this._serverLabel, null);
-			this.l10NSharpExtender1.SetLocalizationComment(this._serverLabel, "This adds information after the \"Log in\" button. Together, these two strings form" +
-        " a sentence. {0} is a URL, such as public.languageforge.org");
+			this.l10NSharpExtender1.SetLocalizationComment(this._serverLabel, "This adds information after the \"Log in\" button. Together, these two strings form a sentence.");
 			this.l10NSharpExtender1.SetLocalizationPriority(this._serverLabel, L10NSharp.LocalizationPriority.Low);
 			this.l10NSharpExtender1.SetLocalizingId(this._serverLabel, "ServerSettingsControl.ServerInfo");
 			this._serverLabel.Location = new System.Drawing.Point(111, 10);
 			this._serverLabel.Name = "_serverLabel";
 			this._serverLabel.Size = new System.Drawing.Size(122, 13);
 			this._serverLabel.TabIndex = 18;
-			this._serverLabel.Text = "to {0} (Language Depot)";
+			this._serverLabel.Text = "to Lexbox";
 			// 
 			// _tlpPassword
 			// 
