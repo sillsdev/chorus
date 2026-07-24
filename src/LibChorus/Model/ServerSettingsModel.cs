@@ -36,9 +36,6 @@ namespace Chorus.Model
 			}
 		}
 
-		[Obsolete("no known clients")]
-		public static bool IsQaServer => !string.IsNullOrEmpty(Environment.GetEnvironmentVariable(ServerEnvVar));
-
 		public static bool IsPrivateServer { get; set; }
 
 		private const string EntropyValue = "LAMED videte si est dolor sicut dolor meus";
