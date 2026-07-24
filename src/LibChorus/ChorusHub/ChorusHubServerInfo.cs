@@ -53,15 +53,11 @@ namespace Chorus.ChorusHub
 		private static string GetValue(string parameters, string name)
 		{
 			var queryParameters = new NameValueCollection();
-			var querySegments = parameters.Split('&');
-			foreach (var segment in querySegments)
+			foreach (var segment in parameters.Split('&'))
 			{
-				var parts = segment.Split('=');
-				if (parts.Length < 1)
-					continue;
-
+				var parts = segment.Split(new[] { '=' }, 2);
 				var key = parts[0].Trim(new[] { '?', ' ' });
-				var val = parts[1].Trim();
+				var val = parts.Length < 2 ? "" : parts[1].Trim();
 
 				queryParameters.Add(key, val);
 			}

@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [SIL.Chorus] Fix collection-modified exception when UsbDrives property is read while background scan thread updates the list
 - [SIL.Chorus.LibChorus] Fix null-key insertion when XML record identifier attribute is absent in XmlMergeService
 - [SIL.Chorus.LibChorus] Fix crash in password encryption/decryption on non-Windows platforms and on Windows data-protection failure
+- [SIL.Chorus.LibChorus] Fix IndexOutOfRangeException parsing ChorusHub query parameters without '=', and preserve values containing '='
 
 ## [5.1.0] - 2023-03-07
 
