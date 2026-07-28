@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 
 - [SIL.Chorus] Remove obsolete `ChorusSystem.SetUpLocalization(TranslationMemory, ...)` overload (TranslationMemory type removed in L10NSharp 10)
+- [SIL.Chorus] Remove obsolete `ServerSettingsModel.IsQaServer`
 
 ### Fixed
 
