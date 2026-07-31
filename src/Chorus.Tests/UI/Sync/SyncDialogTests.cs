@@ -35,7 +35,7 @@ namespace Chorus.Tests.UI.Sync
 			{
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
-																	 RepositoryAddress.Create("language forge", "https://hg-public.languageforge.org"),
+																	 RepositoryAddress.Create("Lexbox", "https://hg-public.languageforge.org"),
 																	 RepositoryAddress.Create("joe's mac", "\\\\suzie-pc\\public\\chorusTest")
 																 });
 
@@ -58,7 +58,7 @@ namespace Chorus.Tests.UI.Sync
 			{
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
-																	 RepositoryAddress.Create("language forge", "https://hg-public.languageforge.org"),
+																	 RepositoryAddress.Create("Lexbox", "https://hg-public.languageforge.org"),
 																	 RepositoryAddress.Create("joe's mac", "//suzie-pc/public/chorusTest")
 																 });
 
@@ -80,9 +80,9 @@ namespace Chorus.Tests.UI.Sync
 
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
-																	 RepositoryAddress.Create("language forge", "https://pedro:mypassword@hg-public.languageforge.org"),
+																	 RepositoryAddress.Create("Lexbox", "https://pedro:mypassword@hg-public.languageforge.org"),
 																 });
-				setup.Repository.SetDefaultSyncRepositoryAliases(new[] {"language forge"});
+				setup.Repository.SetDefaultSyncRepositoryAliases(new[] {"Lexbox"});
 
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
 												SyncUIDialogBehaviors.StartImmediatelyAndCloseWhenFinished,
@@ -102,9 +102,9 @@ namespace Chorus.Tests.UI.Sync
 
 				setup.Repository.SetKnownRepositoryAddresses(new RepositoryAddress[]
 																 {
-																	 RepositoryAddress.Create("language forge", "https://automatedtest:testing@hg-public.languageforge.org/tpi"),
+																	 RepositoryAddress.Create("Lexbox", "https://automatedtest:testing@hg-public.languageforge.org/tpi"),
 																 });
-				setup.Repository.SetDefaultSyncRepositoryAliases(new[] { "language forge" });
+				setup.Repository.SetDefaultSyncRepositoryAliases(new[] { "Lexbox" });
 
 				using (var dlg = new SyncDialog(setup.ProjectFolderConfig,
 												SyncUIDialogBehaviors.StartImmediately,
