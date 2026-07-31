@@ -20,7 +20,7 @@ namespace Chorus
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
-			SetUpLocalization();
+			SetupExeLocalization();
 			SetUpErrorHandling();
 
 			//Xpcom.Initialize(XULRunnerLocator.GetXULRunnerLocation());
@@ -67,7 +67,7 @@ namespace Chorus
 			Application.Exit ();
 		}
 
-		private static void SetUpLocalization()
+		private static void SetupExeLocalization()
 		{
 			// Standalone Chorus.exe has no host app to initialize L10NSharp; use English defaults unless XLF files are deployed.
 			LocalizationManager.StrictInitializationMode = false;
