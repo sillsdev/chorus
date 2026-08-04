@@ -1,5 +1,6 @@
 // Copyright (c) 2015-2022 SIL International
 // This software is licensed under the MIT License (http://opensource.org/licenses/MIT)
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,7 @@ using NUnit.Framework;
 using Chorus.FileTypeHandlers;
 using Chorus.FileTypeHandlers.audio;
 using Chorus.FileTypeHandlers.test;
+using Chorus.Utilities;
 
 namespace LibChorus.Tests.FileHandlers
 {
@@ -25,8 +27,33 @@ namespace LibChorus.Tests.FileHandlers
 				var config = configOutputDir.Name;
 				var frameworkDir = Path.GetFileName(BaseDir);
 				var samplePluginDllPath = Path.Combine(outputDir, "SamplePlugin", config, frameworkDir, "Tests-ChorusPlugin.dll");
+				// Tests-ChorusPlugin is net462-only; reuse that build when exercising other TFMs.
+				if (!File.Exists(samplePluginDllPath))
+					samplePluginDllPath = Path.Combine(outputDir, "SamplePlugin", config, "net462", "Tests-ChorusPlugin.dll");
 				return samplePluginDllPath;
 			}
+		}
+
+		[OneTimeSetUp]
+		public void RemoveLeftoverPluginsFromAppBase()
+		{
+			foreach (var file in Directory.GetFiles(AppContext.BaseDirectory, "*-ChorusPlugin.dll"))
+			{
+				try
+				{
+					File.Delete(file);
+				}
+				catch (IOException)
+				{
+					// Already loaded in this process; throw-when-none tests will Assume away.
+				}
+			}
+		}
+
+		private static void AssumeNoPluginsInAppBase()
+		{
+			Assume.That(!Directory.GetFiles(AppContext.BaseDirectory, "*-ChorusPlugin.dll").Any(),
+				"Plugin already present in app base from a previous run");
 		}
 
 		[Test]
@@ -49,6 +76,83 @@ namespace LibChorus.Tests.FileHandlers
 			var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers(
 				new[] { SamplePluginPath }).Handlers;
 			Assert.That(handlers.Select(x => x.GetType().Name), Has.Member("TestAFileTypeHandler"));
+		}
+
+		[Test]
+		[Order(1)]
+		public void CreateWithInstalledHandlers_RequirePlugins_ThrowsWhenNoneFound()
+		{
+			AssumeNoPluginsInAppBase();
+			using (new ShortTermEnvironmentalVariable(
+				ChorusFileTypeHandlerCollection.kRequirePluginsEnvVarName, null))
+			{
+				Assert.That(
+					() => ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers(requirePlugins: true),
+					Throws.TypeOf<InvalidOperationException>()
+						.With.Message.Contains("*-ChorusPlugin.dll")
+						.And.Message.Contains(AppContext.BaseDirectory));
+			}
+		}
+
+		[Test]
+		[Order(1)]
+		public void CreateWithInstalledHandlers_RequirePlugins_ThrowsWhenEnvVarSet()
+		{
+			AssumeNoPluginsInAppBase();
+			using (new ShortTermEnvironmentalVariable(
+				ChorusFileTypeHandlerCollection.kRequirePluginsEnvVarName, "true"))
+			{
+				Assert.That(
+					() => ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers(),
+					Throws.TypeOf<InvalidOperationException>());
+			}
+		}
+
+		[Test]
+		[Order(1)]
+		public void CreateWithInstalledHandlers_RequirePlugins_SucceedsWithAdditionalAssembly()
+		{
+			Assume.That(File.Exists(SamplePluginPath), $"Sample plugin not found at {SamplePluginPath}");
+			using (new ShortTermEnvironmentalVariable(
+				ChorusFileTypeHandlerCollection.kRequirePluginsEnvVarName, null))
+			{
+				Assert.That(
+					() => ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers(
+						new[] { SamplePluginPath }, requirePlugins: true),
+					Throws.Nothing);
+			}
+		}
+
+		[Test]
+		[Order(2)]
+		public void CreateWithInstalledHandlers_FindsPluginsWhenCwdDiffersFromAppBase()
+		{
+			Assume.That(File.Exists(SamplePluginPath), $"Sample plugin not found at {SamplePluginPath}");
+
+			var samplePluginPathname = Path.Combine(AppContext.BaseDirectory, "Tests-ChorusPlugin.dll");
+			if (!File.Exists(samplePluginPathname))
+			{
+				File.Copy(SamplePluginPath, samplePluginPathname, true);
+			}
+
+			var originalCwd = Directory.GetCurrentDirectory();
+			var tempDir = Path.Combine(Path.GetTempPath(), "ChorusPluginDiscoveryCwdTest");
+			Directory.CreateDirectory(tempDir);
+			try
+			{
+				Directory.SetCurrentDirectory(tempDir);
+				using (new ShortTermEnvironmentalVariable(
+					ChorusFileTypeHandlerCollection.kRequirePluginsEnvVarName, null))
+				{
+					var handlers = ChorusFileTypeHandlerCollection.CreateWithInstalledHandlers(
+						requirePlugins: true).Handlers;
+					Assert.That(handlers.Select(x => x.GetType().Name), Has.Member("TestAFileTypeHandler"));
+				}
+			}
+			finally
+			{
+				Directory.SetCurrentDirectory(originalCwd);
+			}
 		}
 
 		[Test]

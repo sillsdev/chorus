@@ -17,6 +17,14 @@ namespace Chorus.FileTypeHandlers
 	public class ChorusFileTypeHandlerCollection
 	{
 		/// <summary>
+		/// When set to a truthy value (1, true, or yes),
+		/// <see cref="CreateWithInstalledHandlers"/> throws if no external plugins are found.
+		/// </summary>
+		public const string kRequirePluginsEnvVarName = "ChorusRequirePlugins";
+
+		private const string PluginSearchPattern = "*-ChorusPlugin.dll";
+
+		/// <summary>
 		/// Gets the list of handlers
 		/// </summary>
 		[ImportMany]
@@ -24,12 +32,17 @@ namespace Chorus.FileTypeHandlers
 
 		private ChorusFileTypeHandlerCollection(
 			Expression<Func<ComposablePartDefinition, bool>> filter = null,
-			string[] additionalAssemblies = null)
+			string[] additionalAssemblies = null,
+			bool requirePlugins = false)
 		{
+			requirePlugins = requirePlugins ||
+				IsTruthy(Environment.GetEnvironmentVariable(kRequirePluginsEnvVarName));
+
 			using (var aggregateCatalog = new AggregateCatalog())
 			{
 				aggregateCatalog.Catalogs.Add(new AssemblyCatalog(Assembly.GetExecutingAssembly()));
-				aggregateCatalog.Catalogs.Add(new DirectoryCatalog(".", "*-ChorusPlugin.dll"));
+				var pluginCatalog = new DirectoryCatalog(AppContext.BaseDirectory, PluginSearchPattern);
+				aggregateCatalog.Catalogs.Add(pluginCatalog);
 				if (additionalAssemblies != null)
 				{
 					foreach (var assemblyPath in additionalAssemblies)
@@ -56,14 +69,26 @@ namespace Chorus.FileTypeHandlers
 						throw new AggregateException(ex.Message, loaderExceptions);
 					}
 				}
+
+				if (requirePlugins &&
+					!pluginCatalog.LoadedFiles.Any() &&
+					(additionalAssemblies == null || additionalAssemblies.Length == 0))
+				{
+					throw new InvalidOperationException(
+						$"No Chorus plugins matching '{PluginSearchPattern}' were found in '{AppContext.BaseDirectory}'. " +
+						$"Set {kRequirePluginsEnvVarName}=0 or pass requirePlugins: false to allow running without plugins.");
+				}
 			}
 		}
 
 		/// <summary/>
 		public static ChorusFileTypeHandlerCollection CreateWithInstalledHandlers(
-			string[] additionalAssemblies = null)
+			string[] additionalAssemblies = null,
+			bool requirePlugins = false)
 		{
-			return new ChorusFileTypeHandlerCollection(additionalAssemblies: additionalAssemblies);
+			return new ChorusFileTypeHandlerCollection(
+				additionalAssemblies: additionalAssemblies,
+				requirePlugins: requirePlugins);
 		}
 
 		/// <summary/>
@@ -91,6 +116,14 @@ namespace Chorus.FileTypeHandlers
 			var handler = Handlers.FirstOrDefault(h => h.CanPresentFile(path));
 			return handler ?? new DefaultFileTypeHandler();
 		}
+
+		private static bool IsTruthy(string value)
+		{
+			if (string.IsNullOrEmpty(value))
+				return false;
+			return value.Equals("1", StringComparison.OrdinalIgnoreCase)
+				|| value.Equals("true", StringComparison.OrdinalIgnoreCase)
+				|| value.Equals("yes", StringComparison.OrdinalIgnoreCase);
+		}
 	}
 }
-
