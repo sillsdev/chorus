@@ -212,16 +212,19 @@ namespace Chorus.merge.xml.generic
 
 	/// <summary>
 	/// Search for a matching element using an optional attribute that identifies it permanently (a guid),
-	/// falling back to an ordinary key attribute when either element lacks that attribute.
+	/// falling back to an ordinary key attribute among the elements that name no such attribute.
 	/// </summary>
 	/// <remarks>
 	/// <para>Use this where the ordinary key is derived from user data, and so can be respelled without the
 	/// underlying object having changed. Matching on such a key alone turns a respelling into a deletion
 	/// plus an addition, which discards the other user's edits to the same element and can leave two
 	/// elements standing for one object.</para>
-	/// <para>Matching is not transitive across a set that mixes elements carrying the permanent key with
-	/// elements lacking it: A(guid G, id X) matches B(guid G, id Y), and B matches C(no guid, id Y), but A
-	/// does not match C. Ambiguity resolution over such a set therefore depends on document order.</para>
+	/// <para>Elements naming a permanent key and elements lacking one are matched separately, and never
+	/// against each other. That keeps matching an equivalence relation, so no element can be paired with
+	/// two partners; were a permanent key allowed to match a bare one, a set holding both could give one
+	/// element two partners and merge someone's edit onto an object it was not made against. The price is
+	/// that a file which starts naming permanent keys for elements that previously had none reads as a
+	/// deletion plus an addition, once.</para>
 	/// </remarks>
 	public class FindByPreferredKeyAttribute : IFindMatchingNodesToMerge
 	{
@@ -249,15 +252,12 @@ namespace Chorus.merge.xml.generic
 			XmlNode match;
 			if (string.IsNullOrEmpty(preferredKey))
 			{
-				index.ByFallbackKey.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, fallbackKey), out match);
+				// Only among elements that likewise name none, so that this cannot claim an element
+				// the permanent key already speaks for.
+				index.ByFallbackKeyAlone.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, fallbackKey), out match);
 				return match; // May be null, which is fine.
 			}
-			// The permanent key wins wherever it is present, whatever the document order.
-			if (index.ByPreferredKey.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, preferredKey), out match))
-				return match;
-			// Only an element naming no permanent key of its own can still be the same object.
-			if (!string.IsNullOrEmpty(fallbackKey))
-				index.ByFallbackKeyAlone.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, fallbackKey), out match);
+			index.ByPreferredKey.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, preferredKey), out match);
 			return match;
 		}
 
@@ -268,7 +268,6 @@ namespace Chorus.merge.xml.generic
 		private class ParentIndex
 		{
 			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByPreferredKey = new Dictionary<Tuple<string, string>, XmlNode>();
-			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByFallbackKey = new Dictionary<Tuple<string, string>, XmlNode>();
 			/// <summary>Only those children that name no preferred key of their own.</summary>
 			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByFallbackKeyAlone = new Dictionary<Tuple<string, string>, XmlNode>();
 		}
@@ -289,10 +288,7 @@ namespace Chorus.merge.xml.generic
 				var fallbackKey = XmlUtilities.GetOptionalAttributeString(childNode, _fallbackKeyAttribute);
 				if (!string.IsNullOrEmpty(preferredKey))
 					IndexFirstOnly(index.ByPreferredKey, childNode, preferredKey);
-				if (string.IsNullOrEmpty(fallbackKey))
-					continue;
-				IndexFirstOnly(index.ByFallbackKey, childNode, fallbackKey);
-				if (string.IsNullOrEmpty(preferredKey))
+				else if (!string.IsNullOrEmpty(fallbackKey))
 					IndexFirstOnly(index.ByFallbackKeyAlone, childNode, fallbackKey);
 			}
 			return index;
@@ -346,8 +342,11 @@ namespace Chorus.merge.xml.generic
 		private bool IsMatch(XmlNode candidate, string preferredKey, string fallbackKey)
 		{
 			var candidatePreferredKey = XmlUtilities.GetOptionalAttributeString(candidate, _preferredKeyAttribute);
-			// When both carry the permanent key it decides on its own, since the fallback key may have moved.
-			if (!string.IsNullOrEmpty(preferredKey) && !string.IsNullOrEmpty(candidatePreferredKey))
+			// One names a permanent key and the other does not, so they are matched separately.
+			if (string.IsNullOrEmpty(preferredKey) != string.IsNullOrEmpty(candidatePreferredKey))
+				return false;
+			// Both name one, and it decides alone: the fallback key may have moved.
+			if (!string.IsNullOrEmpty(preferredKey))
 				return preferredKey == candidatePreferredKey;
 			if (string.IsNullOrEmpty(fallbackKey))
 				return false;

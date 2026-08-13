@@ -340,9 +340,9 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 </lift-ranges>", kDecomposedName, kComposedName, kPosGuid);
 			var theirs = RangesWithPartOfSpeech(kDecomposedName, kPosGuid, "new");
 
-			// The guid-less sibling genuinely is indistinguishable from the ancestor element under the
-			// fallback rule, so one conflict here is the merger reporting real ambiguity in the input.
-			var result = DoMerge(common, ours, theirs, 1, 4);
+			// No conflict: the guid-less sibling is matched only against other guid-less elements, so it
+			// cannot also claim the element the guid already speaks for.
+			var result = DoMerge(common, ours, theirs, 0, 3);
 
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//range/range-element", 2);
 			// Their edit belongs to the element sharing the guid, not to the one sharing the old id.
