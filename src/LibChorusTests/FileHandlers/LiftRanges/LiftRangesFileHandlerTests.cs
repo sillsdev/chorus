@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Chorus.FileTypeHandlers;
 using Chorus.merge;
 using LibChorus.TestUtilities;
@@ -317,6 +318,41 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		}
 
 		/// <summary>
+		/// A sibling that still carries the old id, written by a tool that omits guids, must not be
+		/// taken as the partner just because it comes first in the file.
+		/// </summary>
+		[Test]
+		public void GuidMatchIsPreferredOverAnEarlierSiblingMatchingOnTheOldId()
+		{
+			var common = RangesWithPartOfSpeech(kDecomposedName, kPosGuid, "old");
+			// A guid-less element carrying the old id sorts ahead of our respelled one.
+			var ours = string.Format(
+@"<?xml version='1.0' encoding='utf-8'?>
+<lift-ranges>
+<range id='grammatical-info'>
+<range-element id='{0}'>
+<abbrev><form lang='en'><text>unrelated</text></form></abbrev>
+</range-element>
+<range-element id='{1}' guid='{2}'>
+<abbrev><form lang='en'><text>old</text></form></abbrev>
+</range-element>
+</range>
+</lift-ranges>", kDecomposedName, kComposedName, kPosGuid);
+			var theirs = RangesWithPartOfSpeech(kDecomposedName, kPosGuid, "new");
+
+			// The guid-less sibling genuinely is indistinguishable from the ancestor element under the
+			// fallback rule, so one conflict here is the merger reporting real ambiguity in the input.
+			var result = DoMerge(common, ours, theirs, 1, 4);
+
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//range/range-element", 2);
+			// Their edit belongs to the element sharing the guid, not to the one sharing the old id.
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(string.Format(
+				"//range-element[@guid='{0}']/abbrev/form/text[text()='new']", kPosGuid), 1);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(
+				"//range-element[not(@guid)]/abbrev/form/text[text()='unrelated']", 1);
+		}
+
+		/// <summary>
 		/// A merge done before the guid was preferred could leave one possibility standing as two
 		/// range-elements, spelled differently. Matching on the guid makes them ambiguous siblings,
 		/// which the merger collapses back to one.
@@ -343,8 +379,10 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			Assert.That(_eventListener.Warnings, Is.Not.Empty, "the dropped duplicate should be reported");
 		}
 
-		private const string kDecomposedName = "Compléments";	// e + combining acute
-		private const string kComposedName = "Compléments";	// precomposed e-acute
+		// Built rather than written out, since the two spellings are indistinguishable in source and an
+		// editor or a text filter that normalizes on save would silently make them the same string.
+		private static readonly string kDecomposedName = "Compléments".Normalize(NormalizationForm.FormD);
+		private static readonly string kComposedName = "Compléments".Normalize(NormalizationForm.FormC);
 		private const string kPosGuid = "e8c4b4b0-1a2f-4f9e-9f39-3f2b0d8f7a11";
 
 		private static string RangesWithPartOfSpeech(string id, string guid, string abbrev)

@@ -215,15 +215,19 @@ namespace Chorus.merge.xml.generic
 	/// falling back to an ordinary key attribute when either element lacks that attribute.
 	/// </summary>
 	/// <remarks>
-	/// Use this where the ordinary key is derived from user data, and so can be respelled without the
+	/// <para>Use this where the ordinary key is derived from user data, and so can be respelled without the
 	/// underlying object having changed. Matching on such a key alone turns a respelling into a deletion
 	/// plus an addition, which discards the other user's edits to the same element and can leave two
-	/// elements standing for one object.
+	/// elements standing for one object.</para>
+	/// <para>Matching is not transitive across a set that mixes elements carrying the permanent key with
+	/// elements lacking it: A(guid G, id X) matches B(guid G, id Y), and B matches C(no guid, id Y), but A
+	/// does not match C. Ambiguity resolution over such a set therefore depends on document order.</para>
 	/// </remarks>
 	public class FindByPreferredKeyAttribute : IFindMatchingNodesToMerge
 	{
 		private readonly string _preferredKeyAttribute;
 		private readonly string _fallbackKeyAttribute;
+		private readonly Dictionary<XmlNode, ParentIndex> _indexedParents = new Dictionary<XmlNode, ParentIndex>();
 
 		public FindByPreferredKeyAttribute(string preferredKeyAttribute, string fallbackKeyAttribute)
 		{
@@ -233,15 +237,77 @@ namespace Chorus.merge.xml.generic
 
 		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn, HashSet<XmlNode> acceptableTargets)
 		{
-			if (parentToSearchIn == null)
+			if (nodeToMatch == null || parentToSearchIn == null)
 				return null;
 
-			foreach (var match in GetMatchingNodes(nodeToMatch, parentToSearchIn))
+			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _preferredKeyAttribute);
+			var fallbackKey = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _fallbackKeyAttribute);
+			if (string.IsNullOrEmpty(preferredKey) && string.IsNullOrEmpty(fallbackKey))
+				return null;
+
+			var index = GetIndexFor(parentToSearchIn);
+			XmlNode match;
+			if (string.IsNullOrEmpty(preferredKey))
 			{
-				if (acceptableTargets.Contains(match))
-					return match;
+				index.ByFallbackKey.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, fallbackKey), out match);
+				return match; // May be null, which is fine.
 			}
-			return null;
+			// The permanent key wins wherever it is present, whatever the document order.
+			if (index.ByPreferredKey.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, preferredKey), out match))
+				return match;
+			// Only an element naming no permanent key of its own can still be the same object.
+			if (!string.IsNullOrEmpty(fallbackKey))
+				index.ByFallbackKeyAlone.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, fallbackKey), out match);
+			return match;
+		}
+
+		/// <summary>
+		/// The children of one parent, indexed by each key this finder can match on, so that merging a
+		/// large element does not rescan its siblings once per child.
+		/// </summary>
+		private class ParentIndex
+		{
+			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByPreferredKey = new Dictionary<Tuple<string, string>, XmlNode>();
+			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByFallbackKey = new Dictionary<Tuple<string, string>, XmlNode>();
+			/// <summary>Only those children that name no preferred key of their own.</summary>
+			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByFallbackKeyAlone = new Dictionary<Tuple<string, string>, XmlNode>();
+		}
+
+		private ParentIndex GetIndexFor(XmlNode parentToSearchIn)
+		{
+			ParentIndex index;
+			if (_indexedParents.TryGetValue(parentToSearchIn, out index))
+				return index;
+
+			index = new ParentIndex();
+			_indexedParents.Add(parentToSearchIn, index);
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				var preferredKey = XmlUtilities.GetOptionalAttributeString(childNode, _preferredKeyAttribute);
+				var fallbackKey = XmlUtilities.GetOptionalAttributeString(childNode, _fallbackKeyAttribute);
+				if (!string.IsNullOrEmpty(preferredKey))
+					IndexFirstOnly(index.ByPreferredKey, childNode, preferredKey);
+				if (string.IsNullOrEmpty(fallbackKey))
+					continue;
+				IndexFirstOnly(index.ByFallbackKey, childNode, fallbackKey);
+				if (string.IsNullOrEmpty(preferredKey))
+					IndexFirstOnly(index.ByFallbackKeyAlone, childNode, fallbackKey);
+			}
+			return index;
+		}
+
+		/// <summary>
+		/// Unlike a finder with a single key, duplicate fallback keys are legitimate here, since two
+		/// elements can share a respellable key and still be told apart by the permanent one. Keep the
+		/// first, matching how the merger resolves siblings it cannot tell apart.
+		/// </summary>
+		private static void IndexFirstOnly(IDictionary<Tuple<string, string>, XmlNode> index, XmlNode childNode, string key)
+		{
+			var indexKey = new Tuple<string, string>(childNode.Name, key);
+			if (!index.ContainsKey(indexKey))
+				index.Add(indexKey, childNode);
 		}
 
 		/// <summary>
@@ -296,12 +362,15 @@ namespace Chorus.merge.xml.generic
 		{
 			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
 
+			// Either key can be what made the siblings indistinguishable, and by here it is no longer
+			// known which, so report both rather than claim the guids matched when they may not have.
 			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeForMessage, _preferredKeyAttribute);
+			var fallbackKey = XmlUtilities.GetOptionalAttributeString(nodeForMessage, _fallbackKeyAttribute);
 			return string.IsNullOrEmpty(preferredKey)
 				? string.Format("The key attribute '{0}' has values that are the same '{1}'",
-					_fallbackKeyAttribute, XmlUtilities.GetOptionalAttributeString(nodeForMessage, _fallbackKeyAttribute))
-				: string.Format("The key attribute '{0}' has values that are the same '{1}'",
-					_preferredKeyAttribute, preferredKey);
+					_fallbackKeyAttribute, fallbackKey)
+				: string.Format("The key attributes '{0}' ('{1}') and '{2}' ('{3}') do not tell these elements apart",
+					_preferredKeyAttribute, preferredKey, _fallbackKeyAttribute, fallbackKey);
 		}
 	}
 
