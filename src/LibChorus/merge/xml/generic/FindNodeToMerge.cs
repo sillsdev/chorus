@@ -211,6 +211,101 @@ namespace Chorus.merge.xml.generic
 	}
 
 	/// <summary>
+	/// Search for a matching element using an optional attribute that identifies it permanently (a guid),
+	/// falling back to an ordinary key attribute when either element lacks that attribute.
+	/// </summary>
+	/// <remarks>
+	/// Use this where the ordinary key is derived from user data, and so can be respelled without the
+	/// underlying object having changed. Matching on such a key alone turns a respelling into a deletion
+	/// plus an addition, which discards the other user's edits to the same element and can leave two
+	/// elements standing for one object.
+	/// </remarks>
+	public class FindByPreferredKeyAttribute : IFindMatchingNodesToMerge
+	{
+		private readonly string _preferredKeyAttribute;
+		private readonly string _fallbackKeyAttribute;
+
+		public FindByPreferredKeyAttribute(string preferredKeyAttribute, string fallbackKeyAttribute)
+		{
+			_preferredKeyAttribute = preferredKeyAttribute;
+			_fallbackKeyAttribute = fallbackKeyAttribute;
+		}
+
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn, HashSet<XmlNode> acceptableTargets)
+		{
+			if (parentToSearchIn == null)
+				return null;
+
+			foreach (var match in GetMatchingNodes(nodeToMatch, parentToSearchIn))
+			{
+				if (acceptableTargets.Contains(match))
+					return match;
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		public IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			var matches = new List<XmlNode>();
+			if (nodeToMatch == null || parentToSearchIn == null)
+				return matches;
+
+			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _preferredKeyAttribute);
+			var fallbackKey = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _fallbackKeyAttribute);
+			if (string.IsNullOrEmpty(preferredKey) && string.IsNullOrEmpty(fallbackKey))
+				return matches;
+
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				if (nodeToMatch == childNode)
+				{
+					matches.Add(childNode);
+					continue;
+				}
+				if (childNode.Name != nodeToMatch.Name)
+					continue;
+				if (IsMatch(childNode, preferredKey, fallbackKey))
+					matches.Add(childNode);
+			}
+			return matches;
+		}
+
+		private bool IsMatch(XmlNode candidate, string preferredKey, string fallbackKey)
+		{
+			var candidatePreferredKey = XmlUtilities.GetOptionalAttributeString(candidate, _preferredKeyAttribute);
+			// When both carry the permanent key it decides on its own, since the fallback key may have moved.
+			if (!string.IsNullOrEmpty(preferredKey) && !string.IsNullOrEmpty(candidatePreferredKey))
+				return preferredKey == candidatePreferredKey;
+			if (string.IsNullOrEmpty(fallbackKey))
+				return false;
+			return fallbackKey == XmlUtilities.GetOptionalAttributeString(candidate, _fallbackKeyAttribute);
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeForMessage, _preferredKeyAttribute);
+			return string.IsNullOrEmpty(preferredKey)
+				? string.Format("The key attribute '{0}' has values that are the same '{1}'",
+					_fallbackKeyAttribute, XmlUtilities.GetOptionalAttributeString(nodeForMessage, _fallbackKeyAttribute))
+				: string.Format("The key attribute '{0}' has values that are the same '{1}'",
+					_preferredKeyAttribute, preferredKey);
+		}
+	}
+
+	/// <summary>
 	/// Assuming the children of the parent to search in form a list (order matters, duplicates allowed), and so do the
 	/// children of the nodeToMatch, find the corresponding object in the list. A corresponding node will have the same key,
 	/// and the same number of preceding siblings with the same key among the acceptableTargets, and the same element name.
