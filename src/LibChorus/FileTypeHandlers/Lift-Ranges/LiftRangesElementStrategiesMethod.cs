@@ -42,10 +42,10 @@ namespace Chorus.FileTypeHandlers
 			// This element appears to not be in the main lift file, so it will be 'extra', but ought not cause harm.
 			// <range-element
 			//		id [Required, key]
-			// @id holds the possibility's own name, so its value moves whenever that name is renamed or
-			// respelled, while @guid holds a value that identifies the same object for the life of the
-			// project. Prefer @guid, so that a respelled id merges as an edit rather than as a deletion
-			// plus an addition.
+			// @id holds the possibility's own name, so its value moves whenever that name is
+			// renamed or respelled, while @guid holds a value that identifies the same object
+			// for the life of the project. Prefer @guid, so that a respelled id merges as an
+			// edit rather than as a deletion plus an addition.
 			elementStrategy = new ElementStrategy(false)
 			{
 				MergePartnerFinder = new FindByPreferredKeyAttribute("guid", "id")

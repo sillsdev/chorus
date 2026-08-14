@@ -15,10 +15,11 @@ namespace Chorus.merge.xml.generic
 	public interface IFindNodeToMerge
 	{
 		/// <summary>
-		/// Should return null if parentToSearchIn is null, and otherwise either null or a child of
-		/// parentToSearchIn. acceptableTargets is a subset (or all) of the children of parentToSearchIn;
-		/// an implementation holding only one possible match may ignore it and return that match, so a
-		/// caller passing a strict subset is responsible for discarding a result outside it.
+		/// Should return null if parentToSearchIn is null, and otherwise either null or a
+		/// child of parentToSearchIn. acceptableTargets is a subset (or all) of the children
+		/// of parentToSearchIn; an implementation holding only one possible match may ignore
+		/// it and return that match, so a caller passing a strict subset is responsible for
+		/// discarding a result outside it.
 		/// </summary>
 		XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn, HashSet<XmlNode> acceptableTargets);
 	}
@@ -212,29 +213,25 @@ namespace Chorus.merge.xml.generic
 	}
 
 	/// <summary>
-	/// Search for a matching element on the value of either of two key attributes. An element carrying a
-	/// non-empty value for the preferred key attribute is matched on that value alone; an element carrying
-	/// none is matched on its value for the fallback key attribute. The two groups are never matched against
-	/// each other, so an element whose preferred value finds no partner is not retried against its fallback
-	/// value. An attribute that is present but empty counts as absent throughout.
+	/// Search for a matching element on the value of one of two key attributes: the preferred
+	/// attribute where the element carries a non-empty value for it, the fallback attribute only
+	/// where it does not. The fallback value is not consulted where a non-empty preferred value
+	/// is present.
 	/// </summary>
 	/// <remarks>
-	/// <para>Use this where the fallback key attribute's value is derived from user data, and so can change
-	/// while the object it identifies does not, and the preferred key attribute holds a value that stays with
-	/// that object. Matching on the changeable value alone turns such a change into a deletion plus an
-	/// addition, which discards the other user's edits to the same element and can leave two elements
-	/// standing for one object.</para>
-	/// <para>Elements carrying a preferred value and elements carrying none are matched separately, and never
-	/// against each other. That keeps matching an equivalence relation, so no element can be paired with
-	/// two partners; were an element carrying a preferred value allowed to match one carrying none, a set
-	/// holding both could give one element two partners and merge someone's edit onto an object it was not
-	/// made against.</para>
-	/// <para>The price is that where one revision gives an element a preferred value and another leaves that
-	/// attribute off, the element reads as a deletion plus an addition, and as a removed-versus-edited
-	/// conflict if the other revision also edited it. A writer that starts writing the preferred attribute
-	/// pays that once. Writers that disagree over whether to write it pay it on every merge between them, so
-	/// choose a preferred key attribute only where every writer of the file can be relied on to preserve the
-	/// value it finds.</para>
+	/// <para>Use this where the fallback key attribute's value is derived from user data, and so
+	/// can change while the object it identifies does not, and the preferred key attribute holds
+	/// a value that stays with that object. Matching on the changeable value alone turns such a
+	/// change into a deletion plus an addition.</para>
+	/// <para>Elements carrying a preferred value and elements carrying none are matched
+	/// separately, and never against each other, which keeps matching an equivalence relation:
+	/// no element is paired with two partners, and no edit lands on an object it was not made
+	/// against. An attribute that is present but empty counts as absent throughout.</para>
+	/// <para>The price is that an element whose preferred value one revision writes and another
+	/// omits reads as a deletion plus an addition, and as a removed-versus-edited conflict where
+	/// the other revision edited it. Choose a preferred key attribute only where every writer can
+	/// be relied on to preserve the value it finds; writers that disagree pay that cost on every
+	/// merge between them.</para>
 	/// </remarks>
 	public class FindByPreferredKeyAttribute : IFindMatchingNodesToMerge
 	{
@@ -262,8 +259,8 @@ namespace Chorus.merge.xml.generic
 			XmlNode match;
 			if (string.IsNullOrEmpty(preferredKey))
 			{
-				// Only among elements that likewise carry no preferred value, so that this cannot claim
-				// an element that a preferred value already speaks for.
+				// Only among elements that likewise carry no preferred value, so that this
+				// cannot claim an element that a preferred value already speaks for.
 				index.ByFallbackKeyWherePreferredAbsent.TryGetValue(IndexKey(nodeToMatch, fallbackKey), out match);
 				return match; // May be null, which is fine.
 			}
@@ -272,11 +269,10 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// The children of one parent, indexed on (element name, attribute value) for each key attribute this
-		/// finder can match on, so that merging a large element does not rescan its siblings once per child.
-		/// An index is built when its parent is first searched and is never revisited, so a caller that adds
-		/// or removes children between searches of the same parent will still be answered from the children
-		/// it first held.
+		/// The children of one parent, indexed on (element name, attribute value) for each key
+		/// attribute this finder can match on, so siblings are not rescanned once per child.
+		/// Built at the parent's first search and never revisited: children added or removed
+		/// between searches of one parent are not seen.
 		/// </summary>
 		private class ParentIndex
 		{
@@ -308,9 +304,9 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Unlike a finder with a single key attribute, two children legitimately hold the same fallback
-		/// value here, since a preferred value can still tell them apart. Keep the first, matching how the
-		/// merger resolves siblings it cannot tell apart.
+		/// Unlike a finder with a single key attribute, two children legitimately hold the same
+		/// fallback value here, since a preferred value can still tell them apart. Keep the
+		/// first, matching how the merger resolves siblings it cannot tell apart.
 		/// </summary>
 		private static void IndexFirstOnly(IDictionary<Tuple<string, string>, XmlNode> index, XmlNode childNode, string keyValue)
 		{
@@ -320,9 +316,9 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// A ParentIndex entry is identified by the element name as well as the attribute value, matching the
-		/// tuple <see cref="FindByKeyAttribute"/> indexes on: elements of different names never match, however
-		/// their keys compare.
+		/// A ParentIndex entry is identified by the element name as well as the attribute value,
+		/// matching the tuple <see cref="FindByKeyAttribute"/> indexes on: elements of different
+		/// names never match, however their keys compare.
 		/// </summary>
 		private static Tuple<string, string> IndexKey(XmlNode element, string keyValue)
 		{
@@ -365,7 +361,7 @@ namespace Chorus.merge.xml.generic
 		private bool IsMatch(XmlNode candidate, string soughtPreferredKey, string soughtFallbackKey)
 		{
 			var candidatePreferredKey = XmlUtilities.GetOptionalAttributeString(candidate, _preferredKeyAttribute);
-			// One carries a preferred value and the other does not, so they are matched separately.
+			// One carries a preferred value and the other does not, so they are matched apart.
 			if (string.IsNullOrEmpty(soughtPreferredKey) != string.IsNullOrEmpty(candidatePreferredKey))
 				return false;
 			// Both carry one, and it decides alone: the fallback value may have changed.
@@ -384,10 +380,9 @@ namespace Chorus.merge.xml.generic
 		{
 			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
 
-			// Whether the element carries a preferred value decides which key attribute it was matched on, so
-			// that is the attribute whose values are the same. Naming the other one too would accuse an
-			// attribute the match never consulted, and whose values, for two elements sharing a preferred
-			// value, may well differ between them.
+			// Whether the element carries a preferred value decides which key attribute it was
+			// matched on, so that is the attribute whose values are the same; naming the other
+			// would accuse an attribute the match never consulted.
 			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeForMessage, _preferredKeyAttribute);
 			var matchedOnPreferredKey = !string.IsNullOrEmpty(preferredKey);
 			return string.Format("The key attribute '{0}' has values that are the same '{1}'",

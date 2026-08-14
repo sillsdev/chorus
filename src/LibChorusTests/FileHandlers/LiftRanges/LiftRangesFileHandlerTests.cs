@@ -277,7 +277,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		}
 
 		/// <summary>
-		/// The guid is optional in LIFT, so a file written without one must still merge on the id.
+		/// @guid is optional in LIFT, so a file written without one must still merge on its id.
 		/// </summary>
 		[Test]
 		public void RangeElementWithoutAGuidStillMergesOnItsId()
@@ -294,11 +294,32 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		}
 
 		/// <summary>
-		/// An element that names a guid is matched only against elements that likewise name one, so a
-		/// writer that drops the guid a previous writer wrote loses the object's identity: the element
-		/// reads as a deletion and its guid-less replacement as an addition. That is the cost of keeping
-		/// the two sets apart, and a project whose writers disagree over the guid pays it on every merge
-		/// between them.
+		/// The finder branches on a value, not on the attribute, so @guid='' counts as no guid at
+		/// all: such an element is matched on its @id, and matches one that omits @guid outright,
+		/// rather than reading as a deletion plus an addition.
+		/// </summary>
+		[Test]
+		public void AnEmptyGuidCountsAsNoGuidAtAll()
+		{
+			var common = RangesWithPartOfSpeech("Noun", null, "old");
+			// Our writer emits the attribute but leaves it empty.
+			var ours = RangesWithPartOfSpeech("Noun", "", "old");
+			var theirs = RangesWithPartOfSpeech("Noun", null, "new");
+
+			// Two changes for our added attribute, as in the respelled-id case; none for theirs.
+			var result = DoMerge(common, ours, theirs, 0, 2);
+
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//range/range-element", 1);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(
+				"//range-element/abbrev/form/text[text()='new']", 1);
+		}
+
+		/// <summary>
+		/// An element that names a guid is matched only against elements that likewise name
+		/// one, so a writer that drops the guid a previous writer wrote loses the object's
+		/// identity: the element reads as a deletion and its guid-less replacement as an
+		/// addition. That is the cost of keeping the two sets apart, and a project whose
+		/// writers disagree over the guid pays it on every merge between them.
 		/// </summary>
 		[Test]
 		public void DroppingTheGuidReadsAsADeletionPlusAnAddition()
@@ -319,8 +340,8 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		}
 
 		/// <summary>
-		/// Two possibilities that happen to share a name are still two possibilities. Matching them
-		/// on the id would merge them into one and lose a guid.
+		/// Two possibilities that happen to share a name are still two possibilities.
+		/// Matching them on the id would merge them into one and lose a guid.
 		/// </summary>
 		[Test]
 		public void RangeElementsWithDifferentGuidsAreNotMatched()
@@ -344,8 +365,8 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		}
 
 		/// <summary>
-		/// A sibling that still carries the old id, written by a tool that omits guids, must not be
-		/// taken as the partner just because it comes first in the file.
+		/// A sibling that still carries the old id, written by a tool that omits guids, must
+		/// not be taken as the partner just because it comes first in the file.
 		/// </summary>
 		[Test]
 		public void GuidMatchIsPreferredOverAnEarlierSiblingMatchingOnTheOldId()
@@ -366,12 +387,12 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 </lift-ranges>", kDecomposedId, kComposedId, kPosGuid);
 			var theirs = RangesWithPartOfSpeech(kDecomposedId, kPosGuid, "new");
 
-			// No conflict: the guid-less sibling is matched only against other guid-less elements, so it
-			// cannot also claim the element the guid already speaks for.
+			// No conflict: the guid-less sibling is matched only against other guid-less
+			// elements, so it cannot also claim the element the guid already speaks for.
 			var result = DoMerge(common, ours, theirs, 0, 3);
 
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//range/range-element", 2);
-			// Their edit belongs to the element sharing the guid, not to the one sharing the old id.
+			// Their edit belongs to the element sharing the guid, not the one sharing the old id.
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(string.Format(
 				"//range-element[@guid='{0}']/abbrev/form/text[text()='new']", kPosGuid), 1);
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(
@@ -379,11 +400,11 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		}
 
 		/// <summary>
-		/// A merge done before @guid was preferred could leave one possibility standing as two
-		/// range-elements, spelled differently. Matching on the guid value makes them ambiguous siblings,
-		/// which the merger collapses back to one. The warning must name @guid as the attribute whose
-		/// values are the same, and quote the shared value, since the differing ids are not what made
-		/// them indistinguishable.
+		/// A merge done before @guid was preferred could leave one possibility standing as
+		/// two range-elements, spelled differently. Matching on the guid value makes them
+		/// ambiguous siblings, which the merger collapses back to one. The warning must name
+		/// @guid as the attribute whose values are the same, and quote the shared value,
+		/// since the differing ids are not what made them indistinguishable.
 		/// </summary>
 		[Test]
 		public void RangeElementsDuplicatedByAnEarlierMergeCollapseToOne()
@@ -410,14 +431,17 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			Assert.That(warning, Does.Not.Contain("'id'"), warning);
 		}
 
-		// The two @id values a part of speech named "Compléments" is exported under. Built rather than written
-		// out, since the two spellings are indistinguishable in source and an editor or a text filter that
-		// normalizes on save would silently make them the same string.
+		// The two @id values a part of speech named "Compléments" is exported under. Built
+		// rather than written out, since the two spellings are indistinguishable in source
+		// and an editor or a text filter that normalizes on save would silently make them
+		// the same string.
 		private static readonly string kDecomposedId = "Compléments".Normalize(NormalizationForm.FormD);
 		private static readonly string kComposedId = "Compléments".Normalize(NormalizationForm.FormC);
 		private const string kPosGuid = "e8c4b4b0-1a2f-4f9e-9f39-3f2b0d8f7a11";
 
-		/// <summary>A null <paramref name="posGuidOrNull"/> leaves @guid off the element altogether.</summary>
+		/// <summary>
+		/// A null <paramref name="posGuidOrNull"/> leaves @guid off the element altogether.
+		/// </summary>
 		private static string RangesWithPartOfSpeech(string posId, string posGuidOrNull, string abbrevText)
 		{
 			return string.Format(
