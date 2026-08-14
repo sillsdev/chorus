@@ -367,15 +367,14 @@ namespace Chorus.merge.xml.generic
 		{
 			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
 
-			// Either key can be what made the siblings indistinguishable, and by here it is no longer
-			// known which, so report both rather than claim the guids matched when they may not have.
+			// Whether the element names a permanent key decides which key it was matched on, so that is the
+			// key whose values are the same. Naming the other one too would accuse a key the match never
+			// consulted, and which for two elements sharing a permanent key may well differ between them.
 			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeForMessage, _preferredKeyAttribute);
-			var fallbackKey = XmlUtilities.GetOptionalAttributeString(nodeForMessage, _fallbackKeyAttribute);
-			return string.IsNullOrEmpty(preferredKey)
-				? string.Format("The key attribute '{0}' has values that are the same '{1}'",
-					_fallbackKeyAttribute, fallbackKey)
-				: string.Format("The key attributes '{0}' ('{1}') and '{2}' ('{3}') do not tell these elements apart",
-					_preferredKeyAttribute, preferredKey, _fallbackKeyAttribute, fallbackKey);
+			var matchedOnPreferredKey = !string.IsNullOrEmpty(preferredKey);
+			return string.Format("The key attribute '{0}' has values that are the same '{1}'",
+				matchedOnPreferredKey ? _preferredKeyAttribute : _fallbackKeyAttribute,
+				matchedOnPreferredKey ? preferredKey : XmlUtilities.GetOptionalAttributeString(nodeForMessage, _fallbackKeyAttribute));
 		}
 	}
 

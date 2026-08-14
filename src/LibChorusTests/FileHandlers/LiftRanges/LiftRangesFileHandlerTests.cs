@@ -381,7 +381,8 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		/// <summary>
 		/// A merge done before the guid was preferred could leave one possibility standing as two
 		/// range-elements, spelled differently. Matching on the guid makes them ambiguous siblings,
-		/// which the merger collapses back to one.
+		/// which the merger collapses back to one. The warning must name the guid as what the two
+		/// share, since the differing ids are not what made them indistinguishable.
 		/// </summary>
 		[Test]
 		public void RangeElementsDuplicatedByAnEarlierMergeCollapseToOne()
@@ -403,6 +404,9 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//range/range-element", 1);
 			Assert.That(_eventListener.Warnings, Is.Not.Empty, "the dropped duplicate should be reported");
+			var warning = _eventListener.Warnings[0].GetFullHumanReadableDescription();
+			Assert.That(warning, Does.Contain("'guid'").And.Contain(kPosGuid), warning);
+			Assert.That(warning, Does.Not.Contain("'id'"), warning);
 		}
 
 		// Built rather than written out, since the two spellings are indistinguishable in source and an
