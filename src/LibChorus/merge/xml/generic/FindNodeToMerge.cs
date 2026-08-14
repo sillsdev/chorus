@@ -15,9 +15,10 @@ namespace Chorus.merge.xml.generic
 	public interface IFindNodeToMerge
 	{
 		/// <summary>
-		/// Should return null if parentToSearchIn is null. Non-null result should be a value in acceptableTargets,
-		/// which will be a subset (or all) of the children of parentToSearchIn; any other result will
-		/// be treated as no match.
+		/// Should return null if parentToSearchIn is null, and otherwise either null or a child of
+		/// parentToSearchIn. acceptableTargets is a subset (or all) of the children of parentToSearchIn;
+		/// an implementation holding only one possible match may ignore it and return that match, so a
+		/// caller passing a strict subset is responsible for discarding a result outside it.
 		/// </summary>
 		XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn, HashSet<XmlNode> acceptableTargets);
 	}
@@ -222,9 +223,12 @@ namespace Chorus.merge.xml.generic
 	/// <para>Elements naming a permanent key and elements lacking one are matched separately, and never
 	/// against each other. That keeps matching an equivalence relation, so no element can be paired with
 	/// two partners; were a permanent key allowed to match a bare one, a set holding both could give one
-	/// element two partners and merge someone's edit onto an object it was not made against. The price is
-	/// that a file which starts naming permanent keys for elements that previously had none reads as a
-	/// deletion plus an addition, once.</para>
+	/// element two partners and merge someone's edit onto an object it was not made against.</para>
+	/// <para>The price is that where one revision names a permanent key for an element and another does not,
+	/// the element reads as a deletion plus an addition, and as a removed-versus-edited conflict if the other
+	/// revision also edited it. A writer that starts naming permanent keys pays that once. Writers that
+	/// disagree over whether to name them pay it on every merge between them, so prefer a permanent key only
+	/// where every writer of the file can be relied on to keep one it finds.</para>
 	/// </remarks>
 	public class FindByPreferredKeyAttribute : IFindMatchingNodesToMerge
 	{
@@ -263,7 +267,9 @@ namespace Chorus.merge.xml.generic
 
 		/// <summary>
 		/// The children of one parent, indexed by each key this finder can match on, so that merging a
-		/// large element does not rescan its siblings once per child.
+		/// large element does not rescan its siblings once per child. An index is built when its parent is
+		/// first searched and is never revisited, so a caller that adds or removes children between
+		/// searches of the same parent will still be answered from the children it first held.
 		/// </summary>
 		private class ParentIndex
 		{

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Chorus.FileTypeHandlers;
 using Chorus.merge;
+using Chorus.merge.xml.generic;
 using LibChorus.TestUtilities;
 using NUnit.Framework;
 using SIL.IO;
@@ -290,6 +291,31 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//range/range-element", 1);
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(
 				"//range-element/abbrev/form/text[text()='new']", 1);
+		}
+
+		/// <summary>
+		/// An element that names a guid is matched only against elements that likewise name one, so a
+		/// writer that drops the guid a previous writer wrote loses the object's identity: the element
+		/// reads as a deletion and its guid-less replacement as an addition. That is the cost of keeping
+		/// the two sets apart, and a project whose writers disagree over the guid pays it on every merge
+		/// between them.
+		/// </summary>
+		[Test]
+		public void DroppingTheGuidReadsAsADeletionPlusAnAddition()
+		{
+			var common = RangesWithPartOfSpeech("Noun", kPosGuid, "old");
+			// Our writer omits the guid the ancestor names.
+			var ours = RangesWithPartOfSpeech("Noun", null, "old");
+			var theirs = RangesWithPartOfSpeech("Noun", kPosGuid, "new");
+
+			var result = DoMerge(common, ours, theirs, 1, 1);
+
+			_eventListener.AssertFirstConflictType<RemovedVsEditedElementConflict>();
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//range/range-element", 2);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(
+				"//range-element[not(@guid)]/abbrev/form/text[text()='old']", 1);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(string.Format(
+				"//range-element[@guid='{0}']/abbrev/form/text[text()='new']", kPosGuid), 1);
 		}
 
 		/// <summary>
