@@ -212,26 +212,29 @@ namespace Chorus.merge.xml.generic
 	}
 
 	/// <summary>
-	/// Search for a matching element on either of two key attributes. An element that names the preferred
-	/// key is matched on that key alone; an element that names no preferred key is matched on the fallback
-	/// key. The two groups are never matched against each other, so a preferred key that finds no partner
-	/// is not retried against the fallback key.
+	/// Search for a matching element on the value of either of two key attributes. An element carrying a
+	/// non-empty value for the preferred key attribute is matched on that value alone; an element carrying
+	/// none is matched on its value for the fallback key attribute. The two groups are never matched against
+	/// each other, so an element whose preferred value finds no partner is not retried against its fallback
+	/// value. An attribute that is present but empty counts as absent throughout.
 	/// </summary>
 	/// <remarks>
-	/// <para>Use this where the fallback key is derived from user data, and so can change while the object it
-	/// identifies does not, and the preferred key is one that stays with that object. Matching on the
-	/// changeable key alone turns such a change into a deletion plus an addition, which discards the other
-	/// user's edits to the same element and can leave two elements standing for one object.</para>
-	/// <para>Elements naming the preferred key and elements naming none are matched separately, and never
+	/// <para>Use this where the fallback key attribute's value is derived from user data, and so can change
+	/// while the object it identifies does not, and the preferred key attribute holds a value that stays with
+	/// that object. Matching on the changeable value alone turns such a change into a deletion plus an
+	/// addition, which discards the other user's edits to the same element and can leave two elements
+	/// standing for one object.</para>
+	/// <para>Elements carrying a preferred value and elements carrying none are matched separately, and never
 	/// against each other. That keeps matching an equivalence relation, so no element can be paired with
-	/// two partners; were an element naming the preferred key allowed to match one naming none, a set holding
-	/// both could give one element two partners and merge someone's edit onto an object it was not made
-	/// against.</para>
-	/// <para>The price is that where one revision names the preferred key for an element and another does not,
-	/// the element reads as a deletion plus an addition, and as a removed-versus-edited conflict if the other
-	/// revision also edited it. A writer that starts naming the preferred key pays that once. Writers that
-	/// disagree over whether to name it pay it on every merge between them, so choose a preferred key only
-	/// where every writer of the file can be relied on to keep one it finds.</para>
+	/// two partners; were an element carrying a preferred value allowed to match one carrying none, a set
+	/// holding both could give one element two partners and merge someone's edit onto an object it was not
+	/// made against.</para>
+	/// <para>The price is that where one revision gives an element a preferred value and another leaves that
+	/// attribute off, the element reads as a deletion plus an addition, and as a removed-versus-edited
+	/// conflict if the other revision also edited it. A writer that starts writing the preferred attribute
+	/// pays that once. Writers that disagree over whether to write it pay it on every merge between them, so
+	/// choose a preferred key attribute only where every writer of the file can be relied on to preserve the
+	/// value it finds.</para>
 	/// </remarks>
 	public class FindByPreferredKeyAttribute : IFindMatchingNodesToMerge
 	{
@@ -259,8 +262,8 @@ namespace Chorus.merge.xml.generic
 			XmlNode match;
 			if (string.IsNullOrEmpty(preferredKey))
 			{
-				// Only among elements that likewise name none, so that this cannot claim an element
-				// the preferred key already speaks for.
+				// Only among elements that likewise carry no preferred value, so that this cannot claim
+				// an element that a preferred value already speaks for.
 				index.ByFallbackKeyAlone.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, fallbackKey), out match);
 				return match; // May be null, which is fine.
 			}
@@ -269,15 +272,16 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// The children of one parent, indexed by each key this finder can match on, so that merging a
-		/// large element does not rescan its siblings once per child. An index is built when its parent is
-		/// first searched and is never revisited, so a caller that adds or removes children between
-		/// searches of the same parent will still be answered from the children it first held.
+		/// The children of one parent, indexed on (element name, attribute value) for each key attribute this
+		/// finder can match on, so that merging a large element does not rescan its siblings once per child.
+		/// An index is built when its parent is first searched and is never revisited, so a caller that adds
+		/// or removes children between searches of the same parent will still be answered from the children
+		/// it first held.
 		/// </summary>
 		private class ParentIndex
 		{
 			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByPreferredKey = new Dictionary<Tuple<string, string>, XmlNode>();
-			/// <summary>Only those children that name no preferred key of their own.</summary>
+			/// <summary>Only those children that carry no preferred value of their own.</summary>
 			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByFallbackKeyAlone = new Dictionary<Tuple<string, string>, XmlNode>();
 		}
 
@@ -304,9 +308,9 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Unlike a finder with a single key, duplicate fallback keys are legitimate here, since two
-		/// elements can share the fallback key and still be told apart by the preferred one. Keep the
-		/// first, matching how the merger resolves siblings it cannot tell apart.
+		/// Unlike a finder with a single key attribute, two children legitimately hold the same fallback
+		/// value here, since a preferred value can still tell them apart. Keep the first, matching how the
+		/// merger resolves siblings it cannot tell apart.
 		/// </summary>
 		private static void IndexFirstOnly(IDictionary<Tuple<string, string>, XmlNode> index, XmlNode childNode, string key)
 		{
@@ -351,10 +355,10 @@ namespace Chorus.merge.xml.generic
 		private bool IsMatch(XmlNode candidate, string preferredKey, string fallbackKey)
 		{
 			var candidatePreferredKey = XmlUtilities.GetOptionalAttributeString(candidate, _preferredKeyAttribute);
-			// One names the preferred key and the other does not, so they are matched separately.
+			// One carries a preferred value and the other does not, so they are matched separately.
 			if (string.IsNullOrEmpty(preferredKey) != string.IsNullOrEmpty(candidatePreferredKey))
 				return false;
-			// Both name it, and it decides alone: the fallback key may have changed.
+			// Both carry one, and it decides alone: the fallback value may have changed.
 			if (!string.IsNullOrEmpty(preferredKey))
 				return preferredKey == candidatePreferredKey;
 			if (string.IsNullOrEmpty(fallbackKey))
@@ -370,9 +374,10 @@ namespace Chorus.merge.xml.generic
 		{
 			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
 
-			// Whether the element names the preferred key decides which key it was matched on, so that is the
-			// key whose values are the same. Naming the other one too would accuse a key the match never
-			// consulted, and which for two elements sharing a preferred key may well differ between them.
+			// Whether the element carries a preferred value decides which key attribute it was matched on, so
+			// that is the attribute whose values are the same. Naming the other one too would accuse an
+			// attribute the match never consulted, and whose values, for two elements sharing a preferred
+			// value, may well differ between them.
 			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeForMessage, _preferredKeyAttribute);
 			var matchedOnPreferredKey = !string.IsNullOrEmpty(preferredKey);
 			return string.Format("The key attribute '{0}' has values that are the same '{1}'",

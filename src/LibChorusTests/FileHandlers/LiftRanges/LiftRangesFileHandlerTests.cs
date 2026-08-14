@@ -379,10 +379,11 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		}
 
 		/// <summary>
-		/// A merge done before the guid was preferred could leave one possibility standing as two
-		/// range-elements, spelled differently. Matching on the guid makes them ambiguous siblings,
-		/// which the merger collapses back to one. The warning must name the guid as what the two
-		/// share, since the differing ids are not what made them indistinguishable.
+		/// A merge done before @guid was preferred could leave one possibility standing as two
+		/// range-elements, spelled differently. Matching on the guid value makes them ambiguous siblings,
+		/// which the merger collapses back to one. The warning must name @guid as the attribute whose
+		/// values are the same, and quote the shared value, since the differing ids are not what made
+		/// them indistinguishable.
 		/// </summary>
 		[Test]
 		public void RangeElementsDuplicatedByAnEarlierMergeCollapseToOne()
