@@ -212,22 +212,25 @@ namespace Chorus.merge.xml.generic
 	}
 
 	/// <summary>
-	/// Search for a matching element using an optional attribute that identifies it permanently (a guid),
-	/// falling back to an ordinary key attribute among the elements that name no such attribute.
+	/// Search for a matching element on either of two key attributes. An element that names the preferred
+	/// key is matched on that key alone; an element that names no preferred key is matched on the fallback
+	/// key. The two groups are never matched against each other, so a preferred key that finds no partner
+	/// is not retried against the fallback key.
 	/// </summary>
 	/// <remarks>
-	/// <para>Use this where the ordinary key is derived from user data, and so can be respelled without the
-	/// underlying object having changed. Matching on such a key alone turns a respelling into a deletion
-	/// plus an addition, which discards the other user's edits to the same element and can leave two
-	/// elements standing for one object.</para>
-	/// <para>Elements naming a permanent key and elements lacking one are matched separately, and never
+	/// <para>Use this where the fallback key is derived from user data, and so can change while the object it
+	/// identifies does not, and the preferred key is one that stays with that object. Matching on the
+	/// changeable key alone turns such a change into a deletion plus an addition, which discards the other
+	/// user's edits to the same element and can leave two elements standing for one object.</para>
+	/// <para>Elements naming the preferred key and elements naming none are matched separately, and never
 	/// against each other. That keeps matching an equivalence relation, so no element can be paired with
-	/// two partners; were a permanent key allowed to match a bare one, a set holding both could give one
-	/// element two partners and merge someone's edit onto an object it was not made against.</para>
-	/// <para>The price is that where one revision names a permanent key for an element and another does not,
+	/// two partners; were an element naming the preferred key allowed to match one naming none, a set holding
+	/// both could give one element two partners and merge someone's edit onto an object it was not made
+	/// against.</para>
+	/// <para>The price is that where one revision names the preferred key for an element and another does not,
 	/// the element reads as a deletion plus an addition, and as a removed-versus-edited conflict if the other
-	/// revision also edited it. A writer that starts naming permanent keys pays that once. Writers that
-	/// disagree over whether to name them pay it on every merge between them, so prefer a permanent key only
+	/// revision also edited it. A writer that starts naming the preferred key pays that once. Writers that
+	/// disagree over whether to name it pay it on every merge between them, so choose a preferred key only
 	/// where every writer of the file can be relied on to keep one it finds.</para>
 	/// </remarks>
 	public class FindByPreferredKeyAttribute : IFindMatchingNodesToMerge
@@ -257,7 +260,7 @@ namespace Chorus.merge.xml.generic
 			if (string.IsNullOrEmpty(preferredKey))
 			{
 				// Only among elements that likewise name none, so that this cannot claim an element
-				// the permanent key already speaks for.
+				// the preferred key already speaks for.
 				index.ByFallbackKeyAlone.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, fallbackKey), out match);
 				return match; // May be null, which is fine.
 			}
@@ -302,7 +305,7 @@ namespace Chorus.merge.xml.generic
 
 		/// <summary>
 		/// Unlike a finder with a single key, duplicate fallback keys are legitimate here, since two
-		/// elements can share a respellable key and still be told apart by the permanent one. Keep the
+		/// elements can share the fallback key and still be told apart by the preferred one. Keep the
 		/// first, matching how the merger resolves siblings it cannot tell apart.
 		/// </summary>
 		private static void IndexFirstOnly(IDictionary<Tuple<string, string>, XmlNode> index, XmlNode childNode, string key)
@@ -348,10 +351,10 @@ namespace Chorus.merge.xml.generic
 		private bool IsMatch(XmlNode candidate, string preferredKey, string fallbackKey)
 		{
 			var candidatePreferredKey = XmlUtilities.GetOptionalAttributeString(candidate, _preferredKeyAttribute);
-			// One names a permanent key and the other does not, so they are matched separately.
+			// One names the preferred key and the other does not, so they are matched separately.
 			if (string.IsNullOrEmpty(preferredKey) != string.IsNullOrEmpty(candidatePreferredKey))
 				return false;
-			// Both name one, and it decides alone: the fallback key may have moved.
+			// Both name it, and it decides alone: the fallback key may have changed.
 			if (!string.IsNullOrEmpty(preferredKey))
 				return preferredKey == candidatePreferredKey;
 			if (string.IsNullOrEmpty(fallbackKey))
@@ -367,9 +370,9 @@ namespace Chorus.merge.xml.generic
 		{
 			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
 
-			// Whether the element names a permanent key decides which key it was matched on, so that is the
+			// Whether the element names the preferred key decides which key it was matched on, so that is the
 			// key whose values are the same. Naming the other one too would accuse a key the match never
-			// consulted, and which for two elements sharing a permanent key may well differ between them.
+			// consulted, and which for two elements sharing a preferred key may well differ between them.
 			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeForMessage, _preferredKeyAttribute);
 			var matchedOnPreferredKey = !string.IsNullOrEmpty(preferredKey);
 			return string.Format("The key attribute '{0}' has values that are the same '{1}'",
