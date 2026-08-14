@@ -264,10 +264,10 @@ namespace Chorus.merge.xml.generic
 			{
 				// Only among elements that likewise carry no preferred value, so that this cannot claim
 				// an element that a preferred value already speaks for.
-				index.ByFallbackKeyAlone.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, fallbackKey), out match);
+				index.ByFallbackKeyWherePreferredAbsent.TryGetValue(IndexKey(nodeToMatch, fallbackKey), out match);
 				return match; // May be null, which is fine.
 			}
-			index.ByPreferredKey.TryGetValue(new Tuple<string, string>(nodeToMatch.Name, preferredKey), out match);
+			index.ByPreferredKey.TryGetValue(IndexKey(nodeToMatch, preferredKey), out match);
 			return match;
 		}
 
@@ -282,7 +282,7 @@ namespace Chorus.merge.xml.generic
 		{
 			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByPreferredKey = new Dictionary<Tuple<string, string>, XmlNode>();
 			/// <summary>Only those children that carry no preferred value of their own.</summary>
-			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByFallbackKeyAlone = new Dictionary<Tuple<string, string>, XmlNode>();
+			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByFallbackKeyWherePreferredAbsent = new Dictionary<Tuple<string, string>, XmlNode>();
 		}
 
 		private ParentIndex GetIndexFor(XmlNode parentToSearchIn)
@@ -302,7 +302,7 @@ namespace Chorus.merge.xml.generic
 				if (!string.IsNullOrEmpty(preferredKey))
 					IndexFirstOnly(index.ByPreferredKey, childNode, preferredKey);
 				else if (!string.IsNullOrEmpty(fallbackKey))
-					IndexFirstOnly(index.ByFallbackKeyAlone, childNode, fallbackKey);
+					IndexFirstOnly(index.ByFallbackKeyWherePreferredAbsent, childNode, fallbackKey);
 			}
 			return index;
 		}
@@ -312,11 +312,21 @@ namespace Chorus.merge.xml.generic
 		/// value here, since a preferred value can still tell them apart. Keep the first, matching how the
 		/// merger resolves siblings it cannot tell apart.
 		/// </summary>
-		private static void IndexFirstOnly(IDictionary<Tuple<string, string>, XmlNode> index, XmlNode childNode, string key)
+		private static void IndexFirstOnly(IDictionary<Tuple<string, string>, XmlNode> index, XmlNode childNode, string keyValue)
 		{
-			var indexKey = new Tuple<string, string>(childNode.Name, key);
+			var indexKey = IndexKey(childNode, keyValue);
 			if (!index.ContainsKey(indexKey))
 				index.Add(indexKey, childNode);
+		}
+
+		/// <summary>
+		/// A ParentIndex entry is identified by the element name as well as the attribute value, matching the
+		/// tuple <see cref="FindByKeyAttribute"/> indexes on: elements of different names never match, however
+		/// their keys compare.
+		/// </summary>
+		private static Tuple<string, string> IndexKey(XmlNode element, string keyValue)
+		{
+			return new Tuple<string, string>(element.Name, keyValue);
 		}
 
 		/// <summary>
@@ -352,18 +362,18 @@ namespace Chorus.merge.xml.generic
 			return matches;
 		}
 
-		private bool IsMatch(XmlNode candidate, string preferredKey, string fallbackKey)
+		private bool IsMatch(XmlNode candidate, string soughtPreferredKey, string soughtFallbackKey)
 		{
 			var candidatePreferredKey = XmlUtilities.GetOptionalAttributeString(candidate, _preferredKeyAttribute);
 			// One carries a preferred value and the other does not, so they are matched separately.
-			if (string.IsNullOrEmpty(preferredKey) != string.IsNullOrEmpty(candidatePreferredKey))
+			if (string.IsNullOrEmpty(soughtPreferredKey) != string.IsNullOrEmpty(candidatePreferredKey))
 				return false;
 			// Both carry one, and it decides alone: the fallback value may have changed.
-			if (!string.IsNullOrEmpty(preferredKey))
-				return preferredKey == candidatePreferredKey;
-			if (string.IsNullOrEmpty(fallbackKey))
+			if (!string.IsNullOrEmpty(soughtPreferredKey))
+				return soughtPreferredKey == candidatePreferredKey;
+			if (string.IsNullOrEmpty(soughtFallbackKey))
 				return false;
-			return fallbackKey == XmlUtilities.GetOptionalAttributeString(candidate, _fallbackKeyAttribute);
+			return soughtFallbackKey == XmlUtilities.GetOptionalAttributeString(candidate, _fallbackKeyAttribute);
 		}
 
 		/// <summary>

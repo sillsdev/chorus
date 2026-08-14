@@ -261,17 +261,17 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		[Test]
 		public void RespelledIdMergesAsAnEditWhenTheGuidIsUnchanged()
 		{
-			var common = RangesWithPartOfSpeech(kDecomposedName, kPosGuid, "old");
+			var common = RangesWithPartOfSpeech(kDecomposedId, kPosGuid, "old");
 			// We upgraded, so our export normalizes the id.
-			var ours = RangesWithPartOfSpeech(kComposedName, kPosGuid, "old");
+			var ours = RangesWithPartOfSpeech(kComposedId, kPosGuid, "old");
 			// They did not upgrade, and they edited the abbreviation.
-			var theirs = RangesWithPartOfSpeech(kDecomposedName, kPosGuid, "new");
+			var theirs = RangesWithPartOfSpeech(kDecomposedId, kPosGuid, "new");
 
 			var result = DoMerge(common, ours, theirs, 0, 2);
 
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//range/range-element", 1);
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(
-				string.Format("//range-element[@guid='{0}' and @id='{1}']", kPosGuid, kComposedName), 1);
+				string.Format("//range-element[@guid='{0}' and @id='{1}']", kPosGuid, kComposedId), 1);
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(
 				"//range-element/abbrev/form/text[text()='new']", 1);
 		}
@@ -350,7 +350,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		[Test]
 		public void GuidMatchIsPreferredOverAnEarlierSiblingMatchingOnTheOldId()
 		{
-			var common = RangesWithPartOfSpeech(kDecomposedName, kPosGuid, "old");
+			var common = RangesWithPartOfSpeech(kDecomposedId, kPosGuid, "old");
 			// A guid-less element carrying the old id sorts ahead of our respelled one.
 			var ours = string.Format(
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -363,8 +363,8 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 <abbrev><form lang='en'><text>old</text></form></abbrev>
 </range-element>
 </range>
-</lift-ranges>", kDecomposedName, kComposedName, kPosGuid);
-			var theirs = RangesWithPartOfSpeech(kDecomposedName, kPosGuid, "new");
+</lift-ranges>", kDecomposedId, kComposedId, kPosGuid);
+			var theirs = RangesWithPartOfSpeech(kDecomposedId, kPosGuid, "new");
 
 			// No conflict: the guid-less sibling is matched only against other guid-less elements, so it
 			// cannot also claim the element the guid already speaks for.
@@ -399,7 +399,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 <abbrev><form lang='en'><text>old</text></form></abbrev>
 </range-element>
 </range>
-</lift-ranges>", kDecomposedName, kComposedName, kPosGuid);
+</lift-ranges>", kDecomposedId, kComposedId, kPosGuid);
 
 			var result = DoMerge(duplicated, duplicated, duplicated, 0, 0);
 
@@ -410,13 +410,15 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			Assert.That(warning, Does.Not.Contain("'id'"), warning);
 		}
 
-		// Built rather than written out, since the two spellings are indistinguishable in source and an
-		// editor or a text filter that normalizes on save would silently make them the same string.
-		private static readonly string kDecomposedName = "Compléments".Normalize(NormalizationForm.FormD);
-		private static readonly string kComposedName = "Compléments".Normalize(NormalizationForm.FormC);
+		// The two @id values a part of speech named "Compléments" is exported under. Built rather than written
+		// out, since the two spellings are indistinguishable in source and an editor or a text filter that
+		// normalizes on save would silently make them the same string.
+		private static readonly string kDecomposedId = "Compléments".Normalize(NormalizationForm.FormD);
+		private static readonly string kComposedId = "Compléments".Normalize(NormalizationForm.FormC);
 		private const string kPosGuid = "e8c4b4b0-1a2f-4f9e-9f39-3f2b0d8f7a11";
 
-		private static string RangesWithPartOfSpeech(string id, string guid, string abbrev)
+		/// <summary>A null <paramref name="posGuidOrNull"/> leaves @guid off the element altogether.</summary>
+		private static string RangesWithPartOfSpeech(string posId, string posGuidOrNull, string abbrevText)
 		{
 			return string.Format(
 @"<?xml version='1.0' encoding='utf-8'?>
@@ -426,7 +428,7 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 <abbrev><form lang='en'><text>{2}</text></form></abbrev>
 </range-element>
 </range>
-</lift-ranges>", id, guid == null ? string.Empty : string.Format(" guid='{0}'", guid), abbrev);
+</lift-ranges>", posId, posGuidOrNull == null ? string.Empty : string.Format(" guid='{0}'", posGuidOrNull), abbrevText);
 		}
 
 		private string DoMerge(string commonAncestor, string ourContent, string theirContent,
