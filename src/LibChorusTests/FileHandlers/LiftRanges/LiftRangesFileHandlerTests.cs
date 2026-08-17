@@ -406,6 +406,13 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 		/// @guid as the attribute whose values are the same, and quote the shared value,
 		/// since the differing ids are not what made them indistinguishable.
 		/// </summary>
+		/// <remarks>
+		/// The collapse keeps the first of the pair in document order and discards the other
+		/// outright, so whatever the earlier merge left on the loser goes with it. The two are
+		/// given different content here to pin that cost rather than hide it behind a pair that
+		/// happens to agree. There is no better winner available: this is a sanitizing pass over
+		/// each revision as it is read, with no view of which side wrote which.
+		/// </remarks>
 		[Test]
 		public void RangeElementsDuplicatedByAnEarlierMergeCollapseToOne()
 		{
@@ -414,10 +421,11 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 <lift-ranges>
 <range id='grammatical-info'>
 <range-element id='{0}' guid='{2}'>
-<abbrev><form lang='en'><text>old</text></form></abbrev>
+<abbrev><form lang='en'><text>kept</text></form></abbrev>
 </range-element>
 <range-element id='{1}' guid='{2}'>
-<abbrev><form lang='en'><text>old</text></form></abbrev>
+<abbrev><form lang='en'><text>dropped</text></form></abbrev>
+<label><form lang='en'><text>dropped</text></form></label>
 </range-element>
 </range>
 </lift-ranges>", kDecomposedId, kComposedId, kPosGuid);
@@ -425,6 +433,13 @@ namespace LibChorus.Tests.FileHandlers.LiftRanges
 			var result = DoMerge(duplicated, duplicated, duplicated, 0, 0);
 
 			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//range/range-element", 1);
+			// The loser's content is discarded, not merged into the survivor.
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(
+				"//range-element/abbrev/form/text[text()='kept']", 1);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath(
+				"//range-element/abbrev/form/text[text()='dropped']", 0);
+			AssertThatXmlIn.String(result).HasSpecifiedNumberOfMatchesForXpath("//range-element/label", 0);
+
 			Assert.That(_eventListener.Warnings, Is.Not.Empty, "the dropped duplicate should be reported");
 			var warning = _eventListener.Warnings[0].GetFullHumanReadableDescription();
 			Assert.That(warning, Does.Contain("'guid'").And.Contain(kPosGuid), warning);
