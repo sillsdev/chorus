@@ -304,9 +304,8 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// Unlike a finder with a single key attribute, two children legitimately hold the same
-		/// fallback value here, since a preferred value can still tell them apart. Keep the
-		/// first, matching how the merger resolves siblings it cannot tell apart.
+		/// Two children can carry the same key value, which is not an error here: keep the first
+		/// and ignore the rest, matching how the merger resolves siblings it cannot tell apart.
 		/// </summary>
 		private static void IndexFirstOnly(IDictionary<Tuple<string, string>, XmlNode> index, XmlNode childNode, string keyValue)
 		{
@@ -316,9 +315,8 @@ namespace Chorus.merge.xml.generic
 		}
 
 		/// <summary>
-		/// A ParentIndex entry is identified by the element name as well as the attribute value,
-		/// matching the tuple <see cref="FindByKeyAttribute"/> indexes on: elements of different
-		/// names never match, however their keys compare.
+		/// The element name is part of the key, so elements of different names never match,
+		/// however their key values compare.
 		/// </summary>
 		private static Tuple<string, string> IndexKey(XmlNode element, string keyValue)
 		{
