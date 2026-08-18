@@ -27,12 +27,33 @@ jobs:
       matrix:
         os: [ubuntu-22.04, windows-latest]
         framework: [net462, net8.0]
+        libchorus-split: ['']
+        # LibChorus test filter for each Windows job. The default runs the fast logic tests,
+        # i.e., everything except the hg-heavy namespaces. The 'include:' entries override
+        # it to run those namespaces in parallel.
+        libchorus-filter: ['TestCategory!=SkipOnBuildServer&FullyQualifiedName!~LibChorus.Tests.sync&FullyQualifiedName!~LibChorus.Tests.VcsDrivers']
         exclude:
-          # dotnet on Linux cannot build net461 without additional, unnecessary, work
           - os: ubuntu-22.04
             framework: net462
+        include:
+          - os: windows-latest
+            framework: net462
+            libchorus-split: sync
+            libchorus-filter: 'TestCategory!=SkipOnBuildServer&FullyQualifiedName~LibChorus.Tests.sync'
+          - os: windows-latest
+            framework: net462
+            libchorus-split: vcs
+            libchorus-filter: 'TestCategory!=SkipOnBuildServer&FullyQualifiedName~LibChorus.Tests.VcsDrivers'
+          - os: windows-latest
+            framework: net8.0
+            libchorus-split: sync
+            libchorus-filter: 'TestCategory!=SkipOnBuildServer&FullyQualifiedName~LibChorus.Tests.sync'
+          - os: windows-latest
+            framework: net8.0
+            libchorus-split: vcs
+            libchorus-filter: 'TestCategory!=SkipOnBuildServer&FullyQualifiedName~LibChorus.Tests.VcsDrivers'
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.os }}-${{ matrix.framework }}
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.os }}-${{ matrix.framework }}-${{ matrix.libchorus-split }}
       cancel-in-progress: true
 
     steps:
@@ -59,16 +80,23 @@ jobs:
 
     - name: Test Chorus
       run: dotnet test src/Chorus.Tests/Chorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
-      if: matrix.framework == 'net462'
+      if: matrix.framework == 'net462' && matrix['libchorus-split'] == ''
 
     - name: Test Chorus Hub
       run: dotnet test src/ChorusHubTests/ChorusHubTests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
-      if: matrix.framework == 'net462'
+      if: matrix.framework == 'net462' && matrix['libchorus-split'] == ''
 
     - name: Test ChorusMerge
       run: dotnet test src/ChorusMerge.Tests/ChorusMerge.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
+      if: matrix['libchorus-split'] == ''
 
-    - name: Test LibChorus
+    - name: Test LibChorus (Windows)
+      if: runner.os == 'Windows'
+      run: dotnet test src/LibChorusTests/LibChorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter "${{ matrix['libchorus-filter'] }}" -- NUnit.TestOutputXml=TestResults
+
+    - name: Test LibChorus (Linux)
+      # Linux runs the whole suite in one job; it is fast enough not to need the split.
+      if: runner.os == 'Linux'
       run: dotnet test src/LibChorusTests/LibChorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
 
     # TODO: Give each test result its own name based on OS and framework and change the test-results.yml workflow accordingly, so that they don't overwrite each other
@@ -76,7 +104,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: Test Results (${{ matrix.framework }} on ${{matrix.os}})
+        name: Test Results (${{ matrix.framework }} on ${{ matrix.os }}${{ matrix['libchorus-split'] != '' && format(' [{0}]', matrix['libchorus-split']) || '' }})
         path: "**/TestResults/*.xml"
 
   build-installers:
