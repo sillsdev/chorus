@@ -15,9 +15,11 @@ namespace Chorus.merge.xml.generic
 	public interface IFindNodeToMerge
 	{
 		/// <summary>
-		/// Should return null if parentToSearchIn is null. Non-null result should be a value in acceptableTargets,
-		/// which will be a subset (or all) of the children of parentToSearchIn; any other result will
-		/// be treated as no match.
+		/// Should return null if parentToSearchIn is null, and otherwise either null or a
+		/// child of parentToSearchIn. acceptableTargets is a subset (or all) of the children
+		/// of parentToSearchIn; an implementation holding only one possible match may ignore
+		/// it and return that match, so a caller passing a strict subset is responsible for
+		/// discarding a result outside it.
 		/// </summary>
 		XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn, HashSet<XmlNode> acceptableTargets);
 	}
@@ -207,6 +209,183 @@ namespace Chorus.merge.xml.generic
 
 			return string.Format("The key attribute '{0}' has values that are the same '{1}'",
 				_keyAttribute, nodeForMessage.Attributes[_keyAttribute].Value);
+		}
+	}
+
+	/// <summary>
+	/// Search for a matching element on the value of one of two key attributes: the preferred
+	/// attribute where the element carries a non-empty value for it, the fallback attribute only
+	/// where it does not. The fallback value is not consulted where a non-empty preferred value
+	/// is present.
+	/// </summary>
+	/// <remarks>
+	/// <para>Use this where the fallback key attribute's value is derived from user data, and so
+	/// can change while the object it identifies does not, and the preferred key attribute holds
+	/// a value that stays with that object. Matching on the changeable value alone turns such a
+	/// change into a deletion plus an addition.</para>
+	/// <para>Elements carrying a preferred value and elements carrying none are matched
+	/// separately, and never against each other, which keeps matching an equivalence relation:
+	/// no element is paired with two partners, and no edit lands on an object it was not made
+	/// against. An attribute that is present but empty counts as absent throughout.</para>
+	/// <para>The price is that an element whose preferred value one revision writes and another
+	/// omits reads as a deletion plus an addition, and as a removed-versus-edited conflict where
+	/// the other revision edited it. Choose a preferred key attribute only where every writer can
+	/// be relied on to preserve the value it finds; writers that disagree pay that cost on every
+	/// merge between them.</para>
+	/// </remarks>
+	public class FindByPreferredKeyAttribute : IFindMatchingNodesToMerge
+	{
+		private readonly string _preferredKeyAttribute;
+		private readonly string _fallbackKeyAttribute;
+		private readonly Dictionary<XmlNode, ParentIndex> _indexedParents = new Dictionary<XmlNode, ParentIndex>();
+
+		public FindByPreferredKeyAttribute(string preferredKeyAttribute, string fallbackKeyAttribute)
+		{
+			_preferredKeyAttribute = preferredKeyAttribute;
+			_fallbackKeyAttribute = fallbackKeyAttribute;
+		}
+
+		public XmlNode GetNodeToMerge(XmlNode nodeToMatch, XmlNode parentToSearchIn, HashSet<XmlNode> acceptableTargets)
+		{
+			if (nodeToMatch == null || parentToSearchIn == null)
+				return null;
+
+			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _preferredKeyAttribute);
+			var fallbackKey = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _fallbackKeyAttribute);
+			if (string.IsNullOrEmpty(preferredKey) && string.IsNullOrEmpty(fallbackKey))
+				return null;
+
+			var index = GetIndexFor(parentToSearchIn);
+			XmlNode match;
+			if (string.IsNullOrEmpty(preferredKey))
+			{
+				// Only among elements that likewise carry no preferred value, so that this
+				// cannot claim an element that a preferred value already speaks for.
+				index.ByFallbackKeyWherePreferredAbsent.TryGetValue(IndexKey(nodeToMatch, fallbackKey), out match);
+				return match; // May be null, which is fine.
+			}
+			index.ByPreferredKey.TryGetValue(IndexKey(nodeToMatch, preferredKey), out match);
+			return match;
+		}
+
+		/// <summary>
+		/// The children of one parent, indexed on (element name, attribute value) for each key
+		/// attribute this finder can match on, so siblings are not rescanned once per child.
+		/// Built at the parent's first search and never revisited: children added or removed
+		/// between searches of one parent are not seen.
+		/// </summary>
+		private class ParentIndex
+		{
+			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByPreferredKey = new Dictionary<Tuple<string, string>, XmlNode>();
+			/// <summary>Only those children that carry no preferred value of their own.</summary>
+			internal readonly Dictionary<Tuple<string, string>, XmlNode> ByFallbackKeyWherePreferredAbsent = new Dictionary<Tuple<string, string>, XmlNode>();
+		}
+
+		private ParentIndex GetIndexFor(XmlNode parentToSearchIn)
+		{
+			ParentIndex index;
+			if (_indexedParents.TryGetValue(parentToSearchIn, out index))
+				return index;
+
+			index = new ParentIndex();
+			_indexedParents.Add(parentToSearchIn, index);
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				var preferredKey = XmlUtilities.GetOptionalAttributeString(childNode, _preferredKeyAttribute);
+				var fallbackKey = XmlUtilities.GetOptionalAttributeString(childNode, _fallbackKeyAttribute);
+				if (!string.IsNullOrEmpty(preferredKey))
+					IndexFirstOnly(index.ByPreferredKey, childNode, preferredKey);
+				else if (!string.IsNullOrEmpty(fallbackKey))
+					IndexFirstOnly(index.ByFallbackKeyWherePreferredAbsent, childNode, fallbackKey);
+			}
+			return index;
+		}
+
+		/// <summary>
+		/// Two children can carry the same key value, which is not an error here: keep the first
+		/// and ignore the rest, matching how the merger resolves siblings it cannot tell apart.
+		/// </summary>
+		private static void IndexFirstOnly(IDictionary<Tuple<string, string>, XmlNode> index, XmlNode childNode, string keyValue)
+		{
+			var indexKey = IndexKey(childNode, keyValue);
+			if (!index.ContainsKey(indexKey))
+				index.Add(indexKey, childNode);
+		}
+
+		/// <summary>
+		/// The element name is part of the key, so elements of different names never match,
+		/// however their key values compare.
+		/// </summary>
+		private static Tuple<string, string> IndexKey(XmlNode element, string keyValue)
+		{
+			return new Tuple<string, string>(element.Name, keyValue);
+		}
+
+		/// <summary>
+		/// Get all matching nodes, or an empty collection, if there are no matches.
+		/// </summary>
+		/// <returns>A collection of zero, or more, matching nodes.</returns>
+		/// <remarks><paramref name="nodeToMatch" /> may, or may not, be a child of <paramref name="parentToSearchIn"/>.</remarks>
+		public IEnumerable<XmlNode> GetMatchingNodes(XmlNode nodeToMatch, XmlNode parentToSearchIn)
+		{
+			var matches = new List<XmlNode>();
+			if (nodeToMatch == null || parentToSearchIn == null)
+				return matches;
+
+			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _preferredKeyAttribute);
+			var fallbackKey = XmlUtilities.GetOptionalAttributeString(nodeToMatch, _fallbackKeyAttribute);
+			if (string.IsNullOrEmpty(preferredKey) && string.IsNullOrEmpty(fallbackKey))
+				return matches;
+
+			foreach (XmlNode childNode in parentToSearchIn.ChildNodes)
+			{
+				if (childNode.NodeType != XmlNodeType.Element)
+					continue;
+				if (nodeToMatch == childNode)
+				{
+					matches.Add(childNode);
+					continue;
+				}
+				if (childNode.Name != nodeToMatch.Name)
+					continue;
+				if (IsMatch(childNode, preferredKey, fallbackKey))
+					matches.Add(childNode);
+			}
+			return matches;
+		}
+
+		private bool IsMatch(XmlNode candidate, string soughtPreferredKey, string soughtFallbackKey)
+		{
+			var candidatePreferredKey = XmlUtilities.GetOptionalAttributeString(candidate, _preferredKeyAttribute);
+			// One carries a preferred value and the other does not, so they are matched apart.
+			if (string.IsNullOrEmpty(soughtPreferredKey) != string.IsNullOrEmpty(candidatePreferredKey))
+				return false;
+			// Both carry one, and it decides alone: the fallback value may have changed.
+			if (!string.IsNullOrEmpty(soughtPreferredKey))
+				return soughtPreferredKey == candidatePreferredKey;
+			if (string.IsNullOrEmpty(soughtFallbackKey))
+				return false;
+			return soughtFallbackKey == XmlUtilities.GetOptionalAttributeString(candidate, _fallbackKeyAttribute);
+		}
+
+		/// <summary>
+		/// Get a basic message that is suitable for use in a warning report where ambiguous nodes are found in the same parent node.
+		/// </summary>
+		/// <returns>A message string or null/empty string, if no message is needed for ambiguous nodes.</returns>
+		public string GetWarningMessageForAmbiguousNodes(XmlNode nodeForMessage)
+		{
+			Guard.AgainstNull(nodeForMessage, "nodeForMessage");
+
+			// Whether the element carries a preferred value decides which key attribute it was
+			// matched on, so that is the attribute whose values are the same; naming the other
+			// would accuse an attribute the match never consulted.
+			var preferredKey = XmlUtilities.GetOptionalAttributeString(nodeForMessage, _preferredKeyAttribute);
+			var matchedOnPreferredKey = !string.IsNullOrEmpty(preferredKey);
+			return string.Format("The key attribute '{0}' has values that are the same '{1}'",
+				matchedOnPreferredKey ? _preferredKeyAttribute : _fallbackKeyAttribute,
+				matchedOnPreferredKey ? preferredKey : XmlUtilities.GetOptionalAttributeString(nodeForMessage, _fallbackKeyAttribute));
 		}
 	}
 

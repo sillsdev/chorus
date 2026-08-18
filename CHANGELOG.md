@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- [SIL.Chorus.LibChorus] Match `range-element` on its `guid` rather than its `id`, so that renaming or respelling a range element merges as an edit instead of a deletion plus an addition
 - Prevent S&R to Internet without full URL
 - [SIL.Chorus.LibChorus] Correctly handle & and other special characters in passwords
 - [SIL.Chorus] Fix collection-modified exception when UsbDrives property is read while background scan thread updates the list
