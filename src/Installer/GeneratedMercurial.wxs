@@ -2,17 +2,17 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <Fragment>
         <DirectoryRef Id="mercurial">
-            <Component Id="mercurial.add_path.exe" Guid="D63A8C10-90B6-4843-9BCB-187366FEFED0">
-                <File Id="mercurial.add_path.exe" Name="add_path.exe" KeyPath="yes" Source="..\..\mercurial\add_path.exe" />
-                <RemoveFile Id="_61f9ede899b748d5b9c9423e116e6a2e" On="both" Name="*.*" />
-            </Component>
             <Component Id="mercurial.cacert.pem" Guid="6DF15B8B-194E-4322-936D-29AA8E693B89">
-                <File Id="mercurial.cacert.pem" Name="cacert.pem" Source="..\..\mercurial\cacert.pem" />
+                <File Id="mercurial.cacert.pem" Name="cacert.pem" KeyPath="yes" Source="..\..\mercurial\cacert.pem" />
                 <RemoveFile Id="_d7b45344abab49e6ba1f7c4fed8833f8" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.concrt140.dll" Guid="4EAB95C0-DA91-4749-BB7A-015176E63B58">
                 <File Id="mercurial.concrt140.dll" Name="concrt140.dll" Source="..\..\mercurial\concrt140.dll" />
                 <RemoveFile Id="_dc9e2b9042da486c9b5d5e15e307ae5f" On="both" Name="*.*" />
+            </Component>
+            <Component Id="mercurial.configitems.toml" Guid="F41C0178-54AE-4FCB-A6EA-CAF2131C6E31">
+                <File Id="mercurial.configitems.toml" Name="configitems.toml" Source="..\..\mercurial\configitems.toml" />
+                <RemoveFile Id="_9fe36f24c5a84c14a0991df13e9b20bb" On="both" Name="*.*" />
             </Component>
             <Component Id="mercurial.hg.exe" Guid="C65B2D2E-3705-4BA7-99D8-6B87FFB6CE81">
                 <File Id="mercurial.hg.exe" Name="hg.exe" Source="..\..\mercurial\hg.exe" />
@@ -49,10 +49,6 @@
             <Component Id="mercurial.vcruntime140_1.dll" Guid="DD1DB127-A458-4147-A988-1E0E7A8AAA07">
                 <File Id="mercurial.vcruntime140_1.dll" Name="vcruntime140_1.dll" Source="..\..\mercurial\vcruntime140_1.dll" />
                 <RemoveFile Id="_3be245abd92c4996b32226d8781f44a7" On="both" Name="*.*" />
-            </Component>
-            <Component Id="mercurial.w9xpopen.exe" Guid="E10BB6A7-1325-4AD3-B6A1-3F8869125D8F">
-                <File Id="mercurial.w9xpopen.exe" Name="w9xpopen.exe" Source="..\..\mercurial\w9xpopen.exe" />
-                <RemoveFile Id="_fb4ab72536fb463486dad441ccf64650" On="both" Name="*.*" />
             </Component>
             <Directory Id="mercurial.contrib" Name="contrib">
                 <Component Id="mercurial.contrib.bash_completion" Guid="75D38E4B-91FD-4A29-965F-C61405E10728">
@@ -171,10 +167,6 @@
                     <File Id="mercurial.lib.dulwich._pack.pyd" Name="dulwich._pack.pyd" Source="..\..\mercurial\lib\dulwich._pack.pyd" />
                     <RemoveFile Id="_fe142d109b394bb8b56afb1702c6cfc9" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.lib.git2.dll" Guid="410FB49C-D3F7-48D8-8417-A7BA96ED4493">
-                    <File Id="mercurial.lib.git2.dll" Name="git2.dll" Source="..\..\mercurial\lib\git2.dll" />
-                    <RemoveFile Id="_6a11974194de4793b7f57795221147fe" On="both" Name="*.*" />
-                </Component>
                 <Component Id="mercurial.lib.hgext.fsmonitor.pywatchman.bser.pyd" Guid="16175DE9-BC36-4D2C-9C2A-3AA15CE46A4E">
                     <File Id="mercurial.lib.hgext.fsmonitor.pywatchman.bser.pyd" Name="hgext.fsmonitor.pywatchman.bser.pyd" Source="..\..\mercurial\lib\hgext.fsmonitor.pywatchman.bser.pyd" />
                     <RemoveFile Id="_0c83e144f3784b4db70bb4f174faa18b" On="both" Name="*.*" />
@@ -223,10 +215,6 @@
                     <File Id="mercurial.lib.mercurial.thirdparty.sha1dc.pyd" Name="mercurial.thirdparty.sha1dc.pyd" Source="..\..\mercurial\lib\mercurial.thirdparty.sha1dc.pyd" />
                     <RemoveFile Id="_8a77a14f5b53483eaa7dcd19a21aa53c" On="both" Name="*.*" />
                 </Component>
-                <Component Id="_.zope.interface._zope_interface_coptimizations.pyd" Guid="6E5DACBE-D611-493B-BCA5-D0E658059B36">
-                    <File Id="_.zope.interface._zope_interface_coptimizations.pyd" Name="mercurial.thirdparty.zope.interface._zope_interface_coptimizations.pyd" Source="..\..\mercurial\lib\mercurial.thirdparty.zope.interface._zope_interface_coptimizations.pyd" />
-                    <RemoveFile Id="_bd7f1b7b20b54351abd1b0c0f0272019" On="both" Name="*.*" />
-                </Component>
                 <Component Id="mercurial.lib.mercurial.zstd.pyd" Guid="04DEC5A9-93C0-413C-8FF4-C1653E2C9880">
                     <File Id="mercurial.lib.mercurial.zstd.pyd" Name="mercurial.zstd.pyd" Source="..\..\mercurial\lib\mercurial.zstd.pyd" />
                     <RemoveFile Id="_d926ac12d6914374bf8fd5be40383c8b" On="both" Name="*.*" />
@@ -234,14 +222,6 @@
                 <Component Id="mercurial.lib.pyexpat.pyd" Guid="DE7CEC60-D92B-433B-AE3D-9D2D0C17DD0C">
                     <File Id="mercurial.lib.pyexpat.pyd" Name="pyexpat.pyd" Source="..\..\mercurial\lib\pyexpat.pyd" />
                     <RemoveFile Id="_78e150831fc446158de1ba2f6e912d94" On="both" Name="*.*" />
-                </Component>
-                <Component Id="mercurial.lib.pygit2._libgit2.pyd" Guid="E73E3675-A472-406A-B38F-AC0B55E44FFC">
-                    <File Id="mercurial.lib.pygit2._libgit2.pyd" Name="pygit2._libgit2.pyd" Source="..\..\mercurial\lib\pygit2._libgit2.pyd" />
-                    <RemoveFile Id="_729bba68148646e88a22d8d02d80ab4c" On="both" Name="*.*" />
-                </Component>
-                <Component Id="mercurial.lib.pygit2._pygit2.pyd" Guid="AF7F51C3-0A27-4239-A6C5-3F70CD250DC2">
-                    <File Id="mercurial.lib.pygit2._pygit2.pyd" Name="pygit2._pygit2.pyd" Source="..\..\mercurial\lib\pygit2._pygit2.pyd" />
-                    <RemoveFile Id="_3254fb1b78364de7a94bfa1e609ec062" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.lib.python3.dll" Guid="647D056B-7BBD-4BEB-A6DF-9AAFBE4A5694">
                     <File Id="mercurial.lib.python3.dll" Name="python3.dll" Source="..\..\mercurial\lib\python3.dll" />
@@ -274,10 +254,6 @@
                 <Component Id="mercurial.lib.tk86t.dll" Guid="2C309CB4-5EE2-4A81-A4C6-98E46FA3E58E">
                     <File Id="mercurial.lib.tk86t.dll" Name="tk86t.dll" Source="..\..\mercurial\lib\tk86t.dll" />
                     <RemoveFile Id="_62e8113fac4145feade4b8bc1120b4a5" On="both" Name="*.*" />
-                </Component>
-                <Component Id="mercurial.lib.TortoisePlink.exe" Guid="BB900F95-EFB9-4A9F-AA09-C43BADFDC1B8">
-                    <File Id="mercurial.lib.TortoisePlink.exe" Name="TortoisePlink.exe" Source="..\..\mercurial\lib\TortoisePlink.exe" />
-                    <RemoveFile Id="_5e83fc83a721478fb9440c467eacd26f" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.lib.unicodedata.pyd" Guid="6E7F7F88-5D3D-46C8-839A-775F95A21AA5">
                     <File Id="mercurial.lib.unicodedata.pyd" Name="unicodedata.pyd" Source="..\..\mercurial\lib\unicodedata.pyd" />
@@ -402,9 +378,9 @@
             </Directory>
         </DirectoryRef>
         <ComponentGroup Id="Mercurial">
-            <ComponentRef Id="mercurial.add_path.exe" />
             <ComponentRef Id="mercurial.cacert.pem" />
             <ComponentRef Id="mercurial.concrt140.dll" />
+            <ComponentRef Id="mercurial.configitems.toml" />
             <ComponentRef Id="mercurial.hg.exe" />
             <ComponentRef Id="mercurial.libcrypto_1_1_x64.dll" />
             <ComponentRef Id="mercurial.libssl_1_1_x64.dll" />
@@ -414,7 +390,6 @@
             <ComponentRef Id="mercurial.python39.dll" />
             <ComponentRef Id="mercurial.vcruntime140.dll" />
             <ComponentRef Id="mercurial.vcruntime140_1.dll" />
-            <ComponentRef Id="mercurial.w9xpopen.exe" />
             <ComponentRef Id="mercurial.contrib.bash_completion" />
             <ComponentRef Id="mercurial.contrib.hgk" />
             <ComponentRef Id="mercurial.contrib.hgweb.fcgi" />
@@ -442,7 +417,6 @@
             <ComponentRef Id="mercurial.lib.dulwich._diff_tree.pyd" />
             <ComponentRef Id="mercurial.lib.dulwich._objects.pyd" />
             <ComponentRef Id="mercurial.lib.dulwich._pack.pyd" />
-            <ComponentRef Id="mercurial.lib.git2.dll" />
             <ComponentRef Id="mercurial.lib.hgext.fsmonitor.pywatchman.bser.pyd" />
             <ComponentRef Id="mercurial.lib.kdiff3.exe" />
             <ComponentRef Id="mercurial.lib.libcrypto_1_1.dll" />
@@ -455,11 +429,8 @@
             <ComponentRef Id="mercurial.lib.mercurial.cext.osutil.pyd" />
             <ComponentRef Id="mercurial.lib.mercurial.cext.parsers.pyd" />
             <ComponentRef Id="mercurial.lib.mercurial.thirdparty.sha1dc.pyd" />
-            <ComponentRef Id="_.zope.interface._zope_interface_coptimizations.pyd" />
             <ComponentRef Id="mercurial.lib.mercurial.zstd.pyd" />
             <ComponentRef Id="mercurial.lib.pyexpat.pyd" />
-            <ComponentRef Id="mercurial.lib.pygit2._libgit2.pyd" />
-            <ComponentRef Id="mercurial.lib.pygit2._pygit2.pyd" />
             <ComponentRef Id="mercurial.lib.python3.dll" />
             <ComponentRef Id="mercurial.lib.pythoncom39.dll" />
             <ComponentRef Id="mercurial.lib.pywintypes39.dll" />
@@ -468,7 +439,6 @@
             <ComponentRef Id="mercurial.lib.sqlite3.dll" />
             <ComponentRef Id="mercurial.lib.tcl86t.dll" />
             <ComponentRef Id="mercurial.lib.tk86t.dll" />
-            <ComponentRef Id="mercurial.lib.TortoisePlink.exe" />
             <ComponentRef Id="mercurial.lib.unicodedata.pyd" />
             <ComponentRef Id="mercurial.lib.win32api.pyd" />
             <ComponentRef Id="mercurial.lib.win32com.shell.shell.pyd" />
