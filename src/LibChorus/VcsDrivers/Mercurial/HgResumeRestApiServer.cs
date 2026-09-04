@@ -41,6 +41,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters parameters, byte[] contentToSend, int secondsBeforeTimeout)
 		{
+			using var activity = LibChorusActivitySource.Value.StartActivity();
+			activity?.SetTag("app.hgresume.method", method);
+			activity?.SetTag("app.hgresume.bytes-sent", contentToSend.Length);
 			Url = FormatUrl(_url, method, parameters);
 			var req = (HttpWebRequest) WebRequest.Create(Url);
 			req.UserAgent = $"HgResume v{ApiVersion}";
@@ -105,6 +108,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (apiResponse != null)
 			{
 				apiResponse.ResponseTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
+				activity?.SetTag("app.hgresume.http-status", (int) apiResponse.HttpStatus);
+				activity?.SetTag("app.hgresume.bytes-received", apiResponse.Content?.Length ?? 0);
 			}
 			return apiResponse;
 		}
