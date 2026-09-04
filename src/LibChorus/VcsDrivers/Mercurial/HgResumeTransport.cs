@@ -28,6 +28,10 @@ namespace Chorus.VcsDrivers.Mercurial
 		private readonly string _targetLabel;
 		private readonly IApiServer _apiServer;
 
+		// Deliberately small: the first chunk is sent before we know anything about the link, and it has
+		// to complete inside TimeoutInSeconds even on the slow connections this protocol exists for.
+		// CalculateChunkSize ramps from here within a couple of round trips, so there is little to gain
+		// by starting bigger and real risk on a bad link.
 		private const int InitialChunkSize = 5000;
 		private const int MaximumChunkSize = 20000000; // 20MB
 		private const int TimeoutInSeconds = 30;
