@@ -39,7 +39,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <summary>
 		/// Template to produce a consistent and parseable revision log entry
 		/// </summary>
-		private const string DetailedRevisionTemplate = "--template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"";
+		private const string DetailedRevisionTemplate = "--template \"changeset:{rev}:{node|short}\nlonghash:{node}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"";
 		private bool _mercurialTwoCompatible;
 		private HgModelVersionBranch _branchHelper;
 
@@ -1140,6 +1140,16 @@ namespace Chorus.VcsDrivers.Mercurial
 							items.Add(item);
 							item.SetRevisionAndHashFromCombinedDescriptor(value, this);
 							break;
+						case "longhash":
+							// The full 40-char node comes back in the same hg log as the changeset line, so
+							// RevisionNumber never has to launch hg to widen the short hash. The template puts
+							// this line after "changeset", so item.Number is already there.
+							if (item?.Number != null && !string.IsNullOrEmpty(value))
+							{
+								item.Number.LongHash = value;
+							}
+							break;
+
 						case "parent":
 							item.AddParentFromCombinedNumberAndHash(value, this);
 							break;
@@ -1183,7 +1193,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		public Revision GetRevisionWorkingSetIsBasedOn()
 		{
-			return GetRevisionsFromQuery("parents --template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\nparent:{p1rev}:{p1node}\"").FirstOrDefault();
+			return GetRevisionsFromQuery("parents --template \"changeset:{rev}:{node|short}\nlonghash:{node}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\nparent:{p1rev}:{p1node}\"").FirstOrDefault();
 		}
 
 		public string GetUserIdInUse()

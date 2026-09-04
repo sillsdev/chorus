@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Update icu.net dependency from version 3.0.0-* to 3.0.1
 - Update L10NSharp dependency from version 8.0.0-beta0005 to 10.0.0-*
 - [SIL.Chorus] Remove `emailForSubmissions` argument from `LocalizationManagerWinforms.Create` call (removed in L10NSharp 10)
+- [SIL.Chorus.LibChorus] Read each revision's full hash from the existing `hg log` output instead of
+  launching one `hg` process per revision to widen the short hash
 
 ### Removed
 

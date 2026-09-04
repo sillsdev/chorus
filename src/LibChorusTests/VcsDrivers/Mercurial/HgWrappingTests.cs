@@ -206,6 +206,65 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		/// <summary>
+		/// The long hash used to be fetched with `hg log -rN --template "{node}"` from the RevisionNumber
+		/// constructor, i.e. one hg process per revision on top of the single `hg log` that had just
+		/// listed them all. On a large repo that dominated push. It now comes back in that same hg log.
+		/// </summary>
+		[Test]
+		public void GetAllRevisions_DoesNotLaunchHgOncePerRevisionToGetTheLongHash()
+		{
+			using (var testRoot = new TemporaryFolder("ChorusHgWrappingTest"))
+			{
+				var progress = new StringBuilderProgress { ShowVerbose = true };
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
+				var repo = new HgRepository(testRoot.Path, progress);
+				using (var file1 = testRoot.GetNewTempFile(true))
+				using (var file2 = testRoot.GetNewTempFile(true))
+				using (var file3 = testRoot.GetNewTempFile(true))
+				{
+					repo.AddAndCheckinFile(file1.Path);
+					repo.AddAndCheckinFile(file2.Path);
+					repo.AddAndCheckinFile(file3.Path);
+
+					progress.Clear();
+					var revisions = repo.GetAllRevisions();
+
+					Assert.That(revisions.Count, Is.EqualTo(3));
+					foreach (var revision in revisions)
+					{
+						Assert.That(revision.Number.LongHash.Length, Is.EqualTo(40),
+							"revision {0} did not get a full-length hash", revision.Number.LocalRevisionNumber);
+						Assert.That(revision.Number.Hash, Is.EqualTo(revision.Number.LongHash.Substring(0, 12)));
+					}
+					Assert.That(progress.Text, Does.Not.Contain("--template \"{node}\""),
+						"GetAllRevisions ran a per-revision hg log to widen the short hash");
+				}
+			}
+		}
+
+		[Test]
+		public void GetRevisionsFromQueryResultText_WithoutLongHashLine_StillFindsTheLongHash()
+		{
+			using (var testRoot = new TemporaryFolder("ChorusHgWrappingTest"))
+			{
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
+				var repo = new HgRepository(testRoot.Path, new NullProgress());
+				using (var file1 = testRoot.GetNewTempFile(true))
+				{
+					repo.AddAndCheckinFile(file1.Path);
+					var expected = repo.Identifier;
+
+					// An older template, or any external caller of this public parsing method: no longhash
+					// line, so the lookup has to happen lazily against the repository.
+					var revision = repo.GetRevisionsFromQueryResultText(
+						"changeset:0:" + expected.Substring(0, 12) + "\nbranch:\nuser:test\ntag:\nsummary:x\n").Single();
+
+					Assert.That(revision.Number.LongHash, Is.EqualTo(expected));
+				}
+			}
+		}
+
 		[Test]
 		public void GetRevisionWorkingSetIsBasedOn_OneCheckin_Gives0()
 		{
