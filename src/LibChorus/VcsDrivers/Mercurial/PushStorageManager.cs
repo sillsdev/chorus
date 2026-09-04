@@ -28,7 +28,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (bytesRead != length)
 				{
 					var smallerChunk = new byte[bytesRead];
-					chunk.CopyTo(smallerChunk, 0, bytesRead);
+					chunk.CopyTo(smallerChunk, 0);
 					return smallerChunk;
 				}
 				return chunk;
