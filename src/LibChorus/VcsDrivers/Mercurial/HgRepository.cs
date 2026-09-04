@@ -426,12 +426,37 @@ namespace Chorus.VcsDrivers.Mercurial
 			return GetRevisionsFromQuery("heads " + DetailedRevisionTemplate);
 		}
 
+		/// <summary>
+		/// Bundle format used when sending changes. hg's own default is bzip2, which is the slowest
+		/// compressor it ships. Measured on a 635MB FLEx project: bzip2 took 108s, zstd level 5 took 37s
+		/// for 11% more bytes. That trade pays off on any link faster than about 1MB/s and costs on a
+		/// slower one, so a caller whose users are on very poor connections may want to set this to null
+		/// (hg's default) or raise the level.
+		/// </summary>
+		public static string BundleSpec = "zstd-v2";
+
+		/// <summary>Compression level for <see cref="BundleSpec"/>; null means the engine's default.</summary>
+		public static int? BundleCompressionLevel = 5;
+
+		private static string BundleCompressionFlags()
+		{
+			if (string.IsNullOrEmpty(BundleSpec))
+			{
+				return string.Empty;
+			}
+			var level = BundleCompressionLevel.HasValue
+				? string.Format("--config experimental.bundlecomplevel={0} ", BundleCompressionLevel.Value)
+				: string.Empty;
+			return string.Format("{0}-t {1} ", level, BundleSpec);
+		}
+
 		public bool MakeBundle(string[] baseRevisions, string filePath)
 		{
 			string command;
+			var compression = BundleCompressionFlags();
 			if (baseRevisions.Length == 0 || baseRevisions.Contains("0")) // empty list or "0" means "all revisions"
 			{
-				command = string.Format("bundle --all \"{0}\"", filePath);
+				command = string.Format("bundle {0}--all \"{1}\"", compression, filePath);
 			}
 			else
 			{
@@ -440,7 +465,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					revisionFlags += string.Format(@"--base {0} ", baseRevision);
 				}
-				command = string.Format("bundle {0} \"{1}\"", revisionFlags, filePath);
+				command = string.Format("bundle {0}{1}\"{2}\"", compression, revisionFlags, filePath);
 			}
 
 			string result = GetTextFromQuery(command);

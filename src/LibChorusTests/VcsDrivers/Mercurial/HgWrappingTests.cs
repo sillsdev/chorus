@@ -558,6 +558,36 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		/// <summary>
+		/// hg's default bundle compression is bzip2, which costs minutes on a large project for a modest
+		/// saving over zstd. If this starts failing, check whether HgRepository.BundleSpec was reset.
+		/// </summary>
+		[Test]
+		public void MakeBundle_CompressesWithTheConfiguredBundleSpec()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				Revision revision = setup.Repository.GetTip();
+				setup.ChangeAndCheckinFile(path, "bad");
+
+				var bundleFilePath = setup.Root.GetNewTempFile(true).Path;
+				Assert.That(setup.Repository.MakeBundle(new[] { revision.Number.Hash }, bundleFilePath), Is.True);
+
+				// A v2 bundle names its compression engine in the plaintext header: ZS for zstd, BZ for bzip2.
+				var header = new byte[64];
+				using (var stream = File.OpenRead(bundleFilePath))
+				{
+					stream.Read(header, 0, header.Length);
+				}
+				var headerText = System.Text.Encoding.ASCII.GetString(header);
+				Assert.That(headerText, Does.StartWith("HG20"));
+				Assert.That(headerText, Does.Contain("Compression=ZS"), "bundle was not zstd-compressed");
+			}
+		}
+
 		[Test]
 		public void Unbundle_ValidBundleFile_ReturnsTrue()
 		{
