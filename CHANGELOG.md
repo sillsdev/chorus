@@ -27,7 +27,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Use UTF-8 in conflict details view
 - [SIL.Chorus.LibChorus] Add ChorusStorage (the bundle cache) as an Excluded folder
 - [SIL.Chorus.LibChorus] Changed HgResumeTransport LastKnownCommonBases to use Json serialization instead of BinaryFormatter
-- Update SIL.Chorus.Mercurial dependency to version 7.0.1 which uses Python 3
+- Update SIL.Chorus.Mercurial dependency to version 7.0.1.87 which uses Python 3 and should be faster
+- Update SIL.BuildTasks build-time dependency from version 3.0.0 to 3.3.0
 - Update libPalaso dependency from version 15.0.0-* to 18.0.0-*
 - Update Newtonsoft.Json dependency from version 13.0.2 to 13.0.4
 - Update Microsoft.NET.Test.Sdk dependency from version 17.3.1 to 17.14.1
