@@ -14,7 +14,7 @@
     <PackageReference Include="GitVersion.MsBuild" Version="5.10.3" PrivateAssets="All" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SIL.ReleaseTasks" Version="3.0.0" PrivateAssets="All" />
-    <PackageReference Include="SIL.BuildTasks" Version="3.0.0" PrivateAssets="All" />
+    <PackageReference Include="SIL.BuildTasks" Version="3.3.0" PrivateAssets="All" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +39,7 @@
       DirectoryReferenceId="mercurial"
       ComponentGroupId="Mercurial"
       RootDirectory="$(RootDir)\mercurial"
+      ConsolidatedGuidFile="$(RootDir)\mercurial\.guidsForInstaller.all.xml"
       OutputFilePath="$(RootDir)\src\Installer\GeneratedMercurial.wxs"
       IgnoreRegExPattern="IGNOREME|\.gitignore"
       Exclude="$(RootDir)\mercurial\mercurial.ini;$(RootDir)\mercurial\default.d\cacerts.rc"
