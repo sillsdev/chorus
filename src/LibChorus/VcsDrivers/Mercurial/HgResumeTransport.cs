@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using Chorus.Properties;
 using Chorus.Utilities;
@@ -299,7 +300,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						throw new HgResumeOperationFailed(String.Format("Failed to get remote revisions for {0}", _apiServer.ProjectId));
 					}
 				}
-				catch (WebException e)
+				catch (Exception e) when (e is WebException || e is HttpRequestException)
 				{
 					_progress.WriteError(e.Message);
 				}
@@ -588,7 +589,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 				return pushResponse;
 			}
-			catch (WebException e)
+			catch (Exception e) when (e is WebException || e is HttpRequestException)
 			{
 				_progress.WriteWarning(String.Format("Push data chunk failed: {0}", e.Message));
 				return pushResponse;
@@ -904,7 +905,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 				return pullResponse;
 			}
-			catch (WebException e)
+			catch (Exception e) when (e is WebException || e is HttpRequestException)
 			{
 				_progress.WriteWarning(String.Format("Pull data chunk failed: {0}", e.Message));
 				return pullResponse;
