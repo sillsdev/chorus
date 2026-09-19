@@ -99,6 +99,13 @@ namespace Chorus.VcsDrivers.Mercurial
 
 	public class RevisionNumber
 	{
+		private const int FullHashLength = 40;
+
+		// Private, so Newtonsoft's default contract (public properties and public fields) leaves them out
+		// of revisioncache.json; the serialized shape is unchanged.
+		private string _longHash;
+		private HgRepository _repositoryForLazyLongHashLookup;
+
 		internal RevisionNumber()
 		{
 			LocalRevisionNumber = "-1";
@@ -112,7 +119,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			LocalRevisionNumber = local;
 			Hash = hash;
 
-			SetLongHash(repository);
+			InitializeLongHash(repository);
 		}
 		public RevisionNumber(HgRepository repository, string combinedNumberAndHash)
 			: this()
@@ -122,19 +129,49 @@ namespace Chorus.VcsDrivers.Mercurial
 			Hash = parts[1].Trim();
 			LocalRevisionNumber = parts[0];
 
-			SetLongHash(repository);
+			InitializeLongHash(repository);
 		}
 
-		public string LongHash { get; set; }
+		/// <summary>
+		/// The full 40-character node. Nearly always supplied by whoever built this: hg's log template
+		/// includes longhash:{node}, and some queries (a parent's {p1node}, hg debugancestor) hand us the
+		/// full node as the hash to begin with. Only when neither is true do we ask hg, and then only on
+		/// first read - which used to happen in the constructor, costing one hg process per revision.
+		/// </summary>
+		public string LongHash
+		{
+			get
+			{
+				var repository = _repositoryForLazyLongHashLookup;
+				if (repository != null)
+				{
+					_repositoryForLazyLongHashLookup = null; // one attempt, ever
+					LookUpLongHash(repository);
+				}
+				return _longHash;
+			}
+			set
+			{
+				_longHash = value;
+				_repositoryForLazyLongHashLookup = null;
+			}
+		}
+
 		public string Hash { get; set; }
 		public string LocalRevisionNumber { get; set; }
 
-		private void SetLongHash(HgRepository repository)
+		private void InitializeLongHash(HgRepository repository)
 		{
-			if (repository == null)
+			if (Hash != null && Hash.Length == FullHashLength)
 			{
+				LongHash = Hash;
 				return;
 			}
+			_repositoryForLazyLongHashLookup = repository; // null repository means no lookup is possible
+		}
+
+		private void LookUpLongHash(HgRepository repository)
+		{
 			if (string.IsNullOrWhiteSpace(repository.Identifier))
 			{
 				// No commits yet.
@@ -143,7 +180,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			var result = repository.Execute(repository.SecondsBeforeTimeoutOnLocalOperation, string.Format("log -r{0} --template {1}", LocalRevisionNumber, HgRepository.SurroundWithQuotes("{node}"))).StandardOutput.Trim();
 			var strArray = result.Split(new[] { "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
-			LongHash = strArray[checked(strArray.Length - 1)];
+			if (strArray.Length > 0)
+			{
+				_longHash = strArray[strArray.Length - 1];
+			}
 		}
 	}
 }

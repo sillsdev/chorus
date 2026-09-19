@@ -41,6 +41,9 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters parameters, byte[] contentToSend, int secondsBeforeTimeout)
 		{
+			using var activity = LibChorusActivitySource.Value.StartActivity();
+			activity?.SetTag("app.hgresume.method", method);
+			activity?.SetTag("app.hgresume.bytes-sent", contentToSend.Length);
 			Url = FormatUrl(_url, method, parameters);
 			var req = (HttpWebRequest) WebRequest.Create(Url);
 			req.UserAgent = $"HgResume v{ApiVersion}";
@@ -60,6 +63,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				req.Method = WebRequestMethods.Http.Post;
 				req.ContentLength = contentToSend.Length;
+				// Skip the 100-continue handshake: it costs a round trip before every chunk body, which
+				// measured as ~17% of the time a large push spends in pushBundleChunk. (Write buffering
+				// is deliberately left on - turning it off made no measurable difference and would stop
+				// HttpWebRequest replaying the body when the server answers the first POST with a 401.)
+				req.ServicePoint.Expect100Continue = false;
 				req.ContentType = "text/plain";  // i'm not sure this is really what we want.  The other possibility is "application/x-www-form-urlencoded"
 				using (var reqStream = req.GetRequestStream())
 				{
@@ -105,6 +113,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			if (apiResponse != null)
 			{
 				apiResponse.ResponseTimeInMilliseconds = stopwatch.ElapsedMilliseconds;
+				activity?.SetTag("app.hgresume.http-status", (int) apiResponse.HttpStatus);
+				activity?.SetTag("app.hgresume.bytes-received", apiResponse.Content?.Length ?? 0);
 			}
 			return apiResponse;
 		}
