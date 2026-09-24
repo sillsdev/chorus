@@ -23,6 +23,8 @@ lib/Chorus_Help.chm
 Mercurial/
 mercurial/
 MercurialExtensions/
+# source folders that happen to be named Mercurial
+!src/**/VcsDrivers/Mercurial/
 NuGet.exe
 nuget.exe
 obj/
