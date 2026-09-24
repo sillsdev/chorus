@@ -43,8 +43,8 @@
                     <File Id="mercurial.lib.libcrypto_1_1_x64.dll" Name="libcrypto-1_1-x64.dll" KeyPath="yes" Source="..\..\mercurial\lib\libcrypto-1_1-x64.dll" />
                     <RemoveFile Id="_d41c32ccc8bc44068a757d4c0aff3990" On="both" Name="*.*" />
                 </Component>
-                <Component Id="mercurial.lib.libffi_7.dll" Guid="2CF97D1B-52B5-4E68-8F18-2C5F9827BE97">
-                    <File Id="mercurial.lib.libffi_7.dll" Name="libffi-7.dll" Source="..\..\mercurial\lib\libffi-7.dll" />
+                <Component Id="mercurial.lib.libffi_8.dll" Guid="255417E8-6C92-4A63-B17C-13E48A6A12B0">
+                    <File Id="mercurial.lib.libffi_8.dll" Name="libffi-8.dll" Source="..\..\mercurial\lib\libffi-8.dll" />
                     <RemoveFile Id="_2902f0bd9f304b288fb585f8aba4d142" On="both" Name="*.*" />
                 </Component>
                 <Component Id="mercurial.lib.libssl_1_1_x64.dll" Guid="AB246C79-1E82-4BCA-80D2-2E37EE52886B">
@@ -1640,7 +1640,7 @@
             <ComponentRef Id="mercurial.vcruntime140_1.dll" />
             <ComponentRef Id="mercurial.vcruntime140_threads.dll" />
             <ComponentRef Id="mercurial.lib.libcrypto_1_1_x64.dll" />
-            <ComponentRef Id="mercurial.lib.libffi_7.dll" />
+            <ComponentRef Id="mercurial.lib.libffi_8.dll" />
             <ComponentRef Id="mercurial.lib.libssl_1_1_x64.dll" />
             <ComponentRef Id="mercurial.lib.pyexpat.pyd" />
             <ComponentRef Id="mercurial.lib.select.pyd" />

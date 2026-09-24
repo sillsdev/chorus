@@ -50,7 +50,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [SIL.Chorus.LibChorus] Fix null-key insertion when XML record identifier attribute is absent in XmlMergeService
 - [SIL.Chorus.LibChorus] Fix crash in password encryption/decryption on non-Windows platforms and on Windows data-protection failure
 - [SIL.Chorus.LibChorus] Fix IndexOutOfRangeException parsing ChorusHub query parameters without '=', and preserve values containing '='
-- [SIL.Chorus.ChorusMergeModule] Update list of installed files for Mercurial 7, removing 7 old files and adding 1 new one
+- [SIL.Chorus.ChorusMergeModule] Update list of installed files for Mercurial 7, removing 81 old files and adding 356 new ones
 
 ## [5.1.0] - 2023-03-07
 
