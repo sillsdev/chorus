@@ -12,14 +12,23 @@ namespace Chorus.VcsDrivers.Mercurial
 			{
 				fs.Seek(offset, SeekOrigin.Begin);
 				var chunk = new byte[length];
-				int bytesRead = fs.Read(chunk, 0, length);
+				// A single Read is allowed to come up short even when the file has more to give, and a
+				// short chunk costs an extra round trip, so keep reading until we have what we asked for
+				// or hit the end of the bundle.
+				int bytesRead = 0;
+				while (bytesRead < length)
+				{
+					int read = fs.Read(chunk, bytesRead, length - bytesRead);
+					if (read == 0)
+					{
+						break; // end of file
+					}
+					bytesRead += read;
+				}
 				if (bytesRead != length)
 				{
 					var smallerChunk = new byte[bytesRead];
-					for (int i = 0; i < bytesRead; i++)
-					{
-						smallerChunk[i] = chunk[i];
-					}
+					System.Array.Copy(chunk, smallerChunk, bytesRead);
 					return smallerChunk;
 				}
 				return chunk;

@@ -39,7 +39,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <summary>
 		/// Template to produce a consistent and parseable revision log entry
 		/// </summary>
-		private const string DetailedRevisionTemplate = "--template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"";
+		private const string DetailedRevisionTemplate = "--template \"changeset:{rev}:{node|short}\nlonghash:{node}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\n\"";
 		private bool _mercurialTwoCompatible;
 		private HgModelVersionBranch _branchHelper;
 
@@ -426,12 +426,37 @@ namespace Chorus.VcsDrivers.Mercurial
 			return GetRevisionsFromQuery("heads " + DetailedRevisionTemplate);
 		}
 
+		/// <summary>
+		/// Bundle format used when sending changes. hg's own default is bzip2, which is the slowest
+		/// compressor it ships. Measured on a 635MB FLEx project: bzip2 took 108s, zstd level 5 took 37s
+		/// for 11% more bytes. That trade pays off on any link faster than about 1MB/s and costs on a
+		/// slower one, so a caller whose users are on very poor connections may want to set this to null
+		/// (hg's default) or raise the level.
+		/// </summary>
+		public static string BundleSpec = "zstd-v2";
+
+		/// <summary>Compression level for <see cref="BundleSpec"/>; null means the engine's default.</summary>
+		public static int? BundleCompressionLevel = 5;
+
+		private static string BundleCompressionFlags()
+		{
+			if (string.IsNullOrEmpty(BundleSpec))
+			{
+				return string.Empty;
+			}
+			var level = BundleCompressionLevel.HasValue
+				? string.Format("--config experimental.bundlecomplevel={0} ", BundleCompressionLevel.Value)
+				: string.Empty;
+			return string.Format("{0}-t {1} ", level, BundleSpec);
+		}
+
 		public bool MakeBundle(string[] baseRevisions, string filePath)
 		{
 			string command;
+			var compression = BundleCompressionFlags();
 			if (baseRevisions.Length == 0 || baseRevisions.Contains("0")) // empty list or "0" means "all revisions"
 			{
-				command = string.Format("bundle --all \"{0}\"", filePath);
+				command = string.Format("bundle {0}--all \"{1}\"", compression, filePath);
 			}
 			else
 			{
@@ -440,7 +465,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					revisionFlags += string.Format(@"--base {0} ", baseRevision);
 				}
-				command = string.Format("bundle {0} \"{1}\"", revisionFlags, filePath);
+				command = string.Format("bundle {0}{1}\"{2}\"", compression, revisionFlags, filePath);
 			}
 
 			string result = GetTextFromQuery(command);
@@ -1140,6 +1165,16 @@ namespace Chorus.VcsDrivers.Mercurial
 							items.Add(item);
 							item.SetRevisionAndHashFromCombinedDescriptor(value, this);
 							break;
+						case "longhash":
+							// The full 40-char node comes back in the same hg log as the changeset line, so
+							// RevisionNumber never has to launch hg to widen the short hash. The template puts
+							// this line after "changeset", so item.Number is already there.
+							if (item?.Number != null && !string.IsNullOrEmpty(value))
+							{
+								item.Number.LongHash = value;
+							}
+							break;
+
 						case "parent":
 							item.AddParentFromCombinedNumberAndHash(value, this);
 							break;
@@ -1183,7 +1218,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// </summary>
 		public Revision GetRevisionWorkingSetIsBasedOn()
 		{
-			return GetRevisionsFromQuery("parents --template \"changeset:{rev}:{node|short}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\nparent:{p1rev}:{p1node}\"").FirstOrDefault();
+			return GetRevisionsFromQuery("parents --template \"changeset:{rev}:{node|short}\nlonghash:{node}\nbranch:{branches}\nuser:{author}\ndate:{date|rfc822date}\ntag:{tags}\nsummary:{desc}\nparent:{p1rev}:{p1node}\"").FirstOrDefault();
 		}
 
 		public string GetUserIdInUse()

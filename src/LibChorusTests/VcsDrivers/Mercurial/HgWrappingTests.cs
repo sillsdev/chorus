@@ -206,6 +206,65 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		/// <summary>
+		/// The long hash used to be fetched with `hg log -rN --template "{node}"` from the RevisionNumber
+		/// constructor, i.e. one hg process per revision on top of the single `hg log` that had just
+		/// listed them all. On a large repo that dominated push. It now comes back in that same hg log.
+		/// </summary>
+		[Test]
+		public void GetAllRevisions_DoesNotLaunchHgOncePerRevisionToGetTheLongHash()
+		{
+			using (var testRoot = new TemporaryFolder("ChorusHgWrappingTest"))
+			{
+				var progress = new StringBuilderProgress { ShowVerbose = true };
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
+				var repo = new HgRepository(testRoot.Path, progress);
+				using (var file1 = testRoot.GetNewTempFile(true))
+				using (var file2 = testRoot.GetNewTempFile(true))
+				using (var file3 = testRoot.GetNewTempFile(true))
+				{
+					repo.AddAndCheckinFile(file1.Path);
+					repo.AddAndCheckinFile(file2.Path);
+					repo.AddAndCheckinFile(file3.Path);
+
+					progress.Clear();
+					var revisions = repo.GetAllRevisions();
+
+					Assert.That(revisions.Count, Is.EqualTo(3));
+					foreach (var revision in revisions)
+					{
+						Assert.That(revision.Number.LongHash.Length, Is.EqualTo(40),
+							"revision {0} did not get a full-length hash", revision.Number.LocalRevisionNumber);
+						Assert.That(revision.Number.Hash, Is.EqualTo(revision.Number.LongHash.Substring(0, 12)));
+					}
+					Assert.That(progress.Text, Does.Not.Contain("--template \"{node}\""),
+						"GetAllRevisions ran a per-revision hg log to widen the short hash");
+				}
+			}
+		}
+
+		[Test]
+		public void GetRevisionsFromQueryResultText_WithoutLongHashLine_StillFindsTheLongHash()
+		{
+			using (var testRoot = new TemporaryFolder("ChorusHgWrappingTest"))
+			{
+				HgRepository.CreateRepositoryInExistingDir(testRoot.Path, _progress);
+				var repo = new HgRepository(testRoot.Path, new NullProgress());
+				using (var file1 = testRoot.GetNewTempFile(true))
+				{
+					repo.AddAndCheckinFile(file1.Path);
+					var expected = repo.Identifier;
+
+					// An older template, or any external caller of this public parsing method: no longhash
+					// line, so the lookup has to happen lazily against the repository.
+					var revision = repo.GetRevisionsFromQueryResultText(
+						"changeset:0:" + expected.Substring(0, 12) + "\nbranch:\nuser:test\ntag:\nsummary:x\n").Single();
+
+					Assert.That(revision.Number.LongHash, Is.EqualTo(expected));
+				}
+			}
+		}
+
 		[Test]
 		public void GetRevisionWorkingSetIsBasedOn_OneCheckin_Gives0()
 		{
@@ -496,6 +555,36 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var bundleFilePath = setup.Root.GetNewTempFile(true).Path;
 				Assert.That(setup.Repository.MakeBundle(new []{revision.Number.Hash}, bundleFilePath), Is.True);
 				Assert.That(File.Exists(bundleFilePath), Is.True);
+			}
+		}
+
+		/// <summary>
+		/// hg's default bundle compression is bzip2, which costs minutes on a large project for a modest
+		/// saving over zstd. If this starts failing, check whether HgRepository.BundleSpec was reset.
+		/// </summary>
+		[Test]
+		public void MakeBundle_CompressesWithTheConfiguredBundleSpec()
+		{
+			using (var setup = new HgTestSetup())
+			{
+				var path = setup.Root.GetNewTempFile(true).Path;
+				File.WriteAllText(path, "original");
+				setup.Repository.AddAndCheckinFile(path);
+				Revision revision = setup.Repository.GetTip();
+				setup.ChangeAndCheckinFile(path, "bad");
+
+				var bundleFilePath = setup.Root.GetNewTempFile(true).Path;
+				Assert.That(setup.Repository.MakeBundle(new[] { revision.Number.Hash }, bundleFilePath), Is.True);
+
+				// A v2 bundle names its compression engine in the plaintext header: ZS for zstd, BZ for bzip2.
+				var header = new byte[64];
+				using (var stream = File.OpenRead(bundleFilePath))
+				{
+					stream.Read(header, 0, header.Length);
+				}
+				var headerText = System.Text.Encoding.ASCII.GetString(header);
+				Assert.That(headerText, Does.StartWith("HG20"));
+				Assert.That(headerText, Does.Contain("Compression=ZS"), "bundle was not zstd-compressed");
 			}
 		}
 
