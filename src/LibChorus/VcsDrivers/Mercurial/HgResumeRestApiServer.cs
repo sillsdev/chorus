@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
@@ -26,7 +27,14 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private static HttpClient CreateClient()
 		{
-			var handler = new HttpClientHandler();
+			var handler = new HttpClientHandler
+			{
+				// We send the Authorization header ourselves (see Execute), but HttpClient drops it when it
+				// follows a redirect. These let the handler answer the 401 challenge at the new location,
+				// then keep sending credentials there up front.
+				Credentials = SessionCredentials.Instance,
+				PreAuthenticate = true
+			};
 			return new HttpClient(handler, disposeHandler: true)
 			{
 				Timeout = Timeout.InfiniteTimeSpan
@@ -39,6 +47,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_url = new Uri(url);
 			Url = "";
+			SessionCredentials.Instance.AllowServer(_url);
 
 			// http://jira.palaso.org/issues/browse/CHR-26
 			// Fix to support HTTP/1.0 proxy servers (ipcop) that stand between the client an our server (and that fail with a HTTP 417 Expectation Failed error, if you don't have this fix)
@@ -81,9 +90,9 @@ namespace Chorus.VcsDrivers.Mercurial
 			// Send credentials pre-emptively so we never pay for a 401 challenge round trip. The
 			// resumable server accepts Basic auth on the first request, so PreAuthenticate's
 			// challenge-then-cache dance (what the old HttpWebRequest code relied on) is pure overhead here.
-			var basic = Convert.ToBase64String(Encoding.UTF8.GetBytes(
-				$"{Properties.Settings.Default.LanguageForgeUser}:{ServerSettingsModel.PasswordForSession}"));
-			req.Headers.Authorization = new AuthenticationHeaderValue("Basic", basic);
+			// The handler's SessionCredentials only come into play after a redirect drops this header.
+			req.Headers.Authorization = BasicAuthHeader(
+				Properties.Settings.Default.LanguageForgeUser, ServerSettingsModel.PasswordForSession);
 
 			if (contentToSend.Length > 0)
 			{
@@ -129,6 +138,52 @@ namespace Chorus.VcsDrivers.Mercurial
 				activity?.SetTag("app.hgresume.bytes-received", apiResponse.Content?.Length ?? 0);
 			}
 			return apiResponse;
+		}
+
+		internal static AuthenticationHeaderValue BasicAuthHeader(string user, string password)
+		{
+			return new AuthenticationHeaderValue("Basic",
+				Convert.ToBase64String(Encoding.UTF8.GetBytes($"{user}:{password}")));
+		}
+
+		/// <summary>
+		/// Credentials for the process-wide handler. They are read from the current session settings on
+		/// every challenge, since the handler outlives any one user's session, and only handed to a host we
+		/// were constructed for, so a redirect to some other server can't collect the password. A redirect
+		/// from https to http gets nothing either.
+		/// Derives from CredentialCache only because both HttpClient handlers (and .NET Framework's
+		/// HttpWebRequest underneath) refuse to use any other ICredentials after following a redirect;
+		/// the cache itself stays empty and our re-implementation of ICredentials.GetCredential answers.
+		/// </summary>
+		internal sealed class SessionCredentials : CredentialCache, ICredentials
+		{
+			public static readonly SessionCredentials Instance = new SessionCredentials();
+
+			// host => whether we were ever asked to talk to it over plain http
+			private readonly ConcurrentDictionary<string, bool> _hosts =
+				new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+			public void AllowServer(Uri server)
+			{
+				var isHttp = server.Scheme == Uri.UriSchemeHttp;
+				_hosts.AddOrUpdate(server.Host, isHttp, (_, wasHttp) => wasHttp || isHttp);
+			}
+
+			NetworkCredential ICredentials.GetCredential(Uri uri, string authType)
+			{
+				if (!_hosts.TryGetValue(uri.Host, out var httpAllowed) ||
+					(uri.Scheme != Uri.UriSchemeHttps && !httpAllowed))
+				{
+					return null;
+				}
+				var user = Properties.Settings.Default.LanguageForgeUser;
+				var password = ServerSettingsModel.PasswordForSession;
+				if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
+				{
+					return null;
+				}
+				return new NetworkCredential(user, password);
+			}
 		}
 
 		private static HgResumeApiResponse HandleResponse(HttpResponseMessage res)
