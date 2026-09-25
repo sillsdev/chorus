@@ -4,4 +4,13 @@
     <Copy SourceFiles="$(PackageOutputPath)/$(PackageId).$(PackageVersion).nupkg"
       DestinationFolder="$(LOCAL_NUGET_REPO)"/>
   </Target>
+
+  <!-- SIL.Chorus.Mercurial adds CopyFiles and AdjustFixUtf8 to BuildDependsOn in every inner build.
+  In a multi-targeted project the inner builds run in parallel and write the same
+  $(Mercurial4ChorusDestDir)/Mercurial/mercurial.ini, which can fail with a file-in-use error.
+  Projects set Mercurial4ChorusTargetFramework to run those targets for only one TFM.
+  This has to live in a .targets file so it's evaluated after the package's targets. -->
+  <PropertyGroup Condition="'$(Mercurial4ChorusTargetFramework)' != '' AND '$(TargetFramework)' != '' AND '$(TargetFramework)' != '$(Mercurial4ChorusTargetFramework)'">
+    <BuildDependsOn>$([MSBuild]::Unescape($(BuildDependsOn.Replace(';CopyFiles;AdjustFixUtf8', ''))))</BuildDependsOn>
+  </PropertyGroup>
 </Project>
