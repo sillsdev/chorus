@@ -99,11 +99,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		/// <summary>
 		/// HttpClient drops our Authorization header when it follows a redirect; the handler's credentials
 		/// must answer the new location's challenge. 307 keeps the method and body, as a push chunk needs.
+		/// ASCII credentials because on .NET Framework the handler encodes challenge answers as Latin-1
+		/// (as the old HttpWebRequest code always did), not the UTF-8 we send up front.
 		/// </summary>
 		[Test]
 		public void Execute_RedirectedPostToSameHost_AuthenticatesAtNewLocationAndKeepsBody()
 		{
-			SetSession("user", "pässwörd");
+			SetSession("user", "password");
 			string authorization = null;
 			string body = null;
 			using (var target = new LoopbackServer(ctx =>
@@ -130,7 +132,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 				Assert.That(response.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
 				Assert.That(authorization,
-					Is.EqualTo("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes("user:pässwörd"))));
+					Is.EqualTo("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes("user:password"))));
 				Assert.That(body, Is.EqualTo("chunk"));
 			}
 		}
