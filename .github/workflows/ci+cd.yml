@@ -71,6 +71,11 @@ jobs:
     - name: Test LibChorus
       run: dotnet test src/LibChorusTests/LibChorus.Tests.csproj -f ${{ matrix.framework }} --no-build -c Release --filter TestCategory!=SkipOnBuildServer -- NUnit.TestOutputXml=TestResults
 
+    # Runs the hgresume server image in a Linux container, which the Windows runners can't host
+    - name: Test LibChorus against hgresume
+      run: dotnet test src/LibChorus.IntegrationTests/LibChorus.IntegrationTests.csproj -f net8.0 --no-build -c Release -- NUnit.TestOutputXml=TestResults
+      if: matrix.os == 'ubuntu-22.04'
+
     # TODO: Give each test result its own name based on OS and framework and change the test-results.yml workflow accordingly, so that they don't overwrite each other
     - name: Upload Test Results
       if: always()
