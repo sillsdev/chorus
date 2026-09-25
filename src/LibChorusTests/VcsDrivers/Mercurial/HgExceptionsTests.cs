@@ -93,6 +93,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			Assert.That(ProjectLabelErrorException.ErrorMatches(HgFailure("abort: HTTP Error 4040: nonsense")), Is.False);
 		}
 
+		[Test]
+		public void HttpErrorWithNonAsciiDigits_DoesNotMatchOrThrow()
+		{
+			// Arabic-Indic digits: \d matches them but int.Parse throws on them
+			Assert.That(ProjectLabelErrorException.ErrorMatches(HgFailure("abort: HTTP Error ٤٠٤: Not Found")), Is.False);
+		}
+
 		/// <summary>
 		/// End-to-end check that the text the matchers look for is what the bundled hg really prints:
 		/// clone from a local server that answers every request with the given status.
@@ -124,10 +131,22 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 			public FixedStatusHttpServer(int statusCode)
 			{
-				BaseUrl = $"http://127.0.0.1:{GetFreePort()}/";
-				_listener = new HttpListener();
-				_listener.Prefixes.Add(BaseUrl);
-				_listener.Start();
+				// another process can grab the probed port before the listener binds it, so retry a few times
+				for (var attempt = 1; ; attempt++)
+				{
+					BaseUrl = $"http://127.0.0.1:{GetFreePort()}/";
+					_listener = new HttpListener();
+					_listener.Prefixes.Add(BaseUrl);
+					try
+					{
+						_listener.Start();
+						break;
+					}
+					catch (HttpListenerException) when (attempt < 5)
+					{
+						_listener.Close();
+					}
+				}
 				_serving = Task.Run(async () =>
 				{
 					while (_listener.IsListening)

@@ -6,8 +6,9 @@ namespace Chorus.VcsDrivers.Mercurial
 {
 	public class HgCommonException:Exception
 	{
-		// hg reports HTTP failures as e.g. "abort: HTTP Error 404: Not Found"
-		private static readonly Regex HttpErrorStatusRegex = new Regex(@"HTTP Error (\d{3})(?!\d)", RegexOptions.Compiled);
+		// hg reports HTTP failures as e.g. "abort: HTTP Error 404: Not Found".
+		// [0-9] rather than \d, which also matches non-ASCII digits that int.Parse rejects.
+		private static readonly Regex HttpErrorStatusRegex = new Regex(@"HTTP Error ([0-9]{3})(?![0-9])", RegexOptions.Compiled);
 
 		/// <summary>
 		/// True if hg reported one of the given HTTP status codes. Only the status hg itself prints is considered,
