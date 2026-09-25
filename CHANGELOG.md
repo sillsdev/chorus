@@ -27,7 +27,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Use UTF-8 in conflict details view
 - [SIL.Chorus.LibChorus] Add ChorusStorage (the bundle cache) as an Excluded folder
 - [SIL.Chorus.LibChorus] Changed HgResumeTransport LastKnownCommonBases to use Json serialization instead of BinaryFormatter
-- Update SIL.Chorus.Mercurial dependency to version 6.5.1 which uses Python 3
+- Update SIL.Chorus.Mercurial dependency to version 7.0.1.93 which uses Python 3 and should be faster
+- Update SIL.BuildTasks build-time dependency from version 3.0.0 to 3.3.0
 - Update libPalaso dependency from version 15.0.0-* to 18.0.0-*
 - Update Newtonsoft.Json dependency from version 13.0.2 to 13.0.4
 - Update Microsoft.NET.Test.Sdk dependency from version 17.3.1 to 17.14.1
@@ -49,6 +50,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [SIL.Chorus.LibChorus] Fix null-key insertion when XML record identifier attribute is absent in XmlMergeService
 - [SIL.Chorus.LibChorus] Fix crash in password encryption/decryption on non-Windows platforms and on Windows data-protection failure
 - [SIL.Chorus.LibChorus] Fix IndexOutOfRangeException parsing ChorusHub query parameters without '=', and preserve values containing '='
+- [SIL.Chorus.ChorusMergeModule] Update list of installed files for Mercurial 7, removing 81 old files and adding 356 new ones
 - [SIL.Chorus.LibChorus] Only treat an HTTP status hg actually reported (e.g. `HTTP Error 404`) as that error; digits in the local path, project name or hg version no longer get misclassified as 400/403/404/500/502/503 errors
 
 ## [5.1.0] - 2023-03-07
