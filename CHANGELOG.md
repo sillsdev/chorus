@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [SIL.Chorus.LibChorus] Fix crash in password encryption/decryption on non-Windows platforms and on Windows data-protection failure
 - [SIL.Chorus.LibChorus] Fix IndexOutOfRangeException parsing ChorusHub query parameters without '=', and preserve values containing '='
 - [SIL.Chorus.ChorusMergeModule] Update list of installed files for Mercurial 7, removing 81 old files and adding 356 new ones
+- [SIL.Chorus.LibChorus] Only treat an HTTP status hg actually reported (e.g. `HTTP Error 404`) as that error; digits in the local path, project name or hg version no longer get misclassified as 400/403/404/500/502/503 errors
 
 ## [5.1.0] - 2023-03-07
 

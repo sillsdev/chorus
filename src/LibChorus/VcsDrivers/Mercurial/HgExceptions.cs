@@ -1,17 +1,32 @@
 using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
 	public class HgCommonException:Exception
 	{
+		// hg reports HTTP failures as e.g. "abort: HTTP Error 404: Not Found".
+		// [0-9] rather than \d, which also matches non-ASCII digits that int.Parse rejects.
+		private static readonly Regex HttpErrorStatusRegex = new Regex(@"HTTP Error ([0-9]{3})(?![0-9])", RegexOptions.Compiled);
 
+		/// <summary>
+		/// True if hg reported one of the given HTTP status codes. Only the status hg itself prints is considered,
+		/// because the exception message also carries the full hg command line (local paths, project names) and the
+		/// hg version, any of which can happen to contain digits like "404".
+		/// </summary>
+		protected static bool ErrorHasHttpStatus(Exception error, params int[] statusCodes)
+		{
+			return HttpErrorStatusRegex.Matches(error.Message).Cast<Match>()
+				.Any(m => statusCodes.Contains(int.Parse(m.Groups[1].Value)));
+		}
 	}
 
 	public class RepositoryAuthorizationException : HgCommonException
 	{
 		public static bool ErrorMatches(Exception error)
 		{
-			return error.Message.Contains("authorization") || error.Message.Contains("403");
+			return error.Message.Contains("authorization") || ErrorHasHttpStatus(error, 403);
 		}
 
 		public override string Message
@@ -28,7 +43,7 @@ namespace Chorus.VcsDrivers.Mercurial
 	{
 		public static bool ErrorMatches(Exception error)
 		{
-			return error.Message.Contains("400");
+			return ErrorHasHttpStatus(error, 400);
 		}
 
 		public override string Message
@@ -44,7 +59,7 @@ namespace Chorus.VcsDrivers.Mercurial
 	{
 		public static bool ErrorMatches(Exception error)
 		{
-			return error.Message.Contains("500") || error.Message.Contains("503");
+			return ErrorHasHttpStatus(error, 500, 503);
 		}
 
 		public override string Message
@@ -98,7 +113,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			public static bool ErrorMatches(Exception error)
 		{
-			return error.Message.Contains("502");
+			return ErrorHasHttpStatus(error, 502);
 		}
 
 		public override string Message
@@ -148,7 +163,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		public static bool ErrorMatches(Exception error)
 		{
-			return error.Message.Contains("404");
+			return ErrorHasHttpStatus(error, 404);
 		}
 
 		public override string Message

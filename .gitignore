@@ -20,9 +20,12 @@ L10NSharp.dll
 launchSettings.json
 lib/$(Configuration)
 lib/Chorus_Help.chm
-Mercurial/
-mercurial/
-MercurialExtensions/
+# hg is copied to $(SolutionDir): the repo root for solution builds, src/ for single-project builds
+/Mercurial/
+/mercurial/
+/MercurialExtensions/
+/src/Mercurial/
+/src/MercurialExtensions/
 NuGet.exe
 nuget.exe
 obj/
