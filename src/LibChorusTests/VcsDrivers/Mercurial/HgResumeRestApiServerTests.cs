@@ -138,11 +138,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
-		public void SessionCredentials_OnlyGivenToKnownHosts()
+		public void SessionCredentials_OnlyGivenToTheServersHost()
 		{
 			SetSession("user", "pass");
-			ICredentials credentials = new HgResumeRestApiServer.SessionCredentials();
-			((HgResumeRestApiServer.SessionCredentials)credentials).AllowServer(new Uri("https://hg.example.org/proj"));
+			ICredentials credentials = new HgResumeRestApiServer.SessionCredentials(new Uri("https://hg.example.org/proj"));
 
 			Assert.That(credentials.GetCredential(new Uri("https://hg.example.org/api/v03/x"), "Basic")?.Password, Is.EqualTo("pass"));
 			Assert.That(credentials.GetCredential(new Uri("https://HG.EXAMPLE.ORG:8443/api/v03/x"), "Basic"), Is.Not.Null);
@@ -153,11 +152,17 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void SessionCredentials_NotGivenOnDowngradeToHttp()
 		{
 			SetSession("user", "pass");
-			ICredentials credentials = new HgResumeRestApiServer.SessionCredentials();
-			((HgResumeRestApiServer.SessionCredentials)credentials).AllowServer(new Uri("https://hg.example.org/proj"));
-			((HgResumeRestApiServer.SessionCredentials)credentials).AllowServer(new Uri("http://local.example.org/proj"));
+			ICredentials credentials = new HgResumeRestApiServer.SessionCredentials(new Uri("https://hg.example.org/proj"));
 
 			Assert.That(credentials.GetCredential(new Uri("http://hg.example.org/api/v03/x"), "Basic"), Is.Null);
+		}
+
+		[Test]
+		public void SessionCredentials_HttpServer_GivenOverHttpAndHttps()
+		{
+			SetSession("user", "pass");
+			ICredentials credentials = new HgResumeRestApiServer.SessionCredentials(new Uri("http://local.example.org/proj"));
+
 			Assert.That(credentials.GetCredential(new Uri("http://local.example.org/api/v03/x"), "Basic"), Is.Not.Null);
 			Assert.That(credentials.GetCredential(new Uri("https://local.example.org/api/v03/x"), "Basic"), Is.Not.Null);
 		}
@@ -165,8 +170,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		[Test]
 		public void SessionCredentials_ReadsCurrentSession()
 		{
-			ICredentials credentials = new HgResumeRestApiServer.SessionCredentials();
-			((HgResumeRestApiServer.SessionCredentials)credentials).AllowServer(new Uri("https://hg.example.org/proj"));
+			ICredentials credentials = new HgResumeRestApiServer.SessionCredentials(new Uri("https://hg.example.org/proj"));
 			var uri = new Uri("https://hg.example.org/api/v03/x");
 
 			SetSession("first", "one");

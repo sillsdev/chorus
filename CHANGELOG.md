@@ -40,9 +40,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [SIL.Chorus.LibChorus] Skip the 100-continue handshake when sending a resumable push chunk, and read
   each chunk fully from the bundle rather than settling for a short read
 - [SIL.Chorus.LibChorus] Compress push bundles with zstd rather than hg's bzip2 default
-- [SIL.Chorus.LibChorus] Send resumable transport requests over a shared HttpClient, so connections are
-  reused between chunks. Basic auth is sent with the first request (UTF-8 encoded), and credentials are
-  re-sent after a redirect only to the same host and never over a downgrade from https to http
+- [SIL.Chorus.LibChorus] Send resumable transport requests over one HttpClient per push, pull or clone, so
+  connections are reused between chunks, and use HTTP/2 when an https server offers it (.NET 5+ only).
+  Basic auth is sent with the first request (UTF-8 encoded), and credentials are re-sent after a redirect
+  only to the same host and never over a downgrade from https to http
 
 ### Removed
 

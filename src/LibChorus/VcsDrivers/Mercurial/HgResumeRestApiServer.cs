@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
@@ -13,33 +12,16 @@ using Chorus.Utilities;
 namespace Chorus.VcsDrivers.Mercurial
 {
 
-	public class HgResumeRestApiServer : IApiServer
+	public class HgResumeRestApiServer : IApiServer, IDisposable
 	{
 		public const string ApiVersion = "03";
 
-		// One HttpClient (and one handler) for the whole process: this is what buys us keep-alive
-		// connection reuse across the many small requests a resumable push/pull makes. A per-request
-		// HttpWebRequest shares ServicePoint pools on .NET Framework, but on modern .NET a shared
-		// HttpClient over SocketsHttpHandler is where the reuse actually happens. Timeout is left
-		// infinite here and enforced per call with a CancellationTokenSource, because each API call
-		// carries its own secondsBeforeTimeout.
-		private static readonly HttpClient Client = CreateClient();
-
-		private static HttpClient CreateClient()
-		{
-			var handler = new HttpClientHandler
-			{
-				// We send the Authorization header ourselves (see Execute), but HttpClient drops it when it
-				// follows a redirect. These let the handler answer the 401 challenge at the new location,
-				// then keep sending credentials there up front.
-				Credentials = SessionCredentials.Instance,
-				PreAuthenticate = true
-			};
-			return new HttpClient(handler, disposeHandler: true)
-			{
-				Timeout = Timeout.InfiniteTimeSpan
-			};
-		}
+		// One HttpClient per instance, and so per push, pull or clone (HgRepository makes a new server for
+		// each). That buys keep-alive connection reuse across the many small requests one operation makes,
+		// without a process-wide client that would hold connections, and their DNS answers, forever.
+		// Timeout is left infinite here and enforced per call with a CancellationTokenSource, because each
+		// API call carries its own secondsBeforeTimeout.
+		private readonly HttpClient _client;
 
 		private readonly Uri _url;
 
@@ -47,7 +29,17 @@ namespace Chorus.VcsDrivers.Mercurial
 		{
 			_url = new Uri(url);
 			Url = "";
-			SessionCredentials.Instance.AllowServer(_url);
+			_client = new HttpClient(new HttpClientHandler
+			{
+				// We send the Authorization header ourselves (see Execute), but HttpClient drops it when it
+				// follows a redirect. These let the handler answer the 401 challenge at the new location,
+				// then keep sending credentials there up front.
+				Credentials = new SessionCredentials(_url),
+				PreAuthenticate = true
+			}, disposeHandler: true)
+			{
+				Timeout = Timeout.InfiniteTimeSpan
+			};
 
 			// http://jira.palaso.org/issues/browse/CHR-26
 			// Fix to support HTTP/1.0 proxy servers (ipcop) that stand between the client an our server (and that fail with a HTTP 417 Expectation Failed error, if you don't have this fix)
@@ -87,6 +79,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			// Keep the exact legacy value ("HgResume v03"); the space makes it an invalid product token,
 			// so add it unvalidated rather than through UserAgent.ParseAdd.
 			req.Headers.TryAddWithoutValidation("User-Agent", $"HgResume v{ApiVersion}");
+#if !NETFRAMEWORK
+			// HttpClient asks for HTTP/1.1 unless told otherwise. Asking for 2.0 lets an https server agree
+			// to it (via ALPN); anything else, including plain http, falls back to 1.1. .NET Framework's
+			// handler only speaks 1.x and throws if asked for 2.0.
+			req.Version = new Version(2, 0);
+#endif
 			// Send credentials pre-emptively so we never pay for a 401 challenge round trip. The
 			// resumable server accepts Basic auth on the first request, so PreAuthenticate's
 			// challenge-then-cache dance (what the old HttpWebRequest code relied on) is pure overhead here.
@@ -115,7 +113,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(secondsBeforeTimeout));
 				try
 				{
-					using var res = Client.SendAsync(req, HttpCompletionOption.ResponseContentRead, cts.Token)
+					using var res = _client.SendAsync(req, HttpCompletionOption.ResponseContentRead, cts.Token)
 						.GetAwaiter().GetResult();
 					// HttpClient does not throw on a non-2xx status, so RESET/FAIL/etc. responses land
 					// here just like the old code's ProtocolError branch did.
@@ -147,32 +145,26 @@ namespace Chorus.VcsDrivers.Mercurial
 		}
 
 		/// <summary>
-		/// Credentials for the process-wide handler. They are read from the current session settings on
-		/// every challenge, since the handler outlives any one user's session, and only handed to a host we
-		/// were constructed for, so a redirect to some other server can't collect the password. A redirect
-		/// from https to http gets nothing either.
+		/// Credentials for one server's handler. They are read from the current session settings on every
+		/// challenge rather than captured, and only handed to that server's host, so a redirect to some other
+		/// server can't collect the password. A redirect from https to http gets nothing either.
 		/// Derives from CredentialCache only because both HttpClient handlers (and .NET Framework's
 		/// HttpWebRequest underneath) refuse to use any other ICredentials after following a redirect;
 		/// the cache itself stays empty and our re-implementation of ICredentials.GetCredential answers.
 		/// </summary>
 		internal sealed class SessionCredentials : CredentialCache, ICredentials
 		{
-			public static readonly SessionCredentials Instance = new SessionCredentials();
+			private readonly Uri _server;
 
-			// host => whether we were ever asked to talk to it over plain http
-			private readonly ConcurrentDictionary<string, bool> _hosts =
-				new ConcurrentDictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
-
-			public void AllowServer(Uri server)
+			public SessionCredentials(Uri server)
 			{
-				var isHttp = server.Scheme == Uri.UriSchemeHttp;
-				_hosts.AddOrUpdate(server.Host, isHttp, (_, wasHttp) => wasHttp || isHttp);
+				_server = server;
 			}
 
 			NetworkCredential ICredentials.GetCredential(Uri uri, string authType)
 			{
-				if (!_hosts.TryGetValue(uri.Host, out var httpAllowed) ||
-					(uri.Scheme != Uri.UriSchemeHttps && !httpAllowed))
+				if (!string.Equals(uri.Host, _server.Host, StringComparison.OrdinalIgnoreCase) ||
+					(uri.Scheme != Uri.UriSchemeHttps && _server.Scheme == Uri.UriSchemeHttps))
 				{
 					return null;
 				}
@@ -206,6 +198,11 @@ namespace Chorus.VcsDrivers.Mercurial
 				Content = res.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult()
 			};
 			return apiResponse;
+		}
+
+		public void Dispose()
+		{
+			_client.Dispose();
 		}
 
 		public string Host

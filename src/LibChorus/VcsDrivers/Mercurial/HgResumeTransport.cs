@@ -22,7 +22,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public HgResumeOperationFailed(string message) : base(message) {}
 	}
 
-	public class HgResumeTransport : IHgTransport
+	public class HgResumeTransport : IHgTransport, IDisposable
 	{
 		private readonly IProgress _progress;
 		private readonly HgRepository _repo;
@@ -48,6 +48,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			_targetLabel = targetLabel;
 			_apiServer = apiServer;
 			_progress = progress;
+		}
+
+		/// <summary>Disposes the api server (and so its HttpClient), which this transport owns.</summary>
+		public void Dispose()
+		{
+			(_apiServer as IDisposable)?.Dispose();
 		}
 
 		private string RepoIdentifier
