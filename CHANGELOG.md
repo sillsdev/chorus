@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [SIL.Chorus.LibChorus] Skip the 100-continue handshake when sending a resumable push chunk, and read
   each chunk fully from the bundle rather than settling for a short read
 - [SIL.Chorus.LibChorus] Compress push bundles with zstd rather than hg's bzip2 default
+- [SIL.Chorus.LibChorus] Return from each `hg` call as soon as its output ends, rather than on the next
+  100 ms poll, saving 30-80 ms per call
 
 ### Removed
 
