@@ -53,12 +53,13 @@ namespace Chorus.Utilities
 		public bool Read(ref Process process, int secondsBeforeTimeOut, IProgress progress)
 		{
 			var cts = new CancellationTokenSource();
-			var outputReaderArgs = new ReaderArgs(process, process.StandardOutput, cts.Token);
+			using var readersDone = new CountdownEvent(2);
+			var outputReaderArgs = new ReaderArgs(process, process.StandardOutput, cts.Token, readersDone);
 			_outputReader = new Thread(ReadStream);
 			_outputReader.Start(outputReaderArgs);
 
 
-			var errorReaderArgs = new ReaderArgs(process, process.StandardError, cts.Token);
+			var errorReaderArgs = new ReaderArgs(process, process.StandardError, cts.Token, readersDone);
 			_errorReader = new Thread(ReadStream);
 			_errorReader.Start(errorReaderArgs);
 
@@ -68,8 +69,10 @@ namespace Chorus.Utilities
 				_heartbeat = DateTime.Now;
 			}
 
+			// Wait returns as soon as both streams have closed; the timeout only sets how often we check for
+			// cancellation and inactivity.
 			//nb: at one point I (jh) tried adding !process.HasExited, but that made things less stable.
-			while (outputReaderArgs.Results == null || errorReaderArgs.Results == null)
+			while (!readersDone.Wait(100))
 			{
 				DateTime end;
 				lock (this)
@@ -77,14 +80,7 @@ namespace Chorus.Utilities
 					end = _heartbeat.AddSeconds(secondsBeforeTimeOut);
 				}
 
-				if (progress.CancelRequested)
-				{
-					cts.Cancel();
-					return false;
-				}
-
-				Thread.Sleep(100);
-				if (DateTime.Now > end)
+				if (progress.CancelRequested || DateTime.Now > end)
 				{
 					cts.Cancel();
 					return false;
@@ -180,14 +176,23 @@ namespace Chorus.Utilities
 			finally
 			{
 				readerArgs.Results = result.ToString().Replace("\r\n", "\n");
+				try
+				{
+					readerArgs.Done.Signal();
+				}
+				catch (ObjectDisposedException)
+				{
+					// Read gave up on this process (timeout or cancel) and no longer waits for us.
+				}
 			}
 		}
 	}
 
 	internal class ReaderArgs
 	{
-		public ReaderArgs(Process proc, StreamReader reader, CancellationToken token)
+		public ReaderArgs(Process proc, StreamReader reader, CancellationToken token, CountdownEvent done)
 		{
+			Done = done;
 			Token = token;
 			Reader = reader;
 			Proc = proc;
@@ -197,5 +202,6 @@ namespace Chorus.Utilities
 		public StreamReader Reader;
 		public Process Proc;
 		public string Results;
+		public CountdownEvent Done;
 	}
 }

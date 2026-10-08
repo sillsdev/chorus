@@ -31,4 +31,14 @@ See full changelog at https://github.com/sillsdev/chorus/blob/master/CHANGELOG.m
     <PlatformTarget>AnyCPU</PlatformTarget>
     <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
   </PropertyGroup>
+
+  <!-- GitVersion.MsBuild runs gitversion in every inner build and writes obj/gitversion.json by default.
+  In a multi-targeted project the inner builds run in parallel, so one can read the file while another
+  is rewriting it, leaving Version empty (MSB4044 from GetAssemblyVersion). Give each TFM its own file.
+  This has to live in a .props file because GitVersion's props use GitVersionOutputFile at evaluation;
+  BaseIntermediateOutputPath isn't set yet here, hence the literal obj/. Keep it relative like GitVersion's
+  default, since it goes unquoted into the gitversion command line. -->
+  <PropertyGroup Condition="'$(TargetFramework)' != ''">
+    <GitVersionOutputFile>obj/gitversion.$(TargetFramework).json</GitVersionOutputFile>
+  </PropertyGroup>
 </Project>

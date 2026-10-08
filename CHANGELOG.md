@@ -44,6 +44,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   connections are reused between chunks, and use HTTP/2 when an https server offers it (.NET 5+ only).
   Basic auth is sent with the first request (UTF-8 encoded), and credentials are re-sent after a redirect
   only to the same host and never over a downgrade from https to http
+- [SIL.Chorus.LibChorus] Return from each `hg` call as soon as its output ends, rather than on the next
+  100 ms poll, saving 30-80 ms per call
+
 
 ### Removed
 
