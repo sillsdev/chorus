@@ -54,6 +54,8 @@ namespace Chorus.merge.xml.generic.xmldiff
 			if (xmlReader is XmlTextReader)
 			{
 				((XmlTextReader)xmlReader).WhitespaceHandling = _diffConfiguration.WhitespaceHandling;
+				// XML 1.0 spec requires normalizing end-of-line characters and whitespace in attributes
+				((XmlTextReader)xmlReader).Normalization = true;
 			}
 
 			if (_diffConfiguration.UseValidatingParser)
