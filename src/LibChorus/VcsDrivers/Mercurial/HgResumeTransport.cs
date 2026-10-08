@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using Chorus.Properties;
 using Chorus.Utilities;
@@ -21,7 +22,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		public HgResumeOperationFailed(string message) : base(message) {}
 	}
 
-	public class HgResumeTransport : IHgTransport
+	public class HgResumeTransport : IHgTransport, IDisposable
 	{
 		private readonly IProgress _progress;
 		private readonly HgRepository _repo;
@@ -47,6 +48,12 @@ namespace Chorus.VcsDrivers.Mercurial
 			_targetLabel = targetLabel;
 			_apiServer = apiServer;
 			_progress = progress;
+		}
+
+		/// <summary>Disposes the api server (and so its HttpClient), which this transport owns.</summary>
+		public void Dispose()
+		{
+			(_apiServer as IDisposable)?.Dispose();
 		}
 
 		private string RepoIdentifier
@@ -299,7 +306,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						throw new HgResumeOperationFailed(String.Format("Failed to get remote revisions for {0}", _apiServer.ProjectId));
 					}
 				}
-				catch (WebException e)
+				catch (Exception e) when (e is WebException || e is HttpRequestException)
 				{
 					_progress.WriteError(e.Message);
 				}
@@ -588,7 +595,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 				return pushResponse;
 			}
-			catch (WebException e)
+			catch (Exception e) when (e is WebException || e is HttpRequestException)
 			{
 				_progress.WriteWarning(String.Format("Push data chunk failed: {0}", e.Message));
 				return pushResponse;
@@ -904,7 +911,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				_progress.WriteWarning("Invalid Server Response '{0}'", response.HttpStatus);
 				return pullResponse;
 			}
-			catch (WebException e)
+			catch (Exception e) when (e is WebException || e is HttpRequestException)
 			{
 				_progress.WriteWarning(String.Format("Pull data chunk failed: {0}", e.Message));
 				return pullResponse;

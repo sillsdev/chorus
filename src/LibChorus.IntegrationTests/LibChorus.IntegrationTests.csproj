@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Tests that drive the real resumable transport (HgRepository + HgResumeTransport + HgResumeRestApiServer)
+    against the hgresume server image, run in a container via Testcontainers. Needs a Docker endpoint that
+    can run Linux containers, so CI runs these on Linux only. Locally the tests are ignored when Docker is
+    unavailable. Override the image with HGRESUME_IMAGE.
+  -->
+  <PropertyGroup>
+    <RootNamespace>LibChorus.IntegrationTests</RootNamespace>
+    <AssemblyTitle>LibChorus.IntegrationTests</AssemblyTitle>
+    <Description>Integration tests for the LibChorus resumable transport against an hgresume server</Description>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GitVersion.MsBuild" Version="5.10.3" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.3.2" />
+    <PackageReference Include="SIL.TestUtilities" Version="18.0.0-*" />
+    <PackageReference Include="Testcontainers" Version="4.14.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LibChorus\LibChorus.csproj" />
+  </ItemGroup>
+
+</Project>

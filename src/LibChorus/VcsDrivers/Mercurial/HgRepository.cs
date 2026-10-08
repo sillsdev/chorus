@@ -286,10 +286,11 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteVerbose("({0} is {1})", source.Name, ServerSettingsModel.RemovePasswordForLog(targetUri));
 				CheckAndUpdateHgrc();
 
-			bool result;
 			var transport = CreateTransportBetween(source, targetUri);
-			result = transport.Pull();
-			return result;
+			using (transport as IDisposable)
+			{
+				return transport.Pull();
+			}
 		}
 
 		public void PushToTarget(string targetLabel, string targetUri)
@@ -404,7 +405,10 @@ namespace Chorus.VcsDrivers.Mercurial
 			CheckAndUpdateHgrc();
 
 			var transport = CreateTransportBetween(source, targetUri);
-			transport.Push();
+			using (transport as IDisposable)
+			{
+				transport.Push();
+			}
 		}
 
 		private static bool GetIsLocalUri(string uri)
@@ -1046,7 +1050,10 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			// Cannot pass repo.Identifier because the local repo doesn't exist yet.
 			var transport = repo.CreateTransportBetween(source, source.GetPotentialRepoUri(null, null, progress));
-			transport.Clone();
+			using (transport as IDisposable)
+			{
+				transport.Clone();
+			}
 			repo.Update();
 			progress.WriteMessage("Finished copying to this computer at {0}", targetPath);
 			progress.WriteVerbose($"Finished at {DateTime.UtcNow:u}");
