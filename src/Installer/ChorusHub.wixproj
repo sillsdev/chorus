@@ -47,7 +47,7 @@
   <!-- Stamp Years -->
   <Import Project="NuGet.targets" />
   <PropertyGroup>
-	<SilBuildTasksVersion>2.5.0</SilBuildTasksVersion>
+	<SilBuildTasksVersion>4.0.0</SilBuildTasksVersion>
 	<SilBuildTasksDll>$(NuGetToolsPath)/packages/SIL.BuildTasks.$(SilBuildTasksVersion)/tools/SIL.BuildTasks.dll</SilBuildTasksDll>
   </PropertyGroup>
 
