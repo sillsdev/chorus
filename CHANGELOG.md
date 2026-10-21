@@ -28,12 +28,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [SIL.Chorus.LibChorus] Add ChorusStorage (the bundle cache) as an Excluded folder
 - [SIL.Chorus.LibChorus] Changed HgResumeTransport LastKnownCommonBases to use Json serialization instead of BinaryFormatter
 - Update SIL.Chorus.Mercurial dependency to version 7.0.1.93 which uses Python 3 and should be faster
-- Update SIL.BuildTasks build-time dependency from version 3.0.0 to 3.3.0
-- Update libPalaso dependency from version 15.0.0-* to 18.0.0-*
+- Update SIL.BuildTasks build-time dependency from version 3.0.0 to 4.0.0
+- Update SIL.ReleaseTasks build-time dependency from version 3.0.0 to 4.0.0
+- Update libPalaso dependency from version 15.0.0-* to 18.0.0
 - Update Newtonsoft.Json dependency from version 13.0.2 to 13.0.4
 - Update Microsoft.NET.Test.Sdk dependency from version 17.3.1 to 17.14.1
-- Update icu.net dependency from version 3.0.0-* to 3.0.1
-- Update L10NSharp dependency from version 8.0.0-beta0005 to 10.0.0-*
+- Update System.Resources.Extensions dependency from version 6.0.0 to 10.0.13
+- Update NUnit test dependency from version 3.13.3 to 3.14.0
+- Update icu.net dependency from version 3.0.0-* to 4.0.0
+- Update L10NSharp dependency from version 8.0.0-beta0005 to 11.0.1
 - [SIL.Chorus] Remove `emailForSubmissions` argument from `LocalizationManagerWinforms.Create` call (removed in L10NSharp 10)
 - [SIL.Chorus.LibChorus] Read each revision's full hash from the existing `hg log` output instead of
   launching one `hg` process per revision to widen the short hash
@@ -47,6 +50,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - [SIL.Chorus.LibChorus] Return from each `hg` call as soon as its output ends, rather than on the next
   100 ms poll, saving 30-80 ms per call
 
+### Security
+
+- [SIL.Chorus.LibChorus] Update System.ServiceModel.Primitives (netstandard2.0) from version 4.8.1 to 10.1.0, dropping the vulnerable System.Security.Cryptography.Xml 4.7.0 (GHSA-vh55-786g-wjwj) from the dependency graph
+- Update NuGet.CommandLine (l10n packaging build tool) from version 6.7.0 to 6.14.3 (GHSA-68w7-72jg-6qpp)
 
 ### Removed
 
