@@ -342,7 +342,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 
 		[Test]
-		public void Pull_BundleInMultipleChunks_Success()
+		public void Pull_LargeBundle_ReceivedInOneRequest()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
 			using (var provider = GetTransportProviderForTest(e))
@@ -353,6 +353,25 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = provider.Transport;
 				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
+				Assert.That(e.ApiServer.PullOffsetsRequested, Is.EqualTo(new[] { 0 }));
+			}
+		}
+
+		[Test]
+		public void Pull_ConnectionLostMidBundle_ResumesFromBytesReceived()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.RemoteAddAndCommitLargeFile();
+				const int bytesBeforeInterruption = 100000;
+				e.ApiServer.AddInterruptedResponse(2, bytesBeforeInterruption); // the first pullBundleChunk; call 1 is getRevisions
+				var transport = provider.Transport;
+				transport.Pull();
+				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
+				Assert.That(e.ApiServer.PullOffsetsRequested, Is.EqualTo(new[] { 0, bytesBeforeInterruption }));
 			}
 		}
 
@@ -892,6 +911,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					Assert.That(actualRevisionParent.LongHash, Is.EqualTo(expectedRevisionParent.LongHash));
 				}
 			}
+		}
+
+		[TestCase(0, 1000.0, "(less than 1 minute)")]
+		[TestCase(1000, 0.0, "")]
+		[TestCase(59000, 1000.0, "(less than 1 minute)")]
+		[TestCase(60000, 1000.0, "(about 1 minute)")]
+		[TestCase(300000, 1000.0, "(about 5 minutes)")]
+		public void CalculateEstimatedTimeRemaining_FromRate_ExpectedString(long bytesRemaining, double bytesPerSecond, string expected)
+		{
+			Assert.That(HgResumeTransport.CalculateEstimatedTimeRemaining(bytesRemaining, bytesPerSecond), Is.EqualTo(expected));
 		}
 
 		private class BranchTestAdjunct : ISychronizerAdjunct

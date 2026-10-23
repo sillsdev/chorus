@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 
 namespace Chorus.VcsDrivers.Mercurial
@@ -8,6 +9,21 @@ namespace Chorus.VcsDrivers.Mercurial
 	{
 		HgResumeApiResponse Execute(string method, HgResumeApiParameters request, int secondsBeforeTimeout);
 		HgResumeApiResponse Execute(string method, HgResumeApiParameters request, byte[] contentToSend, int secondsBeforeTimeout);
+
+		/// <summary>
+		/// As <see cref="Execute(string, HgResumeApiParameters, int)"/>, except that the body of a 200 OK
+		/// response is written to <paramref name="bodySink"/> as it arrives instead of being buffered into
+		/// <see cref="HgResumeApiResponse.Content"/> (which is left empty). A body of any size can be received
+		/// without holding it in memory, and whatever arrived before an interruption stays in the sink.
+		/// <paramref name="onBodyProgress"/>, if given, is called as the body comes in with the bytes received
+		/// so far and the body's length (-1 if the server did not say).
+		/// <paramref name="secondsBeforeTimeout"/> bounds the wait for the response headers, then each wait
+		/// for more body data, so a slow link that is still delivering is never cut off. A timeout returns
+		/// null, as with Execute; a connection lost part-way through the body throws HttpRequestException.
+		/// Any other status is returned with its body in Content, as with Execute.
+		/// </summary>
+		HgResumeApiResponse Execute(string method, HgResumeApiParameters request, Stream bodySink,
+			Action<long, long> onBodyProgress, int secondsBeforeTimeout);
 		string Host { get; }
 		string ProjectId { get; }
 		string Url { get; }
