@@ -661,7 +661,7 @@ namespace Chorus.VcsDrivers.Mercurial
 						  BaseHashes = baseRevisions,
 						  TransId = bundleHelper.TransactionId
 					  };
-			int bundleSize = 0;
+			int bundleSize = 0; // as last reported by the server; it grows while the server is still making the bundle
 			var reporter = new PullProgressReporter(_progress);
 			bool firstData = true;
 			bool retryLoop;
@@ -674,11 +674,15 @@ namespace Chorus.VcsDrivers.Mercurial
 					throw new UserCancelledException();
 				}
 				retryLoop = false;
-				// Each request asks for the whole rest of the bundle, from the end of what is on disk already:
-				// what an earlier run left behind, or what arrived before the last request was cut off.
+				// Each request picks up from the end of what is on disk already: what an earlier run left
+				// behind, or what arrived before the last request was cut off.
 				req.StartOfWindow = bundleHelper.StartOfWindow;
-				req.ChunkSize = RestOfBundleChunkSize(req.StartOfWindow);
+				req.ChunkSize = ChunkSizeToAskFor(req.StartOfWindow, bundleSize);
 				var response = PullBundle(req, bundleHelper, reporter);
+				if (response.BundleSize > bundleSize)
+				{
+					bundleSize = response.BundleSize;
+				}
 				if (response.Status == PullStatus.Unauthorized)
 				{
 					throw new UnauthorizedAccessException();
@@ -731,6 +735,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					retryLoop = true;
 					bundleHelper.Reset();
+					bundleSize = 0; // the server will make the bundle afresh
 					_progress.WriteVerbose("Server's bundle cache has expired.  Restarting pull...");
 					continue;
 				}
@@ -745,10 +750,7 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 				}
 
-				// The data went straight into the bundle file as it arrived; all that is left to note is how
-				// big the bundle is. Short of the server failing to send what it said it had, the file now
-				// holds all of it.
-				bundleSize = response.BundleSize;
+				// The data went straight into the bundle file as it arrived, so there is nothing to store here.
 				reporter.Report(bundleHelper.StartOfWindow, bundleSize);
 			} while (bundleHelper.StartOfWindow < bundleSize || retryLoop);
 
@@ -781,6 +783,33 @@ namespace Chorus.VcsDrivers.Mercurial
 			_progress.WriteError(errorMessage);
 			throw new HgResumeOperationFailed(errorMessage);
 		}
+
+		/// <summary>
+		/// How much to ask for in the next pullBundleChunk request, given the bundle size the server last
+		/// reported (0 if it has not yet). The server answers a request at once when it can satisfy it from
+		/// the bundle file as it stands; otherwise, while it is still making the bundle, it waits up to 14
+		/// seconds before answering "in progress" (a bundle it has finished is served whole, at once). So:
+		/// with nothing known yet, ask for a single byte, which the server can hand over as soon as the
+		/// bundle file has started, and which brings back its size so far; while the server has more than
+		/// we do, ask for all of that but the last byte, which it serves at once even while still adding to
+		/// the file; once we have caught up, ask for the rest of the bundle in one go. If the bundle is
+		/// finished that is one streamed response, and if not, this is where waiting for the server is
+		/// unavoidable.
+		/// </summary>
+		internal static int ChunkSizeToAskFor(int offset, int lastReportedBundleSize)
+		{
+			if (lastReportedBundleSize > offset + 1)
+			{
+				return lastReportedBundleSize - offset - 1;
+			}
+			if (lastReportedBundleSize == 0)
+			{
+				return ProbeChunkSize;
+			}
+			return RestOfBundleChunkSize(offset);
+		}
+
+		private const int ProbeChunkSize = 1;
 
 		/// <summary>
 		/// The chunkSize to ask for so that one pullBundleChunk response carries everything after
@@ -839,13 +868,27 @@ namespace Chorus.VcsDrivers.Mercurial
 
 			var pullResponse = new PullResponse(PullStatus.Fail);
 			int offset = request.StartOfWindow;
+			bool probe = request.ChunkSize == ProbeChunkSize; // its one byte says nothing worth a progress report
 			try
 			{
 				HgResumeApiResponse response;
 				using (var bundleFile = bundleHelper.OpenForWritingAt(offset))
 				{
 					response = _apiServer.Execute("pullBundleChunk", request, bundleFile,
-						(received, bodyLength) => reporter.Report(offset + received, bodyLength < 0 ? 0 : offset + bodyLength),
+						(received, bodyLength) =>
+						{
+							// the body is the bundle from the offset to (at least) the end the server had
+							// when it answered, so its length tells us that much about the bundle's size
+							// even if the transfer is cut short
+							if (bodyLength >= 0)
+							{
+								pullResponse.BundleSize = (int) Math.Max(pullResponse.BundleSize, offset + bodyLength);
+							}
+							if (!probe)
+							{
+								reporter.Report(offset + received, pullResponse.BundleSize);
+							}
+						},
 						TimeoutInSeconds);
 				}
 				if (response == null)
@@ -887,7 +930,7 @@ namespace Chorus.VcsDrivers.Mercurial
 				// bundle data pulled OK (it is already in the bundle file)
 				if (response.HttpStatus == HttpStatusCode.OK)
 				{
-					pullResponse.BundleSize = response.ResumableResponse.BundleSize;
+					pullResponse.BundleSize = Math.Max(pullResponse.BundleSize, response.ResumableResponse.BundleSize);
 					pullResponse.Status = PullStatus.OK;
 					return pullResponse;
 				}

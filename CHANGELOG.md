@@ -49,10 +49,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   only to the same host and never over a downgrade from https to http
 - [SIL.Chorus.LibChorus] Return from each `hg` call as soon as its output ends, rather than on the next
   100 ms poll, saving 30-80 ms per call
-- [SIL.Chorus.LibChorus] Over the resumable transport, pull the whole bundle in one request, written to
-  disk as it arrives, instead of in chunks sized to finish inside the 30 second timeout. The timeout now
-  bounds the wait for data rather than the whole download, and a lost connection resumes from the bytes
-  already received. `IApiServer` gains an `Execute` overload that streams the response body to a `Stream`
+- [SIL.Chorus.LibChorus] Over the resumable transport, pull the bundle in as few requests as the server
+  allows (a one byte probe, then whatever the server has made so far, then the rest in one go), written
+  to disk as it arrives, instead of in chunks sized to finish inside the 30 second timeout. The timeout
+  now bounds the wait for data rather than the whole download, and a lost connection resumes from the
+  bytes already received. `IApiServer` gains an `Execute` overload that streams the response body to a
+  `Stream`
 
 ### Security
 

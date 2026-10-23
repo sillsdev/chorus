@@ -341,8 +341,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 
+		/// <summary>
+		/// A one byte probe brings back the bundle size; then all but the last byte of that is asked for
+		/// at once (the server can serve it even while still making the bundle), then the rest.
+		/// </summary>
 		[Test]
-		public void Pull_LargeBundle_ReceivedInOneRequest()
+		public void Pull_LargeBundle_ProbeThenAllTheServerHasThenTheRest()
 		{
 			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
 			using (var provider = GetTransportProviderForTest(e))
@@ -353,8 +357,23 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				var transport = provider.Transport;
 				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
-				Assert.That(e.ApiServer.PullOffsetsRequested, Is.EqualTo(new[] { 0 }));
+				var offsets = e.ApiServer.PullOffsetsRequested;
+				Assert.That(offsets, Has.Count.EqualTo(3));
+				Assert.That(offsets[0], Is.EqualTo(0));
+				Assert.That(offsets[1], Is.EqualTo(1));
+				Assert.That(offsets[2], Is.GreaterThan(1024 * 1024), "the second request should have fetched all but one byte of a >1MB bundle");
 			}
+		}
+
+		[TestCase(0, 0, 1, TestName = "ChunkSizeToAskFor_NothingKnown_OneByteProbe")]
+		[TestCase(500, 0, 1, TestName = "ChunkSizeToAskFor_NothingKnownButDataOnDisk_OneByteProbe")]
+		[TestCase(0, 1000, 999, TestName = "ChunkSizeToAskFor_ServerHasMore_AllButTheLastByte")]
+		[TestCase(400, 1000, 599, TestName = "ChunkSizeToAskFor_ServerHasMoreThanOffset_AllButTheLastByte")]
+		[TestCase(999, 1000, int.MaxValue - 999, TestName = "ChunkSizeToAskFor_CaughtUp_TheRest")]
+		[TestCase(1000, 1000, int.MaxValue - 1000, TestName = "ChunkSizeToAskFor_HaveItAll_TheRest")]
+		public void ChunkSizeToAskFor_ExpectedSize(int offset, int lastReportedBundleSize, int expected)
+		{
+			Assert.That(HgResumeTransport.ChunkSizeToAskFor(offset, lastReportedBundleSize), Is.EqualTo(expected));
 		}
 
 		[Test]
@@ -367,11 +386,15 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				e.CloneRemoteFromLocal();
 				e.RemoteAddAndCommitLargeFile();
 				const int bytesBeforeInterruption = 100000;
-				e.ApiServer.AddInterruptedResponse(2, bytesBeforeInterruption); // the first pullBundleChunk; call 1 is getRevisions
+				// call 1 is getRevisions, call 2 the one byte probe, call 3 the request for the bulk of the bundle
+				e.ApiServer.AddInterruptedResponse(3, bytesBeforeInterruption);
 				var transport = provider.Transport;
 				transport.Pull();
 				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
-				Assert.That(e.ApiServer.PullOffsetsRequested, Is.EqualTo(new[] { 0, bytesBeforeInterruption }));
+				var offsets = e.ApiServer.PullOffsetsRequested;
+				Assert.That(offsets.Take(3), Is.EqualTo(new[] { 0, 1, 1 + bytesBeforeInterruption }),
+					"the request after the cut should resume at the end of the bytes that arrived");
+				Assert.That(offsets, Is.Ordered.Ascending);
 			}
 		}
 
