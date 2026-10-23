@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Chorus.VcsDrivers.Mercurial
 {
@@ -11,6 +12,8 @@ namespace Chorus.VcsDrivers.Mercurial
 			using (var fs = new FileStream(BundlePath, FileMode.Open, FileAccess.Read))
 			{
 				fs.Seek(offset, SeekOrigin.Begin);
+				// never allocate more than the bundle has left, however much was asked for
+				length = (int) Math.Min(length, Math.Max(0, fs.Length - offset));
 				var chunk = new byte[length];
 				// A single Read is allowed to come up short even when the file has more to give, and a
 				// short chunk costs an extra round trip, so keep reading until we have what we asked for

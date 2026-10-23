@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Chorus.Model;
 using Chorus.Properties;
@@ -138,6 +142,117 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		}
 
 		[Test]
+		public void Execute_WithSink_StreamsOkBodyToSinkAndReportsProgress()
+		{
+			SetSession("user", "password");
+			var body = new byte[300000];
+			new Random(1).NextBytes(body);
+			using (var server = new LoopbackServer(ctx =>
+			{
+				ctx.Response.StatusCode = 200;
+				ctx.Response.AddHeader("X-HgR-Status", "SUCCESS");
+				ctx.Response.AddHeader("X-HgR-BundleSize", body.Length.ToString());
+				ctx.Response.ContentLength64 = body.Length;
+				ctx.Response.OutputStream.Write(body, 0, body.Length);
+			}))
+			using (var api = new HgResumeRestApiServer(server.BaseUrl + "proj"))
+			{
+				var sink = new MemoryStream();
+				var reported = new List<long>();
+				long reportedLength = -1;
+				var response = api.Execute("pullBundleChunk", new HgResumeApiParameters(), sink,
+					(received, length) => { reported.Add(received); reportedLength = length; }, 10);
+
+				Assert.That(response.HttpStatus, Is.EqualTo(HttpStatusCode.OK));
+				Assert.That(response.ResumableResponse.BundleSize, Is.EqualTo(body.Length));
+				Assert.That(response.Content, Is.Empty, "a streamed body is not also buffered");
+				Assert.That(sink.ToArray(), Is.EqualTo(body));
+				Assert.That(reported, Is.Ordered.Ascending);
+				Assert.That(reported.Last(), Is.EqualTo(body.Length));
+				Assert.That(reportedLength, Is.EqualTo(body.Length));
+			}
+		}
+
+		[Test]
+		public void Execute_WithSink_NonOkResponse_BodyIsBufferedNotStreamed()
+		{
+			SetSession("user", "password");
+			using (var server = new LoopbackServer(ctx =>
+			{
+				ctx.Response.StatusCode = 503;
+				ctx.Response.AddHeader("X-HgR-Status", "NOTAVAILABLE");
+				var text = Encoding.UTF8.GetBytes("down for maintenance");
+				ctx.Response.OutputStream.Write(text, 0, text.Length);
+			}))
+			using (var api = new HgResumeRestApiServer(server.BaseUrl + "proj"))
+			{
+				var sink = new MemoryStream();
+				var response = api.Execute("pullBundleChunk", new HgResumeApiParameters(), sink, null, 10);
+
+				Assert.That(response.HttpStatus, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
+				Assert.That(Encoding.UTF8.GetString(response.Content), Is.EqualTo("down for maintenance"));
+				Assert.That(sink.Length, Is.EqualTo(0));
+			}
+		}
+
+		[Test]
+		public void Execute_WithSink_ConnectionLostMidBody_KeepsBytesReceivedAndThrows()
+		{
+			SetSession("user", "password");
+			using (var server = new LoopbackServer(ctx =>
+			{
+				ctx.Response.StatusCode = 200;
+				ctx.Response.ContentLength64 = 1000;
+				ctx.Response.OutputStream.Write(new byte[400], 0, 400);
+				ctx.Response.OutputStream.Flush();
+				Thread.Sleep(300); // let the client take those bytes before the connection goes away under it
+				ctx.Response.Abort();
+			}))
+			using (var api = new HgResumeRestApiServer(server.BaseUrl + "proj"))
+			{
+				var sink = new MemoryStream();
+				Assert.That(() => api.Execute("pullBundleChunk", new HgResumeApiParameters(), sink, null, 10),
+					Throws.TypeOf<HttpRequestException>());
+				Assert.That(sink.Length, Is.EqualTo(400));
+			}
+		}
+
+		/// <summary>
+		/// The timeout bounds each wait for data, not the whole download: a body that keeps coming, however
+		/// slowly, is never cut off, but one that stops is given up on (as null, like any other timeout)
+		/// with what arrived kept.
+		/// </summary>
+		[Test]
+		public void Execute_WithSink_BodyStalls_TimesOutKeepingBytesReceived()
+		{
+			SetSession("user", "password");
+			using (var release = new ManualResetEventSlim())
+			using (var server = new LoopbackServer(ctx =>
+			{
+				ctx.Response.StatusCode = 200;
+				ctx.Response.ContentLength64 = 1000;
+				for (var i = 0; i < 4; i++)
+				{
+					// four pieces 0.5 s apart: more than the 1 s timeout in all, but never a 1 s silence
+					ctx.Response.OutputStream.Write(new byte[100], 0, 100);
+					ctx.Response.OutputStream.Flush();
+					Thread.Sleep(500);
+				}
+				release.Wait(TimeSpan.FromSeconds(20)); // then silence
+				ctx.Response.Abort(); // the body is short of its Content-Length, so it can't be closed normally
+			}))
+			using (var api = new HgResumeRestApiServer(server.BaseUrl + "proj"))
+			{
+				var sink = new MemoryStream();
+				var response = api.Execute("pullBundleChunk", new HgResumeApiParameters(), sink, null, 1);
+				release.Set();
+
+				Assert.That(response, Is.Null);
+				Assert.That(sink.Length, Is.EqualTo(400));
+			}
+		}
+
+		[Test]
 		public void SessionCredentials_OnlyGivenToTheServersHost()
 		{
 			SetSession("user", "pass");
@@ -230,7 +345,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 						}
 						finally
 						{
-							context.Response.Close();
+							try
+							{
+								context.Response.Close();
+							}
+							catch (ObjectDisposedException) // the handler aborted the response
+							{
+							}
 						}
 					}
 				});

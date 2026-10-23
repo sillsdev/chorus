@@ -23,6 +23,19 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 		}
 
+		/// <summary>
+		/// Opens the bundle for writing from <paramref name="offset"/> on. Anything already past that offset
+		/// is cut off first, so that once the stream is closed the file holds exactly the bytes that were
+		/// written, and its length (<see cref="StartOfWindow"/>) is where the next request should resume.
+		/// </summary>
+		public Stream OpenForWritingAt(int offset)
+		{
+			var filestream = new FileStream(BundlePath, FileMode.Open, FileAccess.Write);
+			filestream.SetLength(offset);
+			filestream.Seek(offset, SeekOrigin.Begin);
+			return filestream;
+		}
+
 		public int StartOfWindow
 		{
 			get { return (int) (new FileInfo(BundlePath)).Length; }
@@ -32,9 +45,7 @@ namespace Chorus.VcsDrivers.Mercurial
 	internal class PullResponse
 	{
 		public int BundleSize;
-		public byte[] Chunk;
 		public PullStatus Status;
-		public int ChunkSize;
 
 		public PullResponse(PullStatus status)
 		{
