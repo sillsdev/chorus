@@ -711,6 +711,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					_progress.WriteStatus("Preparing data on server");
 					retryLoop = true;
+					// The reply doesn't say how far the server has got, so probe again: a request for the rest
+					// would wait out the server's whole poll every time, however much the bundle had grown.
+					bundleSize = 0;
 					// advance the progress bar 2% to show that something is happening
 					_progress.ProgressIndicator.PercentCompleted = _progress.ProgressIndicator.PercentCompleted + 2;
 					continue;
@@ -786,7 +789,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		/// <summary>
 		/// How much to ask for in the next pullBundleChunk request, given the bundle size the server last
-		/// reported (0 if it has not yet). The server answers a request at once when it can satisfy it from
+		/// reported (0 if it has not yet, or if it has since answered "in progress"). The server answers a request at once when it can satisfy it from
 		/// the bundle file as it stands; otherwise, while it is still making the bundle, it waits up to 14
 		/// seconds before answering "in progress" (a bundle it has finished is served whole, at once). So:
 		/// with nothing known yet, ask for a single byte, which the server can hand over as soon as the
@@ -877,6 +880,12 @@ namespace Chorus.VcsDrivers.Mercurial
 					response = _apiServer.Execute("pullBundleChunk", request, bundleFile,
 						(received, bodyLength) =>
 						{
+							// one request can take the whole download, so cancelling can't wait for the next one;
+							// what has arrived stays in the bundle file for the next pull to resume from
+							if (_progress.CancelRequested)
+							{
+								throw new UserCancelledException();
+							}
 							// the body is the bundle from the offset to (at least) the end the server had
 							// when it answered, so its length tells us that much about the bundle's size
 							// even if the transfer is cut short

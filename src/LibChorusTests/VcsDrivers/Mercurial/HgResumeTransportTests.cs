@@ -365,6 +365,60 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		/// <summary>
+		/// An "in progress" reply doesn't say how far the server has got, so the next request is a probe
+		/// (served as soon as the bundle has grown) rather than another request for the rest (which would
+		/// wait out the server's whole poll).
+		/// </summary>
+		[Test]
+		public void Pull_InProgressWhenCaughtUp_ProbesNext()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.RemoteAddAndCommitLargeFile();
+				// call 1 is getRevisions, 2 the probe, 3 the bulk of the bundle, 4 the request for the rest
+				e.ApiServer.AddInProgressResponse(4);
+				var transport = provider.Transport;
+				transport.Pull();
+				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
+				var offsets = e.ApiServer.PullOffsetsRequested;
+				var chunkSizes = e.ApiServer.PullChunkSizesRequested;
+				Assert.That(chunkSizes, Has.Count.EqualTo(4));
+				Assert.That(chunkSizes[2], Is.EqualTo(int.MaxValue - offsets[2]), "the third request should ask for the rest");
+				Assert.That(chunkSizes[3], Is.EqualTo(1), "after \"in progress\" the next request should be a probe");
+				Assert.That(offsets[3], Is.EqualTo(offsets[2]));
+			}
+		}
+
+		/// <summary>
+		/// One request can carry the whole bundle, so a cancel has to stop it part-way rather than wait for
+		/// it to finish; the bytes that did arrive are kept and the next pull resumes after them.
+		/// </summary>
+		[Test]
+		public void Pull_UserCancelsMidBody_StopsAndNextPullResumesFromBytesReceived()
+		{
+			using (var e = new TestEnvironment("hgresumetest", ApiServerType.Pull))
+			using (var provider = GetTransportProviderForTest(e))
+			{
+				e.LocalAddAndCommit();
+				e.CloneRemoteFromLocal();
+				e.RemoteAddAndCommitLargeFile();
+				// call 1 is getRevisions, call 2 the one byte probe, call 3 the request for the bulk of the bundle
+				e.ApiServer.AddCancelMidBody(3);
+				var transport = provider.Transport;
+				Assert.That(() => transport.Pull(), Throws.Exception.TypeOf<UserCancelledException>());
+				e.Progress.CancelRequested = false;
+				transport.Pull();
+				Assert.That(e.Progress.AllMessages, Contains.Item("Pull operation completed successfully"));
+				var offsets = e.ApiServer.PullOffsetsRequested;
+				var bulk = e.ApiServer.PullChunkSizesRequested[1];
+				Assert.That(offsets[2], Is.EqualTo(1 + bulk / 2), "the next pull should resume where the cancelled body stopped");
+			}
+		}
+
 		[TestCase(0, 0, 1, TestName = "ChunkSizeToAskFor_NothingKnown_OneByteProbe")]
 		[TestCase(500, 0, 1, TestName = "ChunkSizeToAskFor_NothingKnownButDataOnDisk_OneByteProbe")]
 		[TestCase(0, 1000, 999, TestName = "ChunkSizeToAskFor_ServerHasMore_AllButTheLastByte")]

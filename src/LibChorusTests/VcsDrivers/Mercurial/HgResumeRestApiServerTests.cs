@@ -239,6 +239,7 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					Thread.Sleep(500);
 				}
 				release.Wait(TimeSpan.FromSeconds(20)); // then silence
+				ctx.Response.Abort(); // the body is short of its Content-Length, so it can't be closed normally
 			}))
 			using (var api = new HgResumeRestApiServer(server.BaseUrl + "proj"))
 			{
