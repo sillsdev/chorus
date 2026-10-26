@@ -205,11 +205,14 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// <returns>the number of bytes copied</returns>
 		/// <exception cref="OperationCanceledException">no data arrived within the timeout</exception>
 		/// <exception cref="HttpRequestException">the connection was lost before the body was complete</exception>
+		/// <exception cref="IOException">writing to the sink failed (e.g. the disk is full); not retryable, so
+		/// it is passed on as it is rather than reported as a lost connection</exception>
 		private static long CopyBody(HttpResponseMessage res, Stream sink, Action<long, long> onProgress,
 			CancellationTokenSource cts, int idleTimeoutInSeconds)
 		{
 			long expected = res.Content.Headers.ContentLength ?? -1;
 			long received = 0;
+			bool reading = true; // only failures reading the response are about the connection
 			try
 			{
 				using var body = res.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
@@ -217,7 +220,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				while (true)
 				{
 					cts.CancelAfter(TimeSpan.FromSeconds(idleTimeoutInSeconds));
+					reading = true;
 					int read = body.ReadAsync(buffer, 0, buffer.Length, cts.Token).GetAwaiter().GetResult();
+					reading = false;
 					if (read == 0)
 					{
 						break;
@@ -227,12 +232,12 @@ namespace Chorus.VcsDrivers.Mercurial
 					onProgress?.Invoke(received, expected);
 				}
 			}
-			catch (Exception e) when (cts.IsCancellationRequested)
+			catch (Exception e) when (reading && cts.IsCancellationRequested)
 			{
 				// the read was broken by the timeout disposing the response (see Send)
 				throw new OperationCanceledException(e.Message, e, cts.Token);
 			}
-			catch (Exception e) when (e is IOException || e is WebException || e is ObjectDisposedException)
+			catch (Exception e) when (reading && (e is IOException || e is WebException || e is ObjectDisposedException))
 			{
 				throw new HttpRequestException(
 					$"The connection was lost after {received} bytes of the response body: {e.Message}", e);
