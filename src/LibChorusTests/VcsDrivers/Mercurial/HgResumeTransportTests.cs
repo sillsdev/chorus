@@ -990,6 +990,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		[Test]
+		public void PullProgressReporter_FirstPartialReport_WritesStatus()
+		{
+			var progress = new ProgressForTest { ProgressIndicator = new NullProgressIndicator() };
+			var reporter = new HgResumeTransport.PullProgressReporter(progress);
+			reporter.Report(100000, 1000000);
+			Assert.That(progress.Statuses, Has.Some.StartsWith("Receiving"),
+				"progress should show before the whole bundle has arrived");
+		}
+
 		[TestCase(0, 1000.0, "(less than 1 minute)")]
 		[TestCase(1000, 0.0, "")]
 		[TestCase(59000, 1000.0, "(less than 1 minute)")]

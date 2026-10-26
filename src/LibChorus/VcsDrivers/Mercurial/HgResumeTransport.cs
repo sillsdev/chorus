@@ -987,7 +987,7 @@ namespace Chorus.VcsDrivers.Mercurial
 		/// Progress for a pull whose data arrives as a stream rather than in chunks: the indicator and the
 		/// status line are updated at most once a second, with an ETA from the rate measured so far.
 		/// </summary>
-		private sealed class PullProgressReporter
+		internal sealed class PullProgressReporter
 		{
 			private const int ReportIntervalInMilliseconds = 1000;
 			private const int MinimumBytesForEta = 80000; // wait until we've transferred 80K before calculating an ETA
@@ -996,7 +996,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			private long _total;
 			private long _firstReportBytes = -1;
 			private long _firstReportMs;
-			private long _lastReportMs = long.MinValue;
+			private long _lastReportMs = -ReportIntervalInMilliseconds; // so the first report goes out
 
 			public PullProgressReporter(IProgress progress)
 			{
