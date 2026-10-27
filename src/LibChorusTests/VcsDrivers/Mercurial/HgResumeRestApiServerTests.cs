@@ -195,25 +195,48 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			}
 		}
 
+		/// <summary>
+		/// Served from a raw socket rather than LoopbackServer: on .NET Framework, HttpListener (http.sys)
+		/// never puts the partial body on the wire before Abort, so the client would see no bytes at all.
+		/// </summary>
 		[Test]
 		public void Execute_WithSink_ConnectionLostMidBody_KeepsBytesReceivedAndThrows()
 		{
 			SetSession("user", "password");
-			using (var server = new LoopbackServer(ctx =>
+			var listener = new TcpListener(IPAddress.Loopback, 0);
+			listener.Start();
+			try
 			{
-				ctx.Response.StatusCode = 200;
-				ctx.Response.ContentLength64 = 1000;
-				ctx.Response.OutputStream.Write(new byte[400], 0, 400);
-				ctx.Response.OutputStream.Flush();
-				Thread.Sleep(300); // let the client take those bytes before the connection goes away under it
-				ctx.Response.Abort();
-			}))
-			using (var api = new HgResumeRestApiServer(server.BaseUrl + "proj"))
+				var server = Task.Run(() =>
+				{
+					using (var client = listener.AcceptTcpClient())
+					{
+						var stream = client.GetStream();
+						var reader = new StreamReader(stream, Encoding.ASCII);
+						while (!string.IsNullOrEmpty(reader.ReadLine()))
+						{
+							// skip the request headers
+						}
+						var head = Encoding.ASCII.GetBytes("HTTP/1.1 200 OK\r\nContent-Length: 1000\r\n\r\n");
+						stream.Write(head, 0, head.Length);
+						stream.Write(new byte[400], 0, 400);
+						Thread.Sleep(300); // let the client take those bytes before the connection goes away under it
+						client.Client.LingerState = new LingerOption(true, 0); // close with a reset, as a dropped link does
+						client.Client.Close();
+					}
+				});
+				using (var api = new HgResumeRestApiServer($"http://127.0.0.1:{((IPEndPoint) listener.LocalEndpoint).Port}/proj"))
+				{
+					var sink = new MemoryStream();
+					Assert.That(() => api.Execute("pullBundleChunk", new HgResumeApiParameters(), sink, null, 10),
+						Throws.TypeOf<HttpRequestException>());
+					Assert.That(sink.Length, Is.EqualTo(400));
+				}
+				server.Wait(TimeSpan.FromSeconds(5));
+			}
+			finally
 			{
-				var sink = new MemoryStream();
-				Assert.That(() => api.Execute("pullBundleChunk", new HgResumeApiParameters(), sink, null, 10),
-					Throws.TypeOf<HttpRequestException>());
-				Assert.That(sink.Length, Is.EqualTo(400));
+				listener.Stop();
 			}
 		}
 
