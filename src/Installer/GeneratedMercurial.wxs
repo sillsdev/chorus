@@ -374,9 +374,29 @@
                     </Directory>
                     <Directory Id="mercurial.lib.mercurial.cmd_impls" Name="cmd_impls">
                         <Directory Id="mercurial.lib.mercurial.cmd_impls.__pycache__" Name="__pycache__">
+                            <Component Id="curial.cmd_impls.__pycache__.bundle.cpython_39.pyc" Guid="4EC3785E-647E-4FB6-9224-FAAB96BC711B">
+                                <File Id="curial.cmd_impls.__pycache__.bundle.cpython_39.pyc" Name="bundle.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\cmd_impls\__pycache__\bundle.cpython-39.pyc" />
+                                <RemoveFile Id="_53164bc5a03b43439d2c06f7d9021810" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="rcurial.cmd_impls.__pycache__.clone.cpython_39.pyc" Guid="F7D82788-93D0-4760-88DA-861E2174E705">
+                                <File Id="rcurial.cmd_impls.__pycache__.clone.cpython_39.pyc" Name="clone.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\cmd_impls\__pycache__\clone.cpython-39.pyc" />
+                                <RemoveFile Id="_36e2291c2edb44598d8a850464fee276" On="both" Name="*.*" />
+                            </Component>
                             <Component Id="rcurial.cmd_impls.__pycache__.graft.cpython_39.pyc" Guid="7841B33B-DEC7-4AF8-91D8-3AE43328009A">
-                                <File Id="rcurial.cmd_impls.__pycache__.graft.cpython_39.pyc" Name="graft.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\cmd_impls\__pycache__\graft.cpython-39.pyc" />
+                                <File Id="rcurial.cmd_impls.__pycache__.graft.cpython_39.pyc" Name="graft.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\cmd_impls\__pycache__\graft.cpython-39.pyc" />
                                 <RemoveFile Id="_1c232e0387784329a3dfa76b0742a4e5" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="rial.cmd_impls.__pycache__.incoming.cpython_39.pyc" Guid="F52D75F4-F030-4C27-915C-330D1F40B1CD">
+                                <File Id="rial.cmd_impls.__pycache__.incoming.cpython_39.pyc" Name="incoming.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\cmd_impls\__pycache__\incoming.cpython-39.pyc" />
+                                <RemoveFile Id="_713c84aecd7b4503a509ab973a8d434d" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="rial.cmd_impls.__pycache__.outgoing.cpython_39.pyc" Guid="B4141386-F516-4CE5-A4FC-C689003C17BC">
+                                <File Id="rial.cmd_impls.__pycache__.outgoing.cpython_39.pyc" Name="outgoing.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\cmd_impls\__pycache__\outgoing.cpython-39.pyc" />
+                                <RemoveFile Id="_cdd9631f21f0409cb04431f1efd996c2" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="curial.cmd_impls.__pycache__.update.cpython_39.pyc" Guid="E84EEE37-D609-45D8-8898-8F2F241D6DBC">
+                                <File Id="curial.cmd_impls.__pycache__.update.cpython_39.pyc" Name="update.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\cmd_impls\__pycache__\update.cpython-39.pyc" />
+                                <RemoveFile Id="_b5e5cc0240e3475eb1f8686bc3b87790" On="both" Name="*.*" />
                             </Component>
                             <Component Id="rial.cmd_impls.__pycache__.__init__.cpython_39.pyc" Guid="BA90A14A-2294-4446-BCEB-3AD7309C9772">
                                 <File Id="rial.cmd_impls.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\cmd_impls\__pycache__\__init__.cpython-39.pyc" />
@@ -429,6 +449,26 @@
                             <Component Id="_.dirstateutils.__pycache__.__init__.cpython_39.pyc" Guid="40D45680-DF7D-42A5-815E-D5F015024EA0">
                                 <File Id="_.dirstateutils.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\dirstateutils\__pycache__\__init__.cpython-39.pyc" />
                                 <RemoveFile Id="_8fb9d407b4e14cbc93b2d725191e6800" On="both" Name="*.*" />
+                            </Component>
+                        </Directory>
+                    </Directory>
+                    <Directory Id="mercurial.lib.mercurial.exchanges" Name="exchanges">
+                        <Directory Id="mercurial.lib.mercurial.exchanges.__pycache__" Name="__pycache__">
+                            <Component Id="_.exchanges.__pycache__.bundle_cache.cpython_39.pyc" Guid="F1521398-FB7E-4631-8E4F-7372E551ABDE">
+                                <File Id="_.exchanges.__pycache__.bundle_cache.cpython_39.pyc" Name="bundle_cache.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\exchanges\__pycache__\bundle_cache.cpython-39.pyc" />
+                                <RemoveFile Id="_1429d9b8d40245cdbcd0119612347e7a" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="l.exchanges.__pycache__.bundle_caps.cpython_39.pyc" Guid="ABA49C9E-111D-412C-A71A-1F289190CF9F">
+                                <File Id="l.exchanges.__pycache__.bundle_caps.cpython_39.pyc" Name="bundle_caps.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\exchanges\__pycache__\bundle_caps.cpython-39.pyc" />
+                                <RemoveFile Id="_5c43414a217147c5a814c81c4187b7c6" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="ercurial.exchanges.__pycache__.peer.cpython_39.pyc" Guid="D6C61622-BA10-4119-B8CB-EC2BDAD1F82B">
+                                <File Id="ercurial.exchanges.__pycache__.peer.cpython_39.pyc" Name="peer.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\exchanges\__pycache__\peer.cpython-39.pyc" />
+                                <RemoveFile Id="_9ac2446db98848c4a8480928dda3f98c" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="rial.exchanges.__pycache__.__init__.cpython_39.pyc" Guid="5C75F2EE-77D5-44D3-8D57-63BFEB7767EF">
+                                <File Id="rial.exchanges.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\exchanges\__pycache__\__init__.cpython-39.pyc" />
+                                <RemoveFile Id="_dfeabc30d0644387a9052190e955044d" On="both" Name="*.*" />
                             </Component>
                         </Directory>
                     </Directory>
@@ -586,6 +626,10 @@
                                 <File Id="al.lib.mercurial.helptext.internals.extensions.txt" Name="extensions.txt" Source="..\..\mercurial\lib\mercurial\helptext\internals\extensions.txt" />
                                 <RemoveFile Id="_e2c7141fa7bf48d99e12634dccec58c8" On="both" Name="*.*" />
                             </Component>
+                            <Component Id="al.lib.mercurial.helptext.internals.file_index.txt" Guid="7F69C9CB-50A1-46A1-ADBD-1647E2EC631D">
+                                <File Id="al.lib.mercurial.helptext.internals.file_index.txt" Name="file-index.txt" Source="..\..\mercurial\lib\mercurial\helptext\internals\file-index.txt" />
+                                <RemoveFile Id="_ffcfbcafad494bbe84e9475b6ab8351e" On="both" Name="*.*" />
+                            </Component>
                             <Component Id="urial.lib.mercurial.helptext.internals.linelog.txt" Guid="2A6D4A67-10B6-4CF6-B947-4BE00165901F">
                                 <File Id="urial.lib.mercurial.helptext.internals.linelog.txt" Name="linelog.txt" Source="..\..\mercurial\lib\mercurial\helptext\internals\linelog.txt" />
                                 <RemoveFile Id="_b7a0d5d778984dda9693cb7d5074a6dd" On="both" Name="*.*" />
@@ -638,9 +682,17 @@
                                 <File Id="rial.hgweb.__pycache__.hgwebdir_mod.cpython_39.pyc" Name="hgwebdir_mod.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\hgweb\__pycache__\hgwebdir_mod.cpython-39.pyc" />
                                 <RemoveFile Id="_8a80c5fe3d75446da2a8f1f02ec956a6" On="both" Name="*.*" />
                             </Component>
+                            <Component Id="gweb.__pycache__.hgwebdir_mod_inner.cpython_39.pyc" Guid="B3300067-2234-4A32-9CD8-33FB22B60C5C">
+                                <File Id="gweb.__pycache__.hgwebdir_mod_inner.cpython_39.pyc" Name="hgwebdir_mod_inner.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\hgweb\__pycache__\hgwebdir_mod_inner.cpython-39.pyc" />
+                                <RemoveFile Id="_868d912590eb4d4fa1ffb510026c5950" On="both" Name="*.*" />
+                            </Component>
                             <Component Id="rcurial.hgweb.__pycache__.hgweb_mod.cpython_39.pyc" Guid="541DA714-15F2-43A1-8E58-BC6BCC0E5775">
                                 <File Id="rcurial.hgweb.__pycache__.hgweb_mod.cpython_39.pyc" Name="hgweb_mod.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\hgweb\__pycache__\hgweb_mod.cpython-39.pyc" />
                                 <RemoveFile Id="_fa8b52aeece94941937ab60ea037ae66" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="l.hgweb.__pycache__.hgweb_mod_inner.cpython_39.pyc" Guid="CFE47930-3C4F-42E2-9347-4B78C908C7E7">
+                                <File Id="l.hgweb.__pycache__.hgweb_mod_inner.cpython_39.pyc" Name="hgweb_mod_inner.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\hgweb\__pycache__\hgweb_mod_inner.cpython-39.pyc" />
+                                <RemoveFile Id="_24f9124efb7f44d1bb2cbb5c81117d98" On="both" Name="*.*" />
                             </Component>
                             <Component Id="mercurial.hgweb.__pycache__.request.cpython_39.pyc" Guid="2A6FC5D1-EA79-42D8-B918-38FCD2669708">
                                 <File Id="mercurial.hgweb.__pycache__.request.cpython_39.pyc" Name="request.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\hgweb\__pycache__\request.cpython-39.pyc" />
@@ -662,6 +714,10 @@
                                 <File Id="mercurial.hgweb.__pycache__.wsgicgi.cpython_39.pyc" Name="wsgicgi.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\hgweb\__pycache__\wsgicgi.cpython-39.pyc" />
                                 <RemoveFile Id="_9e38b74015444c3c8f497fca3fc978b4" On="both" Name="*.*" />
                             </Component>
+                            <Component Id="ial.hgweb.__pycache__.wsgicgi_inner.cpython_39.pyc" Guid="69CFA184-6B09-44C6-916E-0AE99CD8F378">
+                                <File Id="ial.hgweb.__pycache__.wsgicgi_inner.cpython_39.pyc" Name="wsgicgi_inner.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\hgweb\__pycache__\wsgicgi_inner.cpython-39.pyc" />
+                                <RemoveFile Id="_aa1ad649b10840e09ff9fc9b7a17ee37" On="both" Name="*.*" />
+                            </Component>
                             <Component Id="urial.hgweb.__pycache__.wsgiheaders.cpython_39.pyc" Guid="4862F06B-0E6A-4E7A-82DA-0B8BAD82FC99">
                                 <File Id="urial.hgweb.__pycache__.wsgiheaders.cpython_39.pyc" Name="wsgiheaders.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\hgweb\__pycache__\wsgiheaders.cpython-39.pyc" />
                                 <RemoveFile Id="_ef157f649a3f43a383b549e4ef0f15a9" On="both" Name="*.*" />
@@ -674,9 +730,37 @@
                     </Directory>
                     <Directory Id="mercurial.lib.mercurial.interfaces" Name="interfaces">
                         <Directory Id="mercurial.lib.mercurial.interfaces.__pycache__" Name="__pycache__">
+                            <Component Id="urial.interfaces.__pycache__.bundle.cpython_39.pyc" Guid="317FB946-6C4E-4800-B5A5-C40121618327">
+                                <File Id="urial.interfaces.__pycache__.bundle.cpython_39.pyc" Name="bundle.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\bundle.cpython-39.pyc" />
+                                <RemoveFile Id="_529d254b3bba42ab828951dfedafd6c9" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="_.interfaces.__pycache__.changegroup.cpython_39.pyc" Guid="AA716245-BA57-40BB-A270-05674AC27A2F">
+                                <File Id="_.interfaces.__pycache__.changegroup.cpython_39.pyc" Name="changegroup.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\changegroup.cpython-39.pyc" />
+                                <RemoveFile Id="_66c7703aeaf041febbfbf4d0eee0d6a9" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="_.interfaces.__pycache__.compression.cpython_39.pyc" Guid="9AC7D26B-D523-4EE6-AEAA-1584354CA92D">
+                                <File Id="_.interfaces.__pycache__.compression.cpython_39.pyc" Name="compression.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\compression.cpython-39.pyc" />
+                                <RemoveFile Id="_a64e0f26647d4854bfc297cf9d0a5815" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="urial.interfaces.__pycache__.config.cpython_39.pyc" Guid="D6038BAB-E18D-4064-81F4-12FADCB32953">
+                                <File Id="urial.interfaces.__pycache__.config.cpython_39.pyc" Name="config.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\config.cpython-39.pyc" />
+                                <RemoveFile Id="_cae37e8dfff34211979d73d452e2ea51" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="rial.interfaces.__pycache__.context.cpython_39.pyc" Guid="5AE81B15-17AD-40A5-A5C3-396CB4D39EC7">
+                                <File Id="rial.interfaces.__pycache__.context.cpython_39.pyc" Name="context.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\context.cpython-39.pyc" />
+                                <RemoveFile Id="_7951dd35b9664b4e8d8f55e81bd7f1b4" On="both" Name="*.*" />
+                            </Component>
                             <Component Id="ial.interfaces.__pycache__.dirstate.cpython_39.pyc" Guid="2ADDC2E7-B3A6-4DEA-A759-196501A7DD9C">
-                                <File Id="ial.interfaces.__pycache__.dirstate.cpython_39.pyc" Name="dirstate.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\dirstate.cpython-39.pyc" />
+                                <File Id="ial.interfaces.__pycache__.dirstate.cpython_39.pyc" Name="dirstate.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\dirstate.cpython-39.pyc" />
                                 <RemoveFile Id="_75da0c63fdb5496e92f1ff44f46be36b" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="ial.interfaces.__pycache__.exchange.cpython_39.pyc" Guid="B513E2EE-7BEF-46A6-B225-54D5394E81A8">
+                                <File Id="ial.interfaces.__pycache__.exchange.cpython_39.pyc" Name="exchange.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\exchange.cpython-39.pyc" />
+                                <RemoveFile Id="_3b90ebd0ce85498586d9a1932ddb3112" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="l.interfaces.__pycache__.file_index.cpython_39.pyc" Guid="2D6011F6-DB9E-45E1-9C5A-CB2F8E5612C3">
+                                <File Id="l.interfaces.__pycache__.file_index.cpython_39.pyc" Name="file_index.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\file_index.cpython-39.pyc" />
+                                <RemoveFile Id="_8f858b769ee44b378c280fa6ef3cb9cb" On="both" Name="*.*" />
                             </Component>
                             <Component Id="rial.interfaces.__pycache__.matcher.cpython_39.pyc" Guid="D765EB95-05E2-4D30-9E45-0A224DFABBAA">
                                 <File Id="rial.interfaces.__pycache__.matcher.cpython_39.pyc" Name="matcher.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\matcher.cpython-39.pyc" />
@@ -694,6 +778,10 @@
                                 <File Id="l.interfaces.__pycache__.repository.cpython_39.pyc" Name="repository.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\repository.cpython-39.pyc" />
                                 <RemoveFile Id="_5966e2f459704013bfcb1eef6182629b" On="both" Name="*.*" />
                             </Component>
+                            <Component Id="urial.interfaces.__pycache__.revlog.cpython_39.pyc" Guid="5FACE1B9-3C2F-49A5-BC13-31FEDEC78DAA">
+                                <File Id="urial.interfaces.__pycache__.revlog.cpython_39.pyc" Name="revlog.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\revlog.cpython-39.pyc" />
+                                <RemoveFile Id="_ecab8cedc8cf428ab617e32ee30bdbee" On="both" Name="*.*" />
+                            </Component>
                             <Component Id="urial.interfaces.__pycache__.status.cpython_39.pyc" Guid="1201A9B3-CFFC-4081-800C-58313A1C1DB2">
                                 <File Id="urial.interfaces.__pycache__.status.cpython_39.pyc" Name="status.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\status.cpython-39.pyc" />
                                 <RemoveFile Id="_af11637be07e47a59a46553c18a0513f" On="both" Name="*.*" />
@@ -706,6 +794,10 @@
                                 <File Id="curial.interfaces.__pycache__.types.cpython_39.pyc" Name="types.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\types.cpython-39.pyc" />
                                 <RemoveFile Id="_2a381791b8b048099a04f6921e4176fd" On="both" Name="*.*" />
                             </Component>
+                            <Component Id="mercurial.interfaces.__pycache__.ui.cpython_39.pyc" Guid="76BF5867-5B5C-4239-9EEA-88EF8A51879C">
+                                <File Id="mercurial.interfaces.__pycache__.ui.cpython_39.pyc" Name="ui.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\ui.cpython-39.pyc" />
+                                <RemoveFile Id="_80eb673e4e3d47fe981dff89eb323a63" On="both" Name="*.*" />
+                            </Component>
                             <Component Id="l.interfaces.__pycache__._basetypes.cpython_39.pyc" Guid="CF8B63CA-CE20-44FD-90F4-D6E41035B3C2">
                                 <File Id="l.interfaces.__pycache__._basetypes.cpython_39.pyc" Name="_basetypes.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\_basetypes.cpython-39.pyc" />
                                 <RemoveFile Id="_0baa78231291418f9f7f2db3d2cbe23a" On="both" Name="*.*" />
@@ -713,6 +805,54 @@
                             <Component Id="ial.interfaces.__pycache__.__init__.cpython_39.pyc" Guid="F8B8BB74-EB85-4A48-9556-C1A97A95E6AC">
                                 <File Id="ial.interfaces.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\interfaces\__pycache__\__init__.cpython-39.pyc" />
                                 <RemoveFile Id="_875449ef1fa1444f8637e5140c1ea43f" On="both" Name="*.*" />
+                            </Component>
+                        </Directory>
+                    </Directory>
+                    <Directory Id="mercurial.lib.mercurial.main_script" Name="main_script">
+                        <Directory Id="mercurial.lib.mercurial.main_script.__pycache__" Name="__pycache__">
+                            <Component Id="_.main_script.__pycache__.cmd_finder.cpython_39.pyc" Guid="C42A529F-9009-4EF9-B6D6-E8C92551B7C9">
+                                <File Id="_.main_script.__pycache__.cmd_finder.cpython_39.pyc" Name="cmd_finder.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\main_script\__pycache__\cmd_finder.cpython-39.pyc" />
+                                <RemoveFile Id="_33eabce84900419db305b43cbb55bc04" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="ial.main_script.__pycache__.options.cpython_39.pyc" Guid="D03FD2D6-476F-4AC8-8DC3-4AB4C23F4464">
+                                <File Id="ial.main_script.__pycache__.options.cpython_39.pyc" Name="options.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\main_script\__pycache__\options.cpython-39.pyc" />
+                                <RemoveFile Id="_be613956514a49ce85f84fa7f8203ab8" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="urial.main_script.__pycache__.paths.cpython_39.pyc" Guid="5FCE2B40-BCE3-4D01-9265-7490C2AE4FFB">
+                                <File Id="urial.main_script.__pycache__.paths.cpython_39.pyc" Name="paths.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\main_script\__pycache__\paths.cpython-39.pyc" />
+                                <RemoveFile Id="_4304703c6e83478484d7617d2189ae1e" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="al.main_script.__pycache__.__init__.cpython_39.pyc" Guid="58BD240B-B116-48DB-B63C-CCD3D62BFFB3">
+                                <File Id="al.main_script.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\main_script\__pycache__\__init__.cpython-39.pyc" />
+                                <RemoveFile Id="_57a21e5edd5646ff9d46bc53c53ec4cd" On="both" Name="*.*" />
+                            </Component>
+                        </Directory>
+                    </Directory>
+                    <Directory Id="mercurial.lib.mercurial.merge_utils" Name="merge_utils">
+                        <Directory Id="mercurial.lib.mercurial.merge_utils.__pycache__" Name="__pycache__">
+                            <Component Id="curial.merge_utils.__pycache__.diff.cpython_39.pyc" Guid="3EFB1DC1-E5CC-4966-A1AD-FD61D4CC13D4">
+                                <File Id="curial.merge_utils.__pycache__.diff.cpython_39.pyc" Name="diff.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\merge_utils\__pycache__\diff.cpython-39.pyc" />
+                                <RemoveFile Id="_ca22cc2a82a340bab591c9fc0830bb57" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="rial.merge_utils.__pycache__.update.cpython_39.pyc" Guid="4589AFA4-1BD2-4A2A-89E5-39D200107B3D">
+                                <File Id="rial.merge_utils.__pycache__.update.cpython_39.pyc" Name="update.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\merge_utils\__pycache__\update.cpython-39.pyc" />
+                                <RemoveFile Id="_283d155dc4154c1b92521deaad6a370e" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="al.merge_utils.__pycache__.__init__.cpython_39.pyc" Guid="2243134E-67E9-4A65-A84B-189A3CDC3706">
+                                <File Id="al.merge_utils.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\merge_utils\__pycache__\__init__.cpython-39.pyc" />
+                                <RemoveFile Id="_47de9bc6daf740d9982ee5a23c1cf8da" On="both" Name="*.*" />
+                            </Component>
+                        </Directory>
+                    </Directory>
+                    <Directory Id="mercurial.lib.mercurial.narrow" Name="narrow">
+                        <Directory Id="mercurial.lib.mercurial.narrow.__pycache__" Name="__pycache__">
+                            <Component Id="ial.narrow.__pycache__.working_copy.cpython_39.pyc" Guid="7CE53F58-2840-4991-ABA7-D4CCEEF1B352">
+                                <File Id="ial.narrow.__pycache__.working_copy.cpython_39.pyc" Name="working_copy.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\narrow\__pycache__\working_copy.cpython-39.pyc" />
+                                <RemoveFile Id="_e23c2cdbe00343a7aea05d587b635a79" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="rcurial.narrow.__pycache__.__init__.cpython_39.pyc" Guid="3559C68D-2E6C-4EFA-909F-5DEC662B3C5F">
+                                <File Id="rcurial.narrow.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\narrow\__pycache__\__init__.cpython-39.pyc" />
+                                <RemoveFile Id="_c74cdd86028040f894d06e909689060e" On="both" Name="*.*" />
                             </Component>
                         </Directory>
                     </Directory>
@@ -729,6 +869,10 @@
                             <Component Id="rcurial.pure.__pycache__.charencode.cpython_39.pyc" Guid="9CE993DC-B349-4442-9096-0E534F745A1F">
                                 <File Id="rcurial.pure.__pycache__.charencode.cpython_39.pyc" Name="charencode.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\pure\__pycache__\charencode.cpython-39.pyc" />
                                 <RemoveFile Id="_42ad773cb4224a508f898723664d16c7" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="b.mercurial.pure.__pycache__.deltas.cpython_39.pyc" Guid="D6CA0F06-4E6C-4091-B8F5-6747C3E56D0C">
+                                <File Id="b.mercurial.pure.__pycache__.deltas.cpython_39.pyc" Name="deltas.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\pure\__pycache__\deltas.cpython-39.pyc" />
+                                <RemoveFile Id="_dde057b70bb44b7a86e467537b3ef81a" On="both" Name="*.*" />
                             </Component>
                             <Component Id="b.mercurial.pure.__pycache__.mpatch.cpython_39.pyc" Guid="DCAFD40F-B8B1-4E79-9E5A-FF6094E32030">
                                 <File Id="b.mercurial.pure.__pycache__.mpatch.cpython_39.pyc" Name="mpatch.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\pure\__pycache__\mpatch.cpython-39.pyc" />
@@ -748,11 +892,39 @@
                             </Component>
                         </Directory>
                     </Directory>
+                    <Directory Id="mercurial.lib.mercurial.repo" Name="repo">
+                        <Directory Id="mercurial.lib.mercurial.repo.__pycache__" Name="__pycache__">
+                            <Component Id="mercurial.repo.__pycache__.creation.cpython_39.pyc" Guid="B8B72EB0-C8A9-4E07-BB6A-C09297DB8F0D">
+                                <File Id="mercurial.repo.__pycache__.creation.cpython_39.pyc" Name="creation.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\repo\__pycache__\creation.cpython-39.pyc" />
+                                <RemoveFile Id="_5de03093d54247ecb10357610afd64e9" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="_.mercurial.repo.__pycache__.factory.cpython_39.pyc" Guid="29F1CEB1-391B-488A-B1C7-F41848523602">
+                                <File Id="_.mercurial.repo.__pycache__.factory.cpython_39.pyc" Name="factory.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\repo\__pycache__\factory.cpython-39.pyc" />
+                                <RemoveFile Id="_5bb3fb913bb7439dba1072eea3fe4e2c" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="urial.repo.__pycache__.requirements.cpython_39.pyc" Guid="A720316C-B526-4BF1-B3C1-F86C0F692E4F">
+                                <File Id="urial.repo.__pycache__.requirements.cpython_39.pyc" Name="requirements.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\repo\__pycache__\requirements.cpython-39.pyc" />
+                                <RemoveFile Id="_eb954d3cf5d94a66aee99ace4f095794" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="curial.repo.__pycache__.vfs_options.cpython_39.pyc" Guid="33E991C6-9A7F-45F9-9408-0DD1B21E72BE">
+                                <File Id="curial.repo.__pycache__.vfs_options.cpython_39.pyc" Name="vfs_options.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\repo\__pycache__\vfs_options.cpython-39.pyc" />
+                                <RemoveFile Id="_539dbaa3a6bb4b22b8102572da290dfe" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="mercurial.repo.__pycache__.__init__.cpython_39.pyc" Guid="F21E2CA6-A8B3-4D5F-A5B3-3645D953E686">
+                                <File Id="mercurial.repo.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\repo\__pycache__\__init__.cpython-39.pyc" />
+                                <RemoveFile Id="_87ea2df0d977417aa7cf716afc3a4204" On="both" Name="*.*" />
+                            </Component>
+                        </Directory>
+                    </Directory>
                     <Directory Id="mercurial.lib.mercurial.revlogutils" Name="revlogutils">
                         <Directory Id="mercurial.lib.mercurial.revlogutils.__pycache__" Name="__pycache__">
                             <Component Id="ils.__pycache__.concurrency_checker.cpython_39.pyc" Guid="07735FEB-1AD4-4253-8913-A43DDC2B30BE">
                                 <File Id="ils.__pycache__.concurrency_checker.cpython_39.pyc" Name="concurrency_checker.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\revlogutils\__pycache__\concurrency_checker.cpython-39.pyc" />
                                 <RemoveFile Id="_57ee5dc5aabb4b459d17bc3d9b80a5f7" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="rial.revlogutils.__pycache__.config.cpython_39.pyc" Guid="7224565F-9165-402B-8173-980D5BBEEF71">
+                                <File Id="rial.revlogutils.__pycache__.config.cpython_39.pyc" Name="config.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\revlogutils\__pycache__\config.cpython-39.pyc" />
+                                <RemoveFile Id="_3c67d284584346498f03ee02827c042c" On="both" Name="*.*" />
                             </Component>
                             <Component Id="l.revlogutils.__pycache__.constants.cpython_39.pyc" Guid="7A941157-9758-4672-B0B2-1A0ABCEBE0BE">
                                 <File Id="l.revlogutils.__pycache__.constants.cpython_39.pyc" Name="constants.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\revlogutils\__pycache__\constants.cpython-39.pyc" />
@@ -809,6 +981,22 @@
                             <Component Id="tabletailgraph.__pycache__.__init__.cpython_39.pyc" Guid="E2841279-60AE-479D-B326-A9A74B7C36BE">
                                 <File Id="tabletailgraph.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\stabletailgraph\__pycache__\__init__.cpython-39.pyc" />
                                 <RemoveFile Id="_c401462fee42476da96348e910b42912" On="both" Name="*.*" />
+                            </Component>
+                        </Directory>
+                    </Directory>
+                    <Directory Id="mercurial.lib.mercurial.store_utils" Name="store_utils">
+                        <Directory Id="mercurial.lib.mercurial.store_utils.__pycache__" Name="__pycache__">
+                            <Component Id="_.store_utils.__pycache__.file_index.cpython_39.pyc" Guid="1190C825-874B-4D5A-B649-8BA9959C39B9">
+                                <File Id="_.store_utils.__pycache__.file_index.cpython_39.pyc" Name="file_index.cpython-39.pyc" KeyPath="yes" Source="..\..\mercurial\lib\mercurial\store_utils\__pycache__\file_index.cpython-39.pyc" />
+                                <RemoveFile Id="_3324673c571643a99d95e1a88d661a93" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="e_utils.__pycache__.file_index_util.cpython_39.pyc" Guid="21F822C3-B28B-4BC3-BE13-3E2C0DEA47EE">
+                                <File Id="e_utils.__pycache__.file_index_util.cpython_39.pyc" Name="file_index_util.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\store_utils\__pycache__\file_index_util.cpython-39.pyc" />
+                                <RemoveFile Id="_d4559a04c96f4607a5e0f55de07b2e27" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="al.store_utils.__pycache__.__init__.cpython_39.pyc" Guid="EF6718D0-F9AB-48F4-884B-63CC109EFB96">
+                                <File Id="al.store_utils.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\store_utils\__pycache__\__init__.cpython-39.pyc" />
+                                <RemoveFile Id="_bb7c52ec334c476e9f0c18a05ce294b7" On="both" Name="*.*" />
                             </Component>
                         </Directory>
                     </Directory>
@@ -974,6 +1162,10 @@
                                 <File Id="al.upgrade_utils.__pycache__.engine.cpython_39.pyc" Name="engine.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\upgrade_utils\__pycache__\engine.cpython-39.pyc" />
                                 <RemoveFile Id="_5e0d2039ab134c69bc4f6880c88cf1d3" On="both" Name="*.*" />
                             </Component>
+                            <Component Id="pgrade_utils.__pycache__.share_safe.cpython_39.pyc" Guid="56CDDBB5-4A6B-4D2B-9432-E1BB54136145">
+                                <File Id="pgrade_utils.__pycache__.share_safe.cpython_39.pyc" Name="share_safe.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\upgrade_utils\__pycache__\share_safe.cpython-39.pyc" />
+                                <RemoveFile Id="_7e6a56b0d9c445bc98e8f47f6e92dea6" On="both" Name="*.*" />
+                            </Component>
                             <Component Id="_.upgrade_utils.__pycache__.__init__.cpython_39.pyc" Guid="33BA0F73-78E2-485B-B6FC-FCCB74CDC7FB">
                                 <File Id="_.upgrade_utils.__pycache__.__init__.cpython_39.pyc" Name="__init__.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\upgrade_utils\__pycache__\__init__.cpython-39.pyc" />
                                 <RemoveFile Id="_111c96583a1d42f9b935ffc2f6f6667a" On="both" Name="*.*" />
@@ -990,9 +1182,17 @@
                                 <File Id="urial.utils.__pycache__.compression.cpython_39.pyc" Name="compression.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\utils\__pycache__\compression.cpython-39.pyc" />
                                 <RemoveFile Id="_97c8eae4302642cc9aed151e33536430" On="both" Name="*.*" />
                             </Component>
+                            <Component Id="ercurial.utils.__pycache__.dag_util.cpython_39.pyc" Guid="3FE782B2-8C93-44B8-A2EE-91325C182F76">
+                                <File Id="ercurial.utils.__pycache__.dag_util.cpython_39.pyc" Name="dag_util.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\utils\__pycache__\dag_util.cpython-39.pyc" />
+                                <RemoveFile Id="_106885d81af8464fbdf698cdcdf0cad4" On="both" Name="*.*" />
+                            </Component>
                             <Component Id="ercurial.utils.__pycache__.dateutil.cpython_39.pyc" Guid="6A0E7698-102F-4A24-9FBE-CA26BD91419C">
                                 <File Id="ercurial.utils.__pycache__.dateutil.cpython_39.pyc" Name="dateutil.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\utils\__pycache__\dateutil.cpython-39.pyc" />
                                 <RemoveFile Id="_6ad85beb9ac64e41970f3f66f8c38169" On="both" Name="*.*" />
+                            </Component>
+                            <Component Id="_.mercurial.utils.__pycache__.docket.cpython_39.pyc" Guid="B1CA264A-3FE0-4BFA-9B9D-433CB2F4AC28">
+                                <File Id="_.mercurial.utils.__pycache__.docket.cpython_39.pyc" Name="docket.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\utils\__pycache__\docket.cpython-39.pyc" />
+                                <RemoveFile Id="_796cc1238f734d339040c65a145687bb" On="both" Name="*.*" />
                             </Component>
                             <Component Id="ercurial.utils.__pycache__.hashutil.cpython_39.pyc" Guid="6184F90B-E92A-4D53-A887-A82A49988F10">
                                 <File Id="ercurial.utils.__pycache__.hashutil.cpython_39.pyc" Name="hashutil.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\utils\__pycache__\hashutil.cpython-39.pyc" />
@@ -1056,6 +1256,10 @@
                         <Component Id="l.lib.mercurial.__pycache__.bundle2.cpython_39.pyc" Guid="B83513E5-B000-4604-9A67-DD23E92A7D9D">
                             <File Id="l.lib.mercurial.__pycache__.bundle2.cpython_39.pyc" Name="bundle2.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\bundle2.cpython-39.pyc" />
                             <RemoveFile Id="_57003b4d8ef049fcb2cf2ee10c794862" On="both" Name="*.*" />
+                        </Component>
+                        <Component Id="l.__pycache__.bundle2_part_handlers.cpython_39.pyc" Guid="6C8A7675-2B76-4536-848C-A5A246A248D2">
+                            <File Id="l.__pycache__.bundle2_part_handlers.cpython_39.pyc" Name="bundle2_part_handlers.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\bundle2_part_handlers.cpython-39.pyc" />
+                            <RemoveFile Id="_a08e342f88b9416792f504c8369a7ac9" On="both" Name="*.*" />
                         </Component>
                         <Component Id="_.mercurial.__pycache__.bundlecaches.cpython_39.pyc" Guid="A782A61C-5BFE-4AF7-BFDE-CFD613A0155A">
                             <File Id="_.mercurial.__pycache__.bundlecaches.cpython_39.pyc" Name="bundlecaches.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\bundlecaches.cpython-39.pyc" />
@@ -1241,6 +1445,10 @@
                             <File Id="rial.lib.mercurial.__pycache__.i18n.cpython_39.pyc" Name="i18n.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\i18n.cpython-39.pyc" />
                             <RemoveFile Id="_ec6c1af2d88b42109187e6b6dd1dc5b2" On="both" Name="*.*" />
                         </Component>
+                        <Component Id="ercurial.__pycache__.initialization.cpython_39.pyc" Guid="F10DD668-62A9-41B6-B4C8-46909FD7534C">
+                            <File Id="ercurial.__pycache__.initialization.cpython_39.pyc" Name="initialization.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\initialization.cpython-39.pyc" />
+                            <RemoveFile Id="_4a39959b89274fcba691c68e9cc99cd6" On="both" Name="*.*" />
+                        </Component>
                         <Component Id="lib.mercurial.__pycache__.keepalive.cpython_39.pyc" Guid="6D788989-F94D-4F84-857C-A869F2BEEA09">
                             <File Id="lib.mercurial.__pycache__.keepalive.cpython_39.pyc" Name="keepalive.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\keepalive.cpython-39.pyc" />
                             <RemoveFile Id="_8df77ec9673e419d891ad7386aab70a5" On="both" Name="*.*" />
@@ -1413,6 +1621,10 @@
                             <File Id="ib.mercurial.__pycache__.revsetlang.cpython_39.pyc" Name="revsetlang.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\revsetlang.cpython-39.pyc" />
                             <RemoveFile Id="_4c708a440b0a4301a0f740b77b2643d3" On="both" Name="*.*" />
                         </Component>
+                        <Component Id="urial.__pycache__.revset_predicates.cpython_39.pyc" Guid="62053086-A04D-4214-AF37-C8046668A30E">
+                            <File Id="urial.__pycache__.revset_predicates.cpython_39.pyc" Name="revset_predicates.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\revset_predicates.cpython-39.pyc" />
+                            <RemoveFile Id="_c97197468eb241ad8dab651ad11f0707" On="both" Name="*.*" />
+                        </Component>
                         <Component Id="b.mercurial.__pycache__.rewriteutil.cpython_39.pyc" Guid="DFB22F88-2DDF-49CA-86E2-7282EDFCF4CE">
                             <File Id="b.mercurial.__pycache__.rewriteutil.cpython_39.pyc" Name="rewriteutil.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\rewriteutil.cpython-39.pyc" />
                             <RemoveFile Id="_5434a976cffc4464a9adf6f12ff9a000" On="both" Name="*.*" />
@@ -1436,6 +1648,10 @@
                         <Component Id="_.mercurial.__pycache__.setdiscovery.cpython_39.pyc" Guid="1F79F860-0B0C-4F9D-B3B8-1F1E54A2B1C2">
                             <File Id="_.mercurial.__pycache__.setdiscovery.cpython_39.pyc" Name="setdiscovery.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\setdiscovery.cpython-39.pyc" />
                             <RemoveFile Id="_031b268686fb4a729e00af74771f878f" On="both" Name="*.*" />
+                        </Component>
+                        <Component Id="ial.lib.mercurial.__pycache__.shape.cpython_39.pyc" Guid="8306358E-1F90-4954-BBF5-E9CD621239CA">
+                            <File Id="ial.lib.mercurial.__pycache__.shape.cpython_39.pyc" Name="shape.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\shape.cpython-39.pyc" />
+                            <RemoveFile Id="_c7cb374843d149aabe8dfac0d91aebde" On="both" Name="*.*" />
                         </Component>
                         <Component Id="al.lib.mercurial.__pycache__.shelve.cpython_39.pyc" Guid="82639AE8-B209-4BE1-89AA-7116485DCE01">
                             <File Id="al.lib.mercurial.__pycache__.shelve.cpython_39.pyc" Name="shelve.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\shelve.cpython-39.pyc" />
@@ -1500,6 +1716,10 @@
                         <Component Id="b.mercurial.__pycache__.subrepoutil.cpython_39.pyc" Guid="97348B9A-4AC4-435A-A280-953C89F3663A">
                             <File Id="b.mercurial.__pycache__.subrepoutil.cpython_39.pyc" Name="subrepoutil.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\subrepoutil.cpython-39.pyc" />
                             <RemoveFile Id="_56f86117d86746eaaa98e7f83c967910" On="both" Name="*.*" />
+                        </Component>
+                        <Component Id="al.lib.mercurial.__pycache__.tables.cpython_39.pyc" Guid="30416997-ADF9-4887-8BFB-97E0223598BB">
+                            <File Id="al.lib.mercurial.__pycache__.tables.cpython_39.pyc" Name="tables.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\tables.cpython-39.pyc" />
+                            <RemoveFile Id="_4343f39c38cc417f8f8a305ca19b60d9" On="both" Name="*.*" />
                         </Component>
                         <Component Id="_.lib.mercurial.__pycache__.tagmerge.cpython_39.pyc" Guid="F5080B1D-837B-4EA1-AEEE-5B97013CF78F">
                             <File Id="_.lib.mercurial.__pycache__.tagmerge.cpython_39.pyc" Name="tagmerge.cpython-39.pyc" Source="..\..\mercurial\lib\mercurial\__pycache__\tagmerge.cpython-39.pyc" />
@@ -1714,7 +1934,12 @@
             <ComponentRef Id="b.mercurial.cffi.__pycache__.osutil.cpython_39.pyc" />
             <ComponentRef Id="curial.cffi.__pycache__.osutilbuild.cpython_39.pyc" />
             <ComponentRef Id="mercurial.cffi.__pycache__.__init__.cpython_39.pyc" />
+            <ComponentRef Id="curial.cmd_impls.__pycache__.bundle.cpython_39.pyc" />
+            <ComponentRef Id="rcurial.cmd_impls.__pycache__.clone.cpython_39.pyc" />
             <ComponentRef Id="rcurial.cmd_impls.__pycache__.graft.cpython_39.pyc" />
+            <ComponentRef Id="rial.cmd_impls.__pycache__.incoming.cpython_39.pyc" />
+            <ComponentRef Id="rial.cmd_impls.__pycache__.outgoing.cpython_39.pyc" />
+            <ComponentRef Id="curial.cmd_impls.__pycache__.update.cpython_39.pyc" />
             <ComponentRef Id="rial.cmd_impls.__pycache__.__init__.cpython_39.pyc" />
             <ComponentRef Id="l.configuration.__pycache__.command.cpython_39.pyc" />
             <ComponentRef Id="al.configuration.__pycache__.rcutil.cpython_39.pyc" />
@@ -1725,6 +1950,10 @@
             <ComponentRef Id="dirstateutils.__pycache__.timestamp.cpython_39.pyc" />
             <ComponentRef Id="curial.dirstateutils.__pycache__.v2.cpython_39.pyc" />
             <ComponentRef Id="_.dirstateutils.__pycache__.__init__.cpython_39.pyc" />
+            <ComponentRef Id="_.exchanges.__pycache__.bundle_cache.cpython_39.pyc" />
+            <ComponentRef Id="l.exchanges.__pycache__.bundle_caps.cpython_39.pyc" />
+            <ComponentRef Id="ercurial.exchanges.__pycache__.peer.cpython_39.pyc" />
+            <ComponentRef Id="rial.exchanges.__pycache__.__init__.cpython_39.pyc" />
             <ComponentRef Id="mercurial.lib.mercurial.helptext.bundlespec.txt" />
             <ComponentRef Id="mercurial.lib.mercurial.helptext.color.txt" />
             <ComponentRef Id="mercurial.lib.mercurial.helptext.common.txt" />
@@ -1763,6 +1992,7 @@
             <ComponentRef Id="curial.lib.mercurial.helptext.internals.config.txt" />
             <ComponentRef Id="l.lib.mercurial.helptext.internals.dirstate_v2.txt" />
             <ComponentRef Id="al.lib.mercurial.helptext.internals.extensions.txt" />
+            <ComponentRef Id="al.lib.mercurial.helptext.internals.file_index.txt" />
             <ComponentRef Id="urial.lib.mercurial.helptext.internals.linelog.txt" />
             <ComponentRef Id="al.lib.mercurial.helptext.internals.mergestate.txt" />
             <ComponentRef Id="_.lib.mercurial.helptext.internals.requirements.txt" />
@@ -1774,32 +2004,60 @@
             <ComponentRef Id="urial.helptext.__pycache__.__init__.cpython_39.pyc" />
             <ComponentRef Id="_.mercurial.hgweb.__pycache__.common.cpython_39.pyc" />
             <ComponentRef Id="rial.hgweb.__pycache__.hgwebdir_mod.cpython_39.pyc" />
+            <ComponentRef Id="gweb.__pycache__.hgwebdir_mod_inner.cpython_39.pyc" />
             <ComponentRef Id="rcurial.hgweb.__pycache__.hgweb_mod.cpython_39.pyc" />
+            <ComponentRef Id="l.hgweb.__pycache__.hgweb_mod_inner.cpython_39.pyc" />
             <ComponentRef Id="mercurial.hgweb.__pycache__.request.cpython_39.pyc" />
             <ComponentRef Id="_.mercurial.hgweb.__pycache__.server.cpython_39.pyc" />
             <ComponentRef Id="urial.hgweb.__pycache__.webcommands.cpython_39.pyc" />
             <ComponentRef Id="mercurial.hgweb.__pycache__.webutil.cpython_39.pyc" />
             <ComponentRef Id="mercurial.hgweb.__pycache__.wsgicgi.cpython_39.pyc" />
+            <ComponentRef Id="ial.hgweb.__pycache__.wsgicgi_inner.cpython_39.pyc" />
             <ComponentRef Id="urial.hgweb.__pycache__.wsgiheaders.cpython_39.pyc" />
             <ComponentRef Id="ercurial.hgweb.__pycache__.__init__.cpython_39.pyc" />
+            <ComponentRef Id="urial.interfaces.__pycache__.bundle.cpython_39.pyc" />
+            <ComponentRef Id="_.interfaces.__pycache__.changegroup.cpython_39.pyc" />
+            <ComponentRef Id="_.interfaces.__pycache__.compression.cpython_39.pyc" />
+            <ComponentRef Id="urial.interfaces.__pycache__.config.cpython_39.pyc" />
+            <ComponentRef Id="rial.interfaces.__pycache__.context.cpython_39.pyc" />
             <ComponentRef Id="ial.interfaces.__pycache__.dirstate.cpython_39.pyc" />
+            <ComponentRef Id="ial.interfaces.__pycache__.exchange.cpython_39.pyc" />
+            <ComponentRef Id="l.interfaces.__pycache__.file_index.cpython_39.pyc" />
             <ComponentRef Id="rial.interfaces.__pycache__.matcher.cpython_39.pyc" />
             <ComponentRef Id="rcurial.interfaces.__pycache__.misc.cpython_39.pyc" />
             <ComponentRef Id="rial.interfaces.__pycache__.modules.cpython_39.pyc" />
             <ComponentRef Id="l.interfaces.__pycache__.repository.cpython_39.pyc" />
+            <ComponentRef Id="urial.interfaces.__pycache__.revlog.cpython_39.pyc" />
             <ComponentRef Id="urial.interfaces.__pycache__.status.cpython_39.pyc" />
             <ComponentRef Id="_.interfaces.__pycache__.transaction.cpython_39.pyc" />
             <ComponentRef Id="curial.interfaces.__pycache__.types.cpython_39.pyc" />
+            <ComponentRef Id="mercurial.interfaces.__pycache__.ui.cpython_39.pyc" />
             <ComponentRef Id="l.interfaces.__pycache__._basetypes.cpython_39.pyc" />
             <ComponentRef Id="ial.interfaces.__pycache__.__init__.cpython_39.pyc" />
+            <ComponentRef Id="_.main_script.__pycache__.cmd_finder.cpython_39.pyc" />
+            <ComponentRef Id="ial.main_script.__pycache__.options.cpython_39.pyc" />
+            <ComponentRef Id="urial.main_script.__pycache__.paths.cpython_39.pyc" />
+            <ComponentRef Id="al.main_script.__pycache__.__init__.cpython_39.pyc" />
+            <ComponentRef Id="curial.merge_utils.__pycache__.diff.cpython_39.pyc" />
+            <ComponentRef Id="rial.merge_utils.__pycache__.update.cpython_39.pyc" />
+            <ComponentRef Id="al.merge_utils.__pycache__.__init__.cpython_39.pyc" />
+            <ComponentRef Id="ial.narrow.__pycache__.working_copy.cpython_39.pyc" />
+            <ComponentRef Id="rcurial.narrow.__pycache__.__init__.cpython_39.pyc" />
             <ComponentRef Id="b.mercurial.pure.__pycache__.base85.cpython_39.pyc" />
             <ComponentRef Id="ib.mercurial.pure.__pycache__.bdiff.cpython_39.pyc" />
             <ComponentRef Id="rcurial.pure.__pycache__.charencode.cpython_39.pyc" />
+            <ComponentRef Id="b.mercurial.pure.__pycache__.deltas.cpython_39.pyc" />
             <ComponentRef Id="b.mercurial.pure.__pycache__.mpatch.cpython_39.pyc" />
             <ComponentRef Id="b.mercurial.pure.__pycache__.osutil.cpython_39.pyc" />
             <ComponentRef Id="_.mercurial.pure.__pycache__.parsers.cpython_39.pyc" />
             <ComponentRef Id="mercurial.pure.__pycache__.__init__.cpython_39.pyc" />
+            <ComponentRef Id="mercurial.repo.__pycache__.creation.cpython_39.pyc" />
+            <ComponentRef Id="_.mercurial.repo.__pycache__.factory.cpython_39.pyc" />
+            <ComponentRef Id="urial.repo.__pycache__.requirements.cpython_39.pyc" />
+            <ComponentRef Id="curial.repo.__pycache__.vfs_options.cpython_39.pyc" />
+            <ComponentRef Id="mercurial.repo.__pycache__.__init__.cpython_39.pyc" />
             <ComponentRef Id="ils.__pycache__.concurrency_checker.cpython_39.pyc" />
+            <ComponentRef Id="rial.revlogutils.__pycache__.config.cpython_39.pyc" />
             <ComponentRef Id="l.revlogutils.__pycache__.constants.cpython_39.pyc" />
             <ComponentRef Id="urial.revlogutils.__pycache__.debug.cpython_39.pyc" />
             <ComponentRef Id="rial.revlogutils.__pycache__.deltas.cpython_39.pyc" />
@@ -1813,6 +2071,9 @@
             <ComponentRef Id="al.revlogutils.__pycache__.__init__.cpython_39.pyc" />
             <ComponentRef Id="ailgraph.__pycache__.stabletailsort.cpython_39.pyc" />
             <ComponentRef Id="tabletailgraph.__pycache__.__init__.cpython_39.pyc" />
+            <ComponentRef Id="_.store_utils.__pycache__.file_index.cpython_39.pyc" />
+            <ComponentRef Id="e_utils.__pycache__.file_index_util.cpython_39.pyc" />
+            <ComponentRef Id="al.store_utils.__pycache__.__init__.cpython_39.pyc" />
             <ComponentRef Id="rcurial.testing.__pycache__.ps_util.cpython_39.pyc" />
             <ComponentRef Id="ercurial.testing.__pycache__.revlog.cpython_39.pyc" />
             <ComponentRef Id="rcurial.testing.__pycache__.storage.cpython_39.pyc" />
@@ -1849,10 +2110,13 @@
             <ComponentRef Id="l.upgrade_utils.__pycache__.actions.cpython_39.pyc" />
             <ComponentRef Id="rade_utils.__pycache__.auto_upgrade.cpython_39.pyc" />
             <ComponentRef Id="al.upgrade_utils.__pycache__.engine.cpython_39.pyc" />
+            <ComponentRef Id="pgrade_utils.__pycache__.share_safe.cpython_39.pyc" />
             <ComponentRef Id="_.upgrade_utils.__pycache__.__init__.cpython_39.pyc" />
             <ComponentRef Id="ercurial.utils.__pycache__.cborutil.cpython_39.pyc" />
             <ComponentRef Id="urial.utils.__pycache__.compression.cpython_39.pyc" />
+            <ComponentRef Id="ercurial.utils.__pycache__.dag_util.cpython_39.pyc" />
             <ComponentRef Id="ercurial.utils.__pycache__.dateutil.cpython_39.pyc" />
+            <ComponentRef Id="_.mercurial.utils.__pycache__.docket.cpython_39.pyc" />
             <ComponentRef Id="ercurial.utils.__pycache__.hashutil.cpython_39.pyc" />
             <ComponentRef Id="rcurial.utils.__pycache__.memorytop.cpython_39.pyc" />
             <ComponentRef Id="ercurial.utils.__pycache__.procutil.cpython_39.pyc" />
@@ -1868,6 +2132,7 @@
             <ComponentRef Id="lib.mercurial.__pycache__.bookmarks.cpython_39.pyc" />
             <ComponentRef Id="lib.mercurial.__pycache__.branchmap.cpython_39.pyc" />
             <ComponentRef Id="l.lib.mercurial.__pycache__.bundle2.cpython_39.pyc" />
+            <ComponentRef Id="l.__pycache__.bundle2_part_handlers.cpython_39.pyc" />
             <ComponentRef Id="_.mercurial.__pycache__.bundlecaches.cpython_39.pyc" />
             <ComponentRef Id="ib.mercurial.__pycache__.bundlerepo.cpython_39.pyc" />
             <ComponentRef Id="lib.mercurial.__pycache__.cacheutil.cpython_39.pyc" />
@@ -1914,6 +2179,7 @@
             <ComponentRef Id="ercurial.__pycache__.httpconnection.cpython_39.pyc" />
             <ComponentRef Id="_.lib.mercurial.__pycache__.httppeer.cpython_39.pyc" />
             <ComponentRef Id="rial.lib.mercurial.__pycache__.i18n.cpython_39.pyc" />
+            <ComponentRef Id="ercurial.__pycache__.initialization.cpython_39.pyc" />
             <ComponentRef Id="lib.mercurial.__pycache__.keepalive.cpython_39.pyc" />
             <ComponentRef Id="l.lib.mercurial.__pycache__.linelog.cpython_39.pyc" />
             <ComponentRef Id="lib.mercurial.__pycache__.localrepo.cpython_39.pyc" />
@@ -1957,12 +2223,14 @@
             <ComponentRef Id="al.lib.mercurial.__pycache__.revlog.cpython_39.pyc" />
             <ComponentRef Id="al.lib.mercurial.__pycache__.revset.cpython_39.pyc" />
             <ComponentRef Id="ib.mercurial.__pycache__.revsetlang.cpython_39.pyc" />
+            <ComponentRef Id="urial.__pycache__.revset_predicates.cpython_39.pyc" />
             <ComponentRef Id="b.mercurial.__pycache__.rewriteutil.cpython_39.pyc" />
             <ComponentRef Id="_.lib.mercurial.__pycache__.scmposix.cpython_39.pyc" />
             <ComponentRef Id="l.lib.mercurial.__pycache__.scmutil.cpython_39.pyc" />
             <ComponentRef Id="ib.mercurial.__pycache__.scmwindows.cpython_39.pyc" />
             <ComponentRef Id="al.lib.mercurial.__pycache__.server.cpython_39.pyc" />
             <ComponentRef Id="_.mercurial.__pycache__.setdiscovery.cpython_39.pyc" />
+            <ComponentRef Id="ial.lib.mercurial.__pycache__.shape.cpython_39.pyc" />
             <ComponentRef Id="al.lib.mercurial.__pycache__.shelve.cpython_39.pyc" />
             <ComponentRef Id="l.lib.mercurial.__pycache__.similar.cpython_39.pyc" />
             <ComponentRef Id="b.mercurial.__pycache__.simplemerge.cpython_39.pyc" />
@@ -1979,6 +2247,7 @@
             <ComponentRef Id="ial.lib.mercurial.__pycache__.strip.cpython_39.pyc" />
             <ComponentRef Id="l.lib.mercurial.__pycache__.subrepo.cpython_39.pyc" />
             <ComponentRef Id="b.mercurial.__pycache__.subrepoutil.cpython_39.pyc" />
+            <ComponentRef Id="al.lib.mercurial.__pycache__.tables.cpython_39.pyc" />
             <ComponentRef Id="_.lib.mercurial.__pycache__.tagmerge.cpython_39.pyc" />
             <ComponentRef Id="rial.lib.mercurial.__pycache__.tags.cpython_39.pyc" />
             <ComponentRef Id="rcurial.__pycache__.templatefilters.cpython_39.pyc" />
