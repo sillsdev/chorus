@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using Chorus.sync;
@@ -178,6 +179,16 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		void AddServerUnavailableResponse(int executeCount, string serverMessage);
 		void AddFailResponse(int executeCount);
 		void AddCancelResponse(int executeCount);
+		/// <summary>The connection drops on the given call once the first bytesBeforeInterruption bytes of its body have arrived.</summary>
+		void AddInterruptedResponse(int executeCount, int bytesBeforeInterruption);
+		/// <summary>The given call answers "in progress" (202), as the server does while it is still making the bundle.</summary>
+		void AddInProgressResponse(int executeCount);
+		/// <summary>The user cancels on the given call once half of its body has arrived.</summary>
+		void AddCancelMidBody(int executeCount);
+		/// <summary>The offset of every pullBundleChunk call, in order.</summary>
+		List<int> PullOffsetsRequested { get; }
+		/// <summary>The chunkSize of every pullBundleChunk call, in order.</summary>
+		List<int> PullChunkSizesRequested { get; }
 		void PrepareBundle(string[] revHash);
 		void AddResponse(HgResumeApiResponse response);
 		void AddTimeOut();
@@ -187,6 +198,24 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 
 	internal class ApiServerForTest
 	{
+		/// <summary>
+		/// Answers a streamed request from a buffered response: a 200 body goes to the sink in one write
+		/// and Content is left empty, as the real client does.
+		/// </summary>
+		protected static HgResumeApiResponse StreamToSink(HgResumeApiResponse response, Stream bodySink,
+			Action<long, long> onBodyProgress)
+		{
+			if (response == null || response.HttpStatus != HttpStatusCode.OK)
+			{
+				return response;
+			}
+			var body = response.Content ?? new byte[0];
+			bodySink.Write(body, 0, body.Length);
+			onBodyProgress?.Invoke(body.Length, body.Length);
+			response.Content = new byte[0];
+			return response;
+		}
+
 		public void ValidateParameters(string method, HgResumeApiParameters request, byte[] contentToSend, int secondsBeforeTimeout)
 		{
 			Assert.That(method, Is.Not.Empty);
@@ -243,6 +272,12 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			ProjectId = "SampleProject";
 		}
 
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, Stream bodySink,
+			Action<long, long> onBodyProgress, int secondsBeforeTimeout)
+		{
+			return StreamToSink(Execute(method, request, secondsBeforeTimeout), bodySink, onBodyProgress);
+		}
+
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, int secondsBeforeTimeout)
 		{
 			return Execute(method, request, new byte[0], secondsBeforeTimeout);
@@ -295,6 +330,25 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		{
 			throw new NotImplementedException();
 		}
+
+		public void AddInterruptedResponse(int executeCount, int bytesBeforeInterruption)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddInProgressResponse(int executeCount)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddCancelMidBody(int executeCount)
+		{
+			throw new NotImplementedException();
+		}
+
+		public List<int> PullOffsetsRequested { get; } = new List<int>();
+
+		public List<int> PullChunkSizesRequested { get; } = new List<int>();
 
 		public void PrepareBundle(string[] revHash)
 		{
@@ -362,6 +416,31 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			_timeoutList = new List<int>();
 			_serverUnavailableList = new List<ServerUnavailableResponse>();
 		}
+
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, Stream bodySink,
+			Action<long, long> onBodyProgress, int secondsBeforeTimeout)
+		{
+			return StreamToSink(Execute(method, request, secondsBeforeTimeout), bodySink, onBodyProgress);
+		}
+
+		public void AddInterruptedResponse(int executeCount, int bytesBeforeInterruption)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddInProgressResponse(int executeCount)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddCancelMidBody(int executeCount)
+		{
+			throw new NotImplementedException();
+		}
+
+		public List<int> PullOffsetsRequested { get; } = new List<int>();
+
+		public List<int> PullChunkSizesRequested { get; } = new List<int>();
 
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, int secondsBeforeTimeout)
 		{
@@ -508,8 +587,13 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		private int _cancelCount;
 		private readonly List<int> _timeoutList;
 		private readonly List<ServerUnavailableResponse> _serverUnavailableList;
+		private readonly Dictionary<int, int> _interruptions = new Dictionary<int, int>();
+		private readonly List<int> _inProgressList = new List<int>();
+		private readonly List<int> _cancelsMidBody = new List<int>();
 		private readonly TemporaryFolder _storageFolder;
 		public string OriginalTip;
+		public List<int> PullOffsetsRequested { get; } = new List<int>();
+		public List<int> PullChunkSizesRequested { get; } = new List<int>();
 
 		private ProgressForTest _progress;
 
@@ -569,6 +653,38 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 			throw new NotImplementedException();
 		}
 
+		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, Stream bodySink,
+			Action<long, long> onBodyProgress, int secondsBeforeTimeout)
+		{
+			var response = Execute(method, request, secondsBeforeTimeout);
+			if (method == "pullBundleChunk")
+			{
+				PullOffsetsRequested.Add(request.StartOfWindow);
+				PullChunkSizesRequested.Add(request.ChunkSize);
+				if (response != null && response.HttpStatus == HttpStatusCode.OK &&
+					_interruptions.TryGetValue(_executeCount, out var bytesBeforeInterruption))
+				{
+					// the connection drops once part of the body has reached the client
+					bodySink.Write(response.Content, 0, Math.Min(bytesBeforeInterruption, response.Content.Length));
+					throw new HttpRequestException("The connection was lost (simulated)");
+				}
+				if (response != null && response.HttpStatus == HttpStatusCode.OK && _cancelsMidBody.Contains(_executeCount))
+				{
+					// the user cancels once half the body has arrived; the rest follows if the client keeps reading
+					var body = response.Content;
+					int half = body.Length / 2;
+					bodySink.Write(body, 0, half);
+					_progress.CancelRequested = true;
+					onBodyProgress?.Invoke(half, body.Length);
+					bodySink.Write(body, half, body.Length - half);
+					onBodyProgress?.Invoke(body.Length, body.Length);
+					response.Content = new byte[0];
+					return response;
+				}
+			}
+			return StreamToSink(response, bodySink, onBodyProgress);
+		}
+
 		public HgResumeApiResponse Execute(string method, HgResumeApiParameters request, int secondsBeforeTimeout)
 		{
 			return Execute(method, request, new byte[0], secondsBeforeTimeout);
@@ -612,6 +728,10 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 					return ApiResponses.NotAvailable(
 							_serverUnavailableList.Where(i => i.ExecuteCount == _executeCount).First().Message
 							);
+				}
+				if (_inProgressList.Contains(_executeCount))
+				{
+					return ApiResponses.Custom(HttpStatusCode.Accepted);
 				}
 				if (Array.BinarySearch(request.BaseHashes, 0, request.BaseHashes.Length, CurrentTip) >= 0)
 				{
@@ -669,6 +789,21 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 		public void AddFailResponse(int executeCount)
 		{
 			_failCount = executeCount;
+		}
+
+		public void AddInterruptedResponse(int executeCount, int bytesBeforeInterruption)
+		{
+			_interruptions[executeCount] = bytesBeforeInterruption;
+		}
+
+		public void AddInProgressResponse(int executeCount)
+		{
+			_inProgressList.Add(executeCount);
+		}
+
+		public void AddCancelMidBody(int executeCount)
+		{
+			_cancelsMidBody.Add(executeCount);
 		}
 	}
 

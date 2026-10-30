@@ -4,7 +4,8 @@
     Tests that drive the real resumable transport (HgRepository + HgResumeTransport + HgResumeRestApiServer)
     against the hgresume server image, run in a container via Testcontainers. Needs a Docker endpoint that
     can run Linux containers, so CI runs these on Linux only. Locally the tests are ignored when Docker is
-    unavailable. Override the image with HGRESUME_IMAGE.
+    unavailable. Override the image with HGRESUME_IMAGE, or point the tests at a server already running on
+    this machine with HGRESUME_URL and HGRESUME_REPO_ROOT (see HgResumeServer).
   -->
   <PropertyGroup>
     <RootNamespace>LibChorus.IntegrationTests</RootNamespace>

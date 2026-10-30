@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -478,7 +479,7 @@ namespace Chorus.VcsDrivers.Mercurial
 			return String.Format("(about {0} {1})", minutesRemaining, minutesString);
 		}
 
-		private static string GetHumanReadableByteSize(int length)
+		private static string GetHumanReadableByteSize(long length)
 		{
 			// lifted from http://stackoverflow.com/questions/281640/how-do-i-get-a-human-readable-file-size-using-net
 			try
@@ -658,15 +659,14 @@ namespace Chorus.VcsDrivers.Mercurial
 					  {
 						  RepoId = _apiServer.ProjectId,
 						  BaseHashes = baseRevisions,
-						  TransId = bundleHelper.TransactionId,
-						  StartOfWindow = bundleHelper.StartOfWindow,
-						  ChunkSize = InitialChunkSize
+						  TransId = bundleHelper.TransactionId
 					  };
-			int bundleSize = 0;
-
-			int loopCtr = 1;
+			int bundleSize = 0; // as last reported by the server; it grows while the server is still making the bundle
+			var reporter = new PullProgressReporter(_progress);
+			bool firstData = true;
 			bool retryLoop;
 
+			_progress.ProgressIndicator.Initialize();
 			do
 			{
 				if (_progress.CancelRequested)
@@ -674,7 +674,15 @@ namespace Chorus.VcsDrivers.Mercurial
 					throw new UserCancelledException();
 				}
 				retryLoop = false;
-				var response = PullOneChunk(req);
+				// Each request picks up from the end of what is on disk already: what an earlier run left
+				// behind, or what arrived before the last request was cut off.
+				req.StartOfWindow = bundleHelper.StartOfWindow;
+				req.ChunkSize = ChunkSizeToAskFor(req.StartOfWindow, bundleSize);
+				var response = PullBundle(req, bundleHelper, reporter);
+				if (response.BundleSize > bundleSize)
+				{
+					bundleSize = response.BundleSize;
+				}
 				if (response.Status == PullStatus.Unauthorized)
 				{
 					throw new UnauthorizedAccessException();
@@ -703,6 +711,9 @@ namespace Chorus.VcsDrivers.Mercurial
 				{
 					_progress.WriteStatus("Preparing data on server");
 					retryLoop = true;
+					// The reply doesn't say how far the server has got, so probe again: a request for the rest
+					// would wait out the server's whole poll every time, however much the bundle had grown.
+					bundleSize = 0;
 					// advance the progress bar 2% to show that something is happening
 					_progress.ProgressIndicator.PercentCompleted = _progress.ProgressIndicator.PercentCompleted + 2;
 					continue;
@@ -718,24 +729,23 @@ namespace Chorus.VcsDrivers.Mercurial
 				if (response.Status == PullStatus.Fail)
 				{
 					// No need to abort the attempts just because .Net web request says so. See Push also. CP 2012-06
-					_progress.WriteWarning("Pull data chunk failed");
+					// Whatever arrived before the failure is in the bundle file, so the retry carries on from there.
+					_progress.WriteWarning("Pull failed after receiving {0}.  Retrying...", GetHumanReadableByteSize(bundleHelper.StartOfWindow));
 					retryLoop = true;
-					req.StartOfWindow = bundleHelper.StartOfWindow;
 					continue;
 				}
 				if (response.Status == PullStatus.Reset)
 				{
 					retryLoop = true;
 					bundleHelper.Reset();
+					bundleSize = 0; // the server will make the bundle afresh
 					_progress.WriteVerbose("Server's bundle cache has expired.  Restarting pull...");
-					req.StartOfWindow = bundleHelper.StartOfWindow;
 					continue;
 				}
 
-				//bundleSizeFromResponse = response.BundleSize;
-				if (loopCtr == 1)
+				if (firstData)
 				{
-					_progress.ProgressIndicator.Initialize();
+					firstData = false;
 					if (req.StartOfWindow != 0)
 					{
 						string message = String.Format("Resuming pull operation at {0} received", GetHumanReadableByteSize(req.StartOfWindow));
@@ -743,25 +753,9 @@ namespace Chorus.VcsDrivers.Mercurial
 					}
 				}
 
-				bundleHelper.WriteChunk(req.StartOfWindow, response.Chunk);
-				req.StartOfWindow = req.StartOfWindow + response.Chunk.Length;
-				req.ChunkSize = response.ChunkSize;
-				if (bundleSize == response.BundleSize && bundleSize != 0)
-				{
-					_progress.ProgressIndicator.PercentCompleted = (int)((long)req.StartOfWindow * 100 / bundleSize);
-					string eta = CalculateEstimatedTimeRemaining(bundleSize, req.ChunkSize, req.StartOfWindow);
-					_progress.WriteStatus(string.Format("Receiving {0} {1}", GetHumanReadableByteSize(bundleSize), eta));
-				}
-				else
-				{
-					// this is only useful when the bundle size is significantly large (like with a clone operation) such that
-					// the server takes a long time to create the bundle, and the bundleSize continues to rise as the chunks are received
-					bundleSize = response.BundleSize;
-					_progress.WriteStatus(string.Format("Preparing data on server (>{0})", GetHumanReadableByteSize(bundleSize)));
-				}
-				loopCtr++;
-
-			} while (req.StartOfWindow < bundleSize || retryLoop);
+				// The data went straight into the bundle file as it arrived, so there is nothing to store here.
+				reporter.Report(bundleHelper.StartOfWindow, bundleSize);
+			} while (bundleHelper.StartOfWindow < bundleSize || retryLoop);
 
 			if (_repo.Unbundle(bundleHelper.BundlePath))
 			{
@@ -793,6 +787,48 @@ namespace Chorus.VcsDrivers.Mercurial
 			throw new HgResumeOperationFailed(errorMessage);
 		}
 
+		/// <summary>
+		/// How much to ask for in the next pullBundleChunk request, given the bundle size the server last
+		/// reported (0 if it has not yet, or if it has since answered "in progress"). The server answers a request at once when it can satisfy it from
+		/// the bundle file as it stands; otherwise, while it is still making the bundle, it waits up to 14
+		/// seconds before answering "in progress" (a bundle it has finished is served whole, at once). So:
+		/// with nothing known yet, ask for a single byte, which the server can hand over as soon as the
+		/// bundle file has started, and which brings back its size so far; while the server has more than
+		/// we do, ask for all of that but the last byte, which it serves at once even while still adding to
+		/// the file; once we have caught up, ask for the rest of the bundle in one go. If the bundle is
+		/// finished that is one streamed response, and if not, this is where waiting for the server is
+		/// unavoidable.
+		/// </summary>
+		internal static int ChunkSizeToAskFor(int offset, int lastReportedBundleSize)
+		{
+			if (lastReportedBundleSize > offset + 1)
+			{
+				return lastReportedBundleSize - offset - 1;
+			}
+			if (lastReportedBundleSize == 0)
+			{
+				return ProbeChunkSize;
+			}
+			return RestOfBundleChunkSize(offset);
+		}
+
+		private const int ProbeChunkSize = 1;
+
+		/// <summary>
+		/// The chunkSize to ask for so that one pullBundleChunk response carries everything after
+		/// <paramref name="offset"/>: the server sends the smaller of chunkSize and what is left of the
+		/// bundle. The sum offset + chunkSize is kept within int because the server works it out in 32 bits
+		/// (to decide whether a bundle it is still building already has enough to serve the request from);
+		/// if it wrapped negative, the server would hand out pieces of the unfinished bundle.
+		/// Note that the server reads the whole response into memory before sending it, so this holds a
+		/// copy of the bundle on the server for as long as the download takes; cap the result here if that
+		/// becomes a problem, since the rest of the pull works the same for any size.
+		/// </summary>
+		private static int RestOfBundleChunkSize(int offset)
+		{
+			return int.MaxValue - offset;
+		}
+
 		internal static string[] GetHashStringsFromRevisions(IEnumerable<Revision> branchHeadRevisions)
 		{
 			var hashes = new string[branchHeadRevisions.Count()];
@@ -822,16 +858,48 @@ namespace Chorus.VcsDrivers.Mercurial
 			return PullStatus.Fail;
 		}
 
-		private PullResponse PullOneChunk(HgResumeApiParameters request)
+		/// <summary>
+		/// One pullBundleChunk request for the bundle from request.StartOfWindow on, written into the bundle
+		/// file as it arrives. If the connection is lost part-way, the bytes that did arrive stay in the file
+		/// and the status is Fail (or Timeout), so the caller's next request picks up from the new end of the
+		/// file rather than from where this one started.
+		/// </summary>
+		private PullResponse PullBundle(HgResumeApiParameters request, PullStorageManager bundleHelper, PullProgressReporter reporter)
 		{
 			using var activity = LibChorusActivitySource.Value.StartActivity();
 			activity?.TagResumableParameters("pull", request);
 
 			var pullResponse = new PullResponse(PullStatus.Fail);
+			int offset = request.StartOfWindow;
+			bool probe = request.ChunkSize == ProbeChunkSize; // its one byte says nothing worth a progress report
 			try
 			{
-
-				HgResumeApiResponse response = _apiServer.Execute("pullBundleChunk", request, TimeoutInSeconds);
+				HgResumeApiResponse response;
+				using (var bundleFile = bundleHelper.OpenForWritingAt(offset))
+				{
+					response = _apiServer.Execute("pullBundleChunk", request, bundleFile,
+						(received, bodyLength) =>
+						{
+							// one request can take the whole download, so cancelling can't wait for the next one;
+							// what has arrived stays in the bundle file for the next pull to resume from
+							if (_progress.CancelRequested)
+							{
+								throw new UserCancelledException();
+							}
+							// the body is the bundle from the offset to (at least) the end the server had
+							// when it answered, so its length tells us that much about the bundle's size
+							// even if the transfer is cut short
+							if (bodyLength >= 0)
+							{
+								pullResponse.BundleSize = (int) Math.Max(pullResponse.BundleSize, offset + bodyLength);
+							}
+							if (!probe)
+							{
+								reporter.Report(offset + received, pullResponse.BundleSize);
+							}
+						},
+						TimeoutInSeconds);
+				}
 				if (response == null)
 				{
 					_progress.WriteVerbose("API REQ: {0} Timeout", _apiServer.Url);
@@ -868,14 +936,11 @@ namespace Chorus.VcsDrivers.Mercurial
 					return pullResponse;
 				}
 
-				// chunk pulled OK
+				// bundle data pulled OK (it is already in the bundle file)
 				if (response.HttpStatus == HttpStatusCode.OK)
 				{
-					pullResponse.BundleSize = response.ResumableResponse.BundleSize;
+					pullResponse.BundleSize = Math.Max(pullResponse.BundleSize, response.ResumableResponse.BundleSize);
 					pullResponse.Status = PullStatus.OK;
-					pullResponse.ChunkSize = CalculateChunkSize(request.ChunkSize, response.ResponseTimeInMilliseconds);
-
-					pullResponse.Chunk = response.Content;
 					return pullResponse;
 				}
 				if (response.HttpStatus == HttpStatusCode.BadRequest && response.ResumableResponse.Status == "UNKNOWNID")
@@ -913,9 +978,86 @@ namespace Chorus.VcsDrivers.Mercurial
 			}
 			catch (Exception e) when (e is WebException || e is HttpRequestException)
 			{
-				_progress.WriteWarning(String.Format("Pull data chunk failed: {0}", e.Message));
+				_progress.WriteWarning(String.Format("Pull data transfer failed: {0}", e.Message));
 				return pullResponse;
 			}
+		}
+
+		/// <summary>
+		/// Progress for a pull whose data arrives as a stream rather than in chunks: the indicator and the
+		/// status line are updated at most once a second, with an ETA from the rate measured so far.
+		/// </summary>
+		internal sealed class PullProgressReporter
+		{
+			private const int ReportIntervalInMilliseconds = 1000;
+			private const int MinimumBytesForEta = 80000; // wait until we've transferred 80K before calculating an ETA
+			private readonly IProgress _progress;
+			private readonly Stopwatch _clock = Stopwatch.StartNew();
+			private long _total;
+			private long _firstReportBytes = -1;
+			private long _firstReportMs;
+			private long _lastReportMs = -ReportIntervalInMilliseconds; // so the first report goes out
+
+			public PullProgressReporter(IProgress progress)
+			{
+				_progress = progress;
+			}
+
+			/// <param name="received">bytes of the bundle received so far, counting earlier requests</param>
+			/// <param name="total">the bundle size, if known; the largest value seen wins, since a request
+			/// that asks for the rest of the bundle only knows its own length</param>
+			public void Report(long received, long total)
+			{
+				if (total > _total)
+				{
+					_total = total;
+				}
+				if (_total <= 0)
+				{
+					return;
+				}
+				long now = _clock.ElapsedMilliseconds;
+				if (_firstReportBytes < 0)
+				{
+					_firstReportBytes = received;
+					_firstReportMs = now;
+				}
+				if (received < _total && now - _lastReportMs < ReportIntervalInMilliseconds)
+				{
+					return;
+				}
+				_lastReportMs = now;
+				_progress.ProgressIndicator.PercentCompleted = (int) (received * 100 / _total);
+				string eta = CalculateEstimatedTimeRemaining(_total - received, BytesPerSecond(received, now));
+				_progress.WriteStatus(string.Format("Receiving {0} {1}", GetHumanReadableByteSize(_total), eta));
+			}
+
+			private double BytesPerSecond(long received, long nowMs)
+			{
+				long bytes = received - _firstReportBytes;
+				long ms = nowMs - _firstReportMs;
+				if (bytes < MinimumBytesForEta || ms < ReportIntervalInMilliseconds)
+				{
+					return 0; // too little to measure yet
+				}
+				return bytes * 1000.0 / ms;
+			}
+		}
+
+		internal static string CalculateEstimatedTimeRemaining(long bytesRemaining, double bytesPerSecond)
+		{
+			if (bytesPerSecond <= 0)
+			{
+				return "";
+			}
+			double secondsRemaining = bytesRemaining / bytesPerSecond;
+			if (secondsRemaining < 60)
+			{
+				return "(less than 1 minute)";
+			}
+			int minutesRemaining = (int) (secondsRemaining / 60);
+			string minutesString = (minutesRemaining > 1) ? "minutes" : "minute";
+			return String.Format("(about {0} {1})", minutesRemaining, minutesString);
 		}
 
 		///<summary>
