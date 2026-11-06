@@ -60,17 +60,19 @@ namespace LibChorus.Tests.Model
 			var m = new ServerSettingsModel();
 			m.InitFromUri("https://joe:pass@hg-public.languageforge.org/tpi");
 			Assert.AreEqual("hg-public.languageforge.org", m.Host);
-			Assert.AreEqual(ServerSettingsModel.BandwidthEnum.High, m.Bandwidth.Value);
+			Assert.AreEqual(HgTransportKind.HgWeb, m.Bandwidth.Transport);
 			Assert.False(m.IsCustomUrl);
 		}
 
 		[Test]
-		public void InitFromUri_ResumableLangForge_DomainAndBandwidthCorrectAndNotCustom()
+		public void InitFromUri_LegacyResumableLangForge_MovedToLexboxHostAndResumableAndNotCustom()
 		{
 			var m = new ServerSettingsModel();
 			m.InitFromUri("https://resumable.languageforge.org/tpi");
-			Assert.AreEqual("resumable.languageforge.org", m.Host);
-			Assert.AreEqual(ServerSettingsModel.BandwidthEnum.Low, m.Bandwidth.Value);
+			Assert.AreEqual("hg-public.languageforge.org", m.Host);
+			Assert.AreEqual("https://hg-public.languageforge.org/tpi", m.URL);
+			Assert.AreEqual(HgTransportKind.Resumable, m.Bandwidth.Transport);
+			Assert.AreEqual(HgTransportKind.Resumable, m.Transport);
 			Assert.False(m.IsCustomUrl);
 		}
 
@@ -82,20 +84,20 @@ namespace LibChorus.Tests.Model
 				var m = new ServerSettingsModel();
 				m.InitFromUri("https://joe:pass@hg-private.languageforge.org/tpi");
 				Assert.AreEqual("hg-private.languageforge.org", m.Host);
-				Assert.AreEqual(ServerSettingsModel.BandwidthEnum.High, m.Bandwidth.Value);
+				Assert.AreEqual(HgTransportKind.HgWeb, m.Bandwidth.Transport);
 				Assert.False(m.IsCustomUrl);
 			}
 		}
 
 		[Test]
-		public void InitFromUri_PrivateResumableLangForge_DomainAndBandwidthCorrectAndNotCustom()
+		public void InitFromUri_PrivateLegacyResumableLangForge_MovedToLexboxHostAndResumableAndNotCustom()
 		{
 			using (new PrivateServer())
 			{
 				var m = new ServerSettingsModel();
 				m.InitFromUri("https://resumable.languageforge.org/tpi");
-				Assert.AreEqual("resumable.languageforge.org", m.Host);
-				Assert.AreEqual(ServerSettingsModel.BandwidthEnum.Low, m.Bandwidth.Value);
+				Assert.AreEqual("hg-private.languageforge.org", m.Host);
+				Assert.AreEqual(HgTransportKind.Resumable, m.Bandwidth.Transport);
 				Assert.False(m.IsCustomUrl);
 			}
 		}
@@ -115,10 +117,9 @@ namespace LibChorus.Tests.Model
 					ServerSettingsModel.IsPrivateServer = true;
 				}
 
-				var expectedNewHost = $"{subdomain}.languageforge.org";
-				var expectedBandwidth = isResumable
-					? ServerSettingsModel.BandwidthEnum.Low
-					: ServerSettingsModel.BandwidthEnum.High;
+				// Lexbox serves both transports from hg-public/hg-private; resumable is saved as a separate setting
+				var expectedNewHost = isResumable ? "hg-public.languageforge.org" : $"{subdomain}.languageforge.org";
+				var expectedTransport = isResumable ? HgTransportKind.Resumable : HgTransportKind.HgWeb;
 				var m = new ServerSettingsModel();
 				// SUT
 				// ReSharper disable once StringLiteralTypo - the old server used to be called Language Depot
@@ -129,7 +130,7 @@ namespace LibChorus.Tests.Model
 				Assert.AreEqual(expectedNewHost, m.Host);
 				Assert.AreEqual("joe", m.Username);
 				Assert.AreEqual("cool", m.Password);
-				Assert.AreEqual(expectedBandwidth, m.Bandwidth.Value);
+				Assert.AreEqual(expectedTransport, m.Bandwidth.Transport);
 				Assert.AreEqual("mcx", m.ProjectId);
 				Assert.AreEqual($"https://{expectedNewHost}/mcx", m.URL);
 			}
@@ -166,7 +167,7 @@ namespace LibChorus.Tests.Model
 			Assert.AreEqual(host, m.Host);
 			Assert.AreEqual(user, m.Username);
 			Assert.AreEqual(pass, m.Password);
-			Assert.AreEqual(ServerSettingsModel.BandwidthEnum.High, m.Bandwidth.Value, "Custom URL's aren't known to be resumable");
+			Assert.AreEqual(HgTransportKind.HgWeb, m.Bandwidth.Transport, "Custom URL's aren't known to be resumable");
 			Assert.AreEqual(proj, m.ProjectId);
 			Assert.AreEqual(urlSansCredentials, m.URL);
 		}
@@ -359,7 +360,7 @@ namespace LibChorus.Tests.Model
 				Assert.That(folder.Combine(".hg","hgrc"), Does.Exist);
 				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
-				Assert.AreEqual(new ServerSettingsModel.BandwidthItem(ServerSettingsModel.BandwidthEnum.High), m.Bandwidth);
+				Assert.AreEqual(new ServerSettingsModel.BandwidthItem(HgTransportKind.HgWeb), m.Bandwidth);
 				Assert.AreEqual("https://" + host, address.URI);
 				Assert.AreEqual(user, m.Username);
 				Assert.AreEqual(pass, m.Password);
@@ -378,9 +379,9 @@ namespace LibChorus.Tests.Model
 				var subdomain = isResumable ? "resumable" : "hg-public";
 				var oldHost = $"{subdomain}.languagedepot.org/tpi";
 				var oldUrl = $"https://{user}:{pass}@{oldHost}";
-				const string newDomainAndProj = ".languageforge.org/tpi";
-				var newUrl = $"https://{subdomain}{newDomainAndProj}";
-				var newUrlWithCredentials = $"https://{user}:{pass}@{subdomain}{newDomainAndProj}";
+				// Lexbox serves both transports from one host; the transport is saved separately
+				const string newUrl = "https://hg-public.languageforge.org/tpi";
+				const string newUrlWithCredentials = "https://" + user + ":" + pass + "@hg-public.languageforge.org/tpi";
 				// Precondition is some url that is not our default from the ServerSettingsModel
 				var original = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				original.SetKnownRepositoryAddresses(new[]
@@ -398,9 +399,103 @@ namespace LibChorus.Tests.Model
 				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
 				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
 				Assert.AreEqual(newUrl, address.URI);
+				Assert.AreEqual("Lexbox", address.Name);
+				var expectedTransport = isResumable ? HgTransportKind.Resumable : HgTransportKind.HgWeb;
+				Assert.AreEqual(expectedTransport, repo.GetTransport());
+				Assert.AreEqual(expectedTransport, address.Transport);
 				Assert.AreEqual(isResumable ? newUrl : newUrlWithCredentials, address.GetPotentialRepoUri(null, null, null),
 					"The new 'potential' URI should contain credentials only when non-resumable");
 			}
+		}
+
+		[Test]
+		public void SaveSettings_TransportRoundTripsIndependentOfUrl([Values] HgTransportKind transport)
+		{
+			using (var folder = new TemporaryFolder("ServerSettingsModel"))
+			{
+				var m = new ServerSettingsModel();
+				m.InitFromProjectPath(folder.Path);
+				m.InitFromUri("https://joe:pass@hg-public.languageforge.org/tpi");
+				m.Bandwidth = new ServerSettingsModel.BandwidthItem(transport);
+				m.SaveSettings();
+
+				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
+				Assert.AreEqual(transport, repo.GetTransport());
+				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
+				Assert.AreEqual("https://hg-public.languageforge.org/tpi", address.URI, "the URL should not depend on the transport");
+				Assert.AreEqual(transport, address.Transport);
+
+				var reloaded = new ServerSettingsModel();
+				reloaded.InitFromProjectPath(folder.Path);
+				Assert.AreEqual(transport, reloaded.Bandwidth.Transport);
+				Assert.False(reloaded.IsCustomUrl);
+			}
+		}
+
+		[Test]
+		public void InitFromProjectPath_SavedTransportOverridesUrl()
+		{
+			using (var folder = new TemporaryFolder("ServerSettingsModel"))
+			{
+				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
+				repo.SetKnownRepositoryAddresses(new[] { new HttpRepositoryPath("Lexbox", "https://resumable.languageforge.org/tpi", false) });
+				repo.SetTransport(HgTransportKind.HgWeb);
+
+				var m = new ServerSettingsModel();
+				m.InitFromProjectPath(folder.Path);
+				Assert.AreEqual(HgTransportKind.HgWeb, m.Bandwidth.Transport);
+				Assert.AreEqual("https://hg-public.languageforge.org/tpi", m.URL);
+			}
+		}
+
+		[Test]
+		public void Transport_CustomUrl_FollowsBandwidthChoice([Values] HgTransportKind transport)
+		{
+			var m = new ServerSettingsModel();
+			m.InitFromUri("https://chorus.elsewhere.net/tpi");
+			m.Bandwidth = new ServerSettingsModel.BandwidthItem(transport);
+			Assert.True(m.IsCustomUrl);
+			Assert.AreEqual(transport, m.Transport);
+		}
+
+		[Test]
+		public void InitFromUri_CustomResumableUrl_DefaultsToResumable()
+		{
+			var m = new ServerSettingsModel();
+			m.InitFromUri("https://chorus.elsewhere.net/resumable/tpi");
+			Assert.True(m.IsCustomUrl);
+			Assert.AreEqual(HgTransportKind.Resumable, m.Transport, "legacy custom URLs keep their transport until the user changes it");
+		}
+
+		[Test]
+		public void SaveSettings_CustomUrl_TransportRoundTripsIndependentOfUrl([Values] HgTransportKind transport)
+		{
+			const string url = "https://chorus.elsewhere.net/tpi";
+			using (var folder = new TemporaryFolder("ServerSettingsModel"))
+			{
+				var m = new ServerSettingsModel();
+				m.InitFromProjectPath(folder.Path);
+				m.InitFromUri(url);
+				m.Bandwidth = new ServerSettingsModel.BandwidthItem(transport);
+				m.SaveSettings();
+
+				var repo = HgRepository.CreateOrUseExisting(folder.Path, new NullProgress());
+				var address = repo.GetDefaultNetworkAddress<HttpRepositoryPath>();
+				Assert.AreEqual(url, address.URI);
+				Assert.AreEqual(transport, address.Transport);
+
+				var reloaded = new ServerSettingsModel();
+				reloaded.InitFromProjectPath(folder.Path);
+				Assert.True(reloaded.IsCustomUrl);
+				Assert.AreEqual(transport, reloaded.Bandwidth.Transport);
+			}
+		}
+
+		[Test]
+		public void AliasName_Lexbox_DoesNotIncludeBandwidth([Values] HgTransportKind transport)
+		{
+			var m = new ServerSettingsModel { Bandwidth = new ServerSettingsModel.BandwidthItem(transport) };
+			Assert.AreEqual("Lexbox", m.AliasName);
 		}
 
 		[Test]

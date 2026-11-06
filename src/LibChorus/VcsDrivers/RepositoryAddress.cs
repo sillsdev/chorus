@@ -77,9 +77,17 @@ namespace Chorus.VcsDrivers
 		/// <returns></returns>
 		public static RepositoryAddress Create(string name, string uri, bool readOnly)
 		{
+			return Create(name, uri, readOnly, null);
+		}
+
+		/// <param name="transport">
+		/// Used only for HTTP addresses. If null, the transport is guessed from the URI (see <see cref="IsKnownResumableRepository"/>).
+		/// </param>
+		internal static RepositoryAddress Create(string name, string uri, bool readOnly, HgTransportKind? transport)
+		{
 			if (uri.Trim().StartsWith("http"))
 			{
-				return new HttpRepositoryPath(name, uri, readOnly);
+				return new HttpRepositoryPath(name, uri, readOnly, transport);
 			}
 
 			return new DirectoryRepositorySource(name, uri, readOnly);
@@ -102,15 +110,22 @@ namespace Chorus.VcsDrivers
 			URI = uri;
 			Name = name;
 			IsReadOnly = isReadOnly;
-			IsResumable = IsKnownResumableRepository(uri);
+			Transport = GuessTransportFromUri(uri);
 		}
 
+		/// <summary>
+		/// Legacy: before the transport was stored in hgrc's [chorus] section, Chorus picked the resumable transport
+		/// for any URI containing "resumable" (e.g. https://resumable.languageforge.org/proj). Still used when no
+		/// transport has been saved, so existing projects keep working.
+		/// </summary>
 		public static bool IsKnownResumableRepository(string uri)
 		{
-			// REVIEW (Hasso) 2021.01: this seems to apply only to HTTP repositories, and is now stored in a separate property of
-			// ServerSettingsModel.cs. Perhaps we should move IsResumable to HttpRepositoryAddress and this logic to determine
-			// resumability to ServerSettingsModel.
 			return uri.ToLower().Contains("resumable");
+		}
+
+		internal static HgTransportKind GuessTransportFromUri(string uri)
+		{
+			return IsKnownResumableRepository(uri) ? HgTransportKind.Resumable : HgTransportKind.HgWeb;
 		}
 
 		/// <summary>
@@ -119,7 +134,13 @@ namespace Chorus.VcsDrivers
 		/// </summary>
 		public bool IsReadOnly { get; set; }
 
-		public bool IsResumable { get; protected set; }
+		public HgTransportKind Transport { get; protected set; }
+
+		public bool IsResumable
+		{
+			get => Transport == HgTransportKind.Resumable;
+			protected set => Transport = value ? HgTransportKind.Resumable : HgTransportKind.HgWeb;
+		}
 
 		/// <summary>
 		/// Does the user want us to try to sync with this one?
@@ -153,6 +174,13 @@ namespace Chorus.VcsDrivers
 	public class HttpRepositoryPath : RepositoryAddress
 	{
 		public HttpRepositoryPath(string name, string url, bool isReadOnly) : base(name, url, isReadOnly) { }
+
+		/// <param name="transport">If null, the transport is guessed from the URL (see <see cref="RepositoryAddress.IsKnownResumableRepository"/>).</param>
+		public HttpRepositoryPath(string name, string url, bool isReadOnly, HgTransportKind? transport) : base(name, url, isReadOnly)
+		{
+			if (transport.HasValue)
+				Transport = transport.Value;
+		}
 
 		/// <summary>
 		/// Gets what the uri of the named repository would be on this source (gets the full path).

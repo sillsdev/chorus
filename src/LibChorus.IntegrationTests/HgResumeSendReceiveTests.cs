@@ -115,7 +115,7 @@ namespace LibChorus.IntegrationTests
 			return repo;
 		}
 
-		private static RepositoryAddress Address(string url) => RepositoryAddress.Create("hgresume", url);
+		private static RepositoryAddress Address(string url) => new HttpRepositoryPath("hgresume", url, false, HgTransportKind.Resumable);
 
 		private static string[] LocalRevisions(HgRepository repo) =>
 			repo.GetAllRevisions().Select(r => r.Number.Hash).ToArray();

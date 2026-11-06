@@ -367,7 +367,7 @@ namespace Chorus.VcsDrivers.Mercurial
 
 		private IHgTransport CreateTransportBetween(RepositoryAddress source, string targetUri)
 		{
-			if (source.IsResumable)
+			if (source.Transport == HgTransportKind.Resumable)
 			{
 				_progress.WriteVerbose("Initiating Resumable Transport");
 				return new HgResumeTransport(this, source.Name, new HgResumeRestApiServer(targetUri), _progress);
@@ -1378,12 +1378,39 @@ namespace Chorus.VcsDrivers.Mercurial
 		///<returns></returns>
 		public IEnumerable<RepositoryAddress> GetRepositoryPathsInHgrc()
 		{
-			var section = GetMercurialConfigForRepository().Sections.GetOrCreate("paths");
+			var doc = GetMercurialConfigForRepository();
+			var transport = GetTransport(doc);
+			var section = doc.Sections.GetOrCreate("paths");
 			foreach (var name in section.GetKeys())
 			{
 				var uri = section.GetValue(name);
-				yield return RepositoryAddress.Create(name, uri);
+				yield return RepositoryAddress.Create(name, uri, false, transport);
 			}
+		}
+
+		/// <summary>Chorus-specific settings for this repository. Mercurial ignores sections it doesn't know.</summary>
+		internal const string ChorusSection = "chorus";
+		internal const string TransportKey = "transport";
+
+		/// <summary>
+		/// The transport saved for this repository's HTTP address, or null if none has been saved
+		/// (in which case it is guessed from the URL).
+		/// </summary>
+		public HgTransportKind? GetTransport()
+		{
+			return GetTransport(GetMercurialConfigForRepository());
+		}
+
+		private static HgTransportKind? GetTransport(IniDocument doc)
+		{
+			return HgTransportKindExtensions.FromHgrcValue(doc.Sections[ChorusSection]?.GetValue(TransportKey));
+		}
+
+		public void SetTransport(HgTransportKind transport)
+		{
+			var doc = GetMercurialConfigForRepository();
+			doc.Sections.GetOrCreate(ChorusSection).Set(TransportKey, transport.ToHgrcValue());
+			doc.SaveAndGiveMessageIfCannot();
 		}
 
 

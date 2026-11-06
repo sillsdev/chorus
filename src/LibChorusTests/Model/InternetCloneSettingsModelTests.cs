@@ -1,8 +1,12 @@
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
+using SIL.Progress;
 using SIL.TestUtilities;
 using Chorus.Model;
 using Chorus.Utilities;
+using Chorus.VcsDrivers;
+using Chorus.VcsDrivers.Mercurial;
 
 namespace LibChorus.Tests.Model
 {
@@ -35,6 +39,32 @@ namespace LibChorus.Tests.Model
 				model.Password = "password";
 				model.ProjectId = "id";
 				Assert.AreEqual("https://hg-public.languageforge.org/id", model.URL.ToLower());
+			}
+		}
+
+		[Test]
+		public void SetRepositoryAddress_SavesTransportAndHostIndependently([Values] HgTransportKind transport)
+		{
+			using (var testFolder = new TemporaryFolder("cloneTest"))
+			using (new ShortTermEnvironmentalVariable(ServerSettingsModel.ServerEnvVar, null))
+			{
+				var model = new InternetCloneSettingsModel(testFolder.Path)
+				{
+					ProjectId = "tpi", LocalFolderName = "tpi", Bandwidth = new ServerSettingsModel.BandwidthItem(transport)
+				};
+				// SetRepositoryAddress runs after the clone, so the repository already exists
+				Directory.CreateDirectory(model.TargetDestination);
+				HgRepository.CreateOrUseExisting(model.TargetDestination, new NullProgress());
+
+				// SUT
+				Assert.True(model.SetRepositoryAddress());
+
+				var repo = HgRepository.CreateOrUseExisting(model.TargetDestination, new NullProgress());
+				Assert.AreEqual(transport, repo.GetTransport());
+				var address = repo.GetRepositoryPathsInHgrc().Single();
+				Assert.AreEqual("Lexbox", address.Name);
+				Assert.AreEqual("https://hg-public.languageforge.org/tpi", address.URI);
+				Assert.AreEqual(transport, address.Transport);
 			}
 		}
 

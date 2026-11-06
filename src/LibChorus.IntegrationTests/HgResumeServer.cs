@@ -53,12 +53,11 @@ namespace LibChorus.IntegrationTests
 		}
 
 		/// <summary>
-		/// Creates an empty repo on the server and returns its URL. The code contains "resumable" because
-		/// that's how Chorus decides to use the resumable transport.
+		/// Creates an empty repo on the server and returns its URL.
 		/// </summary>
 		public static string CreateRepo(out string code)
 		{
-			code = "chorus-resumable-" + Guid.NewGuid().ToString("N").Substring(0, 8);
+			code = "chorus-hgresume-" + Guid.NewGuid().ToString("N").Substring(0, 8);
 			Exec($"hg init {RepoRoot}/{code}");
 			return $"{BaseUrl}/{code}";
 		}

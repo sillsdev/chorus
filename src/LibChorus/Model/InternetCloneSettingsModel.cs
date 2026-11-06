@@ -97,11 +97,12 @@ namespace Chorus.Model
 				name = @"Lexbox";
 			}
 
-			var address = RepositoryAddress.Create(name, URL);
+			var address = RepositoryAddress.Create(name, URL, false, Transport);
 
 			//this will also remove the "default" one that hg puts in, which we don't really want.
 			repo.SetKnownRepositoryAddresses(new[] { address });
 			repo.SetIsOneDefaultSyncAddresses(address, true);
+			repo.SetTransport(Transport);
 			return true;
 		}
 

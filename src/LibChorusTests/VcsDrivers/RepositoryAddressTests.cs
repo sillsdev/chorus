@@ -181,6 +181,34 @@ namespace LibChorus.Tests.VcsDrivers
 			Assert.AreEqual(UrlWithCredentials, source.GetPotentialRepoUri("testing", null, null));
 		}
 
+		[TestCase(ResumableUrlFull, HgTransportKind.Resumable)]
+		[TestCase(UrlSansCredentials, HgTransportKind.HgWeb)]
+		public void Transport_NotGiven_GuessedFromUrl(string url, HgTransportKind expected)
+		{
+			Assert.AreEqual(expected, new HttpRepositoryPath("test", url, false).Transport);
+			Assert.AreEqual(expected, new HttpRepositoryPath("test", url, false, null).Transport);
+		}
+
+		[TestCase(ResumableUrlFull, HgTransportKind.HgWeb)]
+		[TestCase(UrlSansCredentials, HgTransportKind.Resumable)]
+		public void Transport_Given_OverridesUrl(string url, HgTransportKind transport)
+		{
+			var source = new HttpRepositoryPath("test", url, false, transport);
+			Assert.AreEqual(transport, source.Transport);
+			Assert.AreEqual(transport == HgTransportKind.Resumable, source.IsResumable);
+		}
+
+		[Test]
+		public void GetPotentialRepoUri_Resumable_DoesNotInsertCredentials()
+		{
+			using (new ServerSettingsModelTests.PasswordForSession("secret"))
+			{
+				Settings.Default.LanguageForgeUser = "joe";
+				var source = new HttpRepositoryPath("test", UrlSansCredentials, false, HgTransportKind.Resumable);
+				Assert.That(source.GetPotentialRepoUri("testing", null, null), Is.EqualTo(UrlSansCredentials));
+			}
+		}
+
 		[Test]
 		public void GetPotentialRepoUri_InsertsEscapedCredentials()
 		{

@@ -48,33 +48,31 @@ namespace Chorus.Model
 			public string Role { get; set; }
 		}
 
-		internal enum BandwidthEnum
-		{
-			Low, High
-		}
-
+		/// <summary>
+		/// A transport as offered to the user: hgweb is "High bandwidth", resumable is "Low bandwidth".
+		/// </summary>
 		public class BandwidthItem
 		{
-			internal BandwidthEnum Value { get; }
+			public HgTransportKind Transport { get; }
 
-			internal BandwidthItem(BandwidthEnum value)
+			internal BandwidthItem(HgTransportKind transport)
 			{
-				Value = value;
+				Transport = transport;
 			}
 
 			public override string ToString()
 			{
-				return $"{Value} bandwidth";
+				return Transport == HgTransportKind.Resumable ? "Low bandwidth" : "High bandwidth";
 			}
 
 			public override bool Equals(object other)
 			{
-				return (other as BandwidthItem)?.Value == Value;
+				return (other as BandwidthItem)?.Transport == Transport;
 			}
 
 			public override int GetHashCode()
 			{
-				return (int) Value;
+				return (int) Transport;
 			}
 		}
 
@@ -82,7 +80,7 @@ namespace Chorus.Model
 
 		static ServerSettingsModel()
 		{
-			Bandwidths = new[] {new BandwidthItem(BandwidthEnum.High), new BandwidthItem(BandwidthEnum.Low)};
+			Bandwidths = new[] {new BandwidthItem(HgTransportKind.HgWeb), new BandwidthItem(HgTransportKind.Resumable)};
 		}
 		#endregion static and constant
 
@@ -110,6 +108,8 @@ namespace Chorus.Model
 			if (address != null)
 			{
 				InitFromUri(address.URI);
+				// The address knows the transport saved in hgrc, which InitFromUri can only guess from the URL.
+				Bandwidth = new BandwidthItem(address.Transport);
 			}
 
 			//otherwise, just leave everything in the default state
@@ -125,12 +125,20 @@ namespace Chorus.Model
 			}
 			ProjectId = WebUtility.UrlDecode(UrlHelper.GetPathAfterHost(url));
 			HasLoggedIn = !string.IsNullOrEmpty(ProjectId);
-			Bandwidth = new BandwidthItem(RepositoryAddress.IsKnownResumableRepository(url) ? BandwidthEnum.Low : BandwidthEnum.High);
+			Bandwidth = new BandwidthItem(RepositoryAddress.GuessTransportFromUri(url));
 
 			const string languageDepot = "languagedepot.org";
 			if (url.Contains(languageDepot))
 			{
 				url = url.Replace(languageDepot, LanguageForge).Replace("http://", "https://");
+			}
+
+			// Lexbox used to need a separate host for the resumable transport. It now serves both transports from
+			// one host, so move legacy resumable URLs there; the transport is kept in Bandwidth (and saved separately).
+			var legacyResumableHost = $"resumable{LanguageForgeServer}";
+			if (UrlHelper.GetHost(url).Equals(legacyResumableHost))
+			{
+				url = url.Replace(legacyResumableHost, LexboxHost);
 			}
 			CustomUrl = UrlHelper.StripCredentialsAndQuery(url);
 			IsCustomUrl = !UrlHelper.GetHost(url).Equals(Host);
@@ -149,9 +157,9 @@ namespace Chorus.Model
 			}
 		}
 
-		protected internal string Host => IsCustomUrl
-			? UrlHelper.GetHost(CustomUrl)
-			: $"{(Bandwidth.Value == BandwidthEnum.Low ? "resumable" : IsPrivateServer ? "hg-private" : "hg-public")}{LanguageForgeServer}";
+		protected internal string Host => IsCustomUrl ? UrlHelper.GetHost(CustomUrl) : LexboxHost;
+
+		private static string LexboxHost => $"{(IsPrivateServer ? "hg-private" : "hg-public")}{LanguageForgeServer}";
 
 
 		public bool HaveGoodUrl
@@ -194,6 +202,11 @@ namespace Chorus.Model
 		public bool IsCustomUrl { get; set; }
 		public string CustomUrl { get; set; }
 		public BandwidthItem Bandwidth { get; set; } = Bandwidths[0];
+
+		/// <summary>
+		/// The transport to save with the repository address, for Lexbox and custom URLs alike.
+		/// </summary>
+		public HgTransportKind Transport => Bandwidth.Transport;
 		public string ProjectId { get; set; }
 		public List<string> AvailableProjects { get; private set; } = new List<string>();
 
@@ -268,13 +281,14 @@ namespace Chorus.Model
 
 			// Use safer SetTheOnlyAddressOfThisType method, as it won't clobber a shared network setting, if that was the clone source.
 			repo.SetTheOnlyAddressOfThisType(CreateRepositoryAddress(AliasName));
+			repo.SetTransport(Transport);
 
 			SaveUserSettings();
 		}
 
 		protected RepositoryAddress CreateRepositoryAddress(string name)
 		{
-			return new HttpRepositoryPath(name, URL, false);
+			return new HttpRepositoryPath(name, URL, false, Transport);
 		}
 
 		public void SaveUserSettings()
@@ -362,7 +376,7 @@ namespace Chorus.Model
 					return "custom";
 				}
 
-				return $"Lexbox [{Bandwidth}]";
+				return "Lexbox";
 			}
 		}
 

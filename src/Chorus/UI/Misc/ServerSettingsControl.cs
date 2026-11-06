@@ -38,7 +38,7 @@ namespace Chorus.UI.Misc
 			_buttonLogIn.Enabled = Model.CanLogIn;
 
 			_bandwidth.SelectedItem = Model.Bandwidth;
-			_bandwidthLabel.Visible = _bandwidth.Visible = !Model.IsCustomUrl && Model.HasLoggedIn;
+			_bandwidthLabel.Visible = _bandwidth.Visible = Model.IsCustomUrl || Model.HasLoggedIn;
 
 			_projectId.Text = Model.ProjectId;
 			_projectIdLabel.Visible = _projectId.Visible = !Model.IsCustomUrl && Model.HasLoggedIn;
