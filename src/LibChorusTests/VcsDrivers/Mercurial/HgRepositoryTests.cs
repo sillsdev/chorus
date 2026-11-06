@@ -176,5 +176,45 @@ namespace LibChorus.Tests.VcsDrivers.Mercurial
 				Assert.That(repo.GetRepositoryPathsInHgrc().Select(p => p.Name), Does.Contain(newAlias));
 			}
 		}
+
+		[Test]
+		public void GetTransport_NothingSaved_ReturnsNull()
+		{
+			using (var tempDir = new TemporaryFolder("HgRepoTransport"))
+			{
+				var repo = new HgRepository(tempDir.Path, _progress);
+				Directory.CreateDirectory(Path.GetDirectoryName(repo.GetPathToHgrc()));
+				Assert.That(repo.GetTransport(), Is.Null);
+			}
+		}
+
+		[Test]
+		public void SetTransport_WritesChorusSectionAndAppliesToHttpPaths([Values] HgTransportKind transport)
+		{
+			const string url = "https://hg-public.languageforge.org/tpi";
+			using (var tempDir = new TemporaryFolder("HgRepoTransport"))
+			{
+				var repo = new HgRepository(tempDir.Path, _progress);
+				Directory.CreateDirectory(Path.GetDirectoryName(repo.GetPathToHgrc()));
+				repo.SetKnownRepositoryAddresses(new RepositoryAddress[]
+				{
+					new HttpRepositoryPath("Lexbox", url, false),
+					new DirectoryRepositorySource("shared", tempDir.Combine("shared"), false)
+				});
+
+				// SUT
+				repo.SetTransport(transport);
+
+				Assert.AreEqual(transport, repo.GetTransport());
+				var hgrc = File.ReadAllText(repo.GetPathToHgrc());
+				Assert.That(hgrc, Does.Contain("[chorus]"));
+				Assert.That(hgrc, Does.Contain(transport == HgTransportKind.Resumable ? "transport = resumable" : "transport = hgweb"));
+				var paths = repo.GetRepositoryPathsInHgrc().ToList();
+				Assert.That(paths.Select(p => p.Name), Is.EquivalentTo(new[] { "Lexbox", "shared" }), "[chorus] must not leak into [paths]");
+				var http = paths.OfType<HttpRepositoryPath>().Single();
+				Assert.AreEqual(url, http.URI);
+				Assert.AreEqual(transport, http.Transport);
+			}
+		}
 	}
 }
